@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+/* ──────────────────────────────────────────────────────────────────
+   Variant D — Hybrid: editorial almanack with comic-burst moments
+
+   Theme tokens following Tailwind v4 CSS-first config. Used throughout
+   the app via Tailwind utilities and ad-hoc style declarations.
+   ────────────────────────────────────────────────────────────────── */
+
+@theme {
+  /* Marvel red, two intensities */
+  --color-marvel-impact: #ED1D24;
+  --color-marvel-editorial: #C8202C;
+
+  /* Cream paper — three steps from darkest (page bg) to lightest (hover lift).
+     paper-soft is intentionally near-white with a cream tint — the contrast
+     against paper-card needs to register as a clear "this is selected" state. */
+  --color-paper: #f1e8d6;
+  --color-paper-card: #f4ecdb;
+  --color-paper-soft: #fcf8ec;
+
+  /* Burst-only accents */
+  --color-burst-yellow: #FFD400;
+
+  /* Editorial palette */
+  --color-ink: #1a1714;
+  --color-ink-soft: #4a3f33;
+  --color-rule: #d4c5ab;
+
+  /* Typography — next/font injects --font-* CSS variables; we point our
+     semantic names at them. Generic fallback chain in case fonts fail to load. */
+  --font-display: var(--font-fraunces), "Fraunces", "Georgia", serif;
+  --font-body: var(--font-libre-franklin), "Libre Franklin", "Inter", system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), "JetBrains Mono", "SF Mono", "Consolas", monospace;
+  --font-burst: var(--font-bungee), "Bungee", "Impact", sans-serif;
+}
+
+/* Base styles */
+html, body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Editorial heading style — used sparingly */
+.editorial-heading {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* Burst — strictly the moment of impact (prestige delta on top recommendation) */
+.burst {
+  font-family: var(--font-burst);
+  color: var(--color-marvel-impact);
+}
+
+/* Numeric display — for BHRs, deltas, etc. in the roster table */
+.numeric {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}

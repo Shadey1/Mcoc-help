@@ -1,0 +1,35 @@
+{
+  "_comment": "Universal multipliers and rank-default sig curves. All values empirically locked in Phase 0 per architecture-v5.md §16.",
+  "ranks": {
+    "5": 1.0000,
+    "4": 0.8431,
+    "3": 0.6906,
+    "2": null,
+    "1": null
+  },
+  "_ranks_provenance": {
+    "5": "Definition",
+    "4": "Maestro, Nova, Deadpool, IIM cross-confirmed against MCOCHUB",
+    "3": "Onslaught (28024/40580=0.6906), Silver Surfer (27865/40320=0.6911), QuickSilver (27810/40260=0.6907) from auntm.ai",
+    "2": "Out of scope — R2 cannot reach top-30 prestige",
+    "1": "Out of scope — R1 cannot reach top-30 prestige"
+  },
+  "ascension": {
+    "A0": 1.00,
+    "A1": 1.08,
+    "A2": 1.16
+  },
+  "_ascension_provenance": {
+    "A0": "Definition",
+    "A1": "IIM (36780/40390/0.8431=1.080), Pavitr A1 cross-confirmed",
+    "A2": "Lizard (46120/39760=1.160), Patriot, Maestro all confirmed"
+  },
+  "sigCurves": {
+    "_anchors_sig": [0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200],
+    "_anchors_normalised": "Each curve is normalised fraction-of-distance-from-sig0-to-sig200 at each anchor.",
+    "rank5_default": [0.00, 0.24, 0.31, 0.47, 0.56, 0.65, 0.73, 0.80, 0.87, 0.94, 1.00],
+    "rank4_default": [0.00, 0.24, 0.33, 0.47, 0.56, 0.64, 0.72, 0.80, 0.87, 0.94, 1.00],
+    "_rank4_note": "R4 curve geometrically interpolated between R3 and R5 — refine with auntm.ai R4 page when available.",
+    "rank3_default": [0.00, 0.24, 0.36, 0.46, 0.56, 0.64, 0.72, 0.80, 0.87, 0.94, 1.00]
+  }
+}

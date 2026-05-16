@@ -1,0 +1,42 @@
+{
+  "_meta": {
+    "summoner": "mu3rto",
+    "capturedAt": "2026-05-06",
+    "expectedChampionPrestige": 36120,
+    "expectedRelicPrestige": 2290,
+    "expectedTotalPrestige": 38410,
+    "source": "in-game prestige page screenshots"
+  },
+  "roster": [
+    { "championId": "lizard",                       "rank": 5, "sig": 200, "ascension": "A2", "observedBHR": 46120 },
+    { "championId": "patriot",                      "rank": 5, "sig": 200, "ascension": "A2", "observedBHR": 45770 },
+    { "championId": "high-evolutionary",            "rank": 5, "sig": 200, "ascension": "A0", "observedBHR": 40600 },
+    { "championId": "maestro",                      "rank": 4, "sig": 200, "ascension": "A2", "observedBHR": 38550 },
+    { "championId": "nova",                         "rank": 4, "sig": 200, "ascension": "A2", "observedBHR": 38500 },
+    { "championId": "deadpool",                     "rank": 4, "sig": 200, "ascension": "A2", "observedBHR": 37140 },
+    { "championId": "iron-man-infamous",            "rank": 4, "sig": 200, "ascension": "A1", "observedBHR": 36780 },
+    { "championId": "spider-man-pavitr-prabhakar",  "rank": 4, "sig": 200, "ascension": "A1", "observedBHR": 36690 },
+    { "championId": "dani-moonstar",                "rank": 4, "sig": 200, "ascension": "A1", "observedBHR": 36660 },
+    { "championId": "star-lord-stellar-forged",     "rank": 4, "sig": 200, "ascension": "A1", "observedBHR": 36140 },
+    { "championId": "arcade",                       "rank": 4, "sig": 200, "ascension": "A1", "observedBHR": 36080 },
+    { "championId": "spiral",                       "rank": 4, "sig": 200, "ascension": "A1", "observedBHR": 35910 },
+    { "championId": "gorr",                         "rank": 4, "sig": 200, "ascension": "A1", "observedBHR": 35880 },
+    { "championId": "abomination-immortal",         "rank": 4, "sig": 200, "ascension": "A1", "observedBHR": 35880 },
+    { "championId": "mister-negative",              "rank": 4, "sig": 200, "ascension": "A1", "observedBHR": 35860 },
+    { "championId": "mojo",                         "rank": 4, "sig": 200, "ascension": "A1", "observedBHR": 35740 },
+    { "championId": "corvus-glaive",                "rank": 4, "sig": 200, "ascension": "A1", "observedBHR": 35340 },
+    { "championId": "yelena-belova",                "rank": 4, "sig": 200, "ascension": "A0", "observedBHR": 34210 },
+    { "championId": "onslaught",                    "rank": 4, "sig": 200, "ascension": "A0", "observedBHR": 34210 },
+    { "championId": "dark-phoenix",                 "rank": 4, "sig": 200, "ascension": "A0", "observedBHR": 34040 },
+    { "championId": "shathra",                      "rank": 4, "sig": 200, "ascension": "A0", "observedBHR": 34030 },
+    { "championId": "silver-surfer",                "rank": 4, "sig": 200, "ascension": "A0", "observedBHR": 34020 },
+    { "championId": "quicksilver",                  "rank": 4, "sig": 200, "ascension": "A0", "observedBHR": 33950 },
+    { "championId": "baron-zemo",                   "rank": 4, "sig": 200, "ascension": "A0", "observedBHR": 33850 },
+    { "championId": "okoye",                        "rank": 4, "sig": 200, "ascension": "A0", "observedBHR": 33780 },
+    { "championId": "the-serpent",                  "rank": 4, "sig": 200, "ascension": "A0", "observedBHR": 33680 },
+    { "championId": "photon",                       "rank": 4, "sig": 200, "ascension": "A0", "observedBHR": 33670 },
+    { "championId": "spider-punk",                  "rank": 4, "sig": 200, "ascension": "A0", "observedBHR": 33540 },
+    { "championId": "prowler",                      "rank": 4, "sig": 200, "ascension": "A0", "observedBHR": 33520 },
+    { "championId": "imperiosa",                    "rank": 4, "sig": 200, "ascension": "A0", "observedBHR": 33470 }
+  ]
+}
