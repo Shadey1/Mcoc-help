@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import Link from 'next/link';
 import { Fraunces, Libre_Franklin, JetBrains_Mono, Bungee } from 'next/font/google';
 import './globals.css';
@@ -37,6 +37,14 @@ export const metadata: Metadata = {
     'Roster-aware prestige optimisation for Marvel Contest of Champions. Free, fast, no signup.',
 };
 
+// Without an explicit viewport meta, mobile browsers render the page at
+// the default 980px CSS width and scale to fit, which breaks the
+// responsive layout and lets users pinch-zoom into a broken view.
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+};
+
 export default function RootLayout({
   children,
 }: {
@@ -49,14 +57,14 @@ export default function RootLayout({
     >
       <body className="min-h-screen flex flex-col">
         <header className="border-b border-[var(--color-rule)] bg-[var(--color-paper-soft)]">
-          <nav className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex flex-col sm:flex-row items-center gap-2 sm:gap-0 sm:justify-between">
+          <nav className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex flex-col sm:flex-row items-center gap-3 sm:gap-0 sm:justify-between">
             <Link
               href="/"
               className="editorial-heading text-xl text-[var(--color-marvel-editorial)]"
             >
               mcoc.help
             </Link>
-            <nav className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex flex-col sm:flex-row items-center gap-2 sm:gap-0 sm:justify-between">
+            <ul className="flex gap-4 sm:gap-6 text-sm font-medium whitespace-nowrap overflow-x-auto max-w-full -mx-4 px-4 sm:mx-0 sm:px-0 sm:overflow-visible">
               <li>
                 <Link
                   href="/"

@@ -6,12 +6,17 @@ import {
   calculateBHR,
   calculateChampionPrestige,
   type Champion,
+  type ChampionClass,
   type ChampionState,
 } from '@prestige-tools/engine';
 import { ChampionPortrait } from './champion-portrait';
 import { formatBHR } from '../lib/format';
 
 type SortMode = 'bhr' | 'name' | 'class';
+type Rank = 3 | 4 | 5;
+
+const ALL_CLASSES: ChampionClass[] = ['Cosmic', 'Mutant', 'Mystic', 'Science', 'Skill', 'Tech'];
+const ALL_RANKS: Rank[] = [5, 4, 3];
 
 type SharedRosterViewProps = {
   champions: Champion[];
@@ -35,6 +40,33 @@ export function SharedRosterView({
   onImport,
 }: SharedRosterViewProps) {
   const [sortMode, setSortMode] = useState<SortMode>('bhr');
+  // Class/rank filter sets. Empty set = "no filter active for this dimension",
+  // which means show everything. Click a chip to add to the set; click again
+  // to remove. Filters compose with AND across dimensions, OR within.
+  const [classFilter, setClassFilter] = useState<Set<ChampionClass>>(new Set());
+  const [rankFilter, setRankFilter] = useState<Set<Rank>>(new Set());
+
+  function toggleClass(c: ChampionClass) {
+    setClassFilter((prev) => {
+      const next = new Set(prev);
+      if (next.has(c)) next.delete(c);
+      else next.add(c);
+      return next;
+    });
+  }
+  function toggleRank(r: Rank) {
+    setRankFilter((prev) => {
+      const next = new Set(prev);
+      if (next.has(r)) next.delete(r);
+      else next.add(r);
+      return next;
+    });
+  }
+  function clearFilters() {
+    setClassFilter(new Set());
+    setRankFilter(new Set());
+  }
+  const hasActiveFilters = classFilter.size > 0 || rankFilter.size > 0;
 
   const championLookup = useMemo(() => {
     const map = new Map<string, Champion>();
@@ -58,8 +90,9 @@ export function SharedRosterView({
       .sort((a, b) => b.bhr - a.bhr);
   }, [roster, championLookup]);
 
-  // Display rows — same data, resorted per sortMode
-  const rows = useMemo(() => {
+  // Sorted rows — used for cutoff math (always BHR-sorted, unfiltered).
+  // Display rows — sorted by sortMode AND filtered by class/rank.
+  const sortedRows = useMemo(() => {
     const list = [...bhrSortedRows];
     switch (sortMode) {
       case 'bhr':
@@ -68,8 +101,10 @@ export function SharedRosterView({
         return list.sort((a, b) => a.champion.name.localeCompare(b.champion.name));
       case 'class':
         // Class A→Z, then rank desc, then name A→Z within rank.
-        // Useful for AW planning — group by class to scan availability,
-        // strongest rank first, alphabetical within a rank tier.
+        // Useful for AW planning where defenses are class-restricted —
+        // group by class so you can scan availability, then rank desc so
+        // your strongest options come first, then alphabetical name within
+        // a rank tier so champions are predictably ordered.
         return list.sort((a, b) => {
           const cls = a.champion.class.localeCompare(b.champion.class);
           if (cls !== 0) return cls;
@@ -78,6 +113,18 @@ export function SharedRosterView({
         });
     }
   }, [bhrSortedRows, sortMode]);
+
+  const rows = useMemo(() => {
+    // Filter only the displayed rows. Top-30 cutoff / prestige math stays
+    // calculated from the full roster — filtering is a viewing affordance,
+    // not a roster mutation.
+    if (classFilter.size === 0 && rankFilter.size === 0) return sortedRows;
+    return sortedRows.filter((r) => {
+      if (classFilter.size > 0 && !classFilter.has(r.champion.class)) return false;
+      if (rankFilter.size > 0 && !rankFilter.has(r.state.rank as Rank)) return false;
+      return true;
+    });
+  }, [sortedRows, classFilter, rankFilter]);
 
   const prestige = useMemo(
     () => calculateChampionPrestige(roster, championLookup),
@@ -141,6 +188,51 @@ export function SharedRosterView({
         >
           Import this roster →
         </button>
+      </section>
+
+      <section className="space-y-2 text-sm">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs uppercase tracking-wide text-[var(--color-ink-soft)] w-14">
+            Class
+          </span>
+          {ALL_CLASSES.map((c) => (
+            <FilterChip
+              key={c}
+              active={classFilter.has(c)}
+              onClick={() => toggleClass(c)}
+            >
+              {c}
+            </FilterChip>
+          ))}
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs uppercase tracking-wide text-[var(--color-ink-soft)] w-14">
+            Rank
+          </span>
+          {ALL_RANKS.map((r) => (
+            <FilterChip
+              key={r}
+              active={rankFilter.has(r)}
+              onClick={() => toggleRank(r)}
+            >
+              R{r}
+            </FilterChip>
+          ))}
+          {hasActiveFilters && (
+            <button
+              type="button"
+              onClick={clearFilters}
+              className="ml-2 text-xs text-[var(--color-ink-soft)] underline hover:text-[var(--color-marvel-editorial)]"
+            >
+              clear filters
+            </button>
+          )}
+        </div>
+        {hasActiveFilters && rows.length !== bhrSortedRows.length && (
+          <div className="text-xs text-[var(--color-ink-soft)]">
+            Showing {rows.length} of {bhrSortedRows.length} champions
+          </div>
+        )}
       </section>
 
       <section className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-1.5">
@@ -214,6 +306,30 @@ function SortButton({
         active
           ? 'bg-[var(--color-paper-card)] border border-[var(--color-ink-soft)]'
           : 'text-[var(--color-ink-soft)] hover:bg-[var(--color-paper-card)]'
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
+
+function FilterChip({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`px-2.5 py-1 rounded-full text-xs font-medium border transition-colors ${
+        active
+          ? 'bg-[var(--color-marvel-editorial)] text-[var(--color-paper)] border-[var(--color-marvel-editorial)]'
+          : 'border-[var(--color-rule)] text-[var(--color-ink-soft)] hover:border-[var(--color-ink-soft)] hover:text-[var(--color-ink)]'
       }`}
     >
       {children}
