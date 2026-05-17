@@ -49,14 +49,14 @@ export default function RootLayout({
     >
       <body className="min-h-screen flex flex-col">
         <header className="border-b border-[var(--color-rule)] bg-[var(--color-paper-soft)]">
-          <nav className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+          <nav className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex flex-col sm:flex-row items-center gap-2 sm:gap-0 sm:justify-between">
             <Link
               href="/"
               className="editorial-heading text-xl text-[var(--color-marvel-editorial)]"
             >
               mcoc.help
             </Link>
-            <ul className="flex gap-6 text-sm font-medium">
+            <nav className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex flex-col sm:flex-row items-center gap-2 sm:gap-0 sm:justify-between">
               <li>
                 <Link
                   href="/"

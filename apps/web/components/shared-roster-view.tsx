@@ -67,14 +67,14 @@ export function SharedRosterView({
       case 'name':
         return list.sort((a, b) => a.champion.name.localeCompare(b.champion.name));
       case 'class':
-        // Class A→Z, then rank desc, then sig desc, then BHR desc within each tier.
-        // Useful for AW planning where defenses are class-restricted.
+        // Class A→Z, then rank desc, then name A→Z within rank.
+        // Useful for AW planning — group by class to scan availability,
+        // strongest rank first, alphabetical within a rank tier.
         return list.sort((a, b) => {
           const cls = a.champion.class.localeCompare(b.champion.class);
           if (cls !== 0) return cls;
           if (a.state.rank !== b.state.rank) return b.state.rank - a.state.rank;
-          if (a.state.sig !== b.state.sig) return b.state.sig - a.state.sig;
-          return b.bhr - a.bhr;
+          return a.champion.name.localeCompare(b.champion.name);
         });
     }
   }, [bhrSortedRows, sortMode]);
