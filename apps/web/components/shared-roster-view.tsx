@@ -235,7 +235,7 @@ export function SharedRosterView({
         )}
       </section>
 
-      <section className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-1.5">
+      <section className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-7 lg:grid-cols-9 xl:grid-cols-10 gap-1.5">
         {rows.map(({ state, champion, bhr }, idx) => (
           <Link
             key={`${state.championId}-${idx}`}

@@ -64,7 +64,7 @@ export default function RootLayout({
             >
               mcoc.help
             </Link>
-            <ul className="flex gap-4 sm:gap-6 text-sm font-medium whitespace-nowrap overflow-x-auto max-w-full -mx-4 px-4 sm:mx-0 sm:px-0 sm:overflow-visible">
+            <ul className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-sm font-medium sm:flex-nowrap sm:justify-end sm:gap-x-6">
               <li>
                 <Link
                   href="/"
