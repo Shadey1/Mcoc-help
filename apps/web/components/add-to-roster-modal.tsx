@@ -31,6 +31,8 @@ export function AddToRosterModal({ champion, onAdd, onClose }: AddToRosterModalP
       rank,
       sig,
       ascension,
+      stateConfirmed: true,
+      addedVia: 'manual',
     });
     // Reset for the next time the modal opens with a different champion
     setRank(4);

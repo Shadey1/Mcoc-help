@@ -34,19 +34,27 @@ function demoStateFor(c: Champion): ChampionState {
   }
   const pct = hash % 100;
 
-  if (pct < 15 && c.ascendable) {
-    return { championId: c.id, rank: 5, sig: 200, ascension: 'A2' };
-  }
-  if (pct < 40 && c.ascendable) {
-    return { championId: c.id, rank: 5, sig: 200, ascension: 'A1' };
-  }
-  if (pct < 65) {
-    return { championId: c.id, rank: 5, sig: 200, ascension: 'A0' };
-  }
-  if (pct < 85) {
-    return { championId: c.id, rank: 4, sig: 200, ascension: 'A0' };
-  }
-  return { championId: c.id, rank: 3, sig: 200, ascension: 'A0' };
+  // Helper: every demo entry is synthetic but presents as user-confirmed
+  // manual entry. Provenance is honestly 'manual' since the entries are
+  // hand-coded here, even if the values are mechanically derived.
+  const make = (
+    rank: 3 | 4 | 5,
+    sig: number,
+    ascension: 'A0' | 'A1' | 'A2',
+  ): ChampionState => ({
+    championId: c.id,
+    rank,
+    sig,
+    ascension,
+    stateConfirmed: true,
+    addedVia: 'manual',
+  });
+
+  if (pct < 15 && c.ascendable) return make(5, 200, 'A2');
+  if (pct < 40 && c.ascendable) return make(5, 200, 'A1');
+  if (pct < 65) return make(5, 200, 'A0');
+  if (pct < 85) return make(4, 200, 'A0');
+  return make(3, 200, 'A0');
 }
 
 /**
