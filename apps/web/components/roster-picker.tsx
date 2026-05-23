@@ -54,6 +54,8 @@ export function RosterPicker({ champions, ownedIds, onAdd }: RosterPickerProps) 
       rank,
       sig,
       ascension,
+      stateConfirmed: true,
+      addedVia: 'manual',
     });
     // Reset for next add
     setSelected(null);

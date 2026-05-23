@@ -89,6 +89,26 @@ export const ChampionState = z.object({
   rank: Rank,
   sig: z.number().int().min(0).max(200),
   ascension: Ascension,
+  /**
+   * Whether the rank/sig/ascension values reflect the player's actual state.
+   *
+   *   - `true` (default for legacy entries): user supplied these values, either
+   *     by typing them in via picker/bulk-paste or by confirming a screenshot
+   *     import. The engine includes the champion in atomic-move recommendations.
+   *   - `false`: the champion's identity is known but state is the floor
+   *     default (R3 sig 0 A0). Surfaced in ceiling view but excluded from
+   *     atomic-move recommendations, since precise state matters for those.
+   *
+   * Optional + defaulting to true so legacy rosters migrate without
+   * touching every entry.
+   */
+  stateConfirmed: z.boolean().optional().default(true),
+  /**
+   * Provenance of the entry. Drives roster-table affordances (badges, filters)
+   * but doesn't affect engine math. Optional + defaulting to 'manual' so
+   * legacy rosters migrate without touching every entry.
+   */
+  addedVia: z.enum(['screenshot', 'tickbox', 'manual']).optional().default('manual'),
 });
 export type ChampionState = z.infer<typeof ChampionState>;
 

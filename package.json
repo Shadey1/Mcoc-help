@@ -1,6 +1,6 @@
 {
   "name": "prestige-tools",
-  "version": "0.12.2",
+  "version": "0.15.0",
   "private": true,
   "description": "MCOC prestige optimisation tools — Phase 1 web app",
   "scripts": {
@@ -9,6 +9,7 @@
     "test": "pnpm -F @prestige-tools/engine test",
     "seed": "tsx scripts/seed-from-mcochub.ts",
     "scrape-portraits": "tsx scripts/scrape-fandom-portraits.ts",
+    "refresh-classes": "tsx scripts/refresh-classes-from-fandom.ts",
     "lint": "pnpm -F web lint"
   },
   "devDependencies": {

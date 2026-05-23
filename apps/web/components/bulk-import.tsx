@@ -103,6 +103,8 @@ export function BulkImport({ champions, onImport }: BulkImportProps) {
       rank: r.rank,
       sig: r.sig,
       ascension: r.selected!.ascendable ? r.ascension : 'A0',
+      stateConfirmed: true,
+      addedVia: 'manual',
     }));
     onImport(states);
     setText('');

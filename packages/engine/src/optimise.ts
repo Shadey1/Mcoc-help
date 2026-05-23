@@ -28,6 +28,13 @@ export function enumerateMoves(
   const moves: AtomicMove[] = [];
 
   for (const state of roster) {
+    // v0.15.0: skip identity-only entries. The user hasn't confirmed actual
+    // rank/sig/ascension for these — they're at the floor default — so any
+    // atomic move we generate would be against placeholder data and probably
+    // misleading. They still appear in the ceiling view; that's where the
+    // long tail belongs.
+    if (state.stateConfirmed === false) continue;
+
     const champion = championLookup.get(state.championId);
     if (!champion) continue;
 

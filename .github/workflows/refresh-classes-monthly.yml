@@ -1,0 +1,96 @@
+name: refresh-classes-monthly
+
+# Hits the Fandom wiki MediaWiki API once a month, refreshes champion classes
+# in data/champions/seed.json, opens a PR if anything moved. Manual reviewer
+# (you) merges or rejects.
+#
+# Why monthly: new champions ship every 2-3 weeks; class for existing
+# champions rarely changes. Monthly catches both drift and new-champion class
+# fixes without notification spam.
+#
+# Why a PR, not a direct push: Fandom is community-maintained. Vandalism
+# happens. A PR keeps you in the loop — you review the diff on your phone,
+# merge if it looks right, close if it looks wrong. Two seconds of attention
+# per month for ground-truth correctness.
+#
+# Manual trigger: `workflow_dispatch` is set so you can also kick this off
+# from the Actions tab whenever a new champion drops, without waiting for the
+# scheduled run.
+
+on:
+  schedule:
+    # First Monday of every month at 03:00 UTC.
+    # cron: 'minute hour day-of-month month day-of-week'
+    # day-of-month 1-7 + day-of-week 1 = the Monday that falls in the first
+    # week of the month.
+    - cron: '0 3 1-7 * 1'
+  workflow_dispatch:
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build engine (refresh script depends on engine types)
+        run: pnpm -F @prestige-tools/engine build
+
+      - name: Refresh classes from Fandom wiki
+        run: pnpm refresh-classes -- --refresh-apply
+
+      - name: Open PR if seed changed
+        id: pr
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: 'chore(data): refresh champion classes from Fandom wiki'
+          title: 'Monthly class refresh — Fandom wiki'
+          body: |
+            **Automated class refresh** from the Marvel Contest of Champions Fandom wiki.
+
+            Pulled via MediaWiki API (CC-BY-SA), parsed the `{{ChampionInfoBox}}`
+            template's `|class=` field for every champion in `seed.json`,
+            diffed against committed values, applied the surviving corrections.
+
+            ## Review checklist
+
+            - [ ] Scan `data/champions/seed.json` diff — are the new classes correct?
+            - [ ] Scan `scripts/class-corrections.json` — anything in `issues[]` that needs manual attention (no-page-found, unrecognised-class)?
+            - [ ] If anything looks wrong, close this PR and edit `scripts/class-corrections.json` manually, then run `pnpm refresh-classes -- --apply` locally.
+
+            Run triggered by: ${{ github.event_name }} (${{ github.run_id }})
+          branch: refresh-classes/${{ github.run_number }}
+          delete-branch: true
+          add-paths: |
+            data/champions/seed.json
+            scripts/class-corrections.json
+          labels: |
+            data
+            automated
+
+      - name: Log PR result
+        if: steps.pr.outputs.pull-request-number
+        run: |
+          echo "Opened PR #${{ steps.pr.outputs.pull-request-number }}"
+          echo "URL: ${{ steps.pr.outputs.pull-request-url }}"
+
+      - name: No changes
+        if: ${{ ! steps.pr.outputs.pull-request-number }}
+        run: echo "Fandom classes match seed.json — no PR needed."

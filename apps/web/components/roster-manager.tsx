@@ -13,6 +13,7 @@ import { loadRoster, saveRoster } from '../lib/roster-storage';
 import { formatBHR, formatDelta } from '../lib/format';
 import { RosterPicker } from './roster-picker';
 import { BulkImport } from './bulk-import';
+import { ChampionTickboxGrid } from './champion-tickbox-grid';
 import { ShareModal } from './share-modal';
 import { ChampionPortrait } from './champion-portrait';
 
@@ -20,7 +21,14 @@ type RosterManagerProps = {
   champions: Champion[];
 };
 
-type AddMode = 'picker' | 'bulk';
+// Screenshot import (auto-identify) is shelved pending the autocomplete-per-card
+// rebuild planned for v0.16.0 — see CHANGELOG-v0.15.0.md "Screenshot import
+// status". The OCR pipeline code under apps/web/lib/ocr and the components
+// screenshot-import.tsx + confirmation-grid.tsx are kept in-tree as dormant
+// infrastructure so the rebuild is a UI-wiring exercise, not a from-scratch
+// task. To re-enable: re-add the screenshot mode + tab + rendering block.
+
+type AddMode = 'picker' | 'tickbox' | 'bulk';
 
 type SortColumn = 'name' | 'class' | 'currentBHR' | 'ceilingBHR' | 'headroomBHR' | 'prestigeDeltaIfMaxed' | 'inTop30';
 type SortDirection = 'asc' | 'desc';
@@ -40,6 +48,7 @@ export function RosterManager({ champions }: RosterManagerProps) {
   const [shareOpen, setShareOpen] = useState(false);
   const [sortColumn, setSortColumn] = useState<SortColumn>('currentBHR');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+  const [unconfirmedOnly, setUnconfirmedOnly] = useState(false);
 
   // Load on mount
   useEffect(() => {
@@ -125,10 +134,24 @@ export function RosterManager({ champions }: RosterManagerProps) {
     }
   });
 
+  // Map championId → state for fast lookup
+  const stateByChampion = new Map(validRoster.champions.map((s) => [s.championId, s]));
+
+  // Count champions whose state isn't user-confirmed — these were added via
+  // the tickbox grid (identity-only) and sit at the R3/0/A0 floor default.
+  const unconfirmedCount = validRoster.champions.filter(
+    (s) => s.stateConfirmed === false,
+  ).length;
+
+  // Apply the unconfirmed-only filter if active
+  const displayedCeilings = unconfirmedOnly
+    ? sortedCeilings.filter((e) => stateByChampion.get(e.championId)?.stateConfirmed === false)
+    : sortedCeilings;
+
   return (
     <div className="space-y-8">
       <section className="bg-[var(--color-paper-soft)] border border-[var(--color-rule)] rounded-lg p-6 space-y-4">
-        <div className="flex gap-1 bg-[var(--color-paper)] rounded-md p-1 border border-[var(--color-rule)] text-sm w-fit">
+        <div className="flex gap-1 bg-[var(--color-paper)] rounded-md p-1 border border-[var(--color-rule)] text-sm w-fit flex-wrap">
           <button
             type="button"
             onClick={() => setAddMode('picker')}
@@ -139,6 +162,17 @@ export function RosterManager({ champions }: RosterManagerProps) {
             }`}
           >
             Add one
+          </button>
+          <button
+            type="button"
+            onClick={() => setAddMode('tickbox')}
+            className={`px-3 py-1 rounded transition-colors ${
+              addMode === 'tickbox'
+                ? 'bg-[var(--color-paper-soft)] font-medium'
+                : 'text-[var(--color-ink-soft)] hover:text-[var(--color-ink)]'
+            }`}
+          >
+            Tick everyone you own
           </button>
           <button
             type="button"
@@ -153,16 +187,24 @@ export function RosterManager({ champions }: RosterManagerProps) {
           </button>
         </div>
 
-        {addMode === 'picker' ? (
+        {addMode === 'picker' && (
           <RosterPicker champions={champions} ownedIds={ownedIds} onAdd={handleAdd} />
-        ) : (
+        )}
+        {addMode === 'tickbox' && (
+          <ChampionTickboxGrid
+            champions={champions}
+            ownedIds={ownedIds}
+            onAdd={handleBulkImport}
+          />
+        )}
+        {addMode === 'bulk' && (
           <BulkImport champions={champions} onImport={handleBulkImport} />
         )}
       </section>
 
       {hydrated && roster.champions.length > 0 && (
         <>
-          <section className="flex items-center justify-between">
+          <section className="flex items-center justify-between flex-wrap gap-3">
             <h2 className="editorial-heading text-xl">
               Your roster
               <span className="text-base font-normal text-[var(--color-ink-soft)] ml-2">
@@ -187,6 +229,25 @@ export function RosterManager({ champions }: RosterManagerProps) {
               </button>
             </div>
           </section>
+
+          {unconfirmedCount > 0 && (
+            <section className="border border-[var(--color-rule)] rounded bg-[var(--color-paper-soft)] px-4 py-3 flex items-center justify-between flex-wrap gap-2 text-sm">
+              <span>
+                <strong>{unconfirmedCount}</strong>{' '}
+                {unconfirmedCount === 1 ? 'champion has' : 'champions have'}{' '}
+                identity confirmed but no rank/sig set yet — they&apos;re sitting
+                at R3 sig 0 A0 and are excluded from atomic-move
+                recommendations until you confirm state.
+              </span>
+              <button
+                type="button"
+                onClick={() => setUnconfirmedOnly((v) => !v)}
+                className="text-xs text-[var(--color-marvel-impact)] hover:underline font-medium whitespace-nowrap"
+              >
+                {unconfirmedOnly ? 'Show all' : `Review the ${unconfirmedCount} →`}
+              </button>
+            </section>
+          )}
 
           <section className="overflow-x-auto border border-[var(--color-rule)] rounded">
             <table className="w-full text-sm">
@@ -253,14 +314,18 @@ export function RosterManager({ champions }: RosterManagerProps) {
                 </tr>
               </thead>
               <tbody>
-                {sortedCeilings.map((entry) => {
-                  const state = validRoster.champions.find(
-                    (s) => s.championId === entry.championId,
-                  );
+                {displayedCeilings.map((entry) => {
+                  const state = stateByChampion.get(entry.championId);
                   if (!state) return null;
                   const champion = championLookup.get(entry.championId);
+                  const isUnconfirmed = state.stateConfirmed === false;
                   return (
-                    <tr key={entry.championId} className="border-t border-[var(--color-rule)] hover:bg-[var(--color-paper-soft)]">
+                    <tr
+                      key={entry.championId}
+                      className={`border-t border-[var(--color-rule)] hover:bg-[var(--color-paper-soft)] ${
+                        isUnconfirmed ? 'bg-[var(--color-paper-soft)]/40' : ''
+                      }`}
+                    >
                       <td className="p-2">
                         <Link
                           href={`/champions/${entry.championId}/`}
@@ -281,7 +346,16 @@ export function RosterManager({ champions }: RosterManagerProps) {
                       </td>
                       <td className="p-3 text-[var(--color-ink-soft)]">{entry.championClass}</td>
                       <td className="p-3 text-center text-xs numeric">
-                        R{state.rank} sig {state.sig} {state.ascension}
+                        {isUnconfirmed ? (
+                          <span
+                            className="text-[var(--color-ink-soft)] italic"
+                            title="Identity confirmed but rank/sig not set yet — defaults to floor (R3 sig 0 A0)"
+                          >
+                            unconfirmed
+                          </span>
+                        ) : (
+                          <>R{state.rank} sig {state.sig} {state.ascension}</>
+                        )}
                       </td>
                       <td className="p-3 text-right numeric">{formatBHR(entry.currentBHR)}</td>
                       <td className="p-3 text-right numeric">{formatBHR(entry.ceilingBHR)}</td>
