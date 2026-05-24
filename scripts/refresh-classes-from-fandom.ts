@@ -49,6 +49,7 @@ const API_ENDPOINT = 'https://marvel-contestofchampions.fandom.com/api.php';
 const USER_AGENT =
   'mcoc.help class refresher (free MCOC tool; contact via mcoc.help)';
 const RATE_LIMIT_MS = 1000;
+const FETCH_TIMEOUT_MS = 10000;
 
 const VALID_CLASSES = ['Mutant', 'Skill', 'Science', 'Mystic', 'Cosmic', 'Tech'] as const;
 type ChampionClass = (typeof VALID_CLASSES)[number];
@@ -103,18 +104,31 @@ async function apiFetch(params: Record<string, string>): Promise<unknown> {
   for (const [k, v] of Object.entries(params)) {
     url.searchParams.set(k, v);
   }
-  const res = await fetch(url.toString(), {
-    headers: {
-      'User-Agent': USER_AGENT,
-      Accept: 'application/json',
-    },
-  });
-  if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-  const contentType = res.headers.get('content-type') ?? '';
-  if (!contentType.includes('json')) {
-    throw new Error(`API returned non-JSON (got ${contentType}). Cloudflare challenge?`);
+  const ctl = new AbortController();
+  const timer = setTimeout(() => ctl.abort(), FETCH_TIMEOUT_MS);
+  try {
+    const res = await fetch(url.toString(), {
+      headers: {
+        'User-Agent': USER_AGENT,
+        Accept: 'application/json',
+      },
+      signal: ctl.signal,
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+    const contentType = res.headers.get('content-type') ?? '';
+    if (!contentType.includes('json')) {
+      throw new Error(`API returned non-JSON (got ${contentType}). Cloudflare challenge?`);
+    }
+    return res.json();
+  } catch (e) {
+    // Surface aborts as a clearer error so the caller knows it was a timeout
+    if ((e as Error).name === 'AbortError') {
+      throw new Error(`API call timed out after ${FETCH_TIMEOUT_MS}ms`);
+    }
+    throw e;
+  } finally {
+    clearTimeout(timer);
   }
-  return res.json();
 }
 
 /** Resolve a champion name to a canonical Fandom page title, or null. */
@@ -423,9 +437,17 @@ async function dryRun() {
     try {
       const result = await refreshChampion(champion, overrides);
       switch (result.kind) {
-        case 'unchanged':
+        case 'unchanged': {
           unchanged++;
+          // Heartbeat: every 10th champion + via-override always logs. Silent
+          // stretches confused users into thinking the script had hung.
+          const viaOverride = result.sourceTitle === 'manual-override';
+          if (viaOverride || (i + 1) % 10 === 0) {
+            const note = viaOverride ? ' (override)' : '';
+            console.log(`${progress} ${champion.name}: unchanged${note}`);
+          }
           break;
+        }
         case 'correction':
           corrections.push({
             id: champion.id,
