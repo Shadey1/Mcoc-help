@@ -1,0 +1,232 @@
+{
+  "generatedAt": "2026-05-24T11:05:23.240Z",
+  "corrections": [
+    {
+      "id": "ant-man",
+      "name": "Ant-Man",
+      "currentClass": "Tech",
+      "proposedClass": "Science",
+      "sourceTitle": "Ant-Man"
+    },
+    {
+      "id": "attuma",
+      "name": "Attuma",
+      "currentClass": "Mutant",
+      "proposedClass": "Skill",
+      "sourceTitle": "Attuma"
+    },
+    {
+      "id": "bastion",
+      "name": "Bastion",
+      "currentClass": "Mutant",
+      "proposedClass": "Tech",
+      "sourceTitle": "Bastion"
+    },
+    {
+      "id": "blade",
+      "name": "Blade",
+      "currentClass": "Mystic",
+      "proposedClass": "Skill",
+      "sourceTitle": "Blade"
+    },
+    {
+      "id": "blade-stellar-forged",
+      "name": "Blade (Stellar Forged)",
+      "currentClass": "Skill",
+      "proposedClass": "Mystic",
+      "sourceTitle": "Blade (Stellar-Forged)"
+    },
+    {
+      "id": "cassie-lang",
+      "name": "Cassie Lang",
+      "currentClass": "Tech",
+      "proposedClass": "Science",
+      "sourceTitle": "Cassie Lang"
+    },
+    {
+      "id": "civil-warrior",
+      "name": "Civil Warrior",
+      "currentClass": "Skill",
+      "proposedClass": "Tech",
+      "sourceTitle": "Civil Warrior"
+    },
+    {
+      "id": "dark-phoenix",
+      "name": "Dark Phoenix",
+      "currentClass": "Mutant",
+      "proposedClass": "Cosmic",
+      "sourceTitle": "Dark Phoenix"
+    },
+    {
+      "id": "doctor-bong",
+      "name": "Doctor Bong",
+      "currentClass": "Mystic",
+      "proposedClass": "Skill",
+      "sourceTitle": "Doctor Bong"
+    },
+    {
+      "id": "elsa-bloodstone",
+      "name": "Elsa Bloodstone",
+      "currentClass": "Mutant",
+      "proposedClass": "Skill",
+      "sourceTitle": "Elsa Bloodstone"
+    },
+    {
+      "id": "jessica-jones",
+      "name": "Jessica Jones",
+      "currentClass": "Skill",
+      "proposedClass": "Science",
+      "sourceTitle": "Jessica Jones"
+    },
+    {
+      "id": "lumatrix",
+      "name": "Lumatrix",
+      "currentClass": "Mutant",
+      "proposedClass": "Skill",
+      "sourceTitle": "Lumatrix"
+    },
+    {
+      "id": "modok",
+      "name": "M.O.D.O.K.",
+      "currentClass": "Tech",
+      "proposedClass": "Science",
+      "sourceTitle": "M.O.D.O.K."
+    },
+    {
+      "id": "mantis",
+      "name": "Mantis",
+      "currentClass": "Mystic",
+      "proposedClass": "Skill",
+      "sourceTitle": "Mantis"
+    },
+    {
+      "id": "masacre",
+      "name": "Masacre",
+      "currentClass": "Mutant",
+      "proposedClass": "Skill",
+      "sourceTitle": "Masacre"
+    },
+    {
+      "id": "moondragon",
+      "name": "Moondragon",
+      "currentClass": "Mystic",
+      "proposedClass": "Skill",
+      "sourceTitle": "Moondragon"
+    },
+    {
+      "id": "morbius",
+      "name": "Morbius",
+      "currentClass": "Mystic",
+      "proposedClass": "Science",
+      "sourceTitle": "Morbius"
+    },
+    {
+      "id": "mr-knight",
+      "name": "Mr. Knight",
+      "currentClass": "Mystic",
+      "proposedClass": "Skill",
+      "sourceTitle": "Mr. Knight"
+    },
+    {
+      "id": "phoenix",
+      "name": "Phoenix",
+      "currentClass": "Mutant",
+      "proposedClass": "Cosmic",
+      "sourceTitle": "Phoenix"
+    },
+    {
+      "id": "purgatory",
+      "name": "Purgatory",
+      "currentClass": "Mutant",
+      "proposedClass": "Mystic",
+      "sourceTitle": "Purgatory"
+    },
+    {
+      "id": "red-guardian",
+      "name": "Red Guardian",
+      "currentClass": "Skill",
+      "proposedClass": "Science",
+      "sourceTitle": "Red Guardian"
+    },
+    {
+      "id": "red-skull",
+      "name": "Red Skull",
+      "currentClass": "Skill",
+      "proposedClass": "Tech",
+      "sourceTitle": "Red Skull"
+    },
+    {
+      "id": "ruby-thursday",
+      "name": "Ruby Thursday",
+      "currentClass": "Science",
+      "proposedClass": "Tech",
+      "sourceTitle": "Ruby Thursday"
+    },
+    {
+      "id": "sauron",
+      "name": "Sauron",
+      "currentClass": "Mystic",
+      "proposedClass": "Mutant",
+      "sourceTitle": "Sauron"
+    },
+    {
+      "id": "solvarch",
+      "name": "Solvarch",
+      "currentClass": "Mystic",
+      "proposedClass": "Tech",
+      "sourceTitle": "Solvarch"
+    },
+    {
+      "id": "spider-man-stark-enhanced",
+      "name": "Spider Man (Stark Enhanced)",
+      "currentClass": "Science",
+      "proposedClass": "Tech",
+      "sourceTitle": "Spider-Man (Stark Enhanced)"
+    },
+    {
+      "id": "spider-man-stealth-suit",
+      "name": "Spider-Man (Stealth-Suit)",
+      "currentClass": "Science",
+      "proposedClass": "Skill",
+      "sourceTitle": "Spider-Man (Stealth Suit)"
+    },
+    {
+      "id": "star-lord",
+      "name": "Star-Lord",
+      "currentClass": "Skill",
+      "proposedClass": "Tech",
+      "sourceTitle": "Star-Lord"
+    },
+    {
+      "id": "superior-iron-man",
+      "name": "Superior Iron Man",
+      "currentClass": "Tech",
+      "proposedClass": "Cosmic",
+      "sourceTitle": "Superior Iron Man"
+    },
+    {
+      "id": "the-maker",
+      "name": "The Maker",
+      "currentClass": "Science",
+      "proposedClass": "Tech",
+      "sourceTitle": "The Maker"
+    }
+  ],
+  "issues": [
+    {
+      "name": "Maestro",
+      "result": {
+        "kind": "unrecognised-class",
+        "raw": "Combined",
+        "sourceTitle": "Maestro"
+      }
+    },
+    {
+      "name": "Spider-Woman",
+      "result": {
+        "kind": "no-infobox-class",
+        "sourceTitle": "Spider-Woman"
+      }
+    }
+  ]
+}
