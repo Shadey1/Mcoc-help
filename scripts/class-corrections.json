@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-24T11:05:23.240Z",
+  "generatedAt": "2026-05-24T11:22:25.583Z",
   "corrections": [
     {
       "id": "ant-man",
@@ -212,21 +212,5 @@
       "sourceTitle": "The Maker"
     }
   ],
-  "issues": [
-    {
-      "name": "Maestro",
-      "result": {
-        "kind": "unrecognised-class",
-        "raw": "Combined",
-        "sourceTitle": "Maestro"
-      }
-    },
-    {
-      "name": "Spider-Woman",
-      "result": {
-        "kind": "no-infobox-class",
-        "sourceTitle": "Spider-Woman"
-      }
-    }
-  ]
+  "issues": []
 }

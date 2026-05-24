@@ -43,6 +43,7 @@ import { setTimeout as sleep } from 'timers/promises';
 
 const SEED_PATH = 'data/champions/seed.json';
 const CORRECTIONS_PATH = 'scripts/class-corrections.json';
+const OVERRIDES_PATH = 'data/champions/class-overrides.json';
 const SEED_BACKUP_PATH = 'data/champions/seed.json.bak';
 const API_ENDPOINT = 'https://marvel-contestofchampions.fandom.com/api.php';
 const USER_AGENT =
@@ -258,7 +259,26 @@ function normaliseClass(raw: string): ChampionClass | null {
 
 // ─── Per-champion refresh ───────────────────────────────────────────────
 
-async function refreshChampion(champion: Champion): Promise<RefreshResult> {
+async function refreshChampion(
+  champion: Champion,
+  overrides: Map<string, ChampionClass>,
+): Promise<RefreshResult> {
+  // Manual override takes precedence over Fandom. Used for champions where
+  // Fandom data is unreliable (disambiguation pages, recombined-champion
+  // infoboxes, missing class fields). See data/champions/class-overrides.json.
+  const override = overrides.get(champion.id);
+  if (override) {
+    if (override === champion.class) {
+      return { kind: 'unchanged', class: override, sourceTitle: 'manual-override' };
+    }
+    return {
+      kind: 'correction',
+      from: champion.class,
+      to: override,
+      sourceTitle: 'manual-override',
+    };
+  }
+
   let title: string | null;
   try {
     title = await resolvePageTitle(champion.name);
@@ -299,6 +319,33 @@ function readSeed(): { champions: Champion[] } {
 
 function writeSeed(seed: { champions: Champion[] }) {
   writeFileSync(SEED_PATH, JSON.stringify(seed, null, 2) + '\n');
+}
+
+/**
+ * Load manual class overrides. Returns an empty map if the file is missing
+ * or malformed — overrides are an optional safety net, never required.
+ */
+function loadOverrides(): Map<string, ChampionClass> {
+  if (!existsSync(OVERRIDES_PATH)) return new Map();
+  try {
+    const raw = JSON.parse(readFileSync(OVERRIDES_PATH, 'utf8')) as {
+      overrides?: Record<string, string>;
+    };
+    const out = new Map<string, ChampionClass>();
+    for (const [id, klass] of Object.entries(raw.overrides ?? {})) {
+      if ((VALID_CLASSES as readonly string[]).includes(klass)) {
+        out.set(id, klass as ChampionClass);
+      } else {
+        console.warn(
+          `  ⚠ class-overrides.json: "${klass}" for ${id} is not a valid class — ignoring`,
+        );
+      }
+    }
+    return out;
+  } catch (e) {
+    console.warn(`  ⚠ Could not parse ${OVERRIDES_PATH}: ${(e as Error).message}`);
+    return new Map();
+  }
 }
 
 /** Apply a saved corrections file to seed.json (backs up first). */
@@ -349,12 +396,18 @@ function applyCorrections() {
 
 async function dryRun() {
   const seed = readSeed();
+  const overrides = loadOverrides();
   let targets = seed.champions;
   if (ONLY_NAMES) {
     targets = targets.filter((c) => ONLY_NAMES.has(c.name));
     console.log(`Filtered to ${targets.length} champion(s) matching --only.`);
   } else {
     console.log(`Refreshing classes for ${targets.length} champions from Fandom wiki…`);
+  }
+  if (overrides.size > 0) {
+    console.log(
+      `Loaded ${overrides.size} manual override${overrides.size === 1 ? '' : 's'} from ${OVERRIDES_PATH}`,
+    );
   }
   console.log(`Source: ${API_ENDPOINT}`);
   console.log(`Rate limit: ${RATE_LIMIT_MS}ms between calls\n`);
@@ -368,7 +421,7 @@ async function dryRun() {
     const champion = targets[i]!;
     const progress = `[${i + 1}/${targets.length}]`;
     try {
-      const result = await refreshChampion(champion);
+      const result = await refreshChampion(champion, overrides);
       switch (result.kind) {
         case 'unchanged':
           unchanged++;

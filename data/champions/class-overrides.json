@@ -1,0 +1,12 @@
+{
+  "_about": "Champion class overrides — final source of truth, supersedes Fandom data. Use sparingly: only when the Fandom wiki returns garbage (disambiguation pages, recombined-champion infoboxes, etc.) or has no usable class field for that champion. The refresh-classes script skips Fandom entirely for champions listed here.",
+  "_format": "Keys are champion IDs from seed.json. Values are one of: Mutant, Skill, Science, Mystic, Cosmic, Tech. Each entry can optionally include a reason for why the override exists, stored under \"_reasons\" — not used by the script, just documentation.",
+  "overrides": {
+    "maestro": "Cosmic",
+    "spider-woman": "Science"
+  },
+  "_reasons": {
+    "maestro": "Fandom infobox returns 'Combined' from disambiguation/recombination page. In-game class confirmed Cosmic.",
+    "spider-woman": "Fandom page exists but has no |class= field in the infobox. In-game class confirmed Science."
+  }
+}
