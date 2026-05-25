@@ -1,18 +1,22 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import {
   applyMove,
   computeCeilings,
+  enumerateRelicMoves,
   optimise,
   type Champion,
   type ChampionState,
   type Roster,
   type ScoredMove,
+  type ScoredRelicMove,
   type CeilingEntry,
+  type SpecialRelicId,
 } from '@prestige-tools/engine';
 import { loadRoster, saveRoster } from '../lib/roster-storage';
+import { loadRelics, type RelicStateBundle } from '../lib/relics-storage';
 import { formatBHR, formatDelta } from '../lib/format';
 import { ChampionPortrait } from './champion-portrait';
 import { AddToRosterModal } from './add-to-roster-modal';
@@ -28,8 +32,17 @@ type Toast = {
   prevRoster: Roster;
 };
 
+// Discriminated union representing a single ranked atomic move — either a
+// champion move (rank-up / sig-up / ascend) or a relic move (level-up /
+// rank-up of relics). Carries a unified `top30Delta` field that lets the
+// renderer sort heterogeneous moves on one axis: change in total prestige.
+type InterleavedAtomicMove =
+  | { kind: 'champion'; data: ScoredMove; top30Delta: number }
+  | { kind: 'relic'; data: ScoredRelicMove; top30Delta: number };
+
 export function RecommendationsView({ champions }: RecommendationsViewProps) {
   const [roster, setRoster] = useState<Roster>({ champions: [] });
+  const [relicBundle, setRelicBundle] = useState<RelicStateBundle | null>(null);
   const [hydrated, setHydrated] = useState(false);
   const [mode, setMode] = useState<Mode>('atomic');
   const [toast, setToast] = useState<Toast | null>(null);
@@ -38,8 +51,19 @@ export function RecommendationsView({ champions }: RecommendationsViewProps) {
 
   useEffect(() => {
     setRoster(loadRoster());
+    setRelicBundle(loadRelics());
     setHydrated(true);
   }, []);
+
+  // Compute relic moves unconditionally (hook must run on every render,
+  // regardless of whether bundle has loaded or roster is empty). Falls back
+  // to empty array while bundle is null. Returns ScoredRelicMove[] which the
+  // AtomicMovesList then converts to InterleavedAtomicMove.
+  const relicMoves = useMemo(() => {
+    if (!relicBundle) return [];
+    return enumerateRelicMoves(relicBundle.inventory, relicBundle.top30Cutoff);
+  }, [relicBundle]);
+  const relicCutoff = relicBundle?.top30Cutoff ?? 0;
 
   // Don't render computed data until we've hydrated from localStorage
   if (!hydrated) {
@@ -157,6 +181,8 @@ export function RecommendationsView({ champions }: RecommendationsViewProps) {
       {mode === 'atomic' ? (
         <AtomicMovesList
           moves={moves}
+          relicMoves={relicMoves}
+          relicCutoff={relicCutoff}
           championLookup={championLookup}
           onMoveDone={handleMoveDone}
         />
@@ -212,14 +238,18 @@ export function RecommendationsView({ champions }: RecommendationsViewProps) {
 
 function AtomicMovesList({
   moves,
+  relicMoves,
+  relicCutoff,
   championLookup,
   onMoveDone,
 }: {
   moves: ScoredMove[];
+  relicMoves: ScoredRelicMove[];
+  relicCutoff: number;
   championLookup: Map<string, Champion>;
   onMoveDone: (move: ScoredMove) => void;
 }) {
-  if (moves.length === 0) {
+  if (moves.length === 0 && relicMoves.length === 0) {
     return (
       <p className="text-[var(--color-ink-soft)] italic">
         No moves available. Your roster might be fully developed, or you may need
@@ -228,21 +258,47 @@ function AtomicMovesList({
     );
   }
 
-  // Partition moves: regular (proceed) vs. deferred (ascend-first)
-  const proceedMoves = moves.filter((m) => !m.deferRecommendation);
+  // Build interleaved list of non-deferred champion moves + relic moves.
+  // Both sides expose a top30Delta on the same scale (change to total
+  // prestige), so a single sort produces the correct ranked recommendation.
+  const interleaved: InterleavedAtomicMove[] = [
+    ...moves
+      .filter((m) => !m.deferRecommendation)
+      .map((m): InterleavedAtomicMove => ({
+        kind: 'champion',
+        data: m,
+        top30Delta: m.top30Delta,
+      })),
+    ...relicMoves.map((m): InterleavedAtomicMove => ({
+      kind: 'relic',
+      data: m,
+      top30Delta: relicTop30Delta(m.beforeBHR, m.afterBHR, relicCutoff),
+    })),
+  ].sort((a, b) => b.top30Delta - a.top30Delta);
+
+  // Deferred section stays champion-only — relic moves don't have the
+  // ascend-first sequencing rule.
   const deferredMoves = moves.filter((m) => m.deferRecommendation === 'ascend-first');
 
   return (
     <div className="space-y-8">
       <ol className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 list-none p-0">
-        {proceedMoves.map((move, idx) => (
-          <li key={`${move.move.championId}-${move.move.kind}`}>
-            <MoveCard
-              move={move}
-              rank={idx + 1}
-              champion={championLookup.get(move.move.championId)}
-              onDone={() => onMoveDone(move)}
-            />
+        {interleaved.map((m, idx) => (
+          <li key={moveKey(m)}>
+            {m.kind === 'champion' ? (
+              <MoveCard
+                move={m.data}
+                rank={idx + 1}
+                champion={championLookup.get(m.data.move.championId)}
+                onDone={() => onMoveDone(m.data)}
+              />
+            ) : (
+              <RelicMoveCard
+                move={m.data}
+                rank={idx + 1}
+                top30Delta={m.top30Delta}
+              />
+            )}
           </li>
         ))}
       </ol>
@@ -380,6 +436,80 @@ function MoveCard({
               ✓ I&apos;ve done this
             </button>
           )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function RelicMoveCard({
+  move,
+  rank,
+  top30Delta,
+}: {
+  move: ScoredRelicMove;
+  rank: number;
+  top30Delta: number;
+}) {
+  const subject = relicMoveSubject(move);
+  const description = describeRelicMove(move);
+  const isTop = rank === 1;
+
+  return (
+    <div
+      className={`border rounded-lg p-3 transition-colors h-full flex flex-col ${
+        isTop
+          ? 'border-[var(--color-marvel-impact)] bg-[var(--color-paper-card)] shadow-sm hover:bg-[var(--color-paper-soft)]'
+          : 'border-[var(--color-rule)] bg-[var(--color-paper-card)] hover:bg-[var(--color-paper-soft)]'
+      }`}
+    >
+      <div className="flex items-start gap-3">
+        {/* Left column: relic badge in the portrait slot, description below.
+            The badge keeps card heights aligned with champion cards in the
+            grid; it also visually tells the user this is a different kind
+            of recommendation without making them parse text. */}
+        <div className="flex-shrink-0 flex flex-col items-center">
+          <div
+            className="w-16 h-16 rounded-md bg-[var(--color-paper-soft)] border border-[var(--color-rule)] flex items-center justify-center text-[var(--color-marvel-editorial)] uppercase text-xs font-semibold tracking-wider"
+            aria-hidden="true"
+          >
+            Relic
+          </div>
+          <div className="text-xs text-[var(--color-ink-soft)] numeric mt-1 text-center">
+            {description}
+          </div>
+        </div>
+
+        {/* Middle: rank number + subject */}
+        <div className="min-w-0 flex-1">
+          <div className="flex items-baseline gap-2">
+            <span className="text-lg font-medium text-[var(--color-ink-soft)] numeric flex-shrink-0">
+              {rank}.
+            </span>
+            <div className="font-medium leading-tight truncate" title={subject}>
+              {subject}
+            </div>
+          </div>
+        </div>
+
+        {/* Right: synthetic top30Delta + BHR */}
+        <div className="text-right flex-shrink-0">
+          <div
+            className={`numeric font-medium text-lg ${
+              isTop ? 'burst text-2xl' : 'text-[var(--color-marvel-editorial)]'
+            }`}
+          >
+            {formatDelta(top30Delta)}
+          </div>
+          <div className="text-xs text-[var(--color-ink-soft)] numeric">
+            BHR {formatBHR(move.beforeBHR)} → {formatBHR(move.afterBHR)}
+          </div>
+        </div>
+      </div>
+
+      {move.notes && move.notes.length > 0 && (
+        <div className="text-xs text-[var(--color-ink-soft)] italic mt-3 pt-3 border-t border-[var(--color-rule)]">
+          {move.notes.join(' ')}
         </div>
       )}
     </div>
@@ -563,6 +693,8 @@ function CeilingGrid({
   );
 }
 
+// ─── helpers ─────────────────────────────────────────────────────────────
+
 function describeMove(move: ScoredMove): string {
   switch (move.move.kind) {
     case 'rank-up':
@@ -571,6 +703,65 @@ function describeMove(move: ScoredMove): string {
       return `Sig ${move.move.fromSig} → ${move.move.toSig}`;
     case 'ascend':
       return `${move.move.fromAscension} → ${move.move.toAscension}`;
+  }
+}
+
+function describeRelicMove(move: ScoredRelicMove): string {
+  const m = move.move;
+  if (m.kind === 'level-up' || m.kind === 'special-level-up') {
+    return `R${m.from.rank} L${m.from.level} → L${m.toLevel}`;
+  }
+  return `R${m.from.rank} L${m.from.level} → R${m.toRank}`;
+}
+
+function relicMoveSubject(move: ScoredRelicMove): string {
+  const m = move.move;
+  if (m.kind === 'level-up' || m.kind === 'rank-up') return 'Standard 7★ relic';
+  return SPECIAL_NAMES[m.id] ?? m.id;
+}
+
+const SPECIAL_NAMES: Record<SpecialRelicId, string> = {
+  'cosmic-egg': 'The Cosmic Egg',
+};
+
+/**
+ * Convert a relic move's raw BHR delta into a top-30-prestige-average delta
+ * comparable to a champion ScoredMove.top30Delta. This is what lets us sort
+ * heterogeneous moves on one axis.
+ *
+ * - If the move's afterBHR is at or below the cutoff, the move doesn't enter
+ *   top-30 and the prestige delta is zero. (The engine pre-filters these,
+ *   but the guard is defensive.)
+ * - If the relic was already in top-30 (beforeBHR ≥ cutoff), the move
+ *   replaces beforeBHR with afterBHR in the top-30 multiset. Delta to the
+ *   average = (afterBHR − beforeBHR) / 30.
+ * - Otherwise the move displaces the cutoff value. Delta = (afterBHR − cutoff) / 30.
+ *
+ * Caveat: we don't actually know whether `beforeBHR` was in top-30 without
+ * sorting the full relic inventory. We use cutoff comparison as an
+ * approximation — accurate at the boundary, gets fuzzy when many relics
+ * share BHR values. Good enough for ranking moves against each other.
+ */
+function relicTop30Delta(beforeBHR: number, afterBHR: number, cutoff: number): number {
+  if (afterBHR <= cutoff) return 0;
+  if (beforeBHR >= cutoff) return (afterBHR - beforeBHR) / 30;
+  return (afterBHR - cutoff) / 30;
+}
+
+function moveKey(m: InterleavedAtomicMove): string {
+  if (m.kind === 'champion') {
+    return `c-${m.data.move.championId}-${m.data.move.kind}`;
+  }
+  const rm = m.data.move;
+  switch (rm.kind) {
+    case 'level-up':
+      return `r-lvl-r${rm.from.rank}-l${rm.from.level}-to${rm.toLevel}`;
+    case 'rank-up':
+      return `r-rnk-r${rm.from.rank}-l${rm.from.level}-to${rm.toRank}`;
+    case 'special-level-up':
+      return `s-${rm.id}-lvl-r${rm.from.rank}-l${rm.from.level}-to${rm.toLevel}`;
+    case 'special-rank-up':
+      return `s-${rm.id}-rnk-r${rm.from.rank}-l${rm.from.level}-to${rm.toRank}`;
   }
 }
 
