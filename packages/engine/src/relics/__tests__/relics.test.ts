@@ -119,8 +119,10 @@ describe('enumerateRelicMoves', () => {
       },
       0,
     );
-    expect(moves[0].delta).toBe(454);
-    expect(moves[1].delta).toBe(91);
+    // .map() avoids `moves[0]` indexing which trips noUncheckedIndexedAccess
+    // when this file is type-checked by tsc (Cloudflare's engine build does
+    // this; Vitest's esbuild path does not).
+    expect(moves.map((m) => m.delta)).toEqual([454, 91]);
   });
 
   it('handles specials alongside standards', () => {
