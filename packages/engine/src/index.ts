@@ -2,6 +2,8 @@
 //
 // Two views, one engine. See architecture-v5.md §8 for the design.
 
+// ─── Champion engine ────────────────────────────────────────────────────────
+
 export type {
   Ascension,
   AtomicMove,
@@ -53,3 +55,40 @@ export { computeCeilings } from './ceiling.js';
 
 // Cost gating
 export { costGatesFor, statePersistenceNoteFor } from './costs.js';
+
+// ─── Relic engine ───────────────────────────────────────────────────────────
+
+export type {
+  Rank as RelicRank,
+  Level as RelicLevel,
+  RelicState,
+  RelicCountEntry,
+  RelicInventory,
+  SpecialRelicId,
+  SpecialRelicEntry,
+  RelicMove,
+  ScoredRelicMove,
+} from './relics/types.js';
+
+export {
+  RankSchema as RelicRankSchema,
+  LevelSchema as RelicLevelSchema,
+  RelicStateSchema,
+  RelicCountEntrySchema,
+  RelicInventorySchema,
+  SpecialRelicIdSchema,
+  SpecialRelicEntrySchema,
+} from './relics/schemas.js';
+
+export {
+  standardStatcastBHR,
+  specialRelicBHR,
+  standardStatcastCeiling,
+  specialRelicCeiling,
+} from './relics/prestige.js';
+
+export {
+  enumerateRelicMoves,
+  relicBHRs,
+  relicTop30Average,
+} from './relics/moves.js';
