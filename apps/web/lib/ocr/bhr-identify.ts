@@ -40,14 +40,16 @@ export type BHRCandidate = {
   absError: number;
 };
 
-/** Within this many BHR points of observed → counts as a match. */
-const ACCEPT_TOLERANCE = 120;
+/** Within this many BHR points of observed → counts as a match.
+ *  BHR OCR is accurate to ±10-20 (large white digits). 50 gives ample
+ *  margin while cutting false positives in the dense 33k-38k range. */
+const ACCEPT_TOLERANCE = 50;
 
 /** Sample sig at this resolution. Real player sigs land on multiples of 10. */
 const SIG_STEP = 5;
 
-/** Max candidates returned. Usually 1-3 actual matches; surplus is alternatives. */
-const MAX_CANDIDATES = 8;
+/** Max candidates returned. More alternatives feed the greedy assignment. */
+const MAX_CANDIDATES = 10;
 
 /**
  * Find candidate (champion, state) tuples whose computed BHR matches the

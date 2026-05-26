@@ -34,6 +34,8 @@ export type DetectedCard = {
   cardIndex: number;
   /** Source screenshot 0-indexed (for multi-screenshot imports). */
   sourceIndex: number;
+  /** BHR anchor assigned to this cell during grid detection, if found. */
+  anchor?: BHRAnchor;
 };
 
 /**

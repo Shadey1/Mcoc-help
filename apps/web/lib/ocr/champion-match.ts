@@ -33,8 +33,8 @@ import type { MatchResult } from './types';
 import type { PortraitStore } from './portrait-store';
 import { findClosestInStore } from './portrait-store';
 import { confidenceFromDistance } from './phash';
-import { findCandidates } from './name-match';
-import { findChampionsByBHR } from './bhr-identify';
+import { findCandidates, normalize, levenshtein } from './name-match';
+import { findChampionsByBHR, type BHRCandidate } from './bhr-identify';
 
 const STRONG_PORTRAIT_DIST = 8;
 const MAX_PORTRAIT_DIST = 16;
@@ -90,30 +90,41 @@ export function matchChampion(
 
   // ── BHR signal is the next strongest ──────────────────────────────────
   if (bhrCandidates.length > 0) {
-    const top = bhrCandidates[0]!;
+    // When name OCR produced text, use it to rescore BHR candidates.
+    // Even garbled OCR often has enough letters to prefer the right champion
+    // over close BHR neighbours (e.g. "igh Evolutio" → High Evolutionary).
+    const ranked = nameText
+      ? rerankByName(bhrCandidates, nameText)
+      : bhrCandidates;
+    const top = ranked[0]!;
+
     const portraitBacks = portraitMatches.some(
       (p) => p.championId === top.championId,
     );
     const nameBacks = nameCandidates.some((n) => n.id === top.championId);
-    const corroborated = portraitBacks || nameBacks;
+    const nameHelped = nameText
+      ? nameSimilarity(nameText, top.championName) > 0.3
+      : false;
+    const corroborated = portraitBacks || nameBacks || nameHelped;
 
-    // Tight match (absError < 30) + corroboration → strong
-    // Tight match alone → partial (BHR is reliable but unsolo'd)
-    // Looser match → weak (multiple candidates likely)
+    const isExact = top.absError < 10;
     const isTight = top.absError < 30;
-    const next = bhrCandidates[1];
+    const next = ranked[1];
     const isUnique = !next || next.absError - top.absError > 50;
 
     let confidence: number;
     let agreement: 'strong' | 'partial' | 'weak';
     if (corroborated) {
-      confidence = 0.9;
+      confidence = 0.95;
+      agreement = 'strong';
+    } else if (isExact && isUnique) {
+      confidence = 0.88;
       agreement = 'strong';
     } else if (isTight && isUnique) {
-      confidence = 0.75;
+      confidence = 0.82;
       agreement = 'partial';
     } else if (isTight) {
-      confidence = 0.65;
+      confidence = 0.7;
       agreement = 'partial';
     } else {
       confidence = 0.55;
@@ -127,7 +138,7 @@ export function matchChampion(
       agreement,
       alternatives: mergeAlternatives(
         portraitMatches.filter((p) => p.championId !== top.championId),
-        bhrCandidates.slice(1),
+        ranked.slice(1),
         nameCandidates.filter((n) => n.id !== top.championId),
         getChampion,
       ),
@@ -262,4 +273,54 @@ function weakMatch(): MatchResult {
     agreement: 'weak',
     alternatives: [],
   };
+}
+
+/**
+ * 0-1 similarity between OCR'd text and a champion name. Uses normalised
+ * Levenshtein distance scaled by the longer string. Also checks substring
+ * containment (garbled OCR often drops characters but keeps a core run).
+ */
+function nameSimilarity(ocrText: string, championName: string): number {
+  const a = normalize(ocrText);
+  const b = normalize(championName);
+  if (a.length < 3 || b.length < 3) return 0;
+
+  // Substring check — if the OCR text contains or is contained by the name
+  if (b.includes(a) || a.includes(b)) return 0.8;
+
+  // Levenshtein-based similarity
+  const dist = levenshtein(a, b);
+  const maxLen = Math.max(a.length, b.length);
+  return Math.max(0, 1 - dist / maxLen);
+}
+
+/**
+ * Re-sort BHR candidates by combining BHR error with name similarity.
+ * Lets garbled name OCR disambiguate among close BHR matches.
+ *
+ * Score = absError - (nameSimilarity * NAME_BONUS). Lower is better.
+ * A name similarity of 0.5 on a champion subtracts 100 from its effective
+ * error, which is enough to promote a 2nd-place BHR candidate over the 1st
+ * when the name partially matches.
+ */
+const NAME_BONUS = 200;
+
+function rerankByName(
+  candidates: BHRCandidate[],
+  nameText: string,
+): BHRCandidate[] {
+  // Only rerank if the name text actually resembles at least one candidate.
+  // Garbled OCR (e.g. "FE qd TPN") has near-zero similarity to all names
+  // and would just add noise to the ranking.
+  const bestSim = Math.max(
+    ...candidates.map((c) => nameSimilarity(nameText, c.championName)),
+  );
+  if (bestSim < 0.25) return candidates;
+
+  const scored = candidates.map((c) => ({
+    candidate: c,
+    score: c.absError - nameSimilarity(nameText, c.championName) * NAME_BONUS,
+  }));
+  scored.sort((a, b) => a.score - b.score);
+  return scored.map((s) => s.candidate);
 }

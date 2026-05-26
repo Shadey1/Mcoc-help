@@ -1,32 +1,22 @@
 /**
- * OCR pipeline orchestrator (v0.16.0 — BHR-first identification).
+ * OCR pipeline orchestrator — anchor-relative positioning.
  *
- * Per screenshot:
- *   1. Whole-image OCR pass → BHR anchors (bhr-anchor.ts)
- *   2. Variance row detection + anchor-driven column synthesis → grid cells
- *      (grid-detect.ts)
- *   3. Per cell:
- *        a. Hash portrait region (phash.ts)
- *        b. Generate thumbnail of portrait region (portrait-store.ts)
- *        c. Focused-OCR the BHR cell (tesseract.ts → ocrBHR)
- *        d. Detect ascension visually (ascension-detect.ts) — used as a hint only
- *        e. OCR champion name (tesseract.ts → ocrChampionName)
- *        f. Match champion (champion-match.ts) using BHR + portrait + name
- *        g. Derive (rank, sig) state from BHR for the matched champion
+ * v0.17.0 rewrite: card sub-regions (portrait, name, BHR) are now computed
+ * relative to the BHR anchor's known bounding box, not fixed percentages
+ * of card height. This makes the pipeline device-agnostic — the anchor
+ * position adapts to iPhone, Android, and Windows layouts automatically.
  *
- * v0.16.0 change: matchChampion now receives `observedBHR` and `ascensionHint`
- * in addition to the portrait and name signals. BHR-based identification
- * (bhr-identify.ts) is the primary signal — it works on day 1 with no prior
- * data because the engine math is deterministic and BHRs are usually unique
- * to one (champion, state) tuple within tolerance.
- *
- * Order matters: identification happens BEFORE state derivation now, and the
- * state comes either from the BHR-search candidate directly (when champion
- * matched via BHR) or from a focused per-champion reverse-derive.
+ * Pipeline phases:
+ *   1. Grid phase: for ALL screenshots, find BHR anchors and detect grid cells.
+ *      Each cell carries an optional BHR anchor with pixel-precise coordinates.
+ *   2. Dedup phase: match BHR anchor values across screenshots to skip cards
+ *      from overlapping regions before expensive per-card OCR.
+ *   3. Card phase: per-card OCR using anchor-relative crop positions.
+ *   4. Assignment phase: greedy champion assignment to resolve conflicts.
  */
 
 import type { Champion } from '@prestige-tools/engine';
-import type { IdentifiedCard, Rect } from './types';
+import type { BHRAnchor, DetectedCard, IdentifiedCard, Rect } from './types';
 import type { PortraitStore } from './portrait-store';
 import { generateThumbnail } from './portrait-store';
 import { detectGridCells } from './grid-detect';
@@ -37,11 +27,74 @@ import { detectAscension } from './ascension-detect';
 import { deriveStateFromBHR } from './bhr-reverse';
 import { matchChampion } from './champion-match';
 
-// ─── Card subregion geometry ──────────────────────────────────────────────
+// ─── Anchor-relative region computation ──────────────────────────────────
 
-const PORTRAIT_REGION = { y: 0.0, h: 0.65 };
-const NAME_REGION = { y: 0.65, h: 0.16 };
-const BHR_REGION = { y: 0.78, h: 0.18 };
+// Fallback percentages when a card has no BHR anchor
+const FALLBACK_PORTRAIT = { y: 0.0, h: 0.62 };
+const FALLBACK_NAME = { y: 0.62, h: 0.16 };
+const FALLBACK_BHR = { y: 0.78, h: 0.18 };
+
+function computeCardRegions(
+  card: DetectedCard,
+): { portrait: Rect; name: Rect; bhr: Rect } {
+  const { rect, anchor } = card;
+
+  if (!anchor) {
+    return {
+      portrait: pctRegion(rect, FALLBACK_PORTRAIT),
+      name: pctRegion(rect, FALLBACK_NAME),
+      bhr: pctRegion(rect, FALLBACK_BHR),
+    };
+  }
+
+  // Use anchor text height as the unit of measurement — scales with device
+  const bhrH = Math.max(anchor.rect.height, 15);
+
+  // BHR region: the anchor rect with padding
+  const bhrPadY = bhrH * 0.4;
+  const bhrPadX = bhrH * 0.5;
+  const bhrRect: Rect = {
+    x: Math.max(rect.x, anchor.rect.x - bhrPadX),
+    y: Math.max(rect.y, anchor.rect.y - bhrPadY),
+    width: Math.min(anchor.rect.width + bhrPadX * 2, rect.width),
+    height: anchor.rect.height + bhrPadY * 2,
+  };
+
+  // Name region: just above the BHR anchor. Calibrated from Windows
+  // screenshots (2026-05-20): BHR text at y=587, name text at y=553-573,
+  // star icons between name and BHR. The gap from name bottom to BHR top
+  // is ~0.3×bhrH (stars), and name strip is ~0.7×bhrH tall. We add margin
+  // to ensure capture across devices.
+  const nameGap = bhrH * 0.3;
+  const nameHeight = bhrH * 0.7;
+  const nameBottom = anchor.rect.y - nameGap;
+  const nameTop = Math.max(rect.y, nameBottom - nameHeight);
+  const nameRect: Rect = {
+    x: rect.x,
+    y: nameTop,
+    width: rect.width,
+    height: Math.max(nameBottom - nameTop, bhrH),
+  };
+
+  // Portrait region: top of cell down to where name starts
+  const portraitRect: Rect = {
+    x: rect.x,
+    y: rect.y,
+    width: rect.width,
+    height: Math.max(nameRect.y - rect.y, rect.height * 0.4),
+  };
+
+  return { portrait: portraitRect, name: nameRect, bhr: bhrRect };
+}
+
+function pctRegion(cell: Rect, pct: { y: number; h: number }): Rect {
+  return {
+    x: cell.x,
+    y: cell.y + cell.height * pct.y,
+    width: cell.width,
+    height: cell.height * pct.h,
+  };
+}
 
 // ─── Progress events ──────────────────────────────────────────────────────
 
@@ -76,11 +129,20 @@ const COPY = {
   failed: (reason: string) => `Reality skipped: ${reason}`,
 };
 
+// ─── Pipeline orchestrator ───────────────────────────────────────────────
+
+type ScreenshotData = {
+  sourceIndex: number;
+  canvas: OffscreenCanvas;
+  detected: DetectedCard[];
+};
+
 export async function runOcrPipeline(
   files: File[] | Blob[],
   options: PipelineOptions,
 ): Promise<IdentifiedCard[]> {
-  const allCards: IdentifiedCard[] = [];
+  // Phase 1: Grid detection for all screenshots (fast)
+  const screenshots: ScreenshotData[] = [];
 
   for (let i = 0; i < files.length; i++) {
     options.onProgress?.({
@@ -89,14 +151,37 @@ export async function runOcrPipeline(
       total: files.length,
       copy: COPY.screenshotStart(i, files.length),
     });
+
     try {
-      const cards = await processSingleScreenshot(files[i]!, i, options);
-      allCards.push(...cards);
+      const canvas = await loadToCanvas(files[i]!);
+
       options.onProgress?.({
-        kind: 'screenshot-done',
+        kind: 'anchors-found',
         index: i,
-        copy: COPY.done(i),
+        count: 0,
+        copy: COPY.anchorScan,
       });
+      const anchors = await findBHRAnchors(canvas);
+
+      const detected = detectGridCells(canvas, anchors, i);
+      options.onProgress?.({
+        kind: 'grid-detected',
+        index: i,
+        cellCount: detected.length,
+        copy: COPY.gridLock(detected.length),
+      });
+
+      if (detected.length === 0) {
+        options.onProgress?.({
+          kind: 'screenshot-failed',
+          index: i,
+          reason: 'No champion cards detected',
+          copy: COPY.failed('No champion cards detected'),
+        });
+        continue;
+      }
+
+      screenshots.push({ sourceIndex: i, canvas, detected });
     } catch (err) {
       const reason = err instanceof Error ? err.message : 'Unknown error';
       options.onProgress?.({
@@ -108,77 +193,104 @@ export async function runOcrPipeline(
     }
   }
 
-  return dedupeByChampion(allCards);
-}
-
-async function processSingleScreenshot(
-  file: File | Blob,
-  sourceIndex: number,
-  options: PipelineOptions,
-): Promise<IdentifiedCard[]> {
-  const canvas = await loadToCanvas(file);
-
-  options.onProgress?.({
-    kind: 'anchors-found',
-    index: sourceIndex,
-    count: 0,
-    copy: COPY.anchorScan,
-  });
-  const anchors = await findBHRAnchors(canvas);
-
-  const detected = detectGridCells(canvas, anchors, sourceIndex);
-  options.onProgress?.({
-    kind: 'grid-detected',
-    index: sourceIndex,
-    cellCount: detected.length,
-    copy: COPY.gridLock(detected.length),
-  });
-
-  if (detected.length === 0) {
-    throw new Error(
-      'No champion cards detected. Make sure the screenshot is from the in-game prestige page or My Champions tab.',
+  // Phase 2: Early dedup — skip cards whose BHR anchor value already
+  // appeared in an earlier screenshot (overlapping region)
+  const skipSet = findDuplicateCards(screenshots);
+  if (skipSet.size > 0) {
+    console.log(
+      `[pipeline] skipping ${skipSet.size} duplicate cards from overlapping screenshots`,
     );
   }
 
-  const results: IdentifiedCard[] = [];
-  for (let i = 0; i < detected.length; i++) {
+  // Phase 3: Per-card OCR on non-duplicate cards
+  const allCards: IdentifiedCard[] = [];
+
+  for (const ss of screenshots) {
+    const toProcess = ss.detected.filter(
+      (c) => !skipSet.has(`${ss.sourceIndex}:${c.cardIndex}`),
+    );
+
+    for (let i = 0; i < toProcess.length; i++) {
+      options.onProgress?.({
+        kind: 'card-processed',
+        screenshotIndex: ss.sourceIndex,
+        cardIndex: i,
+        totalCards: toProcess.length,
+        copy: COPY.cardProcessing(i, toProcess.length),
+      });
+
+      const result = await processCard(toProcess[i]!, ss.canvas, options);
+      allCards.push(result);
+    }
+
     options.onProgress?.({
-      kind: 'card-processed',
-      screenshotIndex: sourceIndex,
-      cardIndex: i,
-      totalCards: detected.length,
-      copy: COPY.cardProcessing(i, detected.length),
+      kind: 'screenshot-done',
+      index: ss.sourceIndex,
+      copy: COPY.done(ss.sourceIndex),
     });
-    const card = detected[i]!;
-    const result = await processCard(card, canvas, options);
-    if (result) results.push(result);
   }
-  return results;
+
+  // Phase 4: Resolve champion assignment conflicts
+  return greedyAssign(allCards);
 }
 
+// ─── Cross-screenshot dedup ──────────────────────────────────────────────
+
+function findDuplicateCards(screenshots: ScreenshotData[]): Set<string> {
+  const skipKeys = new Set<string>();
+  if (screenshots.length < 2) return skipKeys;
+
+  // Collect all BHR values from earlier screenshots
+  const seenBhr = new Map<number, string>(); // value → "srcIdx:cardIdx"
+
+  for (const ss of screenshots) {
+    for (const card of ss.detected) {
+      if (!card.anchor) continue;
+      const val = card.anchor.value;
+      const key = `${ss.sourceIndex}:${card.cardIndex}`;
+
+      // Check if a close BHR value was seen in an earlier screenshot
+      let isDupe = false;
+      for (const [seenVal, seenKey] of seenBhr) {
+        if (
+          Math.abs(val - seenVal) <= 100 &&
+          !seenKey.startsWith(`${ss.sourceIndex}:`)
+        ) {
+          isDupe = true;
+          break;
+        }
+      }
+
+      if (isDupe) {
+        skipKeys.add(key);
+      } else {
+        seenBhr.set(val, key);
+      }
+    }
+  }
+
+  return skipKeys;
+}
+
+// ─── Per-card processing ─────────────────────────────────────────────────
+
 async function processCard(
-  card: { rect: Rect; cardIndex: number; sourceIndex: number },
+  card: DetectedCard,
   canvas: HTMLCanvasElement | OffscreenCanvas,
   options: PipelineOptions,
-): Promise<IdentifiedCard | null> {
-  const portraitRect: Rect = {
-    x: card.rect.x,
-    y: card.rect.y + card.rect.height * PORTRAIT_REGION.y,
-    width: card.rect.width,
-    height: card.rect.height * PORTRAIT_REGION.h,
-  };
-  const nameRect: Rect = {
-    x: card.rect.x,
-    y: card.rect.y + card.rect.height * NAME_REGION.y,
-    width: card.rect.width,
-    height: card.rect.height * NAME_REGION.h,
-  };
-  const bhrRect: Rect = {
-    x: card.rect.x,
-    y: card.rect.y + card.rect.height * BHR_REGION.y,
-    width: card.rect.width,
-    height: card.rect.height * BHR_REGION.h,
-  };
+): Promise<IdentifiedCard> {
+  const { portrait: portraitRect, name: nameRect, bhr: bhrRect } =
+    computeCardRegions(card);
+
+  if (card.anchor && card.cardIndex < 3) {
+    console.log(
+      `[pipeline] card ${card.cardIndex} regions:`,
+      `anchor=(y:${Math.round(card.anchor.rect.y)}, h:${Math.round(card.anchor.rect.height)})`,
+      `name=(y:${Math.round(nameRect.y)}, h:${Math.round(nameRect.height)})`,
+      `bhr=(y:${Math.round(bhrRect.y)}, h:${Math.round(bhrRect.height)})`,
+      `cell=(y:${Math.round(card.rect.y)}, h:${Math.round(card.rect.height)})`,
+    );
+  }
 
   const portraitHash = hashImageRegion(
     canvas,
@@ -197,10 +309,6 @@ async function processCard(
     64,
   );
 
-  // Visual ascension detection — used as a hint to matchChampion only.
-  // The current visual detector (bottom-right pip-count) is known unreliable
-  // against modern card layouts, so champion-match treats this as a soft
-  // preference rather than a hard constraint.
   const visualAscension = detectAscension(canvas, card.rect);
 
   // OCR name and BHR in parallel
@@ -209,7 +317,7 @@ async function processCard(
     ocrBHR(canvas, bhrRect).catch(() => null),
   ]);
 
-  // Identify champion using all three signals (BHR primary, portrait + name corroborating)
+  // Identify champion using all three signals
   const match = matchChampion(
     portraitHash,
     nameText || null,
@@ -219,16 +327,11 @@ async function processCard(
     options.portraitStore,
   );
 
-  // Derive (rank, sig) state from BHR for the matched champion. The
-  // BHR-search candidate already implicitly contains a state, but
-  // deriveStateFromBHR does the round-sig preference for nicer display
-  // (e.g. prefer sig 200 over sig 198 when both fit).
+  // Derive (rank, sig) state from BHR for the matched champion
   let derivedState = null;
   if (ocredBHR !== null && match.championId) {
     const champion = options.champions.find((c) => c.id === match.championId);
     if (champion) {
-      // Use the matched champion's reachable ascensions to find the best fit.
-      // If the visual hint disagrees with the BHR-match's ascension, trust BHR.
       const ascensions: Array<'A0' | 'A1' | 'A2'> = champion.ascendable
         ? ['A2', 'A1', 'A0']
         : ['A0'];
@@ -248,7 +351,6 @@ async function processCard(
       `[pipeline] card ${card.cardIndex} (screenshot ${card.sourceIndex}): no champion identified`,
       { nameText, ocredBHR, visualAscension, portraitHash },
     );
-    return null;
   }
 
   return {
@@ -264,6 +366,8 @@ async function processCard(
   };
 }
 
+// ─── Utilities ───────────────────────────────────────────────────────────
+
 async function loadToCanvas(file: File | Blob): Promise<OffscreenCanvas> {
   const bitmap = await createImageBitmap(file);
   const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
@@ -274,13 +378,48 @@ async function loadToCanvas(file: File | Blob): Promise<OffscreenCanvas> {
   return canvas;
 }
 
-function dedupeByChampion(cards: IdentifiedCard[]): IdentifiedCard[] {
-  const bestByChampion = new Map<string, IdentifiedCard>();
-  for (const card of cards) {
-    const existing = bestByChampion.get(card.match.championId);
-    if (!existing || card.match.confidence > existing.match.confidence) {
-      bestByChampion.set(card.match.championId, card);
+// ─── Champion assignment ─────────────────────────────────────────────────
+
+function greedyAssign(cards: IdentifiedCard[]): IdentifiedCard[] {
+  const sorted = [...cards].sort(
+    (a, b) => b.match.confidence - a.match.confidence,
+  );
+  const claimed = new Set<string>();
+  const result: IdentifiedCard[] = [];
+
+  for (const card of sorted) {
+    const champId = card.match.championId;
+
+    if (!champId) {
+      result.push(card);
+      continue;
+    }
+
+    if (!claimed.has(champId)) {
+      claimed.add(champId);
+      result.push(card);
+      continue;
+    }
+
+    const alt = card.match.alternatives.find(
+      (a) => a.championId && !claimed.has(a.championId),
+    );
+    if (alt) {
+      claimed.add(alt.championId);
+      result.push({
+        ...card,
+        match: {
+          championId: alt.championId,
+          championName: alt.championName,
+          confidence: Math.min(alt.score, card.match.confidence * 0.8),
+          agreement: 'weak',
+          alternatives: card.match.alternatives.filter(
+            (a) => a.championId !== alt.championId,
+          ),
+        },
+      });
     }
   }
-  return Array.from(bestByChampion.values());
+
+  return result;
 }

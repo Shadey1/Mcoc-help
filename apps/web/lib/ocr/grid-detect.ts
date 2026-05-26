@@ -87,6 +87,8 @@ export function detectGridCells(
   const extensions = computeRowExtensions(rows, anchorsPerRow, grey.scale);
   console.log(`[grid-detect] row extensions (source px):`, extensions.map(Math.round));
 
+  const anchorMap = assignAnchorsToCards(anchorsPerRow, grid);
+
   const cards: DetectedCard[] = [];
   let cardIndex = 0;
   const bandHeight = medianRowHeight(rows) * grey.scale;
@@ -107,7 +109,7 @@ export function detectGridCells(
 
     for (const colCenterX of grid.columns) {
       cards.push({
-        cardIndex: cardIndex++,
+        cardIndex: cardIndex,
         sourceIndex,
         rect: {
           x: Math.round(colCenterX - grid.pitch / 2),
@@ -115,10 +117,16 @@ export function detectGridCells(
           width: Math.round(grid.pitch),
           height: Math.round(cellHeight),
         },
+        anchor: anchorMap.get(cardIndex),
       });
+      cardIndex++;
     }
   }
-  console.log(`[grid-detect] emitted ${cards.length} cards`);
+
+  const anchoredCount = cards.filter((c) => c.anchor).length;
+  console.log(
+    `[grid-detect] emitted ${cards.length} cards, ${anchoredCount} with BHR anchors`,
+  );
   return cards;
 }
 
@@ -363,6 +371,43 @@ function computeColumns(
     x += pitch;
   }
   return { columns, pitch };
+}
+
+function assignAnchorsToCards(
+  anchorsPerRow: BHRAnchor[][],
+  grid: Grid,
+): Map<number, BHRAnchor> {
+  const result = new Map<number, BHRAnchor>();
+  const numCols = grid.columns.length;
+
+  for (let ri = 0; ri < anchorsPerRow.length; ri++) {
+    for (const anchor of anchorsPerRow[ri]!) {
+      const anchorCx = anchor.rect.x + anchor.rect.width / 2;
+      let bestCol = -1;
+      let bestDist = Infinity;
+      for (let ci = 0; ci < numCols; ci++) {
+        const dist = Math.abs(anchorCx - grid.columns[ci]!);
+        if (dist < bestDist) {
+          bestDist = dist;
+          bestCol = ci;
+        }
+      }
+      if (bestCol < 0 || bestDist > grid.pitch / 2) continue;
+      const idx = ri * numCols + bestCol;
+      const existing = result.get(idx);
+      if (!existing) {
+        result.set(idx, anchor);
+      } else {
+        const existingDist = Math.abs(
+          existing.rect.x + existing.rect.width / 2 - grid.columns[bestCol]!,
+        );
+        if (bestDist < existingDist) {
+          result.set(idx, anchor);
+        }
+      }
+    }
+  }
+  return result;
 }
 
 function median(nums: number[]): number {

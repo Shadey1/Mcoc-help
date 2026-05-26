@@ -41,20 +41,35 @@ export function ScreenshotImport({ champions, onImport }: Props) {
   }, []);
 
   // Whole-page paste handler — Ctrl+V anywhere on the page captures the
-  // clipboard if it contains an image
+  // clipboard if it contains an image. Checks both clipboardData.items
+  // (screenshots from PrintScreen / Snipping Tool) and clipboardData.files
+  // (some browsers expose pasted files here).
   useEffect(() => {
     function onPaste(e: ClipboardEvent) {
       if (phase.kind === 'processing') return;
-      const items = e.clipboardData?.items;
-      if (!items) return;
       const files: File[] = [];
-      for (let i = 0; i < items.length; i++) {
-        const item = items[i]!;
-        if (item.type.startsWith('image/')) {
-          const file = item.getAsFile();
-          if (file) files.push(file);
+
+      const items = e.clipboardData?.items;
+      if (items) {
+        for (let i = 0; i < items.length; i++) {
+          const item = items[i]!;
+          if (item.kind === 'file' && item.type.startsWith('image/')) {
+            const file = item.getAsFile();
+            if (file) files.push(file);
+          }
         }
       }
+
+      if (files.length === 0) {
+        const clipFiles = e.clipboardData?.files;
+        if (clipFiles) {
+          for (let i = 0; i < clipFiles.length; i++) {
+            const f = clipFiles[i]!;
+            if (f.type.startsWith('image/')) files.push(f);
+          }
+        }
+      }
+
       if (files.length > 0) {
         e.preventDefault();
         queueFiles(files);

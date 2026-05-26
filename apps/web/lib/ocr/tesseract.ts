@@ -69,24 +69,21 @@ function cropAndPrepare(
 }
 
 /**
- * Crop + upscale + threshold-invert. Used for the champion name strip:
- * yellow text on dark gradient → black text on white background.
+ * Crop + upscale + yellow-channel isolation. Primary strategy for the
+ * champion name strip: gold/yellow text on dark gradient.
  *
- * Algorithm:
- *   1. Crop & upscale (4x default — name text is small)
- *   2. Sample mean luminance across the crop
- *   3. Pick a threshold slightly above the mean (text is brighter than
- *      background on yellow-on-dark, so mean+offset catches text)
- *   4. Above threshold → black (text). Below → white (background).
- *
- * Adaptive threshold (mean + offset) handles brightness variation across
- * different screenshots better than a fixed threshold would.
+ * Why yellow-specific: generic luminance thresholding fails because the
+ * dark background dominates the mean, and the offset required varies across
+ * screenshots. Yellow isolation targets the text colour directly:
+ *   yellowness = min(R, G) - B
+ * Gold/yellow text has high R, high G, low B → high yellowness.
+ * Dark background has low everything → yellowness near zero or negative.
+ * White highlights have high B too → yellowness near zero.
  */
-function cropAndThresholdInvert(
+function cropAndIsolateYellow(
   source: HTMLCanvasElement | OffscreenCanvas,
   rect: Rect,
   upscale = 4,
-  thresholdOffset = 30,
 ): OffscreenCanvas {
   const w = Math.round(rect.width * upscale);
   const h = Math.round(rect.height * upscale);
@@ -100,32 +97,81 @@ function cropAndThresholdInvert(
   const imageData = ctx.getImageData(0, 0, w, h);
   const data = imageData.data;
 
-  // Compute adaptive threshold from mean luminance (sample every 4th pixel
-  // for speed; ~25% of pixels is plenty for a stable mean)
-  let sum = 0;
-  let count = 0;
+  // Compute yellowness for each pixel, then adaptive-threshold on yellowness
+  const yellowness = new Float32Array(w * h);
+  let maxY = 0;
+  for (let i = 0; i < data.length; i += 4) {
+    const r = data[i]!;
+    const g = data[i + 1]!;
+    const b = data[i + 2]!;
+    const y = Math.min(r, g) - b;
+    const idx = i >> 2;
+    yellowness[idx] = y;
+    if (y > maxY) maxY = y;
+  }
+
+  // Threshold at 30% of the peak yellowness — catches the text while
+  // rejecting the dark gradient. If peak yellowness is too low (< 40),
+  // the crop probably doesn't contain yellow text; fall through to the
+  // luminance fallback in ocrChampionName.
+  const threshold = maxY * 0.3;
+  const hasYellowText = maxY >= 40;
+
+  for (let i = 0; i < data.length; i += 4) {
+    const idx = i >> 2;
+    const isText = hasYellowText && yellowness[idx]! > threshold;
+    const value = isText ? 0 : 255;
+    data[i] = value;
+    data[i + 1] = value;
+    data[i + 2] = value;
+  }
+  ctx.putImageData(imageData, 0, 0);
+  return out;
+}
+
+/**
+ * Crop + upscale + luminance threshold. Fallback for non-yellow text
+ * (white text on dark, or when yellow isolation produces nothing).
+ */
+function cropAndThresholdLuminance(
+  source: HTMLCanvasElement | OffscreenCanvas,
+  rect: Rect,
+  upscale = 4,
+): OffscreenCanvas {
+  const w = Math.round(rect.width * upscale);
+  const h = Math.round(rect.height * upscale);
+  const out = new OffscreenCanvas(w, h);
+  const ctx = out.getContext('2d');
+  if (!ctx) throw new Error('OffscreenCanvas 2d context unavailable');
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(source, rect.x, rect.y, rect.width, rect.height, 0, 0, w, h);
+
+  const imageData = ctx.getImageData(0, 0, w, h);
+  const data = imageData.data;
+
+  // Percentile-based threshold: sort luminance values and pick the 75th
+  // percentile as the cut. Text pixels are the bright minority; background
+  // is the dark majority. This is more robust than mean+offset.
+  const lumValues: number[] = [];
   for (let i = 0; i < data.length; i += 16) {
     const r = data[i]!;
     const g = data[i + 1]!;
     const b = data[i + 2]!;
-    sum += 0.299 * r + 0.587 * g + 0.114 * b;
-    count++;
+    lumValues.push(0.299 * r + 0.587 * g + 0.114 * b);
   }
-  const meanLum = sum / count;
-  const threshold = meanLum + thresholdOffset;
+  lumValues.sort((a, b) => a - b);
+  const threshold = lumValues[Math.floor(lumValues.length * 0.75)] ?? 128;
 
   for (let i = 0; i < data.length; i += 4) {
     const r = data[i]!;
     const g = data[i + 1]!;
     const b = data[i + 2]!;
     const lum = 0.299 * r + 0.587 * g + 0.114 * b;
-    // Above threshold = text (originally bright) → black
-    // Below threshold = background (originally dark) → white
     const value = lum > threshold ? 0 : 255;
     data[i] = value;
     data[i + 1] = value;
     data[i + 2] = value;
-    // alpha unchanged
   }
   ctx.putImageData(imageData, 0, 0);
   return out;
@@ -199,42 +245,55 @@ export async function ocrBHR(
 /**
  * OCR a region containing a champion name (longer, mixed-case).
  *
- * Two-pass strategy: try PSM_SINGLE_LINE first (most names are one line);
- * if that returns nothing useful, try PSM_SINGLE_WORD as a fallback for
- * cases where Tesseract loses confidence on the line-segmenter.
- *
- * Names sit above the BHR on the card. Threshold-invert preprocessing
- * converts the in-game yellow-on-dark text to black-on-white for Tesseract.
+ * Multi-strategy approach:
+ *   1. Yellow-channel isolation (primary — game renders names in gold/yellow)
+ *   2. Luminance threshold (fallback — handles white text or when yellow fails)
+ * Each strategy tries PSM_SINGLE_LINE then PSM_SINGLE_WORD. The best result
+ * across all attempts (most letters = most likely a real name) wins.
  */
 export async function ocrChampionName(
   source: HTMLCanvasElement | OffscreenCanvas,
   rect: Rect,
 ): Promise<string> {
   const worker = await getWorker();
-  const cropped = cropAndThresholdInvert(source, rect, 4, 30);
 
-  debugLogCanvas(cropped, `name crop @ (${Math.round(rect.x)},${Math.round(rect.y)})`);
+  const yellowCrop = cropAndIsolateYellow(source, rect, 4);
+  const lumCrop = cropAndThresholdLuminance(source, rect, 4);
 
-  // Pass 1: single line
-  await worker.setParameters({
-    tessedit_char_whitelist:
-      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz -()0123456789',
-    tessedit_pageseg_mode: 7,
-  });
-  const result1 = await worker.recognize(cropped);
-  const text1 = sanitiseNameText(result1.data.text);
-  if (looksLikeName(text1)) return text1;
+  debugLogCanvas(yellowCrop, `name-yellow @ (${Math.round(rect.x)},${Math.round(rect.y)})`);
+  debugLogCanvas(lumCrop, `name-lum @ (${Math.round(rect.x)},${Math.round(rect.y)})`);
 
-  // Pass 2: single word (helps when line segmenter fails on noisy crops)
-  await worker.setParameters({
-    tessedit_char_whitelist:
-      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz -()0123456789',
-    tessedit_pageseg_mode: 8,
-  });
-  const result2 = await worker.recognize(cropped);
-  const text2 = sanitiseNameText(result2.data.text);
-  // Return whichever has more letters (more likely to be a real name)
-  return letterCount(text2) > letterCount(text1) ? text2 : text1;
+  const NAME_WHITELIST =
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz -()\'0123456789';
+
+  async function tryOcr(crop: OffscreenCanvas, psm: number): Promise<string> {
+    await worker.setParameters({
+      tessedit_char_whitelist: NAME_WHITELIST,
+      tessedit_pageseg_mode: psm,
+    });
+    const result = await worker.recognize(crop);
+    return sanitiseNameText(result.data.text);
+  }
+
+  // Sequential — single shared worker can't safely interleave setParameters
+  const candidates = [
+    await tryOcr(yellowCrop, 7),
+    await tryOcr(yellowCrop, 8),
+    await tryOcr(lumCrop, 7),
+    await tryOcr(lumCrop, 8),
+  ];
+
+  // Pick the candidate with the most letters — longest plausible name wins
+  let best = '';
+  let bestScore = -1;
+  for (const c of candidates) {
+    const score = letterCount(c);
+    if (score > bestScore) {
+      bestScore = score;
+      best = c;
+    }
+  }
+  return best;
 }
 
 /** Strip line breaks, runs of whitespace, and leading/trailing punctuation. */
