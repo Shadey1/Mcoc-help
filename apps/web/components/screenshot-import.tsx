@@ -3,13 +3,13 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Champion, ChampionState } from '@prestige-tools/engine';
 import { runOcrPipeline, type ProgressUpdate } from '../lib/ocr/pipeline';
-import type { IdentifiedCard, PortraitHashTable } from '../lib/ocr/types';
+import type { IdentifiedCard } from '../lib/ocr/types';
+import { loadPortraitStore } from '../lib/ocr/portrait-store';
 import { terminateOcrWorker } from '../lib/ocr/tesseract';
 import { ConfirmationGrid } from './confirmation-grid';
 
 type Props = {
   champions: Champion[];
-  portraitLibrary: PortraitHashTable;
   onImport: (states: ChampionState[]) => void;
 };
 
@@ -25,9 +25,11 @@ type Phase =
  * drag/drop, paste, or file picker. Runs them through the OCR pipeline
  * client-side (no upload), then shows the confirmation grid for review.
  *
- * On import, calls onImport with the confirmed champion states.
+ * On import, calls onImport with the confirmed champion states. The
+ * confirmation grid also persists confirmed portraits to the user's local
+ * portrait store, which the next import session benefits from.
  */
-export function ScreenshotImport({ champions, portraitLibrary, onImport }: Props) {
+export function ScreenshotImport({ champions, onImport }: Props) {
   const [phase, setPhase] = useState<Phase>({ kind: 'idle' });
   const dropRef = useRef<HTMLDivElement>(null);
 
@@ -93,9 +95,12 @@ export function ScreenshotImport({ champions, portraitLibrary, onImport }: Props
     const files = phase.files;
     setPhase({ kind: 'processing', progress: [], files });
     try {
+      // Load portrait store fresh at processing time — picks up any
+      // confirmations from previous sessions in this tab
+      const portraitStore = loadPortraitStore();
       const cards = await runOcrPipeline(files, {
         champions,
-        portraitLibrary,
+        portraitStore,
         onProgress: (update) => {
           setPhase((p) =>
             p.kind === 'processing'
@@ -242,8 +247,10 @@ export function ScreenshotImport({ champions, portraitLibrary, onImport }: Props
           </div>
           <div className="text-xs text-[var(--color-ink-soft)]">
             First run downloads Tesseract.js (~2MB). Each screenshot takes
-            20–40 seconds — there are two OCR passes per screenshot
-            (multiverse-wide anchor scan, then per-card BHR reads).
+            20–40 seconds — two OCR passes per screenshot (whole-image anchor
+            scan, then per-card BHR reads). The first import is the slowest;
+            once your portrait store fills up, identification gets faster
+            and more accurate.
           </div>
         </div>
       )}

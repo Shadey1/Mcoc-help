@@ -1,5 +1,5 @@
 /**
- * OCR pipeline orchestrator — v0.14.0 BHR-anchor approach.
+ * OCR pipeline orchestrator (v0.16.0 — BHR-first identification).
  *
  * Per screenshot:
  *   1. Whole-image OCR pass → BHR anchors (bhr-anchor.ts)
@@ -7,22 +7,28 @@
  *      (grid-detect.ts)
  *   3. Per cell:
  *        a. Hash portrait region (phash.ts)
- *        b. Focused-OCR the BHR cell (tesseract.ts → ocrBHR)
- *        c. Detect ascension visually (ascension-detect.ts)
- *        d. OCR champion name for cross-validation (tesseract.ts → ocrChampionName)
- *        e. Match champion (champion-match.ts) — portrait + name combined
- *        f. Reverse-derive (rank, sig) from (BHR + champion + ascension)
- *           (bhr-reverse.ts)
+ *        b. Generate thumbnail of portrait region (portrait-store.ts)
+ *        c. Focused-OCR the BHR cell (tesseract.ts → ocrBHR)
+ *        d. Detect ascension visually (ascension-detect.ts) — used as a hint only
+ *        e. OCR champion name (tesseract.ts → ocrChampionName)
+ *        f. Match champion (champion-match.ts) using BHR + portrait + name
+ *        g. Derive (rank, sig) state from BHR for the matched champion
  *
- * Returns IdentifiedCards deduplicated by champion across multiple screenshots.
+ * v0.16.0 change: matchChampion now receives `observedBHR` and `ascensionHint`
+ * in addition to the portrait and name signals. BHR-based identification
+ * (bhr-identify.ts) is the primary signal — it works on day 1 with no prior
+ * data because the engine math is deterministic and BHRs are usually unique
+ * to one (champion, state) tuple within tolerance.
  *
- * Progress events are themed for the Variant D visual direction (see
- * architecture-v5.md §10) — comic-book vocabulary for the moments of impact,
- * editorial restraint everywhere else.
+ * Order matters: identification happens BEFORE state derivation now, and the
+ * state comes either from the BHR-search candidate directly (when champion
+ * matched via BHR) or from a focused per-champion reverse-derive.
  */
 
 import type { Champion } from '@prestige-tools/engine';
-import type { IdentifiedCard, PortraitHashTable, Rect } from './types';
+import type { IdentifiedCard, Rect } from './types';
+import type { PortraitStore } from './portrait-store';
+import { generateThumbnail } from './portrait-store';
 import { detectGridCells } from './grid-detect';
 import { findBHRAnchors } from './bhr-anchor';
 import { hashImageRegion } from './phash';
@@ -31,17 +37,13 @@ import { detectAscension } from './ascension-detect';
 import { deriveStateFromBHR } from './bhr-reverse';
 import { matchChampion } from './champion-match';
 
-// ─── Card subregion geometry ────────────────────────────────────────────────
-//
-// Each card has the same proportional layout: portrait on top, name strip,
-// BHR strip, ascension badge bottom-right. These fractions are calibrated
-// against the Windows prestige modal and verified against phone screenshots.
+// ─── Card subregion geometry ──────────────────────────────────────────────
 
-const PORTRAIT_REGION = { y: 0.0, h: 0.65 }; // top 65%
-const NAME_REGION = { y: 0.65, h: 0.16 }; // 65-81% — name strip
-const BHR_REGION = { y: 0.78, h: 0.18 }; // 78-96% — BHR number (slight overlap with name OK)
+const PORTRAIT_REGION = { y: 0.0, h: 0.65 };
+const NAME_REGION = { y: 0.65, h: 0.16 };
+const BHR_REGION = { y: 0.78, h: 0.18 };
 
-// ─── Progress events ────────────────────────────────────────────────────────
+// ─── Progress events ──────────────────────────────────────────────────────
 
 export type ProgressUpdate =
   | { kind: 'screenshot-start'; index: number; total: number; copy: string }
@@ -59,11 +61,9 @@ export type ProgressUpdate =
 
 export type PipelineOptions = {
   champions: Champion[];
-  portraitLibrary: PortraitHashTable;
+  portraitStore: PortraitStore;
   onProgress?: (update: ProgressUpdate) => void;
 };
-
-// ─── Themed progress copy (Variant D — multiverse vocabulary) ───────────────
 
 const COPY = {
   screenshotStart: (i: number, total: number) =>
@@ -75,8 +75,6 @@ const COPY = {
   done: (i: number) => `Screenshot ${i + 1} sealed.`,
   failed: (reason: string) => `Reality skipped: ${reason}`,
 };
-
-// ─── Public entry ───────────────────────────────────────────────────────────
 
 export async function runOcrPipeline(
   files: File[] | Blob[],
@@ -113,8 +111,6 @@ export async function runOcrPipeline(
   return dedupeByChampion(allCards);
 }
 
-// ─── Per-screenshot processing ──────────────────────────────────────────────
-
 async function processSingleScreenshot(
   file: File | Blob,
   sourceIndex: number,
@@ -122,7 +118,6 @@ async function processSingleScreenshot(
 ): Promise<IdentifiedCard[]> {
   const canvas = await loadToCanvas(file);
 
-  // Stage 1: BHR anchor pass (whole-image OCR)
   options.onProgress?.({
     kind: 'anchors-found',
     index: sourceIndex,
@@ -131,7 +126,6 @@ async function processSingleScreenshot(
   });
   const anchors = await findBHRAnchors(canvas);
 
-  // Stage 2: grid synthesis (variance rows + anchor columns)
   const detected = detectGridCells(canvas, anchors, sourceIndex);
   options.onProgress?.({
     kind: 'grid-detected',
@@ -146,7 +140,6 @@ async function processSingleScreenshot(
     );
   }
 
-  // Stage 3: per-card processing
   const results: IdentifiedCard[] = [];
   for (let i = 0; i < detected.length; i++) {
     options.onProgress?.({
@@ -168,7 +161,6 @@ async function processCard(
   canvas: HTMLCanvasElement | OffscreenCanvas,
   options: PipelineOptions,
 ): Promise<IdentifiedCard | null> {
-  // Subregion rects
   const portraitRect: Rect = {
     x: card.rect.x,
     y: card.rect.y + card.rect.height * PORTRAIT_REGION.y,
@@ -188,7 +180,6 @@ async function processCard(
     height: card.rect.height * BHR_REGION.h,
   };
 
-  // Portrait hash (sync, fast)
   const portraitHash = hashImageRegion(
     canvas,
     portraitRect.x,
@@ -197,8 +188,20 @@ async function processCard(
     portraitRect.height,
   );
 
-  // Ascension via visual pip count (sync, fast)
-  const ascension = detectAscension(canvas, card.rect);
+  const thumbnailDataUrl = await generateThumbnail(
+    canvas,
+    portraitRect.x,
+    portraitRect.y,
+    portraitRect.width,
+    portraitRect.height,
+    64,
+  );
+
+  // Visual ascension detection — used as a hint to matchChampion only.
+  // The current visual detector (bottom-right pip-count) is known unreliable
+  // against modern card layouts, so champion-match treats this as a soft
+  // preference rather than a hard constraint.
+  const visualAscension = detectAscension(canvas, card.rect);
 
   // OCR name and BHR in parallel
   const [nameText, ocredBHR] = await Promise.all([
@@ -206,34 +209,53 @@ async function processCard(
     ocrBHR(canvas, bhrRect).catch(() => null),
   ]);
 
-  // Identify champion from portrait + name
+  // Identify champion using all three signals (BHR primary, portrait + name corroborating)
   const match = matchChampion(
     portraitHash,
     nameText || null,
+    ocredBHR,
+    visualAscension,
     options.champions,
-    options.portraitLibrary,
+    options.portraitStore,
   );
 
-  // Reverse-derive state from BHR + champion identity + visual ascension
+  // Derive (rank, sig) state from BHR for the matched champion. The
+  // BHR-search candidate already implicitly contains a state, but
+  // deriveStateFromBHR does the round-sig preference for nicer display
+  // (e.g. prefer sig 200 over sig 198 when both fit).
   let derivedState = null;
   if (ocredBHR !== null && match.championId) {
     const champion = options.champions.find((c) => c.id === match.championId);
     if (champion) {
-      derivedState = deriveStateFromBHR(
-        champion,
-        ocredBHR,
-        champion.ascendable ? ascension : 'A0',
-      );
+      // Use the matched champion's reachable ascensions to find the best fit.
+      // If the visual hint disagrees with the BHR-match's ascension, trust BHR.
+      const ascensions: Array<'A0' | 'A1' | 'A2'> = champion.ascendable
+        ? ['A2', 'A1', 'A0']
+        : ['A0'];
+      let best: ReturnType<typeof deriveStateFromBHR> | null = null;
+      for (const asc of ascensions) {
+        const candidate = deriveStateFromBHR(champion, ocredBHR, asc);
+        if (candidate && (!best || candidate.absError < best.absError)) {
+          best = candidate;
+        }
+      }
+      derivedState = best;
     }
   }
 
-  // Skip cards with no champion identification at all
-  if (!match.championId) return null;
+  if (!match.championId) {
+    console.log(
+      `[pipeline] card ${card.cardIndex} (screenshot ${card.sourceIndex}): no champion identified`,
+      { nameText, ocredBHR, visualAscension, portraitHash },
+    );
+    return null;
+  }
 
   return {
     tile: {
       detected: card,
       portraitHash,
+      thumbnailDataUrl,
       derivedState,
       nameText: nameText || null,
     },
@@ -241,8 +263,6 @@ async function processCard(
     userOverrideId: null,
   };
 }
-
-// ─── Helpers ────────────────────────────────────────────────────────────────
 
 async function loadToCanvas(file: File | Blob): Promise<OffscreenCanvas> {
   const bitmap = await createImageBitmap(file);
@@ -254,12 +274,6 @@ async function loadToCanvas(file: File | Blob): Promise<OffscreenCanvas> {
   return canvas;
 }
 
-/**
- * Deduplicate cards across multiple screenshots — if the same champion appears
- * in two screenshots (e.g. user pasted both prestige modal and My Champions),
- * keep the entry with the highest match confidence. Derived state is taken
- * from that same higher-confidence reading.
- */
 function dedupeByChampion(cards: IdentifiedCard[]): IdentifiedCard[] {
   const bestByChampion = new Map<string, IdentifiedCard>();
   for (const card of cards) {

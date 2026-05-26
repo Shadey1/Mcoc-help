@@ -21,33 +21,19 @@
  *     is nearly bijective.
  *   - Tolerance can be loose (±200 BHR) because Tesseract's BHR OCR is
  *     generally accurate to within a few tens.
+ *
+ * v0.16.0 note: ChampionState gained `stateConfirmed` and `addedVia` fields
+ * during v0.15.0. The synthetic states constructed here for BHR enumeration
+ * fill those fields with neutral values — they aren't read by calculateBHR,
+ * only the rank/sig/ascension/championId tuple matters for the math.
  */
 
 import type { Ascension, Champion, Rank } from '@prestige-tools/engine';
 import { calculateBHR } from '@prestige-tools/engine';
 import type { DerivedState } from './types';
 
-/**
- * Maximum sig step to evaluate. Player-visible sigs come in 10-sig increments
- * (or sometimes finer, depending on stones spent). Evaluating every integer
- * 0..200 catches them all.
- */
 const SIG_RESOLUTION = 1;
-
-/**
- * Reject derivations where the best match is further than this many BHR points
- * from the observed value. ±200 is generous — it covers Tesseract noise plus
- * occasional ±10 rounding gaps. If the gap is larger, something's wrong
- * (mis-identified champion, OCR garbage, etc.) and we'd rather flag than
- * confidently guess.
- */
 const ACCEPT_TOLERANCE = 200;
-
-/**
- * Up to N best alternative (rank, sig) candidates to surface for user override.
- * Filtered to within a wider tolerance than the accept threshold — these are
- * the "plausible other readings" if the auto-pick was wrong.
- */
 const ALTERNATIVES_TOLERANCE = 500;
 const MAX_ALTERNATIVES = 4;
 
@@ -71,10 +57,6 @@ export function deriveStateFromBHR(
   const candidates: Candidate[] = [];
 
   for (const rank of [5, 4, 3] as const) {
-    // Skip ranks that the champion data doesn't define directly. The engine
-    // can derive R4/R3 from R5 via rank multiplier, so this rarely skips
-    // anything in practice — but if the champion definition only carries R5
-    // brackets and the calculateBHR derivation throws, we catch it below.
     try {
       for (let sig = 0; sig <= 200; sig += SIG_RESOLUTION) {
         const predicted = calculateBHR(champion, {
@@ -82,6 +64,10 @@ export function deriveStateFromBHR(
           rank,
           sig,
           ascension,
+          // Neutral fills — calculateBHR doesn't read these but the type
+          // requires them since v0.15.0's ChampionState evolution.
+          stateConfirmed: false,
+          addedVia: 'screenshot',
         });
         const absError = Math.abs(predicted - observedBHR);
         candidates.push({ rank, sig, predicted, absError });
@@ -95,20 +81,9 @@ export function deriveStateFromBHR(
   candidates.sort((a, b) => a.absError - b.absError);
 
   const best = candidates[0]!;
-  if (best.absError > ACCEPT_TOLERANCE) {
-    // No candidate close enough. Probably mis-identified champion or OCR
-    // garbage — flag by returning null; pipeline will surface this as a low-
-    // confidence card needing user attention.
-    return null;
-  }
+  if (best.absError > ACCEPT_TOLERANCE) return null;
 
-  // Prefer round sig values when ties exist within a few BHR. Players almost
-  // always sit at sig 0, 20, 50, 100, 150, 200 — favouring those breaks ties
-  // toward the more likely state. (Sig stones come in batches that land on
-  // round values.)
   const preferred = pickRoundSigPreference(candidates, best.absError);
-
-  // Build alternatives list, deduplicated and filtered
   const alternatives = collectAlternatives(candidates, preferred);
 
   return {
@@ -136,7 +111,6 @@ function pickRoundSigPreference<C extends { sig: number; absError: number }>(
   const tieWindow = Math.max(bestError + 10, 30);
   const ties = candidates.filter((c) => c.absError <= tieWindow);
 
-  // Score: lower is better. Prefer multiples of 50, then 20, then 10.
   function roundnessPenalty(sig: number): number {
     if (sig === 0 || sig === 200) return 0;
     if (sig % 50 === 0) return 1;
@@ -164,7 +138,6 @@ function collectAlternatives<
   for (const c of candidates) {
     if (out.length >= MAX_ALTERNATIVES) break;
     if (c.absError > ALTERNATIVES_TOLERANCE) break;
-    // Skip near-duplicates (same rank, sig within 5 of an already-shown one)
     const key = `${c.rank}-${c.sig}`;
     if (seen.has(key)) continue;
     const closeToExisting = out.some(
@@ -194,7 +167,7 @@ function collectAlternatives<
  */
 export function confidenceFromAbsError(absError: number): number {
   if (absError <= 30) return 1;
-  if (absError <= 100) return 1 - ((absError - 30) / 70) * 0.4; // 1 → 0.6
-  if (absError <= 200) return 0.6 - ((absError - 100) / 100) * 0.4; // 0.6 → 0.2
+  if (absError <= 100) return 1 - ((absError - 30) / 70) * 0.4;
+  if (absError <= 200) return 0.6 - ((absError - 100) / 100) * 0.4;
   return 0;
 }

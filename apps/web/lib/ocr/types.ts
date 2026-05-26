@@ -1,17 +1,19 @@
 /**
  * Shared types for the screenshot-OCR pipeline.
  *
- * v0.14.0 rewrite: state text is no longer OCR'd. The in-game prestige page
- * and My Champions page only display BHR under each portrait — there is no
- * "R5 sig 200 A2" text to read. Instead we:
+ * Pipeline architecture (v0.16.0):
  *
  *   1. OCR the whole image to find BHR anchors (NN,NNN patterns)
  *   2. Use anchor positions + variance row detection to synthesise a grid
- *   3. Per card: hash portrait, focused-OCR the BHR cell, detect ascension
- *      pips visually
- *   4. Reverse-derive (rank, sig) from (BHR, champion, ascension) via engine
- *      math — the unique combo whose predicted BHR matches the OCR'd BHR
- *      within tolerance
+ *   3. Per card: hash portrait, focused-OCR the BHR cell, OCR the name
+ *      strip, detect ascension pips visually
+ *   4. Combine portrait (queried against user-confirmed store) + name OCR
+ *      via champion-match.ts to identify the champion
+ *   5. Reverse-derive (rank, sig) from (BHR, champion, ascension) via engine
+ *      math
+ *   6. On confirm, save the cropped portrait + hash to the user's local
+ *      portrait store, so future imports identify this champion more
+ *      confidently
  *
  * The pipeline runs entirely in the browser via canvas + Tesseract.js,
  * with no server round-trips.
@@ -75,8 +77,14 @@ export type DerivedState = {
 /** A card after all extraction stages, ready for matching. */
 export type ProcessedTile = {
   detected: DetectedCard;
-  /** Top portion of the card — the portrait. Used for perceptual hashing. */
+  /** Top portion of the card — the portrait. Hashed for portrait-store lookup. */
   portraitHash: string;
+  /**
+   * Small JPEG dataURL of the cropped portrait, generated during the pipeline.
+   * Carried through so the confirmation grid can stash it in the portrait
+   * store on user confirmation (and display thumbnails in any diagnostic view).
+   */
+  thumbnailDataUrl: string;
   /** BHR + reverse-derived state. Null if OCR or derivation failed. */
   derivedState: DerivedState | null;
   /** OCR'd champion name from below the portrait. May be noisy. */
@@ -103,15 +111,6 @@ export type IdentifiedCard = {
   userOverrideId: string | null;
 };
 
-/**
- * Pre-computed portrait hashes shipped with the bundle.
- * Generated at build time by `scripts/hash-portraits.ts`.
- */
-export type PortraitHashTable = {
-  /** ISO timestamp of when this was generated. */
-  generatedAt: string;
-  /** Hash algorithm identifier — used to validate compatibility. */
-  algorithm: 'ahash-64' | 'phash-64';
-  /** championId → 64-bit hash as 16-char hex string. */
-  hashes: Record<string, string>;
-};
+// PortraitHashTable type removed in v0.16.0 — replaced by PortraitStore
+// in portrait-store.ts. Day 1 users have an empty store; it builds up
+// organically as they confirm champion identifications.

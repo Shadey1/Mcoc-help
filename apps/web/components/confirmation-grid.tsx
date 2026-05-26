@@ -5,6 +5,12 @@ import type { Champion, ChampionState } from '@prestige-tools/engine';
 import type { IdentifiedCard } from '../lib/ocr/types';
 import { ChampionPortrait } from './champion-portrait';
 import { findCandidates } from '../lib/ocr/name-match';
+import {
+  addPortrait,
+  loadPortraitStore,
+  savePortraitStore,
+  type PortraitStore,
+} from '../lib/ocr/portrait-store';
 
 type Props = {
   cards: IdentifiedCard[];
@@ -27,7 +33,9 @@ type EditableState = {
  *   - Adjust rank/sig/ascension if they were misread
  *   - Skip a card entirely if it shouldn't be imported
  *
- * Final action: Import → onConfirm with kept champion states.
+ * On Import: saves the confirmed identifications to roster state AND stashes
+ * the cropped portrait + hash into the user's local portrait store. The
+ * portrait store improves identification accuracy on subsequent imports.
  */
 export function ConfirmationGrid({ cards, champions, onConfirm, onCancel }: Props) {
   const championLookup = useMemo(
@@ -35,7 +43,6 @@ export function ConfirmationGrid({ cards, champions, onConfirm, onCancel }: Prop
     [champions],
   );
 
-  // Per-card state — initialised from OCR results, mutable per user input
   const [overrides, setOverrides] = useState<Record<number, string>>({});
   const [skipped, setSkipped] = useState<Set<number>>(new Set());
   const [stateEdits, setStateEdits] = useState<Record<number, EditableState>>(() =>
@@ -87,11 +94,16 @@ export function ConfirmationGrid({ cards, champions, onConfirm, onCancel }: Prop
 
   function handleConfirm() {
     const states: ChampionState[] = [];
+    let store: PortraitStore = loadPortraitStore();
+    let portraitsSaved = 0;
+
     for (let i = 0; i < cards.length; i++) {
       if (skipped.has(i)) continue;
       const champion = effectiveChampion(i);
       if (!champion) continue;
       const edit = stateEdits[i]!;
+      const card = cards[i]!;
+
       states.push({
         championId: champion.id,
         rank: edit.rank,
@@ -100,7 +112,23 @@ export function ConfirmationGrid({ cards, champions, onConfirm, onCancel }: Prop
         stateConfirmed: true,
         addedVia: 'screenshot',
       });
+
+      // Stash the confirmed portrait — but only if we actually have a usable
+      // hash + thumbnail (defensive in case pipeline skipped generation)
+      if (card.tile.portraitHash && card.tile.portraitHash.length === 16) {
+        store = addPortrait(store, champion.id, {
+          hash: card.tile.portraitHash,
+          capturedAt: new Date().toISOString(),
+          thumbnailDataUrl: card.tile.thumbnailDataUrl ?? '',
+        });
+        portraitsSaved++;
+      }
     }
+
+    savePortraitStore(store);
+    console.log(
+      `[confirmation-grid] confirmed ${states.length} champions, saved ${portraitsSaved} portraits`,
+    );
     onConfirm(states);
   }
 
@@ -132,7 +160,9 @@ export function ConfirmationGrid({ cards, champions, onConfirm, onCancel }: Prop
       <div className="text-xs text-[var(--color-ink-soft)] bg-[var(--color-paper-soft)] border border-[var(--color-rule)] rounded p-2">
         Click any champion name to change the match. Click rank / sig / A* to
         edit the state. Click <strong>skip</strong> to exclude a card. Then{' '}
-        <strong>Import</strong> below.
+        <strong>Import</strong> below. Each confirmation saves the portrait
+        to your local library — future imports will recognise these champions
+        more accurately.
       </div>
 
       <ul className="border border-[var(--color-rule)] rounded divide-y divide-[var(--color-rule)] max-h-[60vh] overflow-y-auto">
@@ -163,7 +193,19 @@ export function ConfirmationGrid({ cards, champions, onConfirm, onCancel }: Prop
                 title={`${agreement} match (confidence ${(card.match.confidence * 100).toFixed(0)}%)`}
               />
 
-              {/* Portrait */}
+              {/* OCR'd portrait thumbnail (shows what the OCR actually saw,
+                  alongside the official portrait — helps the user spot bad crops) */}
+              {card.tile.thumbnailDataUrl && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={card.tile.thumbnailDataUrl}
+                  alt="OCR'd portrait"
+                  className="w-9 h-9 rounded border border-[var(--color-rule)] flex-shrink-0"
+                  title="What the OCR pipeline saw"
+                />
+              )}
+
+              {/* Official portrait of the matched champion */}
               {champion && (
                 <ChampionPortrait
                   name={champion.name}
@@ -302,7 +344,6 @@ function ChampionPicker({
 
   const candidates = useMemo(() => {
     if (query.trim().length === 0) {
-      // No query — show alternatives from the OCR pipeline + first 20 alphabetical
       const altSet = new Set(alternatives.map((a) => a.championId));
       const altList = alternatives
         .map((a) => champions.find((c) => c.id === a.championId))

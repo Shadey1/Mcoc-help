@@ -16,8 +16,5 @@
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": [
     "node_modules",
-    "lib/ocr/**",
-    "components/screenshot-import.tsx",
-    "components/confirmation-grid.tsx"
   ]
 }
