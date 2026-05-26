@@ -246,7 +246,10 @@ export function RosterManager({ champions }: RosterManagerProps) {
           <BulkImport champions={champions} onImport={handleBulkImport} />
         )}
         {addMode === 'seed' && (
-          <PortraitSeed champions={champions} />
+          <PortraitSeed
+            champions={champions}
+            onImport={handleBulkImport}
+          />
         )}
       </section>
 

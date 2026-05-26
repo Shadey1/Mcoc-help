@@ -15,10 +15,11 @@
  * No BHR matching needed — identification is by name.
  */
 
-import type { Champion } from '@prestige-tools/engine';
+import type { Champion, ChampionState } from '@prestige-tools/engine';
 import { findBHRAnchorsAndWords } from './bhr-anchor';
 import { findNameAnchors, type NameAnchor } from './name-anchor';
 import { hashImageRegion } from './phash';
+import { deriveStateFromBHR } from './bhr-reverse';
 import {
   addPortrait,
   generateThumbnail,
@@ -36,6 +37,7 @@ export type SeedProgress =
 export type SeedResult = {
   seeded: number;
   champions: string[];
+  rosterStates: ChampionState[];
 };
 
 export async function seedPortraitStore(
@@ -86,9 +88,11 @@ export async function seedPortraitStore(
     `[portrait-seeder] ${unique.length} unique champions found across ${files.length} screenshots`,
   );
 
-  // Phase 2: Crop portraits and save to store
+  // Phase 2: Crop portraits, derive state, save to store
   let store: PortraitStore = loadPortraitStore();
   const seededNames: string[] = [];
+  const rosterStates: ChampionState[] = [];
+  const champLookup = new Map(champions.map((c) => [c.id, c]));
 
   for (let i = 0; i < unique.length; i++) {
     const { anchor, canvas } = unique[i]!;
@@ -100,8 +104,7 @@ export async function seedPortraitStore(
       total: unique.length,
     });
 
-    // Portrait region: above the name text. The name rect gives us the
-    // bottom reference. Portrait is roughly 3-4× the name height above it.
+    // Portrait region: above the name text
     const nameH = anchor.rect.height;
     const portraitHeight = nameH * 4;
     const portraitY = Math.max(0, anchor.rect.y - portraitHeight);
@@ -135,6 +138,31 @@ export async function seedPortraitStore(
       thumbnailDataUrl: thumbnail,
     });
 
+    // Derive state from BHR if available
+    const champ = champLookup.get(anchor.championId);
+    if (champ && anchor.bhrValue) {
+      const ascensions: Array<'A0' | 'A1' | 'A2'> = champ.ascendable
+        ? ['A2', 'A1', 'A0']
+        : ['A0'];
+      let bestState: ReturnType<typeof deriveStateFromBHR> | null = null;
+      for (const asc of ascensions) {
+        const candidate = deriveStateFromBHR(champ, anchor.bhrValue, asc);
+        if (candidate && (!bestState || candidate.absError < bestState.absError)) {
+          bestState = candidate;
+        }
+      }
+      if (bestState) {
+        rosterStates.push({
+          championId: anchor.championId,
+          rank: bestState.rank,
+          sig: bestState.sig,
+          ascension: bestState.ascension,
+          stateConfirmed: false,
+          addedVia: 'screenshot',
+        });
+      }
+    }
+
     seededNames.push(anchor.championName);
   }
 
@@ -147,11 +175,12 @@ export async function seedPortraitStore(
   });
 
   console.log(
-    `[portrait-seeder] saved ${seededNames.length} portraits to store`,
+    `[portrait-seeder] saved ${seededNames.length} portraits, derived ${rosterStates.length} roster states`,
   );
 
   return {
     seeded: seededNames.length,
     champions: seededNames,
+    rosterStates,
   };
 }

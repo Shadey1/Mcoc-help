@@ -20,6 +20,8 @@ export type NameAnchor = {
   championId: string;
   championName: string;
   rect: Rect;
+  /** BHR value found below the name text, if any. */
+  bhrValue: number | null;
 };
 
 /**
@@ -84,6 +86,7 @@ export function findNameAnchors(
               width: (bbox.x1 - bbox.x0) * scale,
               height: (bbox.y1 - bbox.y0) * scale,
             },
+            bhrValue: null,
           });
           start += len - 1;
           break;
@@ -92,12 +95,66 @@ export function findNameAnchors(
     }
   }
 
+  // Pair each name with the BHR value below it
+  const bhrWords = extractBhrWords(words, scale);
+  for (const anchor of found) {
+    anchor.bhrValue = findBhrBelow(anchor.rect, bhrWords);
+  }
+
+  const withBhr = found.filter((f) => f.bhrValue !== null).length;
   console.log(
-    `[name-anchor] found ${found.length} champion names:`,
-    found.map((f) => f.championName),
+    `[name-anchor] found ${found.length} champion names (${withBhr} with BHR):`,
+    found.map((f) => `${f.championName}${f.bhrValue ? ` (${f.bhrValue})` : ''}`),
   );
 
   return found;
+}
+
+const BHR_WORD_PATTERN = /^(\d{2,3})[,.]?(\d{3})/;
+
+function extractBhrWords(
+  words: OcrWord[],
+  scale: number,
+): Array<{ value: number; cx: number; cy: number }> {
+  const results: Array<{ value: number; cx: number; cy: number }> = [];
+  for (const w of words) {
+    const match = w.text.trim().match(BHR_WORD_PATTERN);
+    if (!match) continue;
+    const value = parseInt(match[1]! + match[2]!, 10);
+    if (value < 10000 || value > 99999) continue;
+    results.push({
+      value,
+      cx: ((w.bbox.x0 + w.bbox.x1) / 2) * scale,
+      cy: ((w.bbox.y0 + w.bbox.y1) / 2) * scale,
+    });
+  }
+  return results;
+}
+
+function findBhrBelow(
+  nameRect: Rect,
+  bhrWords: Array<{ value: number; cx: number; cy: number }>,
+): number | null {
+  const nameCx = nameRect.x + nameRect.width / 2;
+  const nameBottom = nameRect.y + nameRect.height;
+  const nameH = nameRect.height;
+
+  let best: { value: number; dist: number } | null = null;
+
+  for (const bhr of bhrWords) {
+    // BHR must be below the name and horizontally close
+    if (bhr.cy < nameBottom) continue;
+    if (bhr.cy > nameBottom + nameH * 8) continue;
+    const xDist = Math.abs(bhr.cx - nameCx);
+    if (xDist > nameRect.width * 1.5) continue;
+
+    const dist = bhr.cy - nameBottom + xDist * 0.3;
+    if (!best || dist < best.dist) {
+      best = { value: bhr.value, dist };
+    }
+  }
+
+  return best?.value ?? null;
 }
 
 function groupIntoLines(

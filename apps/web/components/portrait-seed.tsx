@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import type { Champion } from '@prestige-tools/engine';
+import type { Champion, ChampionState } from '@prestige-tools/engine';
 import {
   seedPortraitStore,
   type SeedProgress,
@@ -11,6 +11,7 @@ import { portraitStoreSize, loadPortraitStore } from '../lib/ocr/portrait-store'
 
 type Props = {
   champions: Champion[];
+  onImport?: (states: ChampionState[]) => void;
 };
 
 type Phase =
@@ -20,7 +21,7 @@ type Phase =
   | { kind: 'done'; result: SeedResult }
   | { kind: 'error'; message: string };
 
-export function PortraitSeed({ champions }: Props) {
+export function PortraitSeed({ champions, onImport }: Props) {
   const [phase, setPhase] = useState<Phase>({ kind: 'idle' });
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -54,23 +55,41 @@ export function PortraitSeed({ champions }: Props) {
   }
 
   if (phase.kind === 'done') {
+    const stateCount = phase.result.rosterStates.length;
     return (
       <div className="space-y-3">
         <div className="text-sm bg-green-50 border border-green-300 text-green-900 rounded p-3">
-          <strong>Seeded {phase.result.seeded} champion portraits.</strong>
+          <strong>
+            Identified {phase.result.seeded} champions
+            {stateCount > 0 && `, derived state for ${stateCount}`}.
+          </strong>
           <p className="text-xs mt-1">
-            Future prestige page imports will recognise these champions by
-            portrait match. The more screenshots you seed, the better
-            identification gets.
+            Portraits saved for future identification. Champions with BHR
+            readings had their rank/sig/ascension derived from the engine math.
+            States are marked unconfirmed — review them in your roster table.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => setPhase({ kind: 'idle' })}
-          className="text-xs underline text-[var(--color-ink-soft)]"
-        >
-          Seed more
-        </button>
+        <div className="flex gap-2 items-center">
+          {onImport && stateCount > 0 && (
+            <button
+              type="button"
+              onClick={() => {
+                onImport(phase.result.rosterStates);
+                setPhase({ kind: 'idle' });
+              }}
+              className="px-4 py-2 bg-[var(--color-marvel-impact)] text-[var(--color-paper)] font-medium rounded hover:bg-[var(--color-marvel-editorial)] transition-colors"
+            >
+              Import {stateCount} champions to roster
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => setPhase({ kind: 'idle' })}
+            className="text-xs underline text-[var(--color-ink-soft)]"
+          >
+            {stateCount > 0 ? 'Skip import' : 'Seed more'}
+          </button>
+        </div>
       </div>
     );
   }
