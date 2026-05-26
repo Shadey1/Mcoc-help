@@ -257,8 +257,18 @@ export async function ocrChampionName(
 ): Promise<string> {
   const worker = await getWorker();
 
-  const yellowCrop = cropAndIsolateYellow(source, rect, 4);
-  const lumCrop = cropAndThresholdLuminance(source, rect, 4);
+  // Narrow the horizontal crop to the center 70% — cuts card border noise
+  const insetX = rect.width * 0.15;
+  const narrowRect: Rect = {
+    x: rect.x + insetX,
+    y: rect.y,
+    width: rect.width - insetX * 2,
+    height: rect.height,
+  };
+
+  // 6x upscale — name text is ~23px in source, needs more resolution
+  const yellowCrop = cropAndIsolateYellow(source, narrowRect, 6);
+  const lumCrop = cropAndThresholdLuminance(source, narrowRect, 6);
 
   debugLogCanvas(yellowCrop, `name-yellow @ (${Math.round(rect.x)},${Math.round(rect.y)})`);
   debugLogCanvas(lumCrop, `name-lum @ (${Math.round(rect.x)},${Math.round(rect.y)})`);
@@ -283,7 +293,6 @@ export async function ocrChampionName(
     await tryOcr(lumCrop, 8),
   ];
 
-  // Pick the candidate with the most letters — longest plausible name wins
   let best = '';
   let bestScore = -1;
   for (const c of candidates) {

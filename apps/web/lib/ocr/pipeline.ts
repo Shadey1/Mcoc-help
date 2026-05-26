@@ -312,10 +312,13 @@ async function processCard(
   const visualAscension = detectAscension(canvas, card.rect);
 
   // OCR name and BHR in parallel
-  const [nameText, ocredBHR] = await Promise.all([
+  const [nameText, focusedBHR] = await Promise.all([
     ocrChampionName(canvas, nameRect).catch(() => ''),
     ocrBHR(canvas, bhrRect).catch(() => null),
   ]);
+
+  // Fall back to anchor BHR value when per-card OCR fails
+  const ocredBHR = focusedBHR ?? card.anchor?.value ?? null;
 
   // Identify champion using all three signals
   const match = matchChampion(
