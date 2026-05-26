@@ -14,28 +14,32 @@ import { formatBHR, formatDelta } from '../lib/format';
 import { RosterPicker } from './roster-picker';
 import { BulkImport } from './bulk-import';
 import { ChampionTickboxGrid } from './champion-tickbox-grid';
+import { ScreenshotImport } from './screenshot-import';
 import { ShareModal } from './share-modal';
 import { ChampionPortrait } from './champion-portrait';
+
+const FEATURE_SCREENSHOT_IMPORT = false;
 
 type RosterManagerProps = {
   champions: Champion[];
 };
 
-// Screenshot import (auto-identify) is shelved pending the autocomplete-per-card
-// rebuild planned for v0.16.0 — see CHANGELOG-v0.15.0.md "Screenshot import
-// status". The OCR pipeline code under apps/web/lib/ocr and the components
-// screenshot-import.tsx + confirmation-grid.tsx are kept in-tree as dormant
-// infrastructure so the rebuild is a UI-wiring exercise, not a from-scratch
-// task. To re-enable: re-add the screenshot mode + tab + rendering block.
+type AddMode = 'picker' | 'tickbox' | 'screenshot' | 'bulk';
 
-type AddMode = 'picker' | 'tickbox' | 'bulk';
-
-type SortColumn = 'name' | 'class' | 'currentBHR' | 'ceilingBHR' | 'headroomBHR' | 'prestigeDeltaIfMaxed' | 'inTop30';
+type SortColumn =
+  | 'name'
+  | 'class'
+  | 'currentBHR'
+  | 'ceilingBHR'
+  | 'headroomBHR'
+  | 'prestigeDeltaIfMaxed'
+  | 'inTop30';
 type SortDirection = 'asc' | 'desc';
 
 /**
  * The orchestrator for the /roster page. Owns the roster state, persists it
- * to localStorage, and hosts the picker / bulk import + roster table.
+ * to localStorage, and hosts the picker / bulk import / screenshot import /
+ * roster table.
  *
  * Mount hydration: localStorage isn't readable on the server; we render an
  * empty roster server-side then load on mount. This causes a brief flash
@@ -99,21 +103,27 @@ export function RosterManager({ champions }: RosterManagerProps) {
     }
   }
 
-  // Compute ceilings — feeds both the table and the recommendations view link
-  const ceilings = validRoster.champions.length > 0 ? computeCeilings(validRoster.champions, championLookup) : [];
+  const ceilings =
+    validRoster.champions.length > 0
+      ? computeCeilings(validRoster.champions, championLookup)
+      : [];
 
   function handleSort(column: SortColumn) {
     if (sortColumn === column) {
       setSortDirection((d) => (d === 'asc' ? 'desc' : 'asc'));
     } else {
       setSortColumn(column);
-      // Numeric columns default to descending (most useful), text columns to ascending
-      const numericCols: SortColumn[] = ['currentBHR', 'ceilingBHR', 'headroomBHR', 'prestigeDeltaIfMaxed', 'inTop30'];
+      const numericCols: SortColumn[] = [
+        'currentBHR',
+        'ceilingBHR',
+        'headroomBHR',
+        'prestigeDeltaIfMaxed',
+        'inTop30',
+      ];
       setSortDirection(numericCols.includes(column) ? 'desc' : 'asc');
     }
   }
 
-  // Sort ceilings by selected column
   const sortedCeilings = [...ceilings].sort((a, b) => {
     const dir = sortDirection === 'asc' ? 1 : -1;
     switch (sortColumn) {
@@ -134,18 +144,18 @@ export function RosterManager({ champions }: RosterManagerProps) {
     }
   });
 
-  // Map championId → state for fast lookup
-  const stateByChampion = new Map(validRoster.champions.map((s) => [s.championId, s]));
+  const stateByChampion = new Map(
+    validRoster.champions.map((s) => [s.championId, s]),
+  );
 
-  // Count champions whose state isn't user-confirmed — these were added via
-  // the tickbox grid (identity-only) and sit at the R3/0/A0 floor default.
   const unconfirmedCount = validRoster.champions.filter(
     (s) => s.stateConfirmed === false,
   ).length;
 
-  // Apply the unconfirmed-only filter if active
   const displayedCeilings = unconfirmedOnly
-    ? sortedCeilings.filter((e) => stateByChampion.get(e.championId)?.stateConfirmed === false)
+    ? sortedCeilings.filter(
+        (e) => stateByChampion.get(e.championId)?.stateConfirmed === false,
+      )
     : sortedCeilings;
 
   return (
@@ -174,6 +184,19 @@ export function RosterManager({ champions }: RosterManagerProps) {
           >
             Tick everyone you own
           </button>
+          {FEATURE_SCREENSHOT_IMPORT && (
+            <button
+              type="button"
+              onClick={() => setAddMode('screenshot')}
+              className={`px-3 py-1 rounded transition-colors ${
+                addMode === 'screenshot'
+                  ? 'bg-[var(--color-paper-soft)] font-medium'
+                  : 'text-[var(--color-ink-soft)] hover:text-[var(--color-ink)]'
+              }`}
+            >
+              Screenshot import
+            </button>
+          )}
           <button
             type="button"
             onClick={() => setAddMode('bulk')}
@@ -188,13 +211,23 @@ export function RosterManager({ champions }: RosterManagerProps) {
         </div>
 
         {addMode === 'picker' && (
-          <RosterPicker champions={champions} ownedIds={ownedIds} onAdd={handleAdd} />
+          <RosterPicker
+            champions={champions}
+            ownedIds={ownedIds}
+            onAdd={handleAdd}
+          />
         )}
         {addMode === 'tickbox' && (
           <ChampionTickboxGrid
             champions={champions}
             ownedIds={ownedIds}
             onAdd={handleBulkImport}
+          />
+        )}
+        {FEATURE_SCREENSHOT_IMPORT && addMode === 'screenshot' && (
+          <ScreenshotImport
+            champions={champions}
+            onImport={handleBulkImport}
           />
         )}
         {addMode === 'bulk' && (
@@ -344,7 +377,9 @@ export function RosterManager({ champions }: RosterManagerProps) {
                           <span>{entry.championName}</span>
                         </Link>
                       </td>
-                      <td className="p-3 text-[var(--color-ink-soft)]">{entry.championClass}</td>
+                      <td className="p-3 text-[var(--color-ink-soft)]">
+                        {entry.championClass}
+                      </td>
                       <td className="p-3 text-center text-xs numeric">
                         {isUnconfirmed ? (
                           <span
@@ -354,17 +389,29 @@ export function RosterManager({ champions }: RosterManagerProps) {
                             unconfirmed
                           </span>
                         ) : (
-                          <>R{state.rank} sig {state.sig} {state.ascension}</>
+                          <>
+                            R{state.rank} sig {state.sig} {state.ascension}
+                          </>
                         )}
                       </td>
-                      <td className="p-3 text-right numeric">{formatBHR(entry.currentBHR)}</td>
-                      <td className="p-3 text-right numeric">{formatBHR(entry.ceilingBHR)}</td>
+                      <td className="p-3 text-right numeric">
+                        {formatBHR(entry.currentBHR)}
+                      </td>
+                      <td className="p-3 text-right numeric">
+                        {formatBHR(entry.ceilingBHR)}
+                      </td>
                       <td className="p-3 text-right numeric">
                         {entry.headroomBHR === 0
                           ? '—'
                           : formatBHR(entry.headroomBHR)}
                       </td>
-                      <td className={`p-3 text-right numeric ${entry.prestigeDeltaIfMaxed > 0 ? 'text-[var(--color-marvel-editorial)] font-medium' : 'text-[var(--color-ink-soft)]'}`}>
+                      <td
+                        className={`p-3 text-right numeric ${
+                          entry.prestigeDeltaIfMaxed > 0
+                            ? 'text-[var(--color-marvel-editorial)] font-medium'
+                            : 'text-[var(--color-ink-soft)]'
+                        }`}
+                      >
                         {entry.prestigeDeltaIfMaxed > 0
                           ? formatDelta(entry.prestigeDeltaIfMaxed)
                           : '—'}
@@ -395,7 +442,10 @@ export function RosterManager({ champions }: RosterManagerProps) {
 
       {hydrated && roster.champions.length === 0 && (
         <section className="text-center py-12 text-[var(--color-ink-soft)]">
-          <p>Add champions above to see your roster, recommendations, and ceiling analysis.</p>
+          <p>
+            Add champions above to see your roster, recommendations, and
+            ceiling analysis.
+          </p>
         </section>
       )}
 
@@ -450,12 +500,24 @@ function RosterSummary({
   );
 }
 
-function Stat({ label, value, note }: { label: string; value: string; note?: string }) {
+function Stat({
+  label,
+  value,
+  note,
+}: {
+  label: string;
+  value: string;
+  note?: string;
+}) {
   return (
     <div className="bg-[var(--color-paper-soft)] border border-[var(--color-rule)] rounded p-4">
-      <div className="text-xs uppercase tracking-wide text-[var(--color-ink-soft)]">{label}</div>
+      <div className="text-xs uppercase tracking-wide text-[var(--color-ink-soft)]">
+        {label}
+      </div>
       <div className="numeric text-2xl font-medium mt-1">{value}</div>
-      {note && <div className="text-xs text-[var(--color-ink-soft)] mt-1">{note}</div>}
+      {note && (
+        <div className="text-xs text-[var(--color-ink-soft)] mt-1">{note}</div>
+      )}
     </div>
   );
 }
@@ -477,13 +539,20 @@ function SortableHeader({
 }) {
   const active = sortColumn === column;
   const arrow = active ? (sortDirection === 'asc' ? '↑' : '↓') : '';
-  const alignCls = align === 'left' ? 'text-left' : align === 'right' ? 'text-right' : 'text-center';
+  const alignCls =
+    align === 'left'
+      ? 'text-left'
+      : align === 'right'
+        ? 'text-right'
+        : 'text-center';
   return (
     <th className={`${alignCls} p-3 font-medium`}>
       <button
         type="button"
         onClick={() => onSort(column)}
-        className={`hover:text-[var(--color-marvel-impact)] transition-colors ${active ? 'text-[var(--color-marvel-editorial)]' : ''}`}
+        className={`hover:text-[var(--color-marvel-impact)] transition-colors ${
+          active ? 'text-[var(--color-marvel-editorial)]' : ''
+        }`}
       >
         {label}
         {arrow && <span className="ml-1 numeric">{arrow}</span>}
