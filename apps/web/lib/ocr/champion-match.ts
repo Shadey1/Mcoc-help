@@ -280,7 +280,7 @@ function weakMatch(): MatchResult {
  * Levenshtein distance scaled by the longer string. Also checks substring
  * containment (garbled OCR often drops characters but keeps a core run).
  */
-function nameSimilarity(ocrText: string, championName: string): number {
+export function nameSimilarity(ocrText: string, championName: string): number {
   const a = normalize(ocrText);
   const b = normalize(championName);
   if (a.length < 3 || b.length < 3) return 0;

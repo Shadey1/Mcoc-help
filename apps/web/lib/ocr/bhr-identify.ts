@@ -63,7 +63,9 @@ export function findChampionsByBHR(
   observedBHR: number,
   ascensionHint: Ascension | null,
   champions: Champion[],
+  toleranceOverride?: number,
 ): BHRCandidate[] {
+  const tolerance = toleranceOverride ?? ACCEPT_TOLERANCE;
   const allMatches: BHRCandidate[] = [];
 
   for (const champion of champions) {
@@ -94,11 +96,10 @@ export function findChampionsByBHR(
           });
           const lo = Math.min(at0, at200);
           const hi = Math.max(at0, at200);
-          if (observedBHR < lo - ACCEPT_TOLERANCE || observedBHR > hi + ACCEPT_TOLERANCE) {
-            continue; // skip this (rank, asc) — observed BHR can't be in range
+          if (observedBHR < lo - tolerance || observedBHR > hi + tolerance) {
+            continue;
           }
 
-          // Detailed sweep across sig values
           let bestForThisRankAsc: BHRCandidate | null = null;
           for (let sig = 0; sig <= 200; sig += SIG_STEP) {
             const predicted = calculateBHR(champion, {
@@ -110,7 +111,7 @@ export function findChampionsByBHR(
               addedVia: 'screenshot',
             });
             const absError = Math.abs(predicted - observedBHR);
-            if (absError > ACCEPT_TOLERANCE) continue;
+            if (absError > tolerance) continue;
             if (!bestForThisRankAsc || absError < bestForThisRankAsc.absError) {
               bestForThisRankAsc = {
                 championId: champion.id,

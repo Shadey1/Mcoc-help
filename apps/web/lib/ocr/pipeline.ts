@@ -25,7 +25,8 @@ import { hashImageRegion } from './phash';
 import { ocrBHR, ocrChampionName } from './tesseract';
 import { detectAscension } from './ascension-detect';
 import { deriveStateFromBHR } from './bhr-reverse';
-import { matchChampion } from './champion-match';
+import { matchChampion, nameSimilarity } from './champion-match';
+import { findChampionsByBHR, type BHRCandidate } from './bhr-identify';
 
 // ─── Anchor-relative region computation ──────────────────────────────────
 
@@ -230,8 +231,10 @@ export async function runOcrPipeline(
     });
   }
 
-  // Phase 4: Resolve champion assignment conflicts
-  return greedyAssign(allCards);
+  // Phase 4: Global BHR assignment — use the one-to-one constraint
+  // (each champion appears at most once on the prestige page) to
+  // optimally assign champions to cards across all observed BHR values
+  return globalBHRAssignment(allCards, options.champions);
 }
 
 // ─── Cross-screenshot dedup ──────────────────────────────────────────────
@@ -381,48 +384,144 @@ async function loadToCanvas(file: File | Blob): Promise<OffscreenCanvas> {
   return canvas;
 }
 
-// ─── Champion assignment ─────────────────────────────────────────────────
+// ─── Global BHR assignment ───────────────────────────────────────────────
 
-function greedyAssign(cards: IdentifiedCard[]): IdentifiedCard[] {
-  const sorted = [...cards].sort(
-    (a, b) => b.match.confidence - a.match.confidence,
-  );
-  const claimed = new Set<string>();
-  const result: IdentifiedCard[] = [];
+/**
+ * Global optimal assignment of champions to cards using the one-to-one
+ * constraint: each champion appears at most once on the prestige page.
+ *
+ * For each card's BHR value, finds all candidate champions within a wide
+ * tolerance (200 BHR). Then greedily assigns by lowest absError, ensuring
+ * no champion is claimed twice. Name OCR text is used as a tiebreaker
+ * when available.
+ *
+ * This dramatically reduces misidentification in the dense 33k-38k BHR
+ * range where many champions cluster — the one-to-one constraint forces
+ * each card to get a DIFFERENT champion even when BHR values are close.
+ */
+const GLOBAL_TOLERANCE = 200;
 
-  for (const card of sorted) {
-    const champId = card.match.championId;
+function globalBHRAssignment(
+  cards: IdentifiedCard[],
+  champions: Champion[],
+): IdentifiedCard[] {
+  type ScoredCandidate = {
+    cardIdx: number;
+    candidate: BHRCandidate;
+    nameBonus: number;
+    effectiveError: number;
+  };
 
-    if (!champId) {
-      result.push(card);
-      continue;
-    }
+  const allScored: ScoredCandidate[] = [];
 
-    if (!claimed.has(champId)) {
-      claimed.add(champId);
-      result.push(card);
-      continue;
-    }
+  for (let ci = 0; ci < cards.length; ci++) {
+    const card = cards[ci]!;
+    const bhr =
+      card.tile.derivedState?.ocredBHR ??
+      card.tile.detected.anchor?.value ??
+      null;
+    if (!bhr) continue;
 
-    const alt = card.match.alternatives.find(
-      (a) => a.championId && !claimed.has(a.championId),
+    const candidates = findChampionsByBHR(
+      bhr,
+      null,
+      champions,
+      GLOBAL_TOLERANCE,
     );
-    if (alt) {
-      claimed.add(alt.championId);
-      result.push({
-        ...card,
-        match: {
-          championId: alt.championId,
-          championName: alt.championName,
-          confidence: Math.min(alt.score, card.match.confidence * 0.8),
-          agreement: 'weak',
-          alternatives: card.match.alternatives.filter(
-            (a) => a.championId !== alt.championId,
-          ),
-        },
+
+    const nameText = card.tile.nameText;
+    for (const c of candidates) {
+      const nameBonus =
+        nameText && nameText.length >= 3
+          ? nameSimilarity(nameText, c.championName) * 150
+          : 0;
+      allScored.push({
+        cardIdx: ci,
+        candidate: c,
+        nameBonus,
+        effectiveError: c.absError - nameBonus,
       });
     }
   }
 
-  return result;
+  // Sort by effective error (lower = better match)
+  allScored.sort((a, b) => a.effectiveError - b.effectiveError);
+
+  // Greedy one-to-one assignment
+  const claimedCards = new Set<number>();
+  const claimedChampions = new Set<string>();
+  const assignments = new Map<
+    number,
+    { candidate: BHRCandidate; nameBonus: number }
+  >();
+
+  for (const s of allScored) {
+    if (claimedCards.has(s.cardIdx) || claimedChampions.has(s.candidate.championId))
+      continue;
+    claimedCards.add(s.cardIdx);
+    claimedChampions.add(s.candidate.championId);
+    assignments.set(s.cardIdx, {
+      candidate: s.candidate,
+      nameBonus: s.nameBonus,
+    });
+  }
+
+  console.log(
+    `[pipeline] global BHR assignment: ${assignments.size}/${cards.length} cards assigned`,
+  );
+
+  // Build result with updated identifications
+  return cards.map((card, ci) => {
+    const assignment = assignments.get(ci);
+    if (!assignment) return card;
+
+    const { candidate: c, nameBonus } = assignment;
+    const nameHelped = nameBonus > 30;
+    const isExact = c.absError < 10;
+    const isTight = c.absError < 30;
+
+    let confidence: number;
+    let agreement: 'strong' | 'partial' | 'weak';
+    if (nameHelped) {
+      confidence = 0.95;
+      agreement = 'strong';
+    } else if (isExact) {
+      confidence = 0.88;
+      agreement = 'strong';
+    } else if (isTight) {
+      confidence = 0.82;
+      agreement = 'partial';
+    } else {
+      confidence = 0.7;
+      agreement = 'partial';
+    }
+
+    // Collect alternatives from the original per-card match
+    const origAlts = card.match.alternatives.filter(
+      (a) => a.championId !== c.championId,
+    );
+
+    return {
+      ...card,
+      match: {
+        championId: c.championId,
+        championName: c.championName,
+        confidence,
+        agreement,
+        alternatives: origAlts,
+      },
+      tile: {
+        ...card.tile,
+        derivedState: {
+          rank: c.rank as 3 | 4 | 5,
+          sig: c.sig,
+          ascension: c.ascension,
+          ocredBHR: card.tile.derivedState?.ocredBHR ?? c.predicted,
+          predictedBHR: c.predicted,
+          absError: c.absError,
+          alternatives: [],
+        },
+      },
+    };
+  });
 }
