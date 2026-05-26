@@ -17,6 +17,7 @@ import { ChampionTickboxGrid } from './champion-tickbox-grid';
 import { ScreenshotImport } from './screenshot-import';
 import { ShareModal } from './share-modal';
 import { ChampionPortrait } from './champion-portrait';
+import { PortraitSeed } from './portrait-seed';
 
 const FEATURE_SCREENSHOT_IMPORT = false;
 
@@ -24,7 +25,7 @@ type RosterManagerProps = {
   champions: Champion[];
 };
 
-type AddMode = 'picker' | 'tickbox' | 'screenshot' | 'bulk';
+type AddMode = 'picker' | 'tickbox' | 'screenshot' | 'bulk' | 'seed';
 
 type SortColumn =
   | 'name'
@@ -208,6 +209,17 @@ export function RosterManager({ champions }: RosterManagerProps) {
           >
             Bulk paste
           </button>
+          <button
+            type="button"
+            onClick={() => setAddMode('seed')}
+            className={`px-3 py-1 rounded transition-colors ${
+              addMode === 'seed'
+                ? 'bg-[var(--color-paper-soft)] font-medium'
+                : 'text-[var(--color-ink-soft)] hover:text-[var(--color-ink)]'
+            }`}
+          >
+            Seed portraits
+          </button>
         </div>
 
         {addMode === 'picker' && (
@@ -232,6 +244,9 @@ export function RosterManager({ champions }: RosterManagerProps) {
         )}
         {addMode === 'bulk' && (
           <BulkImport champions={champions} onImport={handleBulkImport} />
+        )}
+        {addMode === 'seed' && (
+          <PortraitSeed champions={champions} />
         )}
       </section>
 

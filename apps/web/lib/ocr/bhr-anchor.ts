@@ -31,9 +31,27 @@ const BHR_PATTERN_GLOBAL = /\d{2,3}[,.]?\d{3}/g;
 
 const OCR_TARGET_WIDTH = 2200;
 
+export type OcrWord = {
+  text: string;
+  bbox: { x0: number; y0: number; x1: number; y1: number };
+};
+
+export type WholeImageOcrResult = {
+  anchors: BHRAnchor[];
+  words: OcrWord[];
+  scale: number;
+};
+
 export async function findBHRAnchors(
   source: HTMLCanvasElement | OffscreenCanvas,
 ): Promise<BHRAnchor[]> {
+  const result = await findBHRAnchorsAndWords(source);
+  return result.anchors;
+}
+
+export async function findBHRAnchorsAndWords(
+  source: HTMLCanvasElement | OffscreenCanvas,
+): Promise<WholeImageOcrResult> {
   const sourceWidth = source.width;
   const scale = sourceWidth > OCR_TARGET_WIDTH ? sourceWidth / OCR_TARGET_WIDTH : 1;
   const ocrWidth = Math.round(sourceWidth / scale);
@@ -52,20 +70,20 @@ export async function findBHRAnchors(
   const { createWorker } = await import('tesseract.js');
   const worker = await createWorker('eng');
   try {
-    let anchors = await tryRecognize(worker, downsampled, scale, 3);
-    if (anchors.length === 0) {
+    let result = await tryRecognize(worker, downsampled, scale, 3);
+    if (result.anchors.length === 0) {
       console.log('[bhr-anchor] PSM 3 returned 0 anchors; retrying PSM 6');
-      anchors = await tryRecognize(worker, downsampled, scale, 6);
+      result = await tryRecognize(worker, downsampled, scale, 6);
     }
-    if (anchors.length === 0) {
+    if (result.anchors.length === 0) {
       console.log('[bhr-anchor] PSM 6 returned 0 anchors; retrying PSM 11');
-      anchors = await tryRecognize(worker, downsampled, scale, 11);
+      result = await tryRecognize(worker, downsampled, scale, 11);
     }
     console.log(
-      `[bhr-anchor] final ${anchors.length} anchors:`,
-      anchors.map((a) => a.text),
+      `[bhr-anchor] final ${result.anchors.length} anchors:`,
+      result.anchors.map((a) => a.text),
     );
-    return anchors;
+    return { anchors: result.anchors, words: result.words, scale };
   } finally {
     await worker.terminate();
   }
@@ -76,23 +94,27 @@ async function tryRecognize(
   image: OffscreenCanvas,
   scale: number,
   psm: number,
-): Promise<BHRAnchor[]> {
+): Promise<{ anchors: BHRAnchor[]; words: OcrWord[] }> {
   await worker.setParameters({
     tessedit_pageseg_mode: psm,
   });
   const result = await worker.recognize(image, {}, { blocks: true });
-  const anchors = extractAnchors(result, scale, psm);
+  const { anchors, words } = extractAnchors(result, scale, psm);
   console.log(`[bhr-anchor] PSM ${psm} → ${anchors.length} anchors`);
-  return anchors;
+  return { anchors, words };
 }
 
-function extractAnchors(result: unknown, scale: number, psm: number): BHRAnchor[] {
+function extractAnchors(
+  result: unknown,
+  scale: number,
+  psm: number,
+): { anchors: BHRAnchor[]; words: OcrWord[] } {
   const anchors: BHRAnchor[] = [];
 
   const data = (result as { data?: unknown }).data;
   if (!data) {
     console.log('[bhr-anchor] result.data missing');
-    return anchors;
+    return { anchors, words: [] };
   }
 
   // Collect every word with a bbox, from either flat or nested structure
@@ -179,5 +201,5 @@ function extractAnchors(result: unknown, scale: number, psm: number): BHRAnchor[
     }
   }
 
-  return anchors;
+  return { anchors, words: allWords };
 }

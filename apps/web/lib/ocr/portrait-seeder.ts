@@ -1,0 +1,157 @@
+/**
+ * Portrait store seeder for My Champions screenshots.
+ *
+ * Unlike the prestige page pipeline (which uses BHR for identification),
+ * this uses the champion NAME text from the whole-image OCR pass. The
+ * My Champions page renders names in large ALL-CAPS yellow text that
+ * Tesseract reads clearly.
+ *
+ * Flow:
+ *   1. Whole-image OCR → extract champion names with bounding boxes
+ *   2. For each name: crop the portrait above it, hash it
+ *   3. Save hash → championId to the portrait store
+ *
+ * No grid detection needed — each name's bbox gives the position directly.
+ * No BHR matching needed — identification is by name.
+ */
+
+import type { Champion } from '@prestige-tools/engine';
+import { findBHRAnchorsAndWords } from './bhr-anchor';
+import { findNameAnchors, type NameAnchor } from './name-anchor';
+import { hashImageRegion } from './phash';
+import {
+  addPortrait,
+  generateThumbnail,
+  loadPortraitStore,
+  savePortraitStore,
+  type PortraitStore,
+} from './portrait-store';
+
+export type SeedProgress =
+  | { kind: 'scanning'; screenshot: number; total: number }
+  | { kind: 'names-found'; screenshot: number; count: number }
+  | { kind: 'seeding'; champion: string; current: number; total: number }
+  | { kind: 'done'; seeded: number; total: number };
+
+export type SeedResult = {
+  seeded: number;
+  champions: string[];
+};
+
+export async function seedPortraitStore(
+  files: File[] | Blob[],
+  champions: Champion[],
+  onProgress?: (update: SeedProgress) => void,
+): Promise<SeedResult> {
+  const allAnchors: Array<{ anchor: NameAnchor; canvas: OffscreenCanvas }> = [];
+
+  // Phase 1: Extract name anchors from all screenshots
+  for (let i = 0; i < files.length; i++) {
+    onProgress?.({
+      kind: 'scanning',
+      screenshot: i,
+      total: files.length,
+    });
+
+    const bitmap = await createImageBitmap(files[i]!);
+    const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
+    const ctx = canvas.getContext('2d');
+    if (!ctx) continue;
+    ctx.drawImage(bitmap, 0, 0);
+    bitmap.close();
+
+    const { words, scale } = await findBHRAnchorsAndWords(canvas);
+    const nameAnchors = findNameAnchors(words, scale, champions);
+
+    onProgress?.({
+      kind: 'names-found',
+      screenshot: i,
+      count: nameAnchors.length,
+    });
+
+    for (const anchor of nameAnchors) {
+      allAnchors.push({ anchor, canvas });
+    }
+  }
+
+  // Dedupe by championId (keep first occurrence)
+  const seen = new Set<string>();
+  const unique = allAnchors.filter(({ anchor }) => {
+    if (seen.has(anchor.championId)) return false;
+    seen.add(anchor.championId);
+    return true;
+  });
+
+  console.log(
+    `[portrait-seeder] ${unique.length} unique champions found across ${files.length} screenshots`,
+  );
+
+  // Phase 2: Crop portraits and save to store
+  let store: PortraitStore = loadPortraitStore();
+  const seededNames: string[] = [];
+
+  for (let i = 0; i < unique.length; i++) {
+    const { anchor, canvas } = unique[i]!;
+
+    onProgress?.({
+      kind: 'seeding',
+      champion: anchor.championName,
+      current: i,
+      total: unique.length,
+    });
+
+    // Portrait region: above the name text. The name rect gives us the
+    // bottom reference. Portrait is roughly 3-4× the name height above it.
+    const nameH = anchor.rect.height;
+    const portraitHeight = nameH * 4;
+    const portraitY = Math.max(0, anchor.rect.y - portraitHeight);
+    const portraitRect = {
+      x: anchor.rect.x,
+      y: portraitY,
+      width: anchor.rect.width,
+      height: anchor.rect.y - portraitY,
+    };
+
+    const hash = hashImageRegion(
+      canvas,
+      portraitRect.x,
+      portraitRect.y,
+      portraitRect.width,
+      portraitRect.height,
+    );
+
+    const thumbnail = await generateThumbnail(
+      canvas,
+      portraitRect.x,
+      portraitRect.y,
+      portraitRect.width,
+      portraitRect.height,
+      64,
+    );
+
+    store = addPortrait(store, anchor.championId, {
+      hash,
+      capturedAt: new Date().toISOString(),
+      thumbnailDataUrl: thumbnail,
+    });
+
+    seededNames.push(anchor.championName);
+  }
+
+  savePortraitStore(store);
+
+  onProgress?.({
+    kind: 'done',
+    seeded: seededNames.length,
+    total: allAnchors.length,
+  });
+
+  console.log(
+    `[portrait-seeder] saved ${seededNames.length} portraits to store`,
+  );
+
+  return {
+    seeded: seededNames.length,
+    champions: seededNames,
+  };
+}
