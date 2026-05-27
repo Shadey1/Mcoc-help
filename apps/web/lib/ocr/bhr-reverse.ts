@@ -46,7 +46,9 @@ export function deriveStateFromBHR(
   champion: Champion,
   observedBHR: number,
   ascension: Ascension,
+  toleranceOverride?: number,
 ): DerivedState | null {
+  const tolerance = toleranceOverride ?? ACCEPT_TOLERANCE;
   type Candidate = {
     rank: Rank;
     sig: number;
@@ -81,7 +83,7 @@ export function deriveStateFromBHR(
   candidates.sort((a, b) => a.absError - b.absError);
 
   const best = candidates[0]!;
-  if (best.absError > ACCEPT_TOLERANCE) return null;
+  if (best.absError > tolerance) return null;
 
   const preferred = pickRoundSigPreference(candidates, best.absError);
   const alternatives = collectAlternatives(candidates, preferred);

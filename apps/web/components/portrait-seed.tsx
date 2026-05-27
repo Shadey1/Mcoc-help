@@ -60,13 +60,12 @@ export function PortraitSeed({ champions, onImport }: Props) {
       <div className="space-y-3">
         <div className="text-sm bg-green-50 border border-green-300 text-green-900 rounded p-3">
           <strong>
-            Identified {phase.result.seeded} champions
-            {stateCount > 0 && `, derived state for ${stateCount}`}.
+            Identified {phase.result.seeded} champions.
           </strong>
           <p className="text-xs mt-1">
-            Portraits saved for future identification. Champions with BHR
-            readings had their rank/sig/ascension derived from the engine math.
-            States are marked unconfirmed — review them in your roster table.
+            {stateCount} ready to import. Champions with BHR readings have
+            rank/sig/ascension derived automatically. The rest import at
+            R3/sig 0/A0 — update them in the roster table.
           </p>
         </div>
         <div className="flex gap-2 items-center">

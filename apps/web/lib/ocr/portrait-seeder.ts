@@ -138,28 +138,47 @@ export async function seedPortraitStore(
       thumbnailDataUrl: thumbnail,
     });
 
-    // Derive state from BHR if available
+    // Derive state from BHR, or use floor defaults
     const champ = champLookup.get(anchor.championId);
-    if (champ && anchor.bhrValue) {
-      const ascensions: Array<'A0' | 'A1' | 'A2'> = champ.ascendable
-        ? ['A2', 'A1', 'A0']
-        : ['A0'];
-      let bestState: ReturnType<typeof deriveStateFromBHR> | null = null;
-      for (const asc of ascensions) {
-        const candidate = deriveStateFromBHR(champ, anchor.bhrValue, asc);
-        if (candidate && (!bestState || candidate.absError < bestState.absError)) {
-          bestState = candidate;
+    if (champ) {
+      if (anchor.bhrValue) {
+        const ascensions: Array<'A0' | 'A1' | 'A2'> = anchor.ascensionHint
+          ? [anchor.ascensionHint]
+          : champ.ascendable
+            ? ['A2', 'A1', 'A0']
+            : ['A0'];
+        // Use wider tolerance for My Champions import — lower BHR values
+        // have larger prediction error than the top-30 prestige range
+        const SEEDER_TOLERANCE = 500;
+        let bestState: ReturnType<typeof deriveStateFromBHR> | null = null;
+        for (const asc of ascensions) {
+          const candidate = deriveStateFromBHR(champ, anchor.bhrValue, asc, SEEDER_TOLERANCE);
+          if (candidate && (!bestState || candidate.absError < bestState.absError)) {
+            bestState = candidate;
+          }
         }
-      }
-      if (bestState) {
-        rosterStates.push({
-          championId: anchor.championId,
-          rank: bestState.rank,
-          sig: bestState.sig,
-          ascension: bestState.ascension,
-          stateConfirmed: false,
-          addedVia: 'screenshot',
-        });
+        if (bestState) {
+          rosterStates.push({
+            championId: anchor.championId,
+            rank: bestState.rank,
+            sig: bestState.sig,
+            ascension: bestState.ascension,
+            stateConfirmed: false,
+            addedVia: 'screenshot',
+          });
+        } else {
+          rosterStates.push({
+            championId: anchor.championId,
+            rank: 3,
+            sig: 0,
+            ascension: 'A0',
+            stateConfirmed: false,
+            addedVia: 'screenshot',
+          });
+        }
+      } else {
+        // No BHR — likely unowned (B&W on My Champions page), skip import.
+        // Champions without BHR can't have state derived and might not be owned.
       }
     }
 
@@ -174,8 +193,10 @@ export async function seedPortraitStore(
     total: allAnchors.length,
   });
 
+  const withState = rosterStates.filter((s) => s.rank > 3 || s.sig > 0).length;
+  const atFloor = rosterStates.filter((s) => s.rank === 3 && s.sig === 0).length;
   console.log(
-    `[portrait-seeder] saved ${seededNames.length} portraits, derived ${rosterStates.length} roster states`,
+    `[portrait-seeder] saved ${seededNames.length} portraits, ${rosterStates.length} roster states (${withState} derived, ${atFloor} at floor)`,
   );
 
   return {
