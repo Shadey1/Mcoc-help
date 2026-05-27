@@ -84,8 +84,12 @@ export async function seedPortraitStore(
     return true;
   });
 
+  const missing = champions
+    .filter((c) => !seen.has(c.id))
+    .map((c) => c.name);
   console.log(
-    `[portrait-seeder] ${unique.length} unique champions found across ${files.length} screenshots`,
+    `[portrait-seeder] ${unique.length} unique champions found, ${missing.length} missing from data:`,
+    missing,
   );
 
   // Phase 2: Crop portraits, derive state, save to store

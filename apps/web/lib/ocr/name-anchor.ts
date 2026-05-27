@@ -14,7 +14,7 @@
 import type { Champion } from '@prestige-tools/engine';
 import type { Rect } from './types';
 import type { OcrWord } from './bhr-anchor';
-import { normalize } from './name-match';
+import { normalize, levenshtein } from './name-match';
 
 export type NameAnchor = {
   championId: string;
@@ -104,15 +104,35 @@ export function findNameAnchors(
 
         if (norm.length < 3) continue;
 
-        // Try exact match, then base name (without parenthetical suffix)
+        // Try exact match, then base name, then fuzzy
         let champ = champByNorm.get(norm);
         if (!champ && norm.length >= 4) {
           // Try matching just the base name — handles game abbreviations
-          // like "BLADE (STELLAR)" matching "Blade (Stellar Forged)"
           const candidates = champByBase.get(norm);
           if (candidates?.length === 1) {
             champ = candidates[0];
           }
+        }
+        if (!champ && norm.length >= 10) {
+          // Fuzzy match — only for longer names (10+ chars) where OCR
+          // misspelling is the likely cause. Short names have too many
+          // Levenshtein collisions and steal IDs from correct matches.
+          let bestDist = 2;
+          let fuzzyMatch: Champion | undefined;
+          for (const [champNorm, c] of champByNorm) {
+            if (!c || foundIds.has(c.id)) continue;
+            if (Math.abs(champNorm.length - norm.length) > 2) continue;
+            try {
+              const dist = levenshtein(norm, champNorm);
+              if (dist < bestDist) {
+                bestDist = dist;
+                fuzzyMatch = c;
+              }
+            } catch {
+              // skip invalid comparisons
+            }
+          }
+          if (fuzzyMatch) champ = fuzzyMatch;
         }
         if (champ && !foundIds.has(champ.id)) {
           foundIds.add(champ.id);
@@ -256,7 +276,7 @@ function findBhrBelow(
 
 function groupIntoLines(
   words: OcrWord[],
-  yTolerance = 10,
+  yTolerance = 20,
 ): OcrWord[][] {
   if (words.length === 0) return [];
 
