@@ -18,6 +18,7 @@
 import type { Champion, ChampionState } from '@prestige-tools/engine';
 import { findBHRAnchorsAndWords } from './bhr-anchor';
 import { findNameAnchors, type NameAnchor } from './name-anchor';
+import { findChampionsByBHR } from './bhr-identify';
 import { hashImageRegion } from './phash';
 import { deriveStateFromBHR } from './bhr-reverse';
 import {
@@ -62,7 +63,8 @@ export async function seedPortraitStore(
     ctx.drawImage(bitmap, 0, 0);
     bitmap.close();
 
-    const { words, scale, rawText } = await findBHRAnchorsAndWords(canvas);
+    const ocrResult = await findBHRAnchorsAndWords(canvas);
+    const { words, scale, rawText, anchors: bhrAnchors } = ocrResult;
     console.log(
       `[portrait-seeder] screenshot ${i}: ${words.length} words, rawText ${rawText.length} chars`,
       rawText.length > 0 ? rawText.substring(0, 200) : '(empty)',
@@ -77,6 +79,34 @@ export async function seedPortraitStore(
 
     for (const anchor of nameAnchors) {
       allAnchors.push({ anchor, canvas });
+    }
+
+    // BHR fallback: for BHR anchors not claimed by name matching,
+    // try identifying the champion from the BHR value via engine math.
+    // Catches champions whose names were garbled but BHR was read.
+    // Reuses the anchors already extracted (no extra OCR pass).
+    const foundIds = new Set(nameAnchors.map((a) => a.championId));
+    for (const bhr of bhrAnchors) {
+      const candidates = findChampionsByBHR(bhr.value, null, champions, 50);
+      const match = candidates.find((c) => !foundIds.has(c.championId));
+      if (match) {
+        foundIds.add(match.championId);
+        allAnchors.push({
+          anchor: {
+            championId: match.championId,
+            championName: match.championName,
+            rect: {
+              x: bhr.rect.x,
+              y: bhr.rect.y,
+              width: bhr.rect.width,
+              height: bhr.rect.height,
+            },
+            bhrValue: bhr.value,
+            ascensionHint: null,
+          },
+          canvas,
+        });
+      }
     }
   }
 
