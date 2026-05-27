@@ -35,6 +35,7 @@ export function findNameAnchors(
   words: OcrWord[],
   scale: number,
   champions: Champion[],
+  rawText?: string,
 ): NameAnchor[] {
   // Build normalized lookup: normalizedName → champion
   const champByNorm = new Map<string, Champion>();
@@ -152,6 +153,44 @@ export function findNameAnchors(
           start += len - 1;
           break;
         }
+      }
+    }
+  }
+
+  // Fallback: search raw text for champion names not found by word matching.
+  // The raw text often contains clear champion names that the word-based
+  // matching misses due to tokenization or line grouping issues.
+  if (rawText) {
+    const upperRaw = rawText.toUpperCase();
+    for (const c of champions) {
+      if (foundIds.has(c.id)) continue;
+      // Try the full name and the base name (before parenthetical)
+      const fullUpper = c.name.toUpperCase();
+      const baseUpper = c.name.split('(')[0]!.trim().toUpperCase();
+      const matched = upperRaw.includes(fullUpper) ||
+        (baseUpper.length >= 4 && upperRaw.includes(baseUpper));
+      if (matched) {
+        foundIds.add(c.id);
+        // Try to find spatial position from the word list
+        const firstWord = (c.name.split(/[\s(]/)[0] ?? '').toUpperCase();
+        const wordMatch = firstWord.length >= 3
+          ? words.find((w) => w.text.toUpperCase() === firstWord)
+          : undefined;
+        const rect: Rect = wordMatch
+          ? {
+              x: wordMatch.bbox.x0 * scale,
+              y: wordMatch.bbox.y0 * scale,
+              width: (wordMatch.bbox.x1 - wordMatch.bbox.x0) * scale,
+              height: (wordMatch.bbox.y1 - wordMatch.bbox.y0) * scale,
+            }
+          : { x: 0, y: 0, width: 0, height: 0 };
+        found.push({
+          championId: c.id,
+          championName: c.name,
+          rect,
+          bhrValue: null,
+          ascensionHint: null,
+        });
       }
     }
   }

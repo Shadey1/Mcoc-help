@@ -62,8 +62,8 @@ export async function seedPortraitStore(
     ctx.drawImage(bitmap, 0, 0);
     bitmap.close();
 
-    const { words, scale } = await findBHRAnchorsAndWords(canvas);
-    const nameAnchors = findNameAnchors(words, scale, champions);
+    const { words, scale, rawText } = await findBHRAnchorsAndWords(canvas);
+    const nameAnchors = findNameAnchors(words, scale, champions, rawText);
 
     onProgress?.({
       kind: 'names-found',
@@ -88,8 +88,7 @@ export async function seedPortraitStore(
     .filter((c) => !seen.has(c.id))
     .map((c) => c.name);
   console.log(
-    `[portrait-seeder] ${unique.length} unique champions found, ${missing.length} missing from data:`,
-    missing,
+    `[portrait-seeder] ${unique.length} unique champions found, ${missing.length} missing from data:\n${missing.join(', ')}`,
   );
 
   // Phase 2: Crop portraits, derive state, save to store
