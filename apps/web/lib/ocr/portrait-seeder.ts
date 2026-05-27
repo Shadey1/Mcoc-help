@@ -63,6 +63,10 @@ export async function seedPortraitStore(
     bitmap.close();
 
     const { words, scale, rawText } = await findBHRAnchorsAndWords(canvas);
+    console.log(
+      `[portrait-seeder] screenshot ${i}: ${words.length} words, rawText ${rawText.length} chars`,
+      rawText.length > 0 ? rawText.substring(0, 200) : '(empty)',
+    );
     const nameAnchors = findNameAnchors(words, scale, champions, rawText);
 
     onProgress?.({
