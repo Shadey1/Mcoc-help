@@ -171,23 +171,12 @@ export function findNameAnchors(
         (baseUpper.length >= 4 && upperRaw.includes(baseUpper));
       if (matched) {
         foundIds.add(c.id);
-        // Try to find spatial position from the word list
-        const firstWord = (c.name.split(/[\s(]/)[0] ?? '').toUpperCase();
-        const wordMatch = firstWord.length >= 3
-          ? words.find((w) => w.text.toUpperCase() === firstWord)
-          : undefined;
-        const rect: Rect = wordMatch
-          ? {
-              x: wordMatch.bbox.x0 * scale,
-              y: wordMatch.bbox.y0 * scale,
-              width: (wordMatch.bbox.x1 - wordMatch.bbox.x0) * scale,
-              height: (wordMatch.bbox.y1 - wordMatch.bbox.y0) * scale,
-            }
-          : { x: 0, y: 0, width: 0, height: 0 };
+        // Raw-text-found champions have no reliable spatial position —
+        // don't pair BHR (would match wrong champion's BHR value)
         found.push({
           championId: c.id,
           championName: c.name,
-          rect,
+          rect: { x: 0, y: 0, width: 0, height: 0 },
           bhrValue: null,
           ascensionHint: null,
         });
@@ -195,14 +184,22 @@ export function findNameAnchors(
     }
   }
 
-  // Pair each name with BHR value and ascension indicator below it
+  // Pair each name with BHR value and ascension indicator below it.
+  // Each BHR value can only be claimed by one champion — prevents
+  // multiple names on the same row sharing the same BHR.
   const bhrWords = extractBhrWords(words, scale);
   const ascWords = extractAscensionWords(words, scale);
   console.log(
     `[name-anchor] ${bhrWords.length} BHR-like numbers, ${ascWords.length} ascension markers found in OCR`,
   );
+  const claimedBhrIndices = new Set<number>();
   for (const anchor of found) {
-    anchor.bhrValue = findBhrBelow(anchor.rect, bhrWords);
+    if (anchor.rect.width === 0) continue; // raw-text-found, no position
+    const result = findBhrBelowExclusive(anchor.rect, bhrWords, claimedBhrIndices);
+    if (result) {
+      anchor.bhrValue = result.value;
+      claimedBhrIndices.add(result.index);
+    }
     anchor.ascensionHint = findAscensionNear(anchor.rect, ascWords);
   }
 
@@ -284,33 +281,32 @@ function extractBhrWords(
   return results;
 }
 
-function findBhrBelow(
+function findBhrBelowExclusive(
   nameRect: Rect,
   bhrWords: Array<{ value: number; cx: number; cy: number }>,
-): number | null {
+  claimed: Set<number>,
+): { value: number; index: number } | null {
   const nameCx = nameRect.x + nameRect.width / 2;
   const nameBottom = nameRect.y + nameRect.height;
 
-  let best: { value: number; dist: number } | null = null;
+  let best: { value: number; index: number; dist: number } | null = null;
 
-  for (const bhr of bhrWords) {
-    // BHR must be below the name (with small tolerance for OCR bbox jitter)
+  for (let i = 0; i < bhrWords.length; i++) {
+    if (claimed.has(i)) continue;
+    const bhr = bhrWords[i]!;
     if (bhr.cy < nameRect.y) continue;
-    // Within a reasonable vertical distance (up to 200px in source coords)
     const yDist = bhr.cy - nameBottom;
     if (yDist > 200) continue;
-    // Horizontally within twice the name width (names can be short,
-    // BHR number might be centered differently)
     const xDist = Math.abs(bhr.cx - nameCx);
     if (xDist > nameRect.width * 2.5) continue;
 
     const dist = Math.max(0, yDist) + xDist * 0.5;
     if (!best || dist < best.dist) {
-      best = { value: bhr.value, dist };
+      best = { value: bhr.value, index: i, dist };
     }
   }
 
-  return best?.value ?? null;
+  return best;
 }
 
 function groupIntoLines(

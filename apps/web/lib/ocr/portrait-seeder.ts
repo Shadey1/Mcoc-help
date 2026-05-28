@@ -86,7 +86,13 @@ export async function seedPortraitStore(
     // Catches champions whose names were garbled but BHR was read.
     // Reuses the anchors already extracted (no extra OCR pass).
     const foundIds = new Set(nameAnchors.map((a) => a.championId));
+    // Track BHR values already claimed by name-matched champions
+    const claimedBhrs = new Set(
+      nameAnchors.filter((a) => a.bhrValue).map((a) => a.bhrValue),
+    );
     for (const bhr of bhrAnchors) {
+      // Skip BHR values already assigned to a name-matched champion
+      if (claimedBhrs.has(bhr.value)) continue;
       const candidates = findChampionsByBHR(bhr.value, null, champions, 50);
       const match = candidates.find((c) => !foundIds.has(c.championId));
       if (match) {
