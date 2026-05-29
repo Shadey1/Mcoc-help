@@ -5,6 +5,7 @@ import type { Champion, ChampionState } from '@prestige-tools/engine';
 import type { IdentifiedCard } from '../lib/ocr/types';
 import { ChampionPortrait } from './champion-portrait';
 import { findCandidates } from '../lib/ocr/name-match';
+import { deriveStateFromBHR } from '../lib/ocr/bhr-reverse';
 import {
   addPortrait,
   loadPortraitStore,
@@ -44,7 +45,13 @@ export function ConfirmationGrid({ cards, champions, onConfirm, onCancel }: Prop
   );
 
   const [overrides, setOverrides] = useState<Record<number, string>>({});
-  const [skipped, setSkipped] = useState<Set<number>>(new Set());
+  // Default to importing the confident (green) cards and skipping the flagged
+  // ones — the flagged cards are mostly name-less / ambiguous junk, so the
+  // common path is "Import" without wading through them. Bulk buttons + the
+  // per-card restore link let the user pull specific flagged cards back in.
+  const [skipped, setSkipped] = useState<Set<number>>(
+    () => new Set(cards.flatMap((c, i) => (c.match.agreement === 'strong' ? [] : [i]))),
+  );
   const [stateEdits, setStateEdits] = useState<Record<number, EditableState>>(() =>
     Object.fromEntries(
       cards.map((c, i) => [
@@ -72,6 +79,22 @@ export function ConfirmationGrid({ cards, champions, onConfirm, onCancel }: Prop
     setStateEdits((prev) => ({ ...prev, [index]: { ...prev[index]!, sig } }));
   }
   function setAscension(index: number, ascension: 'A0' | 'A1' | 'A2') {
+    // We know the BHR, so re-derive (rank, sig) for the new ascension rather
+    // than leaving stale values. Ascension shifts predicted BHR a lot, so the
+    // matching rank/sig changes with it. Falls back to just setting ascension
+    // if there's no BHR or no state lands within tolerance.
+    const champ = effectiveChampion(index);
+    const bhr = cards[index]!.tile.derivedState?.ocredBHR;
+    if (champ?.ascendable && bhr) {
+      const d = deriveStateFromBHR(champ, bhr, ascension, 500);
+      if (d) {
+        setStateEdits((prev) => ({
+          ...prev,
+          [index]: { rank: d.rank, sig: d.sig, ascension },
+        }));
+        return;
+      }
+    }
     setStateEdits((prev) => ({
       ...prev,
       [index]: { ...prev[index]!, ascension },
@@ -81,6 +104,21 @@ export function ConfirmationGrid({ cards, champions, onConfirm, onCancel }: Prop
   function pickOverride(index: number, championId: string) {
     setOverrides((prev) => ({ ...prev, [index]: championId }));
     setSearchOpenFor(null);
+    // Re-derive (rank, sig, ascension) from the known BHR for the champion the
+    // user just chose — picking the right champion is enough; the engine math
+    // fills in the state.
+    const champ = championLookup.get(championId);
+    const bhr = cards[index]!.tile.derivedState?.ocredBHR;
+    if (champ && bhr) {
+      const asc = champ.ascendable ? (stateEdits[index]?.ascension ?? 'A0') : 'A0';
+      const d = deriveStateFromBHR(champ, bhr, asc, 500);
+      if (d) {
+        setStateEdits((prev) => ({
+          ...prev,
+          [index]: { rank: d.rank, sig: d.sig, ascension: d.ascension },
+        }));
+      }
+    }
   }
 
   function toggleSkip(index: number) {
@@ -88,6 +126,18 @@ export function ConfirmationGrid({ cards, champions, onConfirm, onCancel }: Prop
       const next = new Set(prev);
       if (next.has(index)) next.delete(index);
       else next.add(index);
+      return next;
+    });
+  }
+
+  function setFlaggedSkipped(skip: boolean) {
+    setSkipped((prev) => {
+      const next = new Set(prev);
+      cards.forEach((c, i) => {
+        if (c.match.agreement === 'strong') return;
+        if (skip) next.add(i);
+        else next.delete(i);
+      });
       return next;
     });
   }
@@ -158,12 +208,31 @@ export function ConfirmationGrid({ cards, champions, onConfirm, onCancel }: Prop
       </div>
 
       <div className="text-xs text-[var(--color-ink-soft)] bg-[var(--color-paper-soft)] border border-[var(--color-rule)] rounded p-2">
-        Click any champion name to change the match. Click rank / sig / A* to
-        edit the state. Click <strong>skip</strong> to exclude a card. Then{' '}
-        <strong>Import</strong> below. Each confirmation saves the portrait
-        to your local library — future imports will recognise these champions
-        more accurately.
+        Confident matches are kept; flagged (amber/red) ones are skipped by
+        default — they&apos;re usually name-less or ambiguous. Click a name to
+        fix a match, rank / sig / A* to edit state, or <strong>restore</strong>{' '}
+        a flagged card to import it. Then <strong>Import</strong> below.
       </div>
+
+      {flaggedCount + skipped.size > 0 && (
+        <div className="flex gap-2 text-xs items-center">
+          <span className="text-[var(--color-ink-soft)]">Flagged cards:</span>
+          <button
+            type="button"
+            onClick={() => setFlaggedSkipped(false)}
+            className="px-2 py-1 border border-[var(--color-rule)] rounded hover:bg-[var(--color-paper-soft)]"
+          >
+            Accept all flagged
+          </button>
+          <button
+            type="button"
+            onClick={() => setFlaggedSkipped(true)}
+            className="px-2 py-1 border border-[var(--color-rule)] rounded hover:bg-[var(--color-paper-soft)]"
+          >
+            Skip all flagged
+          </button>
+        </div>
+      )}
 
       <ul className="border border-[var(--color-rule)] rounded divide-y divide-[var(--color-rule)] max-h-[60vh] overflow-y-auto">
         {cards.map((card, index) => {

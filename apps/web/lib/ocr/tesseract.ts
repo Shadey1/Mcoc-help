@@ -243,6 +243,83 @@ export async function ocrBHR(
 }
 
 /**
+ * OCR a strip directly below a champion name, expected to contain that card's
+ * BHR number (a stars / ascension row often sits between the name and the
+ * number, so the crop is several lines tall — PSM 6 reads the whole block).
+ *
+ * Returns the largest in-range NN,NNN value found: the BHR is the dominant
+ * number on the card, far bigger than any star count or level. A lower floor
+ * than ocrBHR is safe here because the crop is anchored to an already-matched
+ * champion name, so there's little junk-number risk — this lets low-rank R3
+ * BHRs (which can dip below 20k) come through.
+ */
+export async function ocrBhrStrip(
+  source: HTMLCanvasElement | OffscreenCanvas,
+  rect: Rect,
+  minValue = 12000,
+): Promise<number | null> {
+  const worker = await getWorker();
+  await worker.setParameters({
+    tessedit_char_whitelist: '0123456789,',
+    tessedit_pageseg_mode: 6, // PSM_SINGLE_BLOCK — strip spans stars + number
+  });
+  const cropped = cropAndPrepare(source, rect, 3);
+  debugLogCanvas(
+    cropped,
+    `bhr-strip @ (${Math.round(rect.x)},${Math.round(rect.y)})`,
+  );
+  const result = await worker.recognize(cropped);
+  let best: number | null = null;
+  for (const m of result.data.text.matchAll(/(\d{2,3}),?(\d{3})/g)) {
+    const value = parseInt(m[1]! + m[2]!, 10);
+    if (value < minValue || value > 99999) continue;
+    if (best === null || value > best) best = value;
+  }
+  return best;
+}
+
+/**
+ * Read a champion's ascension from the gold badge at the right end of the BHR
+ * row (after the class icon): "1" → A1, "2" → A2, absent → A0. The badge is
+ * gold, so isolating the gold channel drops the dark bar AND the non-gold class
+ * icon, leaving just the digit. We take the rightmost digit because the badge
+ * sits to the right of any class-icon noise. Region is proportional to the BHR
+ * height so it self-scales across devices.
+ */
+export async function ocrAscensionBadge(
+  source: HTMLCanvasElement | OffscreenCanvas,
+  bhrRect: Rect,
+): Promise<'A1' | 'A2' | null> {
+  const h = bhrRect.height;
+  if (h <= 0) return null;
+  const cw = source.width;
+  const ch = source.height;
+  // Badge sits just right of the class icon (~1.1h past the number) and is
+  // ~1 number-height wide. Keep the window tight so it doesn't bleed into the
+  // next card's portrait on the right.
+  const x = Math.min(bhrRect.x + bhrRect.width + h * 1.1, cw - 1);
+  const y = Math.max(0, bhrRect.y - h * 0.15);
+  const width = Math.min(h * 1.5, cw - x);
+  const height = Math.min(h * 1.3, ch - y);
+  if (width < 4 || height < 4) return null;
+
+  const worker = await getWorker();
+  await worker.setParameters({
+    tessedit_char_whitelist: '12',
+    tessedit_pageseg_mode: 7, // PSM_SINGLE_LINE
+  });
+  const crop = cropAndIsolateYellow(source, { x, y, width, height }, 6);
+  debugLogCanvas(
+    crop,
+    `asc-badge @ (${Math.round(bhrRect.x)},${Math.round(bhrRect.y)})`,
+  );
+  const result = await worker.recognize(crop);
+  const matches = [...result.data.text.matchAll(/[12]/g)];
+  const last = matches.length ? matches[matches.length - 1]![0] : null;
+  return last === '2' ? 'A2' : last === '1' ? 'A1' : null;
+}
+
+/**
  * OCR a region containing a champion name (longer, mixed-case).
  *
  * Multi-strategy approach:

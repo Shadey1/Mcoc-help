@@ -20,8 +20,6 @@ export type NameAnchor = {
   championId: string;
   championName: string;
   rect: Rect;
-  /** BHR value found below the name text, if any. */
-  bhrValue: number | null;
   /** Ascension detected from nearby text (A1/A2), null = A0 or not detected. */
   ascensionHint: 'A0' | 'A1' | 'A2' | null;
 };
@@ -50,6 +48,21 @@ export function findNameAnchors(
       const list = champByBase.get(baseName) ?? [];
       list.push(c);
       champByBase.set(baseName, list);
+    }
+  }
+
+  // MCOC displays variants as a PREFIX ("INFAMOUS IRON MAN") while our data
+  // uses a parenthetical SUFFIX ("Iron Man (Infamous)"). Without this, the
+  // matcher finds the "IRON MAN" sub-sequence and collapses the variant to the
+  // base champion. Register the prefix-order key (descriptor + base) so the
+  // full variant matches first (it's a longer word run, tried before "IRON
+  // MAN"). Guard against clobbering a real champion's exact name.
+  for (const c of champions) {
+    const m = c.name.match(/^(.*?)\s*\(([^)]+)\)\s*$/);
+    if (!m) continue;
+    const prefixKey = normalize(`${m[2]!.trim()} ${m[1]!.trim()}`);
+    if (prefixKey.length >= 4 && !champByNorm.has(prefixKey)) {
+      champByNorm.set(prefixKey, c);
     }
   }
 
@@ -147,7 +160,6 @@ export function findNameAnchors(
               width: (bbox.x1 - bbox.x0) * scale,
               height: (bbox.y1 - bbox.y0) * scale,
             },
-            bhrValue: null,
             ascensionHint: null,
           });
           start += len - 1;
@@ -171,42 +183,34 @@ export function findNameAnchors(
         (baseUpper.length >= 4 && upperRaw.includes(baseUpper));
       if (matched) {
         foundIds.add(c.id);
-        // Raw-text-found champions have no reliable spatial position —
-        // don't pair BHR (would match wrong champion's BHR value)
+        // Raw-text-found champions have no reliable spatial position.
         found.push({
           championId: c.id,
           championName: c.name,
           rect: { x: 0, y: 0, width: 0, height: 0 },
-          bhrValue: null,
           ascensionHint: null,
         });
       }
     }
   }
 
-  // Pair each name with BHR value and ascension indicator below it.
-  // Each BHR value can only be claimed by one champion — prevents
-  // multiple names on the same row sharing the same BHR.
-  const bhrWords = extractBhrWords(words, scale);
+  // Attach an ascension hint (A1/A2 badge) to each positioned name. This is
+  // a soft signal only — the seeder feeds it to findChampionsByBHR as a
+  // preference, never a hard filter. BHR pairing is NOT done here anymore:
+  // it's device-dependent (different aspect ratios offset the BHR from the
+  // name differently). The seeder identifies champions BHR-first instead.
   const ascWords = extractAscensionWords(words, scale);
   console.log(
-    `[name-anchor] ${bhrWords.length} BHR-like numbers, ${ascWords.length} ascension markers found in OCR`,
+    `[name-anchor] ${ascWords.length} ascension markers found in OCR`,
   );
-  const claimedBhrIndices = new Set<number>();
   for (const anchor of found) {
     if (anchor.rect.width === 0) continue; // raw-text-found, no position
-    const result = findBhrBelowExclusive(anchor.rect, bhrWords, claimedBhrIndices);
-    if (result) {
-      anchor.bhrValue = result.value;
-      claimedBhrIndices.add(result.index);
-    }
     anchor.ascensionHint = findAscensionNear(anchor.rect, ascWords);
   }
 
-  const withBhr = found.filter((f) => f.bhrValue !== null).length;
   console.log(
-    `[name-anchor] found ${found.length} champion names (${withBhr} with BHR):`,
-    found.map((f) => `${f.championName}${f.bhrValue ? ` (${f.bhrValue})` : ''}`),
+    `[name-anchor] found ${found.length} champion names:`,
+    found.map((f) => f.championName),
   );
 
   return found;
@@ -256,57 +260,6 @@ function findAscensionNear(
   }
 
   return best?.asc ?? null;
-}
-
-// ─── BHR value detection ─────────────────────────────────────────────────
-
-const BHR_WORD_PATTERN = /^(\d{2,3})[,.]?(\d{3})/;
-
-function extractBhrWords(
-  words: OcrWord[],
-  scale: number,
-): Array<{ value: number; cx: number; cy: number }> {
-  const results: Array<{ value: number; cx: number; cy: number }> = [];
-  for (const w of words) {
-    const match = w.text.trim().match(BHR_WORD_PATTERN);
-    if (!match) continue;
-    const value = parseInt(match[1]! + match[2]!, 10);
-    if (value < 10000 || value > 99999) continue;
-    results.push({
-      value,
-      cx: ((w.bbox.x0 + w.bbox.x1) / 2) * scale,
-      cy: ((w.bbox.y0 + w.bbox.y1) / 2) * scale,
-    });
-  }
-  return results;
-}
-
-function findBhrBelowExclusive(
-  nameRect: Rect,
-  bhrWords: Array<{ value: number; cx: number; cy: number }>,
-  claimed: Set<number>,
-): { value: number; index: number } | null {
-  const nameCx = nameRect.x + nameRect.width / 2;
-  const nameBottom = nameRect.y + nameRect.height;
-
-  let best: { value: number; index: number; dist: number } | null = null;
-
-  for (let i = 0; i < bhrWords.length; i++) {
-    if (claimed.has(i)) continue;
-    const bhr = bhrWords[i]!;
-    if (bhr.cy < nameRect.y) continue;
-    const yDist = bhr.cy - nameBottom;
-    if (yDist > 200) continue;
-    const xDist = Math.abs(bhr.cx - nameCx);
-    if (xDist > nameRect.width * 2.5) continue;
-
-    const dist = Math.max(0, yDist) + xDist * 0.5;
-    if (!best || dist < best.dist) {
-      best = { value: bhr.value, index: i, dist };
-    }
-  }
-
-  return best;
 }
 
 function groupIntoLines(

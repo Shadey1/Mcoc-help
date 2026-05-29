@@ -285,10 +285,10 @@ export function RosterManager({ champions }: RosterManagerProps) {
             <section className="border border-[var(--color-rule)] rounded bg-[var(--color-paper-soft)] px-4 py-3 flex items-center justify-between flex-wrap gap-2 text-sm">
               <span>
                 <strong>{unconfirmedCount}</strong>{' '}
-                {unconfirmedCount === 1 ? 'champion has' : 'champions have'}{' '}
-                identity confirmed but no rank/sig set yet — they&apos;re sitting
-                at R3 sig 0 A0 and are excluded from atomic-move
-                recommendations until you confirm state.
+                {unconfirmedCount === 1 ? 'champion has an' : 'champions have an'}{' '}
+                unconfirmed state — rank/sig estimated from a screenshot or not
+                yet set. They&apos;re excluded from atomic-move recommendations
+                until you confirm them.
               </span>
               <button
                 type="button"
@@ -402,9 +402,10 @@ export function RosterManager({ champions }: RosterManagerProps) {
                         {isUnconfirmed ? (
                           <span
                             className="text-[var(--color-ink-soft)] italic"
-                            title="Identity confirmed but rank/sig not set yet — defaults to floor (R3 sig 0 A0)"
+                            title="Estimated from screenshot BHR — confirm to include in atomic-move recommendations"
                           >
-                            unconfirmed
+                            R{state.rank} sig {state.sig} {state.ascension}
+                            <span className="not-italic text-[10px]"> · est</span>
                           </span>
                         ) : (
                           <>

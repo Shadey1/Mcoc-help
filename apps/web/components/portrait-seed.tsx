@@ -5,9 +5,10 @@ import type { Champion, ChampionState } from '@prestige-tools/engine';
 import {
   seedPortraitStore,
   type SeedProgress,
-  type SeedResult,
 } from '../lib/ocr/portrait-seeder';
+import type { IdentifiedCard } from '../lib/ocr/types';
 import { portraitStoreSize, loadPortraitStore } from '../lib/ocr/portrait-store';
+import { ConfirmationGrid } from './confirmation-grid';
 
 type Props = {
   champions: Champion[];
@@ -18,7 +19,7 @@ type Phase =
   | { kind: 'idle' }
   | { kind: 'queued'; files: File[] }
   | { kind: 'seeding'; progress: SeedProgress | null }
-  | { kind: 'done'; result: SeedResult }
+  | { kind: 'review'; cards: IdentifiedCard[] }
   | { kind: 'error'; message: string };
 
 export function PortraitSeed({ champions, onImport }: Props) {
@@ -45,7 +46,15 @@ export function PortraitSeed({ champions, onImport }: Props) {
       const result = await seedPortraitStore(files, champions, (update) => {
         setPhase({ kind: 'seeding', progress: update });
       });
-      setPhase({ kind: 'done', result });
+      if (result.cards.length === 0) {
+        setPhase({
+          kind: 'error',
+          message:
+            'No champions could be read from those screenshots. Make sure they are the My Champions page sorted by BHR.',
+        });
+        return;
+      }
+      setPhase({ kind: 'review', cards: result.cards });
     } catch (err) {
       setPhase({
         kind: 'error',
@@ -54,42 +63,17 @@ export function PortraitSeed({ champions, onImport }: Props) {
     }
   }
 
-  if (phase.kind === 'done') {
-    const stateCount = phase.result.rosterStates.length;
+  if (phase.kind === 'review') {
     return (
-      <div className="space-y-3">
-        <div className="text-sm bg-green-50 border border-green-300 text-green-900 rounded p-3">
-          <strong>
-            Identified {phase.result.seeded} champions.
-          </strong>
-          <p className="text-xs mt-1">
-            {stateCount} ready to import. Champions with BHR readings have
-            rank/sig/ascension derived automatically. The rest import at
-            R3/sig 0/A0 — update them in the roster table.
-          </p>
-        </div>
-        <div className="flex gap-2 items-center">
-          {onImport && stateCount > 0 && (
-            <button
-              type="button"
-              onClick={() => {
-                onImport(phase.result.rosterStates);
-                setPhase({ kind: 'idle' });
-              }}
-              className="px-4 py-2 bg-[var(--color-marvel-impact)] text-[var(--color-paper)] font-medium rounded hover:bg-[var(--color-marvel-editorial)] transition-colors"
-            >
-              Import {stateCount} champions to roster
-            </button>
-          )}
-          <button
-            type="button"
-            onClick={() => setPhase({ kind: 'idle' })}
-            className="text-xs underline text-[var(--color-ink-soft)]"
-          >
-            {stateCount > 0 ? 'Skip import' : 'Seed more'}
-          </button>
-        </div>
-      </div>
+      <ConfirmationGrid
+        cards={phase.cards}
+        champions={champions}
+        onConfirm={(states) => {
+          onImport?.(states);
+          setPhase({ kind: 'idle' });
+        }}
+        onCancel={() => setPhase({ kind: 'idle' })}
+      />
     );
   }
 
