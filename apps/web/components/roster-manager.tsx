@@ -218,7 +218,7 @@ export function RosterManager({ champions }: RosterManagerProps) {
                 : 'text-[var(--color-ink-soft)] hover:text-[var(--color-ink)]'
             }`}
           >
-            Seed portraits
+            Upload roster
           </button>
         </div>
 

@@ -8,6 +8,7 @@ import {
 } from '../lib/ocr/portrait-seeder';
 import type { IdentifiedCard } from '../lib/ocr/types';
 import { portraitStoreSize, loadPortraitStore } from '../lib/ocr/portrait-store';
+import { FEEDBACK_FORM_URL } from '../lib/feedback';
 import { ConfirmationGrid } from './confirmation-grid';
 
 type Props = {
@@ -80,13 +81,13 @@ export function PortraitSeed({ champions, onImport }: Props) {
   if (phase.kind === 'seeding') {
     const msg = phase.progress
       ? phase.progress.kind === 'scanning'
-        ? `Scanning screenshot ${phase.progress.screenshot + 1} of ${phase.progress.total}…`
+        ? `Scouring the multiverse for your champions… (scan ${phase.progress.screenshot + 1} of ${phase.progress.total})`
         : phase.progress.kind === 'names-found'
-          ? `Found ${phase.progress.count} champions in screenshot ${phase.progress.screenshot + 1}`
+          ? `Spotted ${phase.progress.count} champions in scan ${phase.progress.screenshot + 1}…`
           : phase.progress.kind === 'seeding'
-            ? `Saving portrait ${phase.progress.current + 1}/${phase.progress.total}: ${phase.progress.champion}`
-            : 'Done'
-      : 'Starting…';
+            ? `Reading ${phase.progress.champion}…`
+            : 'Assembling your roster…'
+      : 'Opening a portal to the multiverse…';
     return (
       <div className="flex items-center gap-3 text-sm">
         <div className="w-4 h-4 border-2 border-[var(--color-marvel-impact)] border-t-transparent rounded-full animate-spin" />
@@ -113,19 +114,49 @@ export function PortraitSeed({ champions, onImport }: Props) {
 
   return (
     <div className="space-y-3">
-      <div className="text-sm">
-        <strong>Seed portrait library</strong> from My Champions screenshots.
-        <p className="text-xs text-[var(--color-ink-soft)] mt-1">
-          Screenshot your My Champions page (sorted by BHR) from the Windows
-          app. Drop them here — the tool reads the champion names from the
-          screenshots and saves each portrait for future identification.
-          {storeInfo.totalPortraits > 0 && (
-            <span className="ml-1">
-              Current store: {storeInfo.champions} champions,{' '}
-              {storeInfo.totalPortraits} portraits.
-            </span>
-          )}
+      <div className="text-sm space-y-2">
+        <div className="flex items-center gap-2">
+          <strong>Upload your roster</strong>
+          <span className="text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded bg-[var(--color-marvel-impact)] text-[var(--color-paper)]">
+            Alpha
+          </span>
+        </div>
+        <ol className="text-xs text-[var(--color-ink-soft)] list-decimal list-inside space-y-1">
+          <li>
+            In-game, open <strong>My Champions</strong> and{' '}
+            <strong>sort by BHR</strong> (Base Hero Rating).{' '}
+            <strong className="text-[var(--color-marvel-impact)]">
+              Sorting by PI won&apos;t work.
+            </strong>
+          </li>
+          <li>
+            Screenshot the list — scroll and grab as many as you need to cover
+            your roster.
+          </li>
+          <li>
+            Drop them all here. We read each champion, BHR and ascension, then
+            derive rank &amp; signature.
+          </li>
+        </ol>
+        <p className="text-xs text-[var(--color-ink-soft)]">
+          This is an early <strong>alpha</strong> and we&apos;re actively
+          iterating — reads aren&apos;t perfect yet, so you get a review step to
+          fix anything before it&apos;s added to your roster.{' '}
+          <a
+            href={FEEDBACK_FORM_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[var(--color-marvel-impact)] underline hover:text-[var(--color-marvel-editorial)]"
+          >
+            Spotted a wrong champion or a bad read? Send anonymous feedback →
+          </a>
         </p>
+        {storeInfo.totalPortraits > 0 && (
+          <p className="text-xs text-[var(--color-ink-soft)]">
+            Saved so far: {storeInfo.champions} champions,{' '}
+            {storeInfo.totalPortraits} portraits.
+          </p>
+        )}
       </div>
 
       <div

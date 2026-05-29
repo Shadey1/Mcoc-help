@@ -6,6 +6,7 @@ import type { IdentifiedCard } from '../lib/ocr/types';
 import { ChampionPortrait } from './champion-portrait';
 import { findCandidates } from '../lib/ocr/name-match';
 import { deriveStateFromBHR } from '../lib/ocr/bhr-reverse';
+import { FEEDBACK_FORM_URL } from '../lib/feedback';
 import {
   addPortrait,
   loadPortraitStore,
@@ -211,7 +212,15 @@ export function ConfirmationGrid({ cards, champions, onConfirm, onCancel }: Prop
         Confident matches are kept; flagged (amber/red) ones are skipped by
         default — they&apos;re usually name-less or ambiguous. Click a name to
         fix a match, rank / sig / A* to edit state, or <strong>restore</strong>{' '}
-        a flagged card to import it. Then <strong>Import</strong> below.
+        a flagged card to import it. Then <strong>Import</strong> below.{' '}
+        <a
+          href={FEEDBACK_FORM_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-[var(--color-marvel-impact)] underline hover:text-[var(--color-marvel-editorial)]"
+        >
+          Something wrong? Send anonymous feedback →
+        </a>
       </div>
 
       {flaggedCount + skipped.size > 0 && (
