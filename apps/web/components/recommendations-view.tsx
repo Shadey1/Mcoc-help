@@ -403,13 +403,7 @@ function MoveCard({
 
         {/* Right: prestige delta + BHR */}
         <div className="text-right flex-shrink-0">
-          <div
-            className={`numeric font-medium text-lg ${
-              isTop ? 'burst text-2xl' : 'text-[var(--color-marvel-editorial)]'
-            }`}
-          >
-            {formatDelta(move.top30Delta)}
-          </div>
+          <DeltaBurst value={formatDelta(move.top30Delta)} burst={isTop} />
           <div className="text-xs text-[var(--color-ink-soft)] numeric">
             BHR {formatBHR(move.beforeBHR)} → {formatBHR(move.afterBHR)}
           </div>
@@ -494,13 +488,7 @@ function RelicMoveCard({
 
         {/* Right: synthetic top30Delta + BHR */}
         <div className="text-right flex-shrink-0">
-          <div
-            className={`numeric font-medium text-lg ${
-              isTop ? 'burst text-2xl' : 'text-[var(--color-marvel-editorial)]'
-            }`}
-          >
-            {formatDelta(top30Delta)}
-          </div>
+          <DeltaBurst value={formatDelta(top30Delta)} burst={isTop} />
           <div className="text-xs text-[var(--color-ink-soft)] numeric">
             BHR {formatBHR(move.beforeBHR)} → {formatBHR(move.afterBHR)}
           </div>
@@ -644,15 +632,10 @@ function CeilingGrid({
                 </div>
               </div>
               <div className="text-right flex-shrink-0">
-                <div
-                  className={`numeric font-medium ${
-                    isTop && entry.owned
-                      ? 'burst text-2xl'
-                      : 'text-[var(--color-marvel-editorial)] text-lg'
-                  }`}
-                >
-                  {formatDelta(entry.prestigeDeltaIfMaxed)}
-                </div>
+                <DeltaBurst
+                  value={formatDelta(entry.prestigeDeltaIfMaxed)}
+                  burst={isTop && entry.owned}
+                />
                 <div className="text-xs text-[var(--color-ink-soft)] numeric">
                   {entry.owned
                     ? `BHR ${formatBHR(entry.currentBHR)} → ${formatBHR(entry.ceilingBHR)}`
@@ -694,6 +677,19 @@ function CeilingGrid({
 }
 
 // ─── helpers ─────────────────────────────────────────────────────────────
+
+/** The prestige delta. On the #1 card it gets the comic starburst (the single
+ *  moment of impact); everywhere else it's restrained editorial red. */
+function DeltaBurst({ value, burst }: { value: string; burst: boolean }) {
+  if (burst) {
+    return <span className="burst-badge text-xl">{value}</span>;
+  }
+  return (
+    <span className="numeric font-medium text-lg text-[var(--color-marvel-editorial)]">
+      {value}
+    </span>
+  );
+}
 
 function describeMove(move: ScoredMove): string {
   switch (move.move.kind) {
