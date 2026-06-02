@@ -20,6 +20,7 @@ import { loadRelics, type RelicStateBundle } from '../lib/relics-storage';
 import { formatBHR, formatDelta } from '../lib/format';
 import { ChampionPortrait } from './champion-portrait';
 import { AddToRosterModal } from './add-to-roster-modal';
+import { RosterSummary } from './roster-summary';
 
 type RecommendationsViewProps = {
   champions: Champion[];
@@ -148,6 +149,11 @@ export function RecommendationsView({ champions }: RecommendationsViewProps) {
 
   return (
     <div className="space-y-8">
+      <RosterSummary
+        roster={{ champions: validStates }}
+        championLookup={championLookup}
+      />
+
       <div className="flex items-center justify-between border-b border-[var(--color-rule)] pb-3">
         <h2 className="editorial-heading text-2xl">
           {mode === 'atomic' ? 'Short-term plan' : 'Long-term plan'}
