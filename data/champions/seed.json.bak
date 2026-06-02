@@ -108,7 +108,7 @@
     {
       "id": "ant-man",
       "name": "Ant-Man",
-      "class": "Tech",
+      "class": "Science",
       "ascendable": false,
       "prestige": {
         "rank5": {
@@ -234,7 +234,7 @@
     {
       "id": "attuma",
       "name": "Attuma",
-      "class": "Mutant",
+      "class": "Skill",
       "ascendable": true,
       "prestige": {
         "rank5": {
@@ -276,7 +276,7 @@
     {
       "id": "bastion",
       "name": "Bastion",
-      "class": "Mutant",
+      "class": "Tech",
       "ascendable": false,
       "prestige": {
         "rank5": {
@@ -444,7 +444,7 @@
     {
       "id": "blade",
       "name": "Blade",
-      "class": "Mystic",
+      "class": "Skill",
       "ascendable": false,
       "prestige": {
         "rank5": {
@@ -465,7 +465,7 @@
     {
       "id": "blade-stellar-forged",
       "name": "Blade (Stellar Forged)",
-      "class": "Skill",
+      "class": "Mystic",
       "ascendable": true,
       "prestige": {
         "rank5": {
@@ -654,7 +654,7 @@
     {
       "id": "cassie-lang",
       "name": "Cassie Lang",
-      "class": "Tech",
+      "class": "Science",
       "ascendable": false,
       "prestige": {
         "rank5": {
@@ -696,7 +696,7 @@
     {
       "id": "civil-warrior",
       "name": "Civil Warrior",
-      "class": "Skill",
+      "class": "Tech",
       "ascendable": false,
       "prestige": {
         "rank5": {
@@ -885,7 +885,7 @@
     {
       "id": "dark-phoenix",
       "name": "Dark Phoenix",
-      "class": "Mutant",
+      "class": "Cosmic",
       "ascendable": false,
       "prestige": {
         "rank5": {
@@ -990,7 +990,7 @@
     {
       "id": "doctor-bong",
       "name": "Doctor Bong",
-      "class": "Mystic",
+      "class": "Skill",
       "ascendable": true,
       "prestige": {
         "rank5": {
@@ -1158,7 +1158,7 @@
     {
       "id": "elsa-bloodstone",
       "name": "Elsa Bloodstone",
-      "class": "Mutant",
+      "class": "Skill",
       "ascendable": false,
       "prestige": {
         "rank5": {
@@ -1998,7 +1998,7 @@
     {
       "id": "jessica-jones",
       "name": "Jessica Jones",
-      "class": "Skill",
+      "class": "Science",
       "ascendable": false,
       "prestige": {
         "rank5": {
@@ -2397,7 +2397,7 @@
     {
       "id": "lumatrix",
       "name": "Lumatrix",
-      "class": "Mutant",
+      "class": "Skill",
       "ascendable": false,
       "prestige": {
         "rank5": {
@@ -2439,7 +2439,7 @@
     {
       "id": "modok",
       "name": "M.O.D.O.K.",
-      "class": "Tech",
+      "class": "Science",
       "ascendable": false,
       "prestige": {
         "rank5": {
@@ -2586,7 +2586,7 @@
     {
       "id": "mantis",
       "name": "Mantis",
-      "class": "Mystic",
+      "class": "Skill",
       "ascendable": false,
       "prestige": {
         "rank5": {
@@ -2607,7 +2607,7 @@
     {
       "id": "masacre",
       "name": "Masacre",
-      "class": "Mutant",
+      "class": "Skill",
       "ascendable": false,
       "prestige": {
         "rank5": {
@@ -2775,7 +2775,7 @@
     {
       "id": "moondragon",
       "name": "Moondragon",
-      "class": "Mystic",
+      "class": "Skill",
       "ascendable": false,
       "prestige": {
         "rank5": {
@@ -2796,7 +2796,7 @@
     {
       "id": "morbius",
       "name": "Morbius",
-      "class": "Mystic",
+      "class": "Science",
       "ascendable": false,
       "prestige": {
         "rank5": {
@@ -2838,7 +2838,7 @@
     {
       "id": "mr-knight",
       "name": "Mr. Knight",
-      "class": "Mystic",
+      "class": "Skill",
       "ascendable": false,
       "prestige": {
         "rank5": {
@@ -3216,7 +3216,7 @@
     {
       "id": "phoenix",
       "name": "Phoenix",
-      "class": "Mutant",
+      "class": "Cosmic",
       "ascendable": false,
       "prestige": {
         "rank5": {
@@ -3384,7 +3384,7 @@
     {
       "id": "purgatory",
       "name": "Purgatory",
-      "class": "Mutant",
+      "class": "Mystic",
       "ascendable": false,
       "prestige": {
         "rank5": {
@@ -3447,7 +3447,7 @@
     {
       "id": "red-guardian",
       "name": "Red Guardian",
-      "class": "Skill",
+      "class": "Science",
       "ascendable": false,
       "prestige": {
         "rank5": {
@@ -3489,7 +3489,7 @@
     {
       "id": "red-skull",
       "name": "Red Skull",
-      "class": "Skill",
+      "class": "Tech",
       "ascendable": false,
       "prestige": {
         "rank5": {
@@ -3594,7 +3594,7 @@
     {
       "id": "ruby-thursday",
       "name": "Ruby Thursday",
-      "class": "Science",
+      "class": "Tech",
       "ascendable": true,
       "prestige": {
         "rank5": {
@@ -3678,7 +3678,7 @@
     {
       "id": "sauron",
       "name": "Sauron",
-      "class": "Mystic",
+      "class": "Mutant",
       "ascendable": false,
       "prestige": {
         "rank5": {
@@ -4056,7 +4056,7 @@
     {
       "id": "solvarch",
       "name": "Solvarch",
-      "class": "Mystic",
+      "class": "Tech",
       "ascendable": false,
       "prestige": {
         "rank5": {
@@ -4098,7 +4098,7 @@
     {
       "id": "spider-man-stark-enhanced",
       "name": "Spider Man (Stark Enhanced)",
-      "class": "Science",
+      "class": "Tech",
       "ascendable": false,
       "prestige": {
         "rank5": {
@@ -4245,7 +4245,7 @@
     {
       "id": "spider-man-stealth-suit",
       "name": "Spider-Man (Stealth-Suit)",
-      "class": "Science",
+      "class": "Skill",
       "ascendable": false,
       "prestige": {
         "rank5": {
@@ -4392,7 +4392,7 @@
     {
       "id": "star-lord",
       "name": "Star-Lord",
-      "class": "Skill",
+      "class": "Tech",
       "ascendable": false,
       "prestige": {
         "rank5": {
@@ -4539,7 +4539,7 @@
     {
       "id": "superior-iron-man",
       "name": "Superior Iron Man",
-      "class": "Tech",
+      "class": "Cosmic",
       "ascendable": false,
       "prestige": {
         "rank5": {
@@ -4707,7 +4707,7 @@
     {
       "id": "the-maker",
       "name": "The Maker",
-      "class": "Science",
+      "class": "Tech",
       "ascendable": false,
       "prestige": {
         "rank5": {

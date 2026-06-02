@@ -1,5 +1,78 @@
 {
-  "generatedAt": "2026-05-24T19:38:21.390Z",
+  "generatedAt": "2026-06-02T09:35:05.275Z",
   "corrections": [],
-  "issues": []
+  "additions": [
+    {
+      "id": "shatterstar",
+      "name": "Shatterstar",
+      "proposedClass": "Mutant",
+      "sourceTitle": "Shatterstar",
+      "portraitUrl": null
+    },
+    {
+      "id": "phyla-vell",
+      "name": "Phyla-Vell",
+      "proposedClass": "Cosmic",
+      "sourceTitle": "Phyla-Vell",
+      "portraitUrl": null
+    },
+    {
+      "id": "wave",
+      "name": "Wave",
+      "proposedClass": "Science",
+      "sourceTitle": "Wave",
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/9/91/Wave_portrait.png/revision/latest/scale-to-width-down/200?cb=20260504222648"
+    }
+  ],
+  "issues": [
+    {
+      "name": "Black Widow (disambiguation)",
+      "result": {
+        "kind": "discovery-skipped",
+        "reason": "no class extractable from infobox"
+      }
+    },
+    {
+      "name": "In Print, It's Libel",
+      "result": {
+        "kind": "discovery-skipped",
+        "reason": "no class extractable from infobox"
+      }
+    },
+    {
+      "name": "Make Him Infamous",
+      "result": {
+        "kind": "discovery-skipped",
+        "reason": "no class extractable from infobox"
+      }
+    },
+    {
+      "name": "Good, But It's Taken",
+      "result": {
+        "kind": "discovery-skipped",
+        "reason": "no class extractable from infobox"
+      }
+    },
+    {
+      "name": "Get Me A Violin",
+      "result": {
+        "kind": "discovery-skipped",
+        "reason": "no class extractable from infobox"
+      }
+    },
+    {
+      "name": "I Trust My Barber",
+      "result": {
+        "kind": "discovery-skipped",
+        "reason": "no class extractable from infobox"
+      }
+    },
+    {
+      "name": "A Page One Problem",
+      "result": {
+        "kind": "discovery-skipped",
+        "reason": "no class extractable from infobox"
+      }
+    }
+  ]
 }
