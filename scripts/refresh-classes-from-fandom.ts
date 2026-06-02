@@ -1,38 +1,38 @@
 /**
- * Refresh champion class assignments from the Marvel Contest of Champions
- * Fandom wiki via its MediaWiki API.
+ * Refresh champion class assignments + discover new champions from the Marvel
+ * Contest of Champions Fandom wiki via its MediaWiki API.
  *
- * Why this exists: `data/champions/seed.json` was hand-built from architecture
- * doc dumps. Manual entry produced systematic mis-classifications (notably ~12
- * Mutants over-counted, ~6 Cosmics under-counted as of v0.15.0). Hand
- * proofreading 254 entries is unreliable. The Fandom wiki has authoritative,
- * community-maintained class data in machine-readable infobox templates,
- * licensed CC-BY-SA — exactly what we should be using.
+ * Two passes per run:
  *
- * Strategy:
- *   1. For each champion in seed.json, resolve to a canonical Fandom page
- *      title (exact name → hyphen-normalised → opensearch fallback). Reuses
- *      the resolution ladder from scrape-fandom-portraits.ts.
- *   2. Fetch the page wikitext via action=query + prop=revisions.
- *   3. Parse the {{ChampionInfoBox}} template, extract the |class= field.
- *      Normalise common variants ({{Class|Science}}, "science", trailing
- *      whitespace, etc.) to one of the six canonical classes.
- *   4. Diff against seed.json. Write corrections to scripts/class-corrections.json
- *      for human review.
- *   5. With --apply, read scripts/class-corrections.json and rewrite seed.json
- *      (backup at seed.json.bak).
+ *   A. Class refresh — for each champion already in seed.json, fetch the
+ *      Fandom page wikitext, parse the {{ChampionInfoBox}} template's |class=
+ *      field, propose a correction if it differs from the committed value.
+ *
+ *   B. Discovery — query the Recent Changes feed for namespace-0 pages
+ *      created in the last DISCOVERY_WINDOW_DAYS (35 by default). Diff the
+ *      titles against seed ids, and for each unknown page, propose a stub
+ *      entry IF the page has a ChampionInfoBox with an extractable class.
+ *      Stubs ship with `sevenStarReleased: false` so the engine filters them
+ *      out via loadActiveChampions() until BHR is filled in. Skipped when
+ *      --only narrows the run. Override the window with `DISCOVERY_WINDOW_DAYS`
+ *      env var (e.g. =180 for a backfill sweep).
+ *
+ * Why both in one script: a single monthly cron, a single PR, a single set of
+ * API helpers. The discovery pass is cheap (~1 category list + ~2 calls per
+ * unknown title) and runs after the class refresh.
  *
  * Polite: 1s between API calls. Identifying User-Agent.
- * Idempotent: rerunnable; --only narrows to specific champions for quick fixes.
+ * Idempotent: rerunnable; --only narrows to specific champions for quick fixes
+ *   AND skips discovery (it's a full-category sweep, not per-champion).
  *
  * Usage:
- *   pnpm refresh-classes                       # dry-run — writes corrections JSON
- *   pnpm refresh-classes -- --only "Maestro,Bastion"
- *   pnpm refresh-classes -- --apply            # apply previously-saved corrections
+ *   pnpm refresh-classes                       # dry-run — writes corrections + additions to JSON
+ *   pnpm refresh-classes -- --only "Maestro,Bastion"   # class-only mode, no discovery
+ *   pnpm refresh-classes -- --apply            # apply previously-saved corrections + additions
  *   pnpm refresh-classes -- --refresh-apply    # one-shot: fetch + immediately apply
  *
  * Output:
- *   scripts/class-corrections.json — list of {id, name, currentClass, proposedClass, sourceTitle}
+ *   scripts/class-corrections.json — { corrections, additions, issues }
  *   data/champions/seed.json.bak  — backup before --apply (on every apply)
  */
 
@@ -50,6 +50,18 @@ const USER_AGENT =
   'mcoc.help class refresher (free MCOC tool; contact via mcoc.help)';
 const RATE_LIMIT_MS = 1000;
 const FETCH_TIMEOUT_MS = 10000;
+/** How far back to look for newly-created Fandom champion pages, in days.
+ *  Monthly cron + 5-day buffer catches the previous month's releases even if
+ *  a run was missed. Override via DISCOVERY_WINDOW_DAYS env var for backfill.
+ *
+ *  Why time-windowed instead of category-diff: Fandom's `Category:Champion`
+ *  contains every champion ever released at any star rarity (~408 pages),
+ *  while seed.json only covers 7-star champions (~254). Naive diff surfaces
+ *  ~150 legacy 1-/3-/5-star variants as "additions". A time-window over
+ *  page-creation events selects for genuinely-new champions instead. */
+const DISCOVERY_WINDOW_DAYS = Number(process.env.DISCOVERY_WINDOW_DAYS ?? 35);
+/** Portrait thumbnail width — matches scrape-fandom-portraits.ts. */
+const THUMB_WIDTH = 200;
 
 const VALID_CLASSES = ['Mutant', 'Skill', 'Science', 'Mystic', 'Cosmic', 'Tech'] as const;
 type ChampionClass = (typeof VALID_CLASSES)[number];
@@ -85,6 +97,18 @@ type Correction = {
   currentClass: string;
   proposedClass: ChampionClass;
   sourceTitle: string;
+};
+
+/** A stub champion discovered on Fandom but missing from seed.json. Class is
+ *  required (we drop candidates where we can't extract one); BHR is a sentinel
+ *  pending manual backfill. `sevenStarReleased: false` keeps the entry out of
+ *  engine inputs until the BHR is filled in. */
+type Addition = {
+  id: string;
+  name: string;
+  proposedClass: ChampionClass;
+  sourceTitle: string;
+  portraitUrl: string | null;
 };
 
 type RefreshResult =
@@ -201,6 +225,66 @@ async function fetchWikitext(title: string): Promise<string | null> {
   const page = data.query?.pages?.[0];
   if (!page || page.missing) return null;
   return page.revisions?.[0]?.slots?.main?.content ?? null;
+}
+
+/** Page-image thumbnail for a title, or null. Mirrors scrape-fandom-portraits.ts
+ *  but kept local to avoid a script-to-script dependency. */
+async function getPageImage(title: string): Promise<string | null> {
+  type Resp = {
+    query?: {
+      pages?: Array<{
+        missing?: boolean;
+        thumbnail?: { source: string };
+        original?: { source: string };
+      }>;
+    };
+  };
+  try {
+    const data = (await apiFetch({
+      action: 'query',
+      titles: title,
+      prop: 'pageimages',
+      piprop: 'thumbnail|original',
+      pithumbsize: String(THUMB_WIDTH),
+    })) as Resp;
+    const page = data.query?.pages?.[0];
+    if (!page || page.missing) return null;
+    return page.thumbnail?.source ?? page.original?.source ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/** Query the Recent Changes feed for newly-created namespace-0 pages within
+ *  the last `windowDays`. Returns titles ordered newest-first. */
+async function fetchRecentlyCreatedPages(windowDays: number): Promise<string[]> {
+  type Resp = {
+    query?: { recentchanges?: Array<{ title: string; timestamp: string }> };
+  };
+  const cutoff = new Date();
+  cutoff.setUTCDate(cutoff.getUTCDate() - windowDays);
+  const cutoffISO = cutoff.toISOString();
+  const data = (await apiFetch({
+    action: 'query',
+    list: 'recentchanges',
+    rcnamespace: '0',
+    rctype: 'new',
+    rclimit: '500',
+    rcprop: 'title|timestamp',
+    rcdir: 'older',
+  })) as Resp;
+  return (data.query?.recentchanges ?? [])
+    .filter((p) => p.timestamp >= cutoffISO)
+    .map((p) => p.title);
+}
+
+/** Canonicalise a Fandom page title to a seed.json-style id.
+ *   "Spider-Man (Stark Enhanced)" → "spider-man-stark-enhanced" */
+function idFromName(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
 }
 
 // ─── Wikitext infobox parsing ───────────────────────────────────────────
@@ -325,6 +409,103 @@ async function refreshChampion(
   return { kind: 'correction', from: champion.class, to: normalised, sourceTitle: title };
 }
 
+// ─── Discovery: find Fandom champions missing from seed.json ────────────
+
+/**
+ * Enumerate Fandom's champion category, diff against seed.json, return a stub
+ * Addition for each Fandom page whose id isn't in the seed. Drops candidates
+ * we can't extract a class for — better to surface the issue than to invent
+ * a default.
+ */
+async function discoverNewChampions(
+  seed: { champions: Champion[] },
+): Promise<{ additions: Addition[]; skipped: Array<{ title: string; reason: string }> }> {
+  const existingIds = new Set(seed.champions.map((c) => c.id));
+  const existingNames = new Set(seed.champions.map((c) => c.name.toLowerCase().trim()));
+
+  console.log(`Querying Fandom for pages created in the last ${DISCOVERY_WINDOW_DAYS} days…`);
+  let titles: string[];
+  try {
+    titles = await fetchRecentlyCreatedPages(DISCOVERY_WINDOW_DAYS);
+  } catch (e) {
+    console.warn(
+      `  ⚠ Could not query recent changes: ${(e as Error).message}. Discovery skipped.`,
+    );
+    return { additions: [], skipped: [] };
+  }
+  console.log(`  Found ${titles.length} new page${titles.length === 1 ? '' : 's'} in window.`);
+
+  // Drop pages that obviously aren't champion entries: anything with a
+  // namespace prefix, lists, file pages, etc. The ChampionInfoBox extraction
+  // below provides a second hard filter — non-champion pages don't have one.
+  const candidates = titles.filter((t) => {
+    if (t.includes(':')) return false;
+    if (/^(List|Category|Champions|File)\b/i.test(t)) return false;
+    return true;
+  });
+
+  // Diff against existing seed entries by id AND by case-insensitive name —
+  // belt-and-braces against id-vs-name drift (existing seed names already in
+  // play under a different canonicalisation).
+  const unknown = candidates.filter((t) => {
+    return !existingIds.has(idFromName(t)) && !existingNames.has(t.toLowerCase().trim());
+  });
+
+  console.log(
+    `  ${unknown.length} candidate addition${unknown.length === 1 ? '' : 's'} not in seed.json.`,
+  );
+
+  const additions: Addition[] = [];
+  const skipped: Array<{ title: string; reason: string }> = [];
+
+  for (let i = 0; i < unknown.length; i++) {
+    const title = unknown[i]!;
+    const progress = `[${i + 1}/${unknown.length}]`;
+
+    let proposedClass: ChampionClass | null = null;
+    let portraitUrl: string | null = null;
+
+    try {
+      const wikitext = await fetchWikitext(title);
+      if (wikitext) {
+        const body = extractInfoboxBody(wikitext);
+        if (body) {
+          const raw = extractRawClass(body);
+          if (raw) proposedClass = normaliseClass(raw);
+        }
+      }
+    } catch (e) {
+      skipped.push({ title, reason: `class fetch failed: ${(e as Error).message}` });
+      console.log(`${progress} ${title}: skip (class fetch error)`);
+      await sleep(RATE_LIMIT_MS);
+      continue;
+    }
+    await sleep(RATE_LIMIT_MS);
+
+    if (!proposedClass) {
+      skipped.push({ title, reason: 'no class extractable from infobox' });
+      console.log(`${progress} ${title}: skip (no class in infobox)`);
+      continue;
+    }
+
+    portraitUrl = await getPageImage(title);
+    await sleep(RATE_LIMIT_MS);
+
+    additions.push({
+      id: idFromName(title),
+      name: title,
+      proposedClass,
+      sourceTitle: title,
+      portraitUrl,
+    });
+    console.log(
+      `${progress} ${title}: +ADD (${proposedClass}${portraitUrl ? ', portrait' : ', no portrait'})`,
+    );
+  }
+
+  return { additions, skipped };
+}
+
 // ─── Two-mode main ──────────────────────────────────────────────────────
 
 function readSeed(): { champions: Champion[] } {
@@ -370,9 +551,11 @@ function applyCorrections() {
   }
   const corrections = JSON.parse(readFileSync(CORRECTIONS_PATH, 'utf8')) as {
     corrections: Correction[];
+    additions?: Addition[];
   };
-  if (corrections.corrections.length === 0) {
-    console.log('No corrections to apply. seed.json untouched.');
+  const additions = corrections.additions ?? [];
+  if (corrections.corrections.length === 0 && additions.length === 0) {
+    console.log('No corrections or additions to apply. seed.json untouched.');
     return;
   }
 
@@ -400,10 +583,51 @@ function applyCorrections() {
     champion.class = corr.proposedClass;
     applied++;
   }
+
+  // Append stub entries for newly-discovered champions. sevenStarReleased:false
+  // keeps them out of engine math; the bhrSource marker flags them for manual
+  // BHR backfill. Skip any that have already landed in seed (re-apply safety).
+  const today = new Date().toISOString().slice(0, 10);
+  let added = 0;
+  let addSkipped = 0;
+  for (const add of additions) {
+    if (byId.has(add.id)) {
+      console.warn(`  ⚠ ${add.name} (id=${add.id}): already in seed, skipping addition`);
+      addSkipped++;
+      continue;
+    }
+    const stub = {
+      id: add.id,
+      name: add.name,
+      class: add.proposedClass,
+      ascendable: false,
+      prestige: { rank5: { '0': 1, '200': 1 } },
+      sigCurve: null,
+      tags: [],
+      _meta: {
+        bhrSource: `PENDING — auto-added stub from Fandom on ${today}; backfill BHR + ascendable before flipping sevenStarReleased`,
+      },
+      portraitUrl: add.portraitUrl,
+      sevenStarReleased: false,
+    };
+    seed.champions.push(stub as unknown as Champion);
+    byId.set(stub.id, stub as unknown as Champion);
+    console.log(`  +ADD ${add.name} (${add.proposedClass}) — sevenStarReleased=false, BHR PENDING`);
+    added++;
+  }
+  // Keep seed.json sorted by name (default ASCII compare — matches the
+  // canonical order of the hand-built seed) so new entries land in the
+  // right spot without reshuffling everything else.
+  if (added > 0) {
+    seed.champions.sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
+  }
+
   writeSeed(seed);
   console.log(
     `\nApplied ${applied} correction${applied === 1 ? '' : 's'}` +
       (skipped > 0 ? ` (${skipped} skipped — see warnings above)` : '') +
+      `, ${added} addition${added === 1 ? '' : 's'}` +
+      (addSkipped > 0 ? ` (${addSkipped} skipped — already in seed)` : '') +
       `. seed.json updated.`,
   );
 }
@@ -425,6 +649,18 @@ async function dryRun() {
   }
   console.log(`Source: ${API_ENDPOINT}`);
   console.log(`Rate limit: ${RATE_LIMIT_MS}ms between calls\n`);
+
+  // Discovery pass — find Fandom champions missing from seed.json. Skipped
+  // entirely when --only filters are in play (it's a full-category sweep,
+  // not a per-champion check).
+  let additions: Addition[] = [];
+  let discoverySkipped: Array<{ title: string; reason: string }> = [];
+  if (!ONLY_NAMES) {
+    const discovered = await discoverNewChampions(seed);
+    additions = discovered.additions;
+    discoverySkipped = discovered.skipped;
+    console.log('');
+  }
 
   const corrections: Correction[] = [];
   const issues: Array<{ name: string; result: RefreshResult }> = [];
@@ -491,18 +727,30 @@ async function dryRun() {
     await sleep(RATE_LIMIT_MS);
   }
 
-  // Persist corrections + issues
+  // Persist corrections + additions + issues. discoverySkipped is folded into
+  // issues so the workflow PR body has a single bucket of things to eyeball.
+  const allIssues = [
+    ...issues,
+    ...discoverySkipped.map((s) => ({
+      name: s.title,
+      result: { kind: 'discovery-skipped' as const, reason: s.reason },
+    })),
+  ];
   writeFileSync(
     CORRECTIONS_PATH,
-    JSON.stringify({ generatedAt: new Date().toISOString(), corrections, issues }, null, 2) +
-      '\n',
+    JSON.stringify(
+      { generatedAt: new Date().toISOString(), corrections, additions, issues: allIssues },
+      null,
+      2,
+    ) + '\n',
   );
 
   console.log('');
   console.log('─'.repeat(60));
   console.log(`Unchanged:     ${unchanged}`);
   console.log(`Corrections:   ${corrections.length}`);
-  console.log(`Issues:        ${issues.length}`);
+  console.log(`Additions:     ${additions.length}`);
+  console.log(`Issues:        ${allIssues.length}`);
   console.log(`Total scanned: ${targets.length}`);
   console.log('');
   console.log(`Corrections written to: ${CORRECTIONS_PATH}`);

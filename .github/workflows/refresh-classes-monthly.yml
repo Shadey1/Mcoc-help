@@ -63,17 +63,30 @@ jobs:
           commit-message: 'chore(data): refresh champion classes from Fandom wiki'
           title: 'Monthly class refresh — Fandom wiki'
           body: |
-            **Automated class refresh** from the Marvel Contest of Champions Fandom wiki.
+            **Automated class refresh + new-champion discovery** from the Marvel Contest of Champions Fandom wiki.
 
-            Pulled via MediaWiki API (CC-BY-SA), parsed the `{{ChampionInfoBox}}`
-            template's `|class=` field for every champion in `seed.json`,
-            diffed against committed values, applied the surviving corrections.
+            Pulled via MediaWiki API (CC-BY-SA), two passes:
+            1. **Class refresh** — parsed the `{{ChampionInfoBox}}` `|class=`
+               field for every champion in `seed.json`, diffed against committed
+               values, applied the surviving corrections.
+            2. **New-champion discovery** — enumerated `Category:Champions`, diffed
+               against seed ids, added a stub for each Fandom page not in our seed.
+               Stubs ship with `sevenStarReleased: false` so they stay out of
+               engine math until BHR is filled in.
 
             ## Review checklist
 
-            - [ ] Scan `data/champions/seed.json` diff — are the new classes correct?
-            - [ ] Scan `scripts/class-corrections.json` — anything in `issues[]` that needs manual attention (no-page-found, unrecognised-class)?
-            - [ ] If anything looks wrong, close this PR and edit `scripts/class-corrections.json` manually, then run `pnpm refresh-classes -- --apply` locally.
+            - [ ] Scan `data/champions/seed.json` diff — are the class changes correct?
+            - [ ] Any new stub entries at the bottom of the diff? For each:
+                  verify the class on Fandom, pull BHR from MCOCHUB, fill in
+                  `prestige.rank5.{0, 200}`, set `ascendable`, then flip
+                  `sevenStarReleased: true`.
+            - [ ] Scan `scripts/class-corrections.json` — anything in `issues[]`
+                  that needs manual attention (no-page-found, unrecognised-class,
+                  discovery-skipped)?
+            - [ ] If anything looks wrong, close this PR, edit
+                  `scripts/class-corrections.json` manually, then run
+                  `pnpm refresh-classes -- --apply` locally.
 
             Run triggered by: ${{ github.event_name }} (${{ github.run_id }})
           branch: refresh-classes/${{ github.run_number }}
