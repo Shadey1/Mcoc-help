@@ -27,15 +27,31 @@ export type Rank = z.infer<typeof Rank>;
 // ─── Sig bracket data (per-rank, 5 anchor points) ───────────────────────
 
 /**
- * Per-rank sig BHR anchor points. v5 schema: 5 brackets at sig 0, 50, 100,
- * 150, 200. Sig 0 and sig 200 are seeded from MCOCHUB; intermediate brackets
- * are typically null and the engine falls back to the rank-default curve.
+ * Per-rank sig BHR anchor points.
+ *
+ * v5 schema (current): 11 brackets at sig 0/20/40/60/80/100/120/140/160/180/200
+ *   — matches MCOCHUB's publishing granularity. When all 11 are populated the
+ *   engine piecewise-linear interpolates between adjacent anchors, which is
+ *   accurate to within rounding for any sig value.
+ *
+ * Legacy entries with only sig 0 and sig 200 still work — the engine falls
+ * back to a global rank-default curve. The 50/100/150 anchors from the
+ * original v0.x schema are accepted (forward-compat) but ignored; MCOCHUB
+ * publishes on 20-step intervals so those slots are unused going forward.
  */
 export const SigBrackets = z.object({
   '0': z.number().int().positive(),
+  '20': z.number().int().positive().nullable().optional(),
+  '40': z.number().int().positive().nullable().optional(),
   '50': z.number().int().positive().nullable().optional(),
+  '60': z.number().int().positive().nullable().optional(),
+  '80': z.number().int().positive().nullable().optional(),
   '100': z.number().int().positive().nullable().optional(),
+  '120': z.number().int().positive().nullable().optional(),
+  '140': z.number().int().positive().nullable().optional(),
   '150': z.number().int().positive().nullable().optional(),
+  '160': z.number().int().positive().nullable().optional(),
+  '180': z.number().int().positive().nullable().optional(),
   '200': z.number().int().positive(),
 });
 export type SigBrackets = z.infer<typeof SigBrackets>;

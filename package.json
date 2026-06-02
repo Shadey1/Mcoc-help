@@ -10,6 +10,7 @@
     "seed": "tsx scripts/seed-from-mcochub.ts",
     "scrape-portraits": "tsx scripts/scrape-fandom-portraits.ts",
     "refresh-classes": "tsx scripts/refresh-classes-from-fandom.ts",
+    "refresh-bhr": "tsx scripts/refresh-bhr-from-mcochub.ts",
     "lint": "pnpm -F web lint"
   },
   "devDependencies": {

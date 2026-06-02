@@ -1,4 +1,10 @@
-import type { Ascension, Champion, ChampionState, Rank } from './types.js';
+import type {
+  Ascension,
+  Champion,
+  ChampionState,
+  Rank,
+  SigBrackets,
+} from './types.js';
 import multipliers from './multipliers.json' with { type: 'json' };
 
 // ─── Constants loaded from data/formulas/multipliers.json ───────────────
@@ -30,6 +36,10 @@ const SIG_CURVES: Record<string, readonly number[]> = {
 };
 
 const SIG_ANCHORS = multipliers.sigCurves._anchors_sig; // [0, 20, 40, ..., 200]
+
+/** Sig anchors for the per-champion full-bracket fast path. Keep in lockstep
+ *  with the SigBrackets schema in types.ts and MCOCHUB's publishing cadence. */
+const FULL_ANCHORS = [0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200] as const;
 
 // ─── Pure helpers ───────────────────────────────────────────────────────
 
@@ -74,6 +84,41 @@ function sigFraction(rank: Rank, sig: number, override: string | null): number {
   return curve[curve.length - 1]!;
 }
 
+/**
+ * Read the absolute BHR at every populated anchor in a SigBrackets entry,
+ * returning [sig, bhr] pairs sorted ascending. Used by the per-champion
+ * piecewise interpolation path — when MCOCHUB has published all 11 anchors
+ * we interpolate between them directly, no curve approximation.
+ */
+function readPopulatedAnchors(brackets: SigBrackets): Array<[number, number]> {
+  const out: Array<[number, number]> = [];
+  for (const anchor of FULL_ANCHORS) {
+    const key = String(anchor) as keyof SigBrackets;
+    const v = brackets[key];
+    if (typeof v === 'number') out.push([anchor, v]);
+  }
+  return out;
+}
+
+/**
+ * Piecewise-linear BHR at the given sig from a per-champion anchor table.
+ * Caller must ensure at least two anchors (sig 0 and sig 200 are always
+ * required by the schema). Sigs outside [0, 200] are clamped.
+ */
+function interpFromAnchors(anchors: Array<[number, number]>, sig: number): number {
+  if (sig <= anchors[0]![0]) return anchors[0]![1];
+  if (sig >= anchors[anchors.length - 1]![0]) return anchors[anchors.length - 1]![1];
+  for (let i = 0; i < anchors.length - 1; i++) {
+    const [loSig, loBhr] = anchors[i]!;
+    const [hiSig, hiBhr] = anchors[i + 1]!;
+    if (sig >= loSig && sig <= hiSig) {
+      const t = (sig - loSig) / (hiSig - loSig);
+      return loBhr + (hiBhr - loBhr) * t;
+    }
+  }
+  return anchors[anchors.length - 1]![1];
+}
+
 // ─── Public API ─────────────────────────────────────────────────────────
 
 /**
@@ -104,37 +149,49 @@ export function calculateBHR(champion: Champion, state: ChampionState): number {
     );
   }
 
-  // Resolve sig0 / sig200 for the target rank
   // Type narrowing: only R3/R4/R5 reach this point (R1/R2 throw above)
   const rankKey = `rank${state.rank}` as 'rank3' | 'rank4' | 'rank5';
   const rankBrackets = champion.prestige[rankKey];
+  const rank5Brackets = champion.prestige.rank5;
 
+  // Fast path: champion has full 11-anchor data for the target rank.
+  // Piecewise-linear interp between adjacent anchors — no global-curve
+  // approximation, no per-champion error from one-curve-fits-all.
+  const directAnchors = rankBrackets
+    ? readPopulatedAnchors(rankBrackets)
+    : [];
+  if (directAnchors.length >= 3) {
+    const sigBHR = interpFromAnchors(directAnchors, state.sig);
+    return roundToTen(sigBHR * ASCENSION_MULT[state.ascension]);
+  }
+
+  // Fast path B: target rank has no brackets, but R5 does and we can scale.
+  // MCOCHUB only publishes R5, so this is the common case for R3/R4 states.
+  const rank5Anchors = readPopulatedAnchors(rank5Brackets);
+  if (rank5Anchors.length >= 3 && state.rank !== 5) {
+    const scaled: Array<[number, number]> = rank5Anchors.map(
+      ([sig, bhr]) => [sig, bhr * rankMult],
+    );
+    const sigBHR = interpFromAnchors(scaled, state.sig);
+    return roundToTen(sigBHR * ASCENSION_MULT[state.ascension]);
+  }
+
+  // Slow path: only sig 0 and sig 200 known. Fall back to the global
+  // rank-default curve (or per-champion override) for the in-between shape.
+  // Less accurate, but works for legacy seed entries that haven't been
+  // refreshed yet from MCOCHUB's full curves.
   let sig0: number;
   let sig200: number;
-
   if (rankBrackets) {
     sig0 = rankBrackets['0'];
     sig200 = rankBrackets['200'];
   } else {
-    // Derive from rank5 via rank multiplier — accurate within rounding for standard champions
-    const rank5Sig0 = champion.prestige.rank5['0'];
-    const rank5Sig200 = champion.prestige.rank5['200'];
-    sig0 = rank5Sig0 * rankMult;
-    sig200 = rank5Sig200 * rankMult;
+    sig0 = rank5Brackets['0'] * rankMult;
+    sig200 = rank5Brackets['200'] * rankMult;
   }
-
-  // Compute sig position via curve, NOT linear interpolation
   const fraction = sigFraction(state.rank, state.sig, champion.sigCurve);
   const sigBHR = sig0 + (sig200 - sig0) * fraction;
-
-  // Apply ascension multiplier (rank multiplier already baked into sig0/sig200)
-  // EXCEPT when we derived the brackets from rank5 — those need the rank multiplier
-  // applied externally. The path above (rankBrackets present) already applies it.
-  const ascMult = ASCENSION_MULT[state.ascension];
-
-  // If sig0/sig200 came from the rank's own brackets, they already include rank scaling.
-  // If derived from rank5, we already applied rankMult above. Either way, no double-apply.
-  return roundToTen(sigBHR * ascMult);
+  return roundToTen(sigBHR * ASCENSION_MULT[state.ascension]);
 }
 
 /**
