@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import {
   calculateBHR,
@@ -54,6 +54,18 @@ export function RosterManager({ champions }: RosterManagerProps) {
   const [sortColumn, setSortColumn] = useState<SortColumn>('currentBHR');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const [unconfirmedOnly, setUnconfirmedOnly] = useState(false);
+  const [editingChampionId, setEditingChampionId] = useState<string | null>(null);
+  const rosterSectionRef = useRef<HTMLElement | null>(null);
+
+  /** Smooth-scrolls to the roster table — used after bulk imports so the user
+   *  sees what just landed instead of staring at the import surface. */
+  function scrollToRoster() {
+    // Wait one frame for the table to render before scrolling, otherwise we
+    // scroll to the section's pre-mount position.
+    requestAnimationFrame(() => {
+      rosterSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
 
   // Load on mount
   useEffect(() => {
@@ -90,12 +102,45 @@ export function RosterManager({ champions }: RosterManagerProps) {
       const kept = prev.champions.filter((s) => !incomingIds.has(s.championId));
       return { champions: [...kept, ...states] };
     });
+    scrollToRoster();
   }
 
   function handleRemove(championId: string) {
     setRoster((prev) => ({
       champions: prev.champions.filter((s) => s.championId !== championId),
     }));
+  }
+
+  /**
+   * Fast-path for "the estimate was correct" — flips stateConfirmed:true on a
+   * single entry without touching its rank/sig/ascension. Avoids forcing the
+   * user through the edit form just to acknowledge a screenshot-imported state.
+   */
+  function handleConfirmState(championId: string) {
+    setRoster((prev) => ({
+      champions: prev.champions.map((s) =>
+        s.championId === championId ? { ...s, stateConfirmed: true } : s,
+      ),
+    }));
+  }
+
+  /**
+   * In-roster state edit (rank/sig/ascension). Saves a confirmed state — the
+   * act of explicit editing is the user's confirmation, so an estimated entry
+   * becomes confirmed once edited even if values match the prior estimate.
+   */
+  function handleEditState(
+    championId: string,
+    next: { rank: 3 | 4 | 5; sig: number; ascension: 'A0' | 'A1' | 'A2' },
+  ) {
+    setRoster((prev) => ({
+      champions: prev.champions.map((s) =>
+        s.championId === championId
+          ? { ...s, ...next, stateConfirmed: true }
+          : s,
+      ),
+    }));
+    setEditingChampionId(null);
   }
 
   function handleClear() {
@@ -255,7 +300,10 @@ export function RosterManager({ champions }: RosterManagerProps) {
 
       {hydrated && roster.champions.length > 0 && (
         <>
-          <section className="flex items-center justify-between flex-wrap gap-3">
+          <section
+            ref={rosterSectionRef}
+            className="flex items-center justify-between flex-wrap gap-3 scroll-mt-4"
+          >
             <h2 className="editorial-heading text-xl">
               Your roster
               <span className="text-base font-normal text-[var(--color-ink-soft)] ml-2">
@@ -287,8 +335,10 @@ export function RosterManager({ champions }: RosterManagerProps) {
                 <strong>{unconfirmedCount}</strong>{' '}
                 {unconfirmedCount === 1 ? 'champion has an' : 'champions have an'}{' '}
                 unconfirmed state — rank/sig estimated from a screenshot or not
-                yet set. They&apos;re excluded from atomic-move recommendations
-                until you confirm them.
+                yet set. In the State column, tick <strong>✓</strong> if the
+                estimate is correct, <strong>Edit</strong> to adjust, or
+                <strong> ✗</strong> to remove. Unconfirmed champions are
+                excluded from atomic-move recommendations.
               </span>
               <button
                 type="button"
@@ -399,19 +449,22 @@ export function RosterManager({ champions }: RosterManagerProps) {
                         {entry.championClass}
                       </td>
                       <td className="p-3 text-center text-xs numeric">
-                        {isUnconfirmed ? (
-                          <span
-                            className="text-[var(--color-ink-soft)] italic"
-                            title="Estimated from screenshot BHR — confirm to include in atomic-move recommendations"
-                          >
-                            R{state.rank} sig {state.sig} {state.ascension}
-                            <span className="not-italic text-[10px]"> · est</span>
-                          </span>
-                        ) : (
-                          <>
-                            R{state.rank} sig {state.sig} {state.ascension}
-                          </>
-                        )}
+                        <StateCell
+                          state={state}
+                          champion={champion}
+                          isEditing={editingChampionId === entry.championId}
+                          onStartEdit={() =>
+                            setEditingChampionId(entry.championId)
+                          }
+                          onCancel={() => setEditingChampionId(null)}
+                          onSave={(next) =>
+                            handleEditState(entry.championId, next)
+                          }
+                          onConfirm={() =>
+                            handleConfirmState(entry.championId)
+                          }
+                          onRemove={() => handleRemove(entry.championId)}
+                        />
                       </td>
                       <td className="p-3 text-right numeric">
                         {formatBHR(entry.currentBHR)}
@@ -537,6 +590,179 @@ function Stat({
       {note && (
         <div className="text-xs text-[var(--color-ink-soft)] mt-1">{note}</div>
       )}
+    </div>
+  );
+}
+
+/**
+ * Display + inline editor for a champion's rank/sig/ascension.
+ *
+ * Closed: a button showing "R4 sig 200 A1" — click to edit. Estimated entries
+ *   render in italic with a "· est" suffix; once saved they become confirmed.
+ * Open:  three compact controls (rank select, sig number, ascension select)
+ *   + Save/Cancel. Sig is a free-form 0-200 number — players end up with
+ *   off-step values (e.g. sig 47 from a single sig stone) and editing those
+ *   without removing/re-adding is the whole point of this surface.
+ */
+function StateCell({
+  state,
+  champion,
+  isEditing,
+  onStartEdit,
+  onCancel,
+  onSave,
+  onConfirm,
+  onRemove,
+}: {
+  state: ChampionState;
+  champion: Champion | undefined;
+  isEditing: boolean;
+  onStartEdit: () => void;
+  onCancel: () => void;
+  onSave: (next: { rank: 3 | 4 | 5; sig: number; ascension: 'A0' | 'A1' | 'A2' }) => void;
+  /** Fast-path confirm for screenshot-estimated states: keeps values, flips
+   *  stateConfirmed:true. Only shown when the state is currently unconfirmed. */
+  onConfirm: () => void;
+  /** Remove this champion from the roster entirely. Surfaced inside the
+   *  unconfirmed-state UI so misidentified screenshot imports can be evicted
+   *  in one click without scrolling to the row's right-edge × button. */
+  onRemove: () => void;
+}) {
+  // Engine emits Rank as 1|2|3|4|5 but v1 only supports R3-R5 — calculateBHR
+  // throws on R1/R2. Narrow at the read site (runtime values are guaranteed in
+  // range) so the editor's setState typing stays clean.
+  const [rank, setRank] = useState<3 | 4 | 5>(state.rank as 3 | 4 | 5);
+  const [sig, setSig] = useState<number>(state.sig);
+  const [ascension, setAscension] = useState<'A0' | 'A1' | 'A2'>(state.ascension);
+
+  // When the edit mode opens, sync from current state. (User may have changed
+  // selectors then cancelled previously — start fresh from canonical state.)
+  useEffect(() => {
+    if (isEditing) {
+      setRank(state.rank as 3 | 4 | 5);
+      setSig(state.sig);
+      setAscension(state.ascension);
+    }
+  }, [isEditing, state.rank, state.sig, state.ascension]);
+
+  if (!isEditing) {
+    const isUnconfirmed = state.stateConfirmed === false;
+    if (isUnconfirmed) {
+      // Unconfirmed states get an explicit three-action row: ✓ accepts the
+      // estimate as-is, Edit opens the inline editor, ✗ removes the champion
+      // entirely (one-click eviction for misidentified screenshot imports).
+      return (
+        <div className="flex items-center justify-center gap-1.5">
+          <span
+            className="text-[var(--color-ink-soft)] italic"
+            title="Estimated from screenshot BHR"
+          >
+            R{state.rank} sig {state.sig} {state.ascension}
+            <span className="not-italic text-[10px]"> · est</span>
+          </span>
+          <button
+            type="button"
+            onClick={onConfirm}
+            className="px-1.5 py-0.5 text-xs rounded border border-[var(--color-rule)] hover:bg-[var(--color-marvel-impact)] hover:text-[var(--color-paper)] hover:border-[var(--color-marvel-impact)] transition-colors"
+            title="Confirm this state is correct (no changes)"
+            aria-label="Confirm state as-is"
+          >
+            ✓
+          </button>
+          <button
+            type="button"
+            onClick={onStartEdit}
+            className="px-1.5 py-0.5 text-[11px] rounded border border-[var(--color-rule)] hover:bg-[var(--color-paper-soft)] transition-colors"
+            title="Edit rank, sig, or ascension"
+            aria-label="Edit state"
+          >
+            Edit
+          </button>
+          <button
+            type="button"
+            onClick={onRemove}
+            className="px-1.5 py-0.5 text-xs rounded border border-[var(--color-rule)] hover:bg-[var(--color-marvel-impact)] hover:text-[var(--color-paper)] hover:border-[var(--color-marvel-impact)] transition-colors"
+            title="Remove this champion from your roster"
+            aria-label="Remove champion"
+          >
+            ✗
+          </button>
+        </div>
+      );
+    }
+    return (
+      <button
+        type="button"
+        onClick={onStartEdit}
+        className="inline-block hover:text-[var(--color-marvel-impact)] transition-colors underline decoration-dotted decoration-[var(--color-rule)] underline-offset-2"
+        title="Click to edit rank, sig, or ascension"
+      >
+        R{state.rank} sig {state.sig} {state.ascension}
+      </button>
+    );
+  }
+
+  const ascendable = champion?.ascendable ?? false;
+  // Coerce ascension if champion isn't ascendable (matches add-flow behaviour)
+  const effectiveAscension = ascendable ? ascension : 'A0';
+  const clampedSig = Math.max(0, Math.min(200, Number.isFinite(sig) ? sig : 0));
+
+  return (
+    <div className="flex flex-col items-center gap-1.5">
+      <div className="flex items-center gap-1 text-xs">
+        <select
+          value={rank}
+          onChange={(e) => setRank(Number(e.target.value) as 3 | 4 | 5)}
+          className="px-1 py-0.5 border border-[var(--color-rule)] rounded bg-[var(--color-paper)] text-xs"
+          aria-label="Rank"
+        >
+          <option value={5}>R5</option>
+          <option value={4}>R4</option>
+          <option value={3}>R3</option>
+        </select>
+        <input
+          type="number"
+          min={0}
+          max={200}
+          step={1}
+          value={sig}
+          onChange={(e) => setSig(Number(e.target.value))}
+          className="w-14 px-1 py-0.5 border border-[var(--color-rule)] rounded bg-[var(--color-paper)] text-xs numeric"
+          aria-label="Sig"
+        />
+        <select
+          value={effectiveAscension}
+          onChange={(e) => setAscension(e.target.value as 'A0' | 'A1' | 'A2')}
+          disabled={!ascendable}
+          className="px-1 py-0.5 border border-[var(--color-rule)] rounded bg-[var(--color-paper)] text-xs disabled:opacity-50"
+          aria-label="Ascension"
+          title={ascendable ? undefined : "Champion isn't ascendable — locked at A0"}
+        >
+          <option value="A0">A0</option>
+          {ascendable && (
+            <>
+              <option value="A1">A1</option>
+              <option value="A2">A2</option>
+            </>
+          )}
+        </select>
+      </div>
+      <div className="flex items-center gap-1">
+        <button
+          type="button"
+          onClick={() => onSave({ rank, sig: clampedSig, ascension: effectiveAscension })}
+          className="px-2 py-0.5 text-[11px] bg-[var(--color-marvel-impact)] text-[var(--color-paper)] rounded hover:bg-[var(--color-marvel-editorial)] transition-colors"
+        >
+          Save
+        </button>
+        <button
+          type="button"
+          onClick={onCancel}
+          className="px-2 py-0.5 text-[11px] border border-[var(--color-rule)] rounded hover:bg-[var(--color-paper-soft)] transition-colors"
+        >
+          Cancel
+        </button>
+      </div>
     </div>
   );
 }

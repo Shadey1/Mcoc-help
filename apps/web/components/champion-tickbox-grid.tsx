@@ -22,6 +22,8 @@ const CLASS_ORDER: ChampionClass[] = [
 type StateMode =
   | 'floor'
   | 'r4-sig0'
+  | 'r4-max-a1'
+  | 'r4-max-a2'
   | 'r5-sig0'
   | 'r5-max-a0'
   | 'r5-max-a1'
@@ -45,6 +47,8 @@ type ModeDef = {
 const MODES: Record<StateMode, ModeDef> = {
   'floor':     { label: 'Floor (default)', badge: 'floor',  rank: 3, sig: 0,   ascension: 'A0', confirmed: false },
   'r4-sig0':   { label: 'R4 sig 0',        badge: 'R4/0',   rank: 4, sig: 0,   ascension: 'A0', confirmed: true  },
+  'r4-max-a1': { label: 'R4 sig 200 A1',   badge: 'R4/A1',  rank: 4, sig: 200, ascension: 'A1', confirmed: true  },
+  'r4-max-a2': { label: 'R4 sig 200 A2',   badge: 'R4/A2',  rank: 4, sig: 200, ascension: 'A2', confirmed: true  },
   'r5-sig0':   { label: 'R5 sig 0',        badge: 'R5/0',   rank: 5, sig: 0,   ascension: 'A0', confirmed: true  },
   'r5-max-a0': { label: 'R5 sig 200 A0',   badge: 'R5/A0',  rank: 5, sig: 200, ascension: 'A0', confirmed: true  },
   'r5-max-a1': { label: 'R5 sig 200 A1',   badge: 'R5/A1',  rank: 5, sig: 200, ascension: 'A1', confirmed: true  },
@@ -54,6 +58,8 @@ const MODES: Record<StateMode, ModeDef> = {
 const MODE_ORDER: StateMode[] = [
   'floor',
   'r4-sig0',
+  'r4-max-a1',
+  'r4-max-a2',
   'r5-sig0',
   'r5-max-a0',
   'r5-max-a1',
@@ -170,6 +176,8 @@ export function ChampionTickboxGrid({ champions, ownedIds, onAdd }: TickboxGridP
     const c: Record<StateMode, number> = {
       'floor': 0,
       'r4-sig0': 0,
+      'r4-max-a1': 0,
+      'r4-max-a2': 0,
       'r5-sig0': 0,
       'r5-max-a0': 0,
       'r5-max-a1': 0,
@@ -292,7 +300,7 @@ export function ChampionTickboxGrid({ champions, ownedIds, onAdd }: TickboxGridP
                   // badge so the user sees what they're actually committing to.
                   const effectiveBadge = tickMode
                     ? !c.ascendable && MODES[tickMode].ascension !== 'A0'
-                      ? 'R5/A0'
+                      ? `R${MODES[tickMode].rank}/A0`
                       : MODES[tickMode].badge
                     : null;
                   return (
