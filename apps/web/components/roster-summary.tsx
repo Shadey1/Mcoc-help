@@ -28,7 +28,9 @@ export function RosterSummary({
   });
   const sorted = [...bhrs].sort((a, b) => b - a);
   const top30 = sorted.slice(0, 30);
-  const prestige = Math.floor(top30.reduce((a, b) => a + b, 0) / top30.length);
+  // Round, not floor: the game rounds to nearest, and flooring would show 1
+  // less than in-game whenever the true average has a fractional part >= 0.5.
+  const prestige = Math.round(top30.reduce((a, b) => a + b, 0) / top30.length);
   const cutoff = top30.length === 30 ? top30[29]! : 0;
 
   return (

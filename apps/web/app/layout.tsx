@@ -60,9 +60,15 @@ export default function RootLayout({
           <nav className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex flex-col sm:flex-row items-center gap-3 sm:gap-0 sm:justify-between">
             <Link
               href="/"
-              className="editorial-heading text-xl text-[var(--color-marvel-editorial)]"
+              className="editorial-heading text-xl text-[var(--color-marvel-editorial)] flex items-center gap-2"
             >
-              mcoc.help
+              <span>mcoc.help</span>
+              <span
+                className="text-[10px] font-mono uppercase tracking-widest px-1.5 py-0.5 rounded border border-[var(--color-marvel-impact)] text-[var(--color-marvel-impact)]"
+                title="In active development. Data and features will keep improving — report anything that looks wrong."
+              >
+                alpha
+              </span>
             </Link>
             <ul className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-sm font-medium sm:flex-nowrap sm:justify-end sm:gap-x-6">
               <li>
@@ -112,33 +118,39 @@ export default function RootLayout({
         <main className="flex-1 max-w-6xl mx-auto px-6 py-12 w-full">{children}</main>
 
         <footer className="border-t border-[var(--color-rule)] mt-12 py-8 text-sm text-[var(--color-ink-soft)]">
-          <div className="max-w-6xl mx-auto px-6 flex flex-wrap gap-4 justify-between">
-            <div>
-              Data from{' '}
-              <a
-                href="https://mcochub.insaneskull.com"
-                className="underline hover:text-[var(--color-marvel-impact)]"
-                target="_blank"
-                rel="noopener"
-              >
-                MCOCHUB
-              </a>{' '}
-              by InsaneSkull, cross-checked against{' '}
-              <a
-                href="https://mcoc.gg"
-                className="underline hover:text-[var(--color-marvel-impact)]"
-                target="_blank"
-                rel="noopener"
-              >
-                mcoc.gg
-              </a>{' '}
-              by BrutalDX.
+          <div className="max-w-6xl mx-auto px-6 flex flex-col gap-3">
+            <div className="flex flex-wrap gap-4 justify-between">
+              <div>
+                Data from{' '}
+                <a
+                  href="https://mcochub.insaneskull.com"
+                  className="underline hover:text-[var(--color-marvel-impact)]"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  MCOCHUB
+                </a>{' '}
+                by InsaneSkull, cross-checked against{' '}
+                <a
+                  href="https://mcoc.gg"
+                  className="underline hover:text-[var(--color-marvel-impact)]"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  mcoc.gg
+                </a>{' '}
+                by BrutalDX.
+              </div>
+              <div>
+                Free, no signup.{' '}
+                <Link href="/about/" className="underline hover:text-[var(--color-marvel-impact)]">
+                  Read the working →
+                </Link>
+              </div>
             </div>
-            <div>
-              Free, no signup.{' '}
-              <Link href="/about/" className="underline hover:text-[var(--color-marvel-impact)]">
-                Read the working →
-              </Link>
+            <div className="text-xs italic">
+              Alpha — 7-star champions only. Older star levels aren&apos;t planned for retrofit;
+              this tool exists for 7-star prestige planning going forward.
             </div>
           </div>
         </footer>

@@ -2,11 +2,16 @@ import type { Champion, ChampionState } from './types.js';
 import { calculateBHR } from './bhr.js';
 
 /**
- * Compute champion prestige from a roster: the floor of the average BHR of
- * the top 30 champions (by BHR, descending).
+ * Compute champion prestige from a roster: rounded average BHR of the top
+ * 30 champions (by BHR, descending).
  *
  * Total prestige = champion prestige + relic prestige. v1 only computes the
  * champion side; relic optimisation lives in v2.
+ *
+ * Uses Math.round, not Math.floor — the game rounds to the nearest integer,
+ * so flooring would systematically under-predict by ~0.5 BHR on average and
+ * show users a value 1 lower than in-game when the true average has a
+ * fractional part >= 0.5.
  */
 export function calculateChampionPrestige(
   roster: ChampionState[],
@@ -16,7 +21,7 @@ export function calculateChampionPrestige(
   const top30 = bhrs.sort((a, b) => b - a).slice(0, 30);
   if (top30.length === 0) return 0;
   const sum = top30.reduce((acc, n) => acc + n, 0);
-  return Math.floor(sum / top30.length);
+  return Math.round(sum / top30.length);
 }
 
 /**
