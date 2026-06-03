@@ -101,19 +101,93 @@ function readPopulatedAnchors(brackets: SigBrackets): Array<[number, number]> {
 }
 
 /**
- * Piecewise-linear BHR at the given sig from a per-champion anchor table.
- * Caller must ensure at least two anchors (sig 0 and sig 200 are always
- * required by the schema). Sigs outside [0, 200] are clamped.
+ * PCHIP slopes at every anchor using the Fritsch-Carlson algorithm.
+ *
+ * Returns slope[i] for each anchor. Monotonic-preserving: if the data is
+ * monotonic (which BHR-vs-sig always is), the resulting cubic Hermite
+ * spline does not overshoot or oscillate. Interior slopes use a weighted
+ * harmonic mean of adjacent segment slopes; endpoints use the standard
+ * three-point boundary estimate, clamped if it would break monotonicity.
+ *
+ * See Fritsch & Carlson, "Monotone Piecewise Cubic Interpolation",
+ * SIAM J. Numer. Anal. 17 (1980).
+ */
+function pchipSlopes(anchors: Array<[number, number]>): number[] {
+  const n = anchors.length;
+  const h: number[] = new Array(n - 1);
+  const d: number[] = new Array(n - 1); // segment slopes Δ
+  for (let i = 0; i < n - 1; i++) {
+    h[i] = anchors[i + 1]![0] - anchors[i]![0];
+    d[i] = (anchors[i + 1]![1] - anchors[i]![1]) / h[i]!;
+  }
+  const m: number[] = new Array(n);
+  // Interior
+  for (let i = 1; i < n - 1; i++) {
+    const dLo = d[i - 1]!;
+    const dHi = d[i]!;
+    if (dLo * dHi <= 0) {
+      m[i] = 0;
+    } else {
+      const hLo = h[i - 1]!;
+      const hHi = h[i]!;
+      const w1 = 2 * hHi + hLo;
+      const w2 = hHi + 2 * hLo;
+      m[i] = (w1 + w2) / (w1 / dLo + w2 / dHi);
+    }
+  }
+  // Endpoints: three-point one-sided formula, clamped for monotonicity
+  m[0] = endpointSlope(h[0]!, h[1] ?? h[0]!, d[0]!, d[1] ?? d[0]!);
+  m[n - 1] = endpointSlope(
+    h[n - 2]!,
+    h[n - 3] ?? h[n - 2]!,
+    d[n - 2]!,
+    d[n - 3] ?? d[n - 2]!,
+  );
+  return m;
+}
+
+function endpointSlope(h1: number, h2: number, d1: number, d2: number): number {
+  const m = ((2 * h1 + h2) * d1 - h1 * d2) / (h1 + h2);
+  if (m * d1 <= 0) return 0;
+  if (d1 * d2 <= 0 && Math.abs(m) > 3 * Math.abs(d1)) return 3 * d1;
+  return m;
+}
+
+/**
+ * Piecewise cubic Hermite (PCHIP) BHR at the given sig from a per-champion
+ * anchor table. Passes through every anchor exactly; between anchors uses a
+ * monotonic cubic informed by the local curve shape. Falls back to linear
+ * interp when only 2 anchors are present. Sigs outside [0, 200] clamp.
  */
 function interpFromAnchors(anchors: Array<[number, number]>, sig: number): number {
   if (sig <= anchors[0]![0]) return anchors[0]![1];
   if (sig >= anchors[anchors.length - 1]![0]) return anchors[anchors.length - 1]![1];
+  if (anchors.length < 3) {
+    const [loSig, loBhr] = anchors[0]!;
+    const [hiSig, hiBhr] = anchors[1]!;
+    const t = (sig - loSig) / (hiSig - loSig);
+    return loBhr + (hiBhr - loBhr) * t;
+  }
+  const slopes = pchipSlopes(anchors);
   for (let i = 0; i < anchors.length - 1; i++) {
     const [loSig, loBhr] = anchors[i]!;
     const [hiSig, hiBhr] = anchors[i + 1]!;
     if (sig >= loSig && sig <= hiSig) {
-      const t = (sig - loSig) / (hiSig - loSig);
-      return loBhr + (hiBhr - loBhr) * t;
+      const h = hiSig - loSig;
+      const t = (sig - loSig) / h;
+      const t2 = t * t;
+      const t3 = t2 * t;
+      // Hermite basis functions
+      const h00 = 2 * t3 - 3 * t2 + 1;
+      const h10 = t3 - 2 * t2 + t;
+      const h01 = -2 * t3 + 3 * t2;
+      const h11 = t3 - t2;
+      return (
+        h00 * loBhr +
+        h10 * h * slopes[i]! +
+        h01 * hiBhr +
+        h11 * h * slopes[i + 1]!
+      );
     }
   }
   return anchors[anchors.length - 1]![1];
