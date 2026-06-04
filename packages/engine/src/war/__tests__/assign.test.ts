@@ -296,7 +296,7 @@ describe('assignWar — scarcity-first greedy placement', () => {
   it('deterministic: same inputs produce same outputs across runs', () => {
     const input = {
       defenderPool: new Set(['a', 'b', 'c', 'd']),
-      floor: { rank: 4, ascension: 'A0' as const },
+      floor: { rank: 4 as const, ascension: 'A0' as const },
       players: [
         player('p1', 'alice', [state('a', 5, 'A2'), state('b', 5, 'A2')]),
         player('p2', 'bob', [state('a', 5, 'A2'), state('c', 5, 'A2')]),
