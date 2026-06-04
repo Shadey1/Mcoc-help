@@ -5,9 +5,8 @@ import type { AtomicMove, Champion, ChampionState, CostGate } from './types.js';
  * gates — e.g. an A0→A1 ascension on Pavitr requires A1 cluster materials,
  * and a R4→R5 rank-up on Maestro requires T6B + T3A Cosmic catalysts.
  *
- * Sig-stone cost is sized by the gap being closed (sig 0→200 needs more
- * stones than sig 100→200). Stones-per-bracket isn't a flat number in-game;
- * we use a reasonable approximation here and refine via observation.
+ * 7-star class sig stones go 1:1 with sig levels — each stone applied
+ * equals one sig level gained. Sig 20→200 = 180 stones, exact.
  */
 export function costGatesFor(move: AtomicMove, champion: Champion): CostGate[] {
   switch (move.kind) {
@@ -21,11 +20,11 @@ export function costGatesFor(move: AtomicMove, champion: Champion): CostGate[] {
       ];
 
     case 'sig-up': {
-      const stones = approxSigStonesNeeded(move.fromSig, move.toSig);
+      const stones = sigStonesNeeded(move.fromSig, move.toSig);
       return [
         {
           kind: 'sig-stones',
-          label: `Sig ${move.fromSig}→${move.toSig}: ~${stones} ${champion.class} sig stones`,
+          label: `Sig ${move.fromSig}→${move.toSig}: ${stones} ${champion.class} sig stones`,
           championClass: champion.class,
         },
       ];
@@ -41,23 +40,9 @@ export function costGatesFor(move: AtomicMove, champion: Champion): CostGate[] {
   }
 }
 
-/**
- * Rough estimate of sig stones required to go from sig X to sig Y.
- * Refined in Phase 2 from real cost tables; this is order-of-magnitude only.
- *
- * Approximate cost-per-level rises with sig, mirroring the in-game stone
- * requirement that escalates from sig 100 onward.
- */
-function approxSigStonesNeeded(fromSig: number, toSig: number): number {
-  let total = 0;
-  for (let s = fromSig; s < toSig; s += 20) {
-    // Rough cost ramp: cheap early, expensive late
-    if (s < 60) total += 10;
-    else if (s < 120) total += 20;
-    else if (s < 160) total += 35;
-    else total += 50;
-  }
-  return total;
+/** Sig stones needed to go from sig X to sig Y. 1:1 — each stone gives +1 sig. */
+function sigStonesNeeded(fromSig: number, toSig: number): number {
+  return Math.max(0, toSig - fromSig);
 }
 
 /**

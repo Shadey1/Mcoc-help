@@ -1,24 +1,13 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import seedData from '../../../../../data/champions/seed.json' with { type: 'json' };
+import { loadAllChampions, findChampionById } from '../../../lib/data-loader';
 import { ChampionPortrait } from '../../../components/champion-portrait';
 import { ScalingChart } from '../../../components/scaling-chart';
-
-type SeedChampion = {
-  id: string;
-  name: string;
-  class: 'Mutant' | 'Skill' | 'Science' | 'Mystic' | 'Cosmic' | 'Tech';
-  ascendable: boolean;
-  portraitUrl?: string | null;
-  sevenStarReleased?: boolean;
-  prestige: {
-    rank5: { '0': number; '200': number };
-  };
-};
+import { BhrReferenceTable } from '../../../components/bhr-reference-table';
 
 // Required for Next.js static export
 export function generateStaticParams() {
-  return (seedData.champions as SeedChampion[]).map((c) => ({ slug: c.id }));
+  return loadAllChampions().map((c) => ({ slug: c.id }));
 }
 
 export default async function ChampionDetailPage({
@@ -27,12 +16,13 @@ export default async function ChampionDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const champion = (seedData.champions as SeedChampion[]).find((c) => c.id === slug);
+  const champion = findChampionById(slug);
   if (!champion) notFound();
 
-  const ascensionMult = champion.ascendable ? 1.16 : 1.0;
-  const ceiling = Math.round((champion.prestige.rank5['200'] * ascensionMult) / 10) * 10;
   const unreleased = champion.sevenStarReleased === false;
+  const fandomUrl = `https://marvel-contestofchampions.fandom.com/wiki/${encodeURIComponent(
+    champion.name.replace(/ /g, '_'),
+  )}`;
 
   return (
     <div className="space-y-8 max-w-3xl">
@@ -57,11 +47,10 @@ export default async function ChampionDetailPage({
           portraitUrl={champion.portraitUrl ?? null}
           size={120}
           showClassOverlay={Boolean(champion.portraitUrl)}
-
         />
-        <div>
+        <div className="flex-1 min-w-0">
           <h1 className="editorial-heading text-4xl mb-2">{champion.name}</h1>
-          <div className="flex gap-3 text-sm">
+          <div className="flex flex-wrap gap-2 text-sm">
             <span className="px-2 py-1 bg-[var(--color-paper-soft)] border border-[var(--color-rule)] rounded">
               {champion.class}
             </span>
@@ -70,53 +59,24 @@ export default async function ChampionDetailPage({
                 Ascendable
               </span>
             )}
+            {champion.released && (
+              <span className="px-2 py-1 bg-[var(--color-paper-soft)] border border-[var(--color-rule)] rounded text-[var(--color-ink-soft)]">
+                Released {champion.released}
+              </span>
+            )}
+            {champion.tags?.map((tag) => (
+              <span
+                key={tag}
+                className="px-2 py-1 bg-[var(--color-paper)] border border-[var(--color-rule)]/60 rounded text-xs text-[var(--color-ink-soft)]"
+              >
+                {tag}
+              </span>
+            ))}
           </div>
         </div>
       </section>
 
-      <section className="space-y-3">
-        <h2 className="editorial-heading text-xl">Prestige reference (7-star)</h2>
-        <table className="w-full text-sm border border-[var(--color-rule)] rounded">
-          <thead className="bg-[var(--color-paper-soft)]">
-            <tr>
-              <th className="text-left p-3 font-medium">State</th>
-              <th className="text-right p-3 font-medium">BHR</th>
-            </tr>
-          </thead>
-          <tbody className="numeric">
-            <tr className="border-t border-[var(--color-rule)]">
-              <td className="p-3">R5 sig 0 A0</td>
-              <td className="p-3 text-right">{champion.prestige.rank5['0'].toLocaleString()}</td>
-            </tr>
-            <tr className="border-t border-[var(--color-rule)]">
-              <td className="p-3">R5 sig 200 A0</td>
-              <td className="p-3 text-right">
-                {champion.prestige.rank5['200'].toLocaleString()}
-              </td>
-            </tr>
-            {champion.ascendable && (
-              <>
-                <tr className="border-t border-[var(--color-rule)]">
-                  <td className="p-3">R5 sig 200 A1</td>
-                  <td className="p-3 text-right">
-                    {(
-                      Math.round((champion.prestige.rank5['200'] * 1.08) / 10) * 10
-                    ).toLocaleString()}
-                  </td>
-                </tr>
-                <tr className="border-t border-[var(--color-rule)] font-medium">
-                  <td className="p-3 text-[var(--color-marvel-editorial)]">
-                    R5 sig 200 A2 (ceiling)
-                  </td>
-                  <td className="p-3 text-right text-[var(--color-marvel-editorial)]">
-                    {ceiling.toLocaleString()}
-                  </td>
-                </tr>
-              </>
-            )}
-          </tbody>
-        </table>
-      </section>
+      <BhrReferenceTable champion={champion} />
 
       <section className="space-y-3">
         <h2 className="editorial-heading text-xl">BHR scaling</h2>
@@ -127,10 +87,57 @@ export default async function ChampionDetailPage({
         />
       </section>
 
-      <p className="text-sm text-[var(--color-ink-soft)] italic">
-        Synergies, immunities, and ability data will be populated in Phase 1
-        from MCOCHUB and the Fandom wiki.
-      </p>
+      <section className="space-y-2 border-t border-[var(--color-rule)] pt-6">
+        <h2 className="editorial-heading text-xl">Sources</h2>
+        <dl className="grid grid-cols-1 sm:grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-sm">
+          {champion._meta?.bhrSource && (
+            <>
+              <dt className="text-[var(--color-ink-soft)]">BHR curves</dt>
+              <dd>{champion._meta.bhrSource}</dd>
+            </>
+          )}
+          {champion._meta?.ascendableSource && (
+            <>
+              <dt className="text-[var(--color-ink-soft)]">Ascendable flag</dt>
+              <dd>{champion._meta.ascendableSource}</dd>
+            </>
+          )}
+          {champion._meta?.lastVerified && (
+            <>
+              <dt className="text-[var(--color-ink-soft)]">Last verified</dt>
+              <dd className="numeric">{champion._meta.lastVerified}</dd>
+            </>
+          )}
+          <dt className="text-[var(--color-ink-soft)]">Verify externally</dt>
+          <dd className="flex flex-wrap gap-x-3 gap-y-1">
+            <a
+              href={fandomUrl}
+              target="_blank"
+              rel="noopener"
+              className="underline hover:text-[var(--color-marvel-impact)]"
+            >
+              Fandom wiki ↗
+            </a>
+            <a
+              href="https://mcochub.insaneskull.com/prestige"
+              target="_blank"
+              rel="noopener"
+              className="underline hover:text-[var(--color-marvel-impact)]"
+              title={`Open MCOCHUB prestige page (Ctrl+F "${champion.name}")`}
+            >
+              MCOCHUB prestige ↗
+            </a>
+            <a
+              href="https://mcoc.gg"
+              target="_blank"
+              rel="noopener"
+              className="underline hover:text-[var(--color-marvel-impact)]"
+            >
+              mcoc.gg ↗
+            </a>
+          </dd>
+        </dl>
+      </section>
     </div>
   );
 }

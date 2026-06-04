@@ -59,6 +59,20 @@ export function RosterManager({ champions }: RosterManagerProps) {
   const [editingChampionId, setEditingChampionId] = useState<string | null>(null);
   const rosterSectionRef = useRef<HTMLElement | null>(null);
   const { overrides } = useBHROverrides();
+  // Champion IDs to pulse-highlight for 3s after an inline edit, so the
+  // user can track the row as the table re-sorts to its new position.
+  const [recentlyEditedIds, setRecentlyEditedIds] = useState<Set<string>>(new Set());
+
+  function markRecentlyEdited(championId: string) {
+    setRecentlyEditedIds((prev) => new Set(prev).add(championId));
+    setTimeout(() => {
+      setRecentlyEditedIds((prev) => {
+        const next = new Set(prev);
+        next.delete(championId);
+        return next;
+      });
+    }, 3000);
+  }
 
   /** Smooth-scrolls to the roster table — used after bulk imports so the user
    *  sees what just landed instead of staring at the import surface. */
@@ -125,6 +139,7 @@ export function RosterManager({ champions }: RosterManagerProps) {
         s.championId === championId ? { ...s, stateConfirmed: true } : s,
       ),
     }));
+    markRecentlyEdited(championId);
   }
 
   /**
@@ -144,6 +159,7 @@ export function RosterManager({ champions }: RosterManagerProps) {
       ),
     }));
     setEditingChampionId(null);
+    markRecentlyEdited(championId);
   }
 
   function handleClear() {
@@ -428,6 +444,10 @@ export function RosterManager({ champions }: RosterManagerProps) {
                       key={entry.championId}
                       className={`border-t border-[var(--color-rule)] hover:bg-[var(--color-paper-soft)] ${
                         isUnconfirmed ? 'bg-[var(--color-paper-soft)]/40' : ''
+                      } ${
+                        recentlyEditedIds.has(entry.championId)
+                          ? 'recently-edited'
+                          : ''
                       }`}
                     >
                       <td className="p-2">

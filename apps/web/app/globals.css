@@ -91,3 +91,18 @@ html, body {
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
 }
+
+/* Roster row pulse — applied for 3 seconds after an inline rank/sig/asc edit
+   so the user can track the row as it re-sorts into its new position. Two
+   gentle pulses then fade. Uses marvel-impact red at low alpha — visible
+   without being loud. */
+@keyframes pulse-edited-row {
+  0%   { background-color: rgba(237, 29, 36, 0.16); }
+  25%  { background-color: rgba(237, 29, 36, 0.05); }
+  50%  { background-color: rgba(237, 29, 36, 0.16); }
+  75%  { background-color: rgba(237, 29, 36, 0.05); }
+  100% { background-color: transparent; }
+}
+.recently-edited {
+  animation: pulse-edited-row 3s ease-in-out 1;
+}
