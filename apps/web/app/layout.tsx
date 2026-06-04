@@ -97,6 +97,14 @@ export default function RootLayout({
               </li>
               <li>
                 <Link
+                  href="/war/"
+                  className="hover:text-[var(--color-marvel-impact)] transition-colors"
+                >
+                  War
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/champions/"
                   className="hover:text-[var(--color-marvel-impact)] transition-colors"
                 >

@@ -92,3 +92,17 @@ export {
   relicBHRs,
   relicTop30Average,
 } from './relics/moves.js';
+
+// ─── War defence placement ──────────────────────────────────────────────────
+
+export type {
+  WarPlayerId,
+  WarStateFloor,
+  WarPlayer,
+  WarInput,
+  WarAssignment,
+  WarUnderfilledPlayer,
+  WarResult,
+} from './war/types.js';
+
+export { assignWar, assignmentStateScore } from './war/assign.js';
