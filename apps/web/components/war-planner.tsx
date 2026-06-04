@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   assignWar,
-  type Ascension,
   type Champion,
   type ChampionState,
   type Rank,
@@ -21,25 +20,20 @@ import {
 import { WarPlacementTable } from './war-placement-table';
 
 /**
- * The 9 explicit floor options. Single dropdown over rank × ascension —
- * surfacing both axes as separate dropdowns invites nonsense combos like
- * picking R5 A2 by accident.
+ * Floor options — rank only. Ascension is dropped from the floor UI; the
+ * engine still takes a {rank, ascension} pair but we always pass A0, which
+ * is the permissive setting (anything ascended counts). Keeping ascension
+ * out of the user-facing axis avoids confusing combos like "R5 A2 floor"
+ * that would exclude legit defenders.
  */
 const FLOOR_OPTIONS: ReadonlyArray<{
   value: string;
   rank: Rank;
-  ascension: Ascension;
   label: string;
 }> = [
-  { value: '3-A0', rank: 3, ascension: 'A0', label: 'R3 A0 (any rank-3+)' },
-  { value: '3-A1', rank: 3, ascension: 'A1', label: 'R3 A1' },
-  { value: '3-A2', rank: 3, ascension: 'A2', label: 'R3 A2' },
-  { value: '4-A0', rank: 4, ascension: 'A0', label: 'R4 A0 (default — realistic for most alliances)' },
-  { value: '4-A1', rank: 4, ascension: 'A1', label: 'R4 A1' },
-  { value: '4-A2', rank: 4, ascension: 'A2', label: 'R4 A2' },
-  { value: '5-A0', rank: 5, ascension: 'A0', label: 'R5 A0' },
-  { value: '5-A1', rank: 5, ascension: 'A1', label: 'R5 A1' },
-  { value: '5-A2', rank: 5, ascension: 'A2', label: 'R5 A2 (max — top alliances only)' },
+  { value: '3', rank: 3, label: 'R3 minimum (any rank-3+)' },
+  { value: '4', rank: 4, label: 'R4 minimum (default)' },
+  { value: '5', rank: 5, label: 'R5 minimum (top alliances only)' },
 ];
 
 type LoadedRoster = {
@@ -53,9 +47,14 @@ export function WarPlanner({ champions }: { champions: Champion[] }) {
   const [rosters, setRosters] = useState<Map<number, LoadedRoster>>(new Map());
   const [result, setResult] = useState<WarResult | null>(null);
   const [running, setRunning] = useState(false);
+  // Default collapsed if the pool has already been filled (returning user),
+  // expanded if empty (first-time use).
+  const [poolExpanded, setPoolExpanded] = useState<boolean | null>(null);
 
   useEffect(() => {
-    setConfig(loadWarConfig());
+    const loaded = loadWarConfig();
+    setConfig(loaded);
+    setPoolExpanded(loaded.pool.length === 0);
   }, []);
 
   const championLookup = useMemo(
@@ -63,7 +62,7 @@ export function WarPlanner({ champions }: { champions: Champion[] }) {
     [champions],
   );
 
-  if (!config) {
+  if (!config || poolExpanded === null) {
     return (
       <div className="text-sm text-[var(--color-ink-soft)] italic">Loading…</div>
     );
@@ -158,9 +157,8 @@ export function WarPlanner({ champions }: { champions: Champion[] }) {
           </h2>
           <p className="text-sm text-[var(--color-ink-soft)] max-w-2xl">
             Tick every champion your alliance considers war-worthy on defence.
-            Aim for 60-70 — that gives headroom above the 50 you need to place,
-            so gaps in individual rosters don&apos;t leave slots unfilled.
-            Saved locally; you only need to do this once per meta shift.
+            Minimum 50 (the war size); 60+ suggested to give headroom over
+            roster gaps. Saved locally; collapses to a single line once filled.
           </p>
         </div>
         <WarPoolTickbox
@@ -169,27 +167,30 @@ export function WarPlanner({ champions }: { champions: Champion[] }) {
           onChange={(next) =>
             updateConfig({ ...config, pool: [...next].sort() })
           }
+          expanded={poolExpanded}
+          onToggleExpanded={() => setPoolExpanded((v) => !v)}
         />
       </section>
 
       <section className="space-y-3">
         <div>
           <h2 className="editorial-heading text-2xl mb-1">
-            2. Minimum state floor
+            2. Minimum rank
           </h2>
           <p className="text-sm text-[var(--color-ink-soft)] max-w-2xl">
-            Champions below this state won&apos;t count as placeable. R4 A0 is
-            a sensible default for most rosters.
+            Champions below this rank won&apos;t count as placeable. R4 is a
+            sensible default for most rosters — drop to R3 if your alliance
+            sits at that tier.
           </p>
         </div>
         <select
-          value={`${config.floor.rank}-${config.floor.ascension}`}
+          value={String(config.floor.rank)}
           onChange={(e) => {
             const opt = FLOOR_OPTIONS.find((o) => o.value === e.target.value);
             if (!opt) return;
             updateConfig({
               ...config,
-              floor: { rank: opt.rank, ascension: opt.ascension },
+              floor: { rank: opt.rank, ascension: 'A0' },
             });
           }}
           className="px-3 py-2 text-sm border border-[var(--color-rule)] rounded bg-[var(--color-paper)] focus:outline-none focus:border-[var(--color-marvel-impact)] min-w-[20rem]"

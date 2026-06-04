@@ -38,14 +38,15 @@ export function loadWarConfig(): WarConfig {
     const parsed = JSON.parse(raw) as Partial<WarConfig>;
     return {
       pool: Array.isArray(parsed.pool) ? parsed.pool.filter((id) => typeof id === 'string') : [],
+      // Ascension is normalised to A0 here — the UI no longer exposes a
+      // floor ascension axis. Saved A1/A2 floors from earlier alpha builds
+      // would silently filter more strictly than users now expect, so we
+      // discard the stored ascension and re-derive it as the permissive A0.
       floor:
         parsed.floor &&
         typeof parsed.floor.rank === 'number' &&
-        (parsed.floor.rank === 3 || parsed.floor.rank === 4 || parsed.floor.rank === 5) &&
-        (parsed.floor.ascension === 'A0' ||
-          parsed.floor.ascension === 'A1' ||
-          parsed.floor.ascension === 'A2')
-          ? { rank: parsed.floor.rank, ascension: parsed.floor.ascension }
+        (parsed.floor.rank === 3 || parsed.floor.rank === 4 || parsed.floor.rank === 5)
+          ? { rank: parsed.floor.rank, ascension: 'A0' }
           : DEFAULT_CONFIG.floor,
       players: Array.isArray(parsed.players)
         ? parsed.players
