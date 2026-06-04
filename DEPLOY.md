@@ -46,6 +46,27 @@ After the first deploy succeeds:
 
 The functions need the binding to work. Without it, share creation will 500.
 
+The same `ROSTERS` namespace also stores user-submitted BHR calibration
+reports (key prefix `calib:`) and rate-limit counters (`rl:`). No
+additional namespace needed.
+
+### 3b. Set the admin token (for calibration reports)
+
+To review user-submitted calibration reports at `/admin/calibrations`:
+
+- Pages project → Settings → Environment variables → Add variable (Production)
+- Variable name: `ADMIN_TOKEN`
+- Value: a long random string — generate one with
+  `node -e "console.log(crypto.randomBytes(24).toString('base64url'))"`
+- Save and redeploy
+
+Without this env var, `GET /api/calibration-report` returns 503 and the
+admin page shows "not configured". POST submissions still work (users
+can still send reports); only the read-back is gated.
+
+Paste the token into the admin page on first visit; it's stored in
+localStorage so you don't need to re-enter it every session.
+
 ### 4. Bind the custom domain
 
 - Pages project → Custom domains → Set up a custom domain

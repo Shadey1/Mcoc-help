@@ -10,6 +10,12 @@ import {
 } from '@prestige-tools/engine';
 import { formatBHR } from '../lib/format';
 import { useBHROverrides } from '../lib/bhr-overrides-context';
+import {
+  isReported,
+  loadReportedKeys,
+  markReported,
+  submitCalibrationReport,
+} from '../lib/calibration-report-client';
 
 /**
  * BHR display cell with inline calibration override.
@@ -25,6 +31,11 @@ import { useBHROverrides } from '../lib/bhr-overrides-context';
  *
  * Local-only by design. See task #41 for the optional report-back flow.
  */
+type PendingReport = {
+  predictedBhr: number;
+  actualBhr: number;
+};
+
 export function BhrCell({
   champion,
   state,
@@ -36,6 +47,12 @@ export function BhrCell({
 }) {
   const { hasOverride, setOverride, clearOverride } = useBHROverrides();
   const [editing, setEditing] = useState(false);
+  const [pendingReport, setPendingReport] = useState<PendingReport | null>(null);
+  const [reportedKeys, setReportedKeys] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    setReportedKeys(loadReportedKeys());
+  }, []);
 
   if (!champion) {
     // No champion data — fall back to plain display.
@@ -43,7 +60,15 @@ export function BhrCell({
   }
 
   const rank = state.rank as Rank;
-  const overridden = hasOverride(state.championId, rank, state.sig, state.ascension);
+  const ascension = state.ascension as Ascension;
+  const overridden = hasOverride(state.championId, rank, state.sig, ascension);
+  const alreadyReported = isReported(
+    state.championId,
+    rank,
+    state.sig,
+    ascension,
+    reportedKeys,
+  );
 
   if (editing) {
     return (
@@ -52,20 +77,47 @@ export function BhrCell({
         state={state}
         overridden={overridden}
         onSave={(value) => {
+          const predicted = calculateBHR(champion, state);
           setOverride({
             championId: state.championId,
             rank,
             sig: state.sig,
-            ascension: state.ascension as Ascension,
+            ascension,
             value,
           });
           setEditing(false);
+          // Prompt to share back only if the value actually differs from
+          // the curve AND we haven't already reported this exact state.
+          if (value !== predicted && !alreadyReported) {
+            setPendingReport({ predictedBhr: predicted, actualBhr: value });
+          }
         }}
         onClear={() => {
-          clearOverride(state.championId, rank, state.sig, state.ascension as Ascension);
+          clearOverride(state.championId, rank, state.sig, ascension);
           setEditing(false);
         }}
         onCancel={() => setEditing(false)}
+      />
+    );
+  }
+
+  if (pendingReport) {
+    return (
+      <ReportPrompt
+        report={{
+          championId: state.championId,
+          rank,
+          sig: state.sig,
+          ascension,
+          predictedBhr: pendingReport.predictedBhr,
+          actualBhr: pendingReport.actualBhr,
+        }}
+        displayedBhr={displayedBhr}
+        onResolved={() => {
+          // Refresh reported set so subsequent opens don't re-prompt
+          setReportedKeys(loadReportedKeys());
+          setPendingReport(null);
+        }}
       />
     );
   }
@@ -96,6 +148,87 @@ export function BhrCell({
         </span>
       )}
     </button>
+  );
+}
+
+function ReportPrompt({
+  report,
+  displayedBhr,
+  onResolved,
+}: {
+  report: {
+    championId: string;
+    rank: Rank;
+    sig: number;
+    ascension: Ascension;
+    predictedBhr: number;
+    actualBhr: number;
+  };
+  displayedBhr: number;
+  onResolved: () => void;
+}) {
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function submit() {
+    setSubmitting(true);
+    setError(null);
+    try {
+      await submitCalibrationReport(report);
+      markReported(report);
+      onResolved();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Submit failed');
+      setSubmitting(false);
+    }
+  }
+
+  function dismiss() {
+    // Treat dismissal as "they decided not to share for this state" — record
+    // it so we don't pester again. They can always edit + resubmit later.
+    markReported(report);
+    onResolved();
+  }
+
+  return (
+    <div className="inline-flex flex-col items-start gap-1 bg-[var(--color-paper)] border border-emerald-600/40 rounded px-2 py-1.5">
+      <div className="flex items-center gap-2">
+        <span className="numeric text-sm">{formatBHR(displayedBhr)}</span>
+        <span className="h-1.5 w-1.5 rounded-full bg-emerald-600" />
+        <span className="text-xs text-[var(--color-ink-soft)]">
+          saved locally
+        </span>
+      </div>
+      <div className="text-[11px] text-[var(--color-ink-soft)] leading-snug max-w-[18rem]">
+        Help mcoc.help — submit this correction anonymously (predicted{' '}
+        {formatBHR(report.predictedBhr)}, actual {formatBHR(report.actualBhr)},
+        Δ {report.actualBhr - report.predictedBhr > 0 ? '+' : ''}
+        {report.actualBhr - report.predictedBhr})?
+      </div>
+      {error && (
+        <div className="text-[11px] text-[var(--color-marvel-impact)]">
+          {error}
+        </div>
+      )}
+      <div className="flex items-center gap-2 mt-0.5">
+        <button
+          type="button"
+          onClick={() => void submit()}
+          disabled={submitting}
+          className="text-[11px] px-2 py-0.5 bg-emerald-700 text-white rounded hover:opacity-90 disabled:opacity-50"
+        >
+          {submitting ? 'Sending…' : 'Submit'}
+        </button>
+        <button
+          type="button"
+          onClick={dismiss}
+          disabled={submitting}
+          className="text-[11px] px-2 py-0.5 text-[var(--color-ink-soft)] hover:text-[var(--color-ink)] underline disabled:opacity-50"
+        >
+          No thanks
+        </button>
+      </div>
+    </div>
   );
 }
 
