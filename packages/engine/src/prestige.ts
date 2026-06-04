@@ -1,5 +1,5 @@
 import type { Champion, ChampionState } from './types.js';
-import { calculateBHR } from './bhr.js';
+import { calculateBHR, type BHROverrideMap } from './bhr.js';
 
 /**
  * Compute champion prestige from a roster: rounded average BHR of the top
@@ -16,8 +16,9 @@ import { calculateBHR } from './bhr.js';
 export function calculateChampionPrestige(
   roster: ChampionState[],
   championLookup: Map<string, Champion>,
+  overrides?: BHROverrideMap,
 ): number {
-  const bhrs = computeAllBHRs(roster, championLookup);
+  const bhrs = computeAllBHRs(roster, championLookup, overrides);
   const top30 = bhrs.sort((a, b) => b - a).slice(0, 30);
   if (top30.length === 0) return 0;
   const sum = top30.reduce((acc, n) => acc + n, 0);
@@ -33,8 +34,11 @@ export function calculateChampionPrestige(
 export function top30Cutoff(
   roster: ChampionState[],
   championLookup: Map<string, Champion>,
+  overrides?: BHROverrideMap,
 ): number {
-  const sorted = computeAllBHRs(roster, championLookup).sort((a, b) => b - a);
+  const sorted = computeAllBHRs(roster, championLookup, overrides).sort(
+    (a, b) => b - a,
+  );
   if (sorted.length < 30) return 0;
   return sorted[29] ?? 0;
 }
@@ -45,11 +49,12 @@ export function top30Cutoff(
 export function getTop30Ids(
   roster: ChampionState[],
   championLookup: Map<string, Champion>,
+  overrides?: BHROverrideMap,
 ): Set<string> {
   const withBHR = roster.map((state) => {
     const champion = championLookup.get(state.championId);
     if (!champion) throw new Error(`Champion not found: ${state.championId}`);
-    return { id: state.championId, bhr: calculateBHR(champion, state) };
+    return { id: state.championId, bhr: calculateBHR(champion, state, overrides) };
   });
   const sorted = withBHR.sort((a, b) => b.bhr - a.bhr).slice(0, 30);
   return new Set(sorted.map((e) => e.id));
@@ -60,10 +65,11 @@ export function getTop30Ids(
 function computeAllBHRs(
   roster: ChampionState[],
   championLookup: Map<string, Champion>,
+  overrides?: BHROverrideMap,
 ): number[] {
   return roster.map((state) => {
     const champion = championLookup.get(state.championId);
     if (!champion) throw new Error(`Champion not found: ${state.championId}`);
-    return calculateBHR(champion, state);
+    return calculateBHR(champion, state, overrides);
   });
 }

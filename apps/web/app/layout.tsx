@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import Link from 'next/link';
 import { Fraunces, Libre_Franklin, JetBrains_Mono, Bungee } from 'next/font/google';
 import './globals.css';
+import { BHROverridesProvider } from '../lib/bhr-overrides-context';
 
 // Editorial almanack typography per architecture-v5 §10.
 // Fraunces for display, Libre Franklin for body, JetBrains Mono for numerics,
@@ -56,6 +57,7 @@ export default function RootLayout({
       className={`${fraunces.variable} ${libreFranklin.variable} ${jetbrainsMono.variable} ${bungee.variable}`}
     >
       <body className="min-h-screen flex flex-col">
+        <BHROverridesProvider>
         <header className="border-b border-[var(--color-rule)] bg-[var(--color-paper-soft)]">
           <nav className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex flex-col sm:flex-row items-center gap-3 sm:gap-0 sm:justify-between">
             <Link
@@ -162,6 +164,7 @@ export default function RootLayout({
             </div>
           </div>
         </footer>
+        </BHROverridesProvider>
       </body>
     </html>
   );

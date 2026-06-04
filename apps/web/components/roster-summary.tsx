@@ -1,17 +1,21 @@
+'use client';
+
 import {
   calculateBHR,
   type Champion,
   type Roster,
 } from '@prestige-tools/engine';
 import { formatBHR } from '../lib/format';
+import { useBHROverrides } from '../lib/bhr-overrides-context';
 
 /**
  * Four-up stat block summarising a roster: count, top-30 prestige, top-30
  * cutoff BHR, highest BHR. Shared between the /roster manager and the front
  * recommendations page so the headline numbers stay consistent.
  *
- * Pure presentational — caller passes the roster + lookup, no localStorage
- * access, no client-side hooks. Renders nothing for an empty roster.
+ * Reads BHR overrides from the context — any user-calibrated value
+ * automatically flows into these headline numbers without callers needing
+ * to thread state through.
  */
 export function RosterSummary({
   roster,
@@ -20,11 +24,12 @@ export function RosterSummary({
   roster: Roster;
   championLookup: Map<string, Champion>;
 }) {
+  const { overrides } = useBHROverrides();
   if (roster.champions.length === 0) return null;
 
   const bhrs = roster.champions.map((s) => {
     const c = championLookup.get(s.championId)!;
-    return calculateBHR(c, s);
+    return calculateBHR(c, s, overrides);
   });
   const sorted = [...bhrs].sort((a, b) => b - a);
   const top30 = sorted.slice(0, 30);

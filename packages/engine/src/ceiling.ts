@@ -5,7 +5,7 @@ import type {
   ChampionState,
   CostGate,
 } from './types.js';
-import { calculateBHR, calculateCeilingBHR } from './bhr.js';
+import { calculateBHR, calculateCeilingBHR, type BHROverrideMap } from './bhr.js';
 import { getTop30Ids, top30Cutoff } from './prestige.js';
 import { costGatesFor } from './costs.js';
 
@@ -36,9 +36,10 @@ export function computeCeilings(
   roster: ChampionState[],
   championLookup: Map<string, Champion>,
   allChampions?: Champion[],
+  overrides?: BHROverrideMap,
 ): CeilingEntry[] {
-  const cutoff = top30Cutoff(roster, championLookup);
-  const top30Ids = getTop30Ids(roster, championLookup);
+  const cutoff = top30Cutoff(roster, championLookup, overrides);
+  const top30Ids = getTop30Ids(roster, championLookup, overrides);
 
   // Map roster states by championId for fast owned-state lookup
   const stateById = new Map(roster.map((s) => [s.championId, s]));
@@ -54,8 +55,8 @@ export function computeCeilings(
     const state = stateById.get(champion.id);
     const owned = Boolean(state);
 
-    const currentBHR = state ? calculateBHR(champion, state) : 0;
-    const ceilingBHR = calculateCeilingBHR(champion);
+    const currentBHR = state ? calculateBHR(champion, state, overrides) : 0;
+    const ceilingBHR = calculateCeilingBHR(champion, overrides);
     const headroomBHR = Math.max(0, ceilingBHR - currentBHR);
     const inTop30 = owned && top30Ids.has(champion.id);
 

@@ -18,6 +18,7 @@ import {
 import { loadRoster, saveRoster } from '../lib/roster-storage';
 import { loadRelics, type RelicStateBundle } from '../lib/relics-storage';
 import { formatBHR, formatDelta } from '../lib/format';
+import { useBHROverrides } from '../lib/bhr-overrides-context';
 import { ChampionPortrait } from './champion-portrait';
 import { AddToRosterModal } from './add-to-roster-modal';
 import { RosterSummary } from './roster-summary';
@@ -49,6 +50,7 @@ export function RecommendationsView({ champions }: RecommendationsViewProps) {
   const [toast, setToast] = useState<Toast | null>(null);
   const [addingChampion, setAddingChampion] = useState<Champion | null>(null);
   const toastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { overrides } = useBHROverrides();
 
   useEffect(() => {
     setRoster(loadRoster());
@@ -92,13 +94,13 @@ export function RecommendationsView({ champions }: RecommendationsViewProps) {
   const championLookup = new Map(champions.map((c) => [c.id, c]));
   // Defensive: drop states referencing champions not in the current seed
   const validStates = roster.champions.filter((s) => championLookup.has(s.championId));
-  const moves = optimise(validStates, championLookup, 12);
+  const moves = optimise(validStates, championLookup, 12, overrides);
   // Long-term plan includes ALL active champions, not just owned — answers
   // "what would maxing any champion do for my prestige" including pulls
   // you'd want to prioritise. Unowned entries marked owned: false.
   // The UI splits into "worth developing" (owned) + "worth pulling" (unowned)
   // sections with 6 entries each, so we feed it the full ranked list.
-  const ceilings = computeCeilings(validStates, championLookup, champions);
+  const ceilings = computeCeilings(validStates, championLookup, champions, overrides);
 
   function handleMoveDone(move: ScoredMove) {
     // Capture previous state for undo, apply move, persist, schedule auto-dismiss

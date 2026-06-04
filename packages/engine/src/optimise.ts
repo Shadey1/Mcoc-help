@@ -5,7 +5,7 @@ import type {
   Rank,
   ScoredMove,
 } from './types.js';
-import { calculateBHR, RANK_MULT } from './bhr.js';
+import { calculateBHR, RANK_MULT, type BHROverrideMap } from './bhr.js';
 import { calculateChampionPrestige } from './prestige.js';
 import { costGatesFor, statePersistenceNoteFor } from './costs.js';
 
@@ -141,8 +141,9 @@ export function optimise(
   roster: ChampionState[],
   championLookup: Map<string, Champion>,
   topN = 10,
+  overrides?: BHROverrideMap,
 ): ScoredMove[] {
-  const currentPrestige = calculateChampionPrestige(roster, championLookup);
+  const currentPrestige = calculateChampionPrestige(roster, championLookup, overrides);
   const moves = enumerateMoves(roster, championLookup);
 
   const scored: ScoredMove[] = moves.map((move) => {
@@ -155,12 +156,14 @@ export function optimise(
       throw new Error(`Roster state not found for: ${move.championId}`);
     }
 
-    const beforeBHR = calculateBHR(champion, stateBefore);
+    const beforeBHR = calculateBHR(champion, stateBefore, overrides);
     const newRoster = applyMove(roster, move);
     const stateAfter = newRoster.find((s) => s.championId === move.championId)!;
-    const afterBHR = calculateBHR(champion, stateAfter);
+    // After-state may have an override too (e.g. user calibrated their R5 sig200 A2
+    // ceiling for this champ — the rank-up move should reflect that).
+    const afterBHR = calculateBHR(champion, stateAfter, overrides);
 
-    const newPrestige = calculateChampionPrestige(newRoster, championLookup);
+    const newPrestige = calculateChampionPrestige(newRoster, championLookup, overrides);
     const top30Delta = newPrestige - currentPrestige;
 
     return {

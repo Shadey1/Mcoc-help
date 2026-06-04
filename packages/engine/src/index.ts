@@ -38,7 +38,10 @@ export {
   calculateCeilingBHR,
   ASCENSION_MULT,
   RANK_MULT,
+  bhrOverrideKey,
 } from './bhr.js';
+
+export type { BHROverrideMap } from './bhr.js';
 
 // Prestige aggregation
 export {

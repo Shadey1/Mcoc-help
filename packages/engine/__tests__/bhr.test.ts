@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  bhrOverrideKey,
   calculateBHR,
   calculateCeilingBHR,
   type Champion,
@@ -213,6 +214,56 @@ describe('calculateCeilingBHR — max obtainable BHR for ceiling view', () => {
     });
     // Non-ascendable: ceiling = R5 sig 200 base, no A2 multiplier
     expect(calculateCeilingBHR(onslaught)).toBe(40580);
+  });
+});
+
+describe('calculateBHR — user overrides', () => {
+  const champion = makeChampion({
+    id: 'iron-man',
+    name: 'Iron Man',
+    class: 'Tech',
+    rank5: { sig0: 29370, sig200: 39655 },
+    ascendable: true,
+  });
+  const state: ChampionState = {
+    championId: 'iron-man',
+    rank: 5,
+    sig: 200,
+    ascension: 'A2',
+  };
+
+  it('returns the pinned value verbatim when an override matches', () => {
+    const overrides = new Map([
+      [bhrOverrideKey('iron-man', 5, 200, 'A2'), 46000],
+    ]);
+    expect(calculateBHR(champion, state, overrides)).toBe(46000);
+  });
+
+  it('falls through to the curve when no override matches the state', () => {
+    const overrides = new Map([
+      // Override for a different sig — should not apply
+      [bhrOverrideKey('iron-man', 5, 100, 'A2'), 99999],
+    ]);
+    // 39655 × 1.16 = 45999.8 → rounds to 46000 (curve value)
+    expect(calculateBHR(champion, state, overrides)).toBe(46000);
+  });
+
+  it('falls through to the curve when overrides param is undefined', () => {
+    expect(calculateBHR(champion, state)).toBe(46000);
+  });
+
+  it('returns the override unrounded (user-entered value is gospel)', () => {
+    const overrides = new Map([
+      [bhrOverrideKey('iron-man', 5, 200, 'A2'), 45997],
+    ]);
+    expect(calculateBHR(champion, state, overrides)).toBe(45997);
+  });
+
+  it('applies overrides at the ceiling state for calculateCeilingBHR', () => {
+    const overrides = new Map([
+      [bhrOverrideKey('iron-man', 5, 200, 'A2'), 46000],
+    ]);
+    expect(calculateCeilingBHR(champion, overrides)).toBe(46000);
   });
 });
 

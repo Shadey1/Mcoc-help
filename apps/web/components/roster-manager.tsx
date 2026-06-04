@@ -10,6 +10,7 @@ import {
 } from '@prestige-tools/engine';
 import { loadRoster, saveRoster } from '../lib/roster-storage';
 import { formatBHR, formatDelta } from '../lib/format';
+import { useBHROverrides } from '../lib/bhr-overrides-context';
 import { RosterPicker } from './roster-picker';
 import { BulkImport } from './bulk-import';
 import { ChampionTickboxGrid } from './champion-tickbox-grid';
@@ -18,6 +19,7 @@ import { ShareModal } from './share-modal';
 import { ChampionPortrait } from './champion-portrait';
 import { PortraitSeed } from './portrait-seed';
 import { RosterSummary } from './roster-summary';
+import { BhrCell } from './bhr-cell';
 
 const FEATURE_SCREENSHOT_IMPORT = false;
 
@@ -56,6 +58,7 @@ export function RosterManager({ champions }: RosterManagerProps) {
   const [unconfirmedOnly, setUnconfirmedOnly] = useState(false);
   const [editingChampionId, setEditingChampionId] = useState<string | null>(null);
   const rosterSectionRef = useRef<HTMLElement | null>(null);
+  const { overrides } = useBHROverrides();
 
   /** Smooth-scrolls to the roster table — used after bulk imports so the user
    *  sees what just landed instead of staring at the import surface. */
@@ -151,7 +154,7 @@ export function RosterManager({ champions }: RosterManagerProps) {
 
   const ceilings =
     validRoster.champions.length > 0
-      ? computeCeilings(validRoster.champions, championLookup)
+      ? computeCeilings(validRoster.champions, championLookup, undefined, overrides)
       : [];
 
   function handleSort(column: SortColumn) {
@@ -466,8 +469,12 @@ export function RosterManager({ champions }: RosterManagerProps) {
                           onRemove={() => handleRemove(entry.championId)}
                         />
                       </td>
-                      <td className="p-3 text-right numeric">
-                        {formatBHR(entry.currentBHR)}
+                      <td className="p-3 text-right">
+                        <BhrCell
+                          champion={champion}
+                          state={state}
+                          displayedBhr={entry.currentBHR}
+                        />
                       </td>
                       <td className="p-3 text-right numeric">
                         {formatBHR(entry.ceilingBHR)}

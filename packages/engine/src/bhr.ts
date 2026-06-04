@@ -193,6 +193,44 @@ function interpFromAnchors(anchors: Array<[number, number]>, sig: number): numbe
   return anchors[anchors.length - 1]![1];
 }
 
+// ─── BHR overrides ───────────────────────────────────────────────────────
+
+/**
+ * User-supplied calibration overrides: when the engine's prediction
+ * disagrees with what the game actually displays, the user can pin the
+ * exact value for a specific (champion, rank, sig, ascension) state and
+ * the engine returns that pinned value instead of computing one.
+ *
+ * The map key encodes the full state via `bhrOverrideKey()`. Values are
+ * the integer BHRs the user typed in, stored verbatim (no rounding).
+ *
+ * Overrides apply ONLY to the exact state they were pinned for. Adjacent
+ * sigs or ascensions of the same champion still go through the curve —
+ * we don't extrapolate, because the underlying error could be at any
+ * layer (anchor, ascension multiplier, sig curve shape).
+ */
+export type BHROverrideMap = ReadonlyMap<string, number>;
+
+/** Build the canonical key for a state in the override map. */
+export function bhrOverrideKey(
+  championId: string,
+  rank: Rank,
+  sig: number,
+  ascension: Ascension,
+): string {
+  return `${championId}|${rank}|${sig}|${ascension}`;
+}
+
+function lookupOverride(
+  overrides: BHROverrideMap | undefined,
+  state: ChampionState,
+): number | undefined {
+  if (!overrides || overrides.size === 0) return undefined;
+  return overrides.get(
+    bhrOverrideKey(state.championId, state.rank, state.sig, state.ascension),
+  );
+}
+
 // ─── Public API ─────────────────────────────────────────────────────────
 
 /**
@@ -208,13 +246,23 @@ function interpFromAnchors(anchors: Array<[number, number]>, sig: number): numbe
  *
  * For ranks where the champion data has no explicit sig0/sig200 anchors
  * (e.g. only rank5 is seeded), we derive them from rank5 × rank-multiplier.
+ *
+ * If `overrides` contains a pinned value for this exact state, that value
+ * is returned directly — no rounding, no curve.
  */
-export function calculateBHR(champion: Champion, state: ChampionState): number {
+export function calculateBHR(
+  champion: Champion,
+  state: ChampionState,
+  overrides?: BHROverrideMap,
+): number {
   if (state.championId !== champion.id) {
     throw new Error(
       `Champion mismatch: state references ${state.championId}, champion is ${champion.id}`,
     );
   }
+
+  const pinned = lookupOverride(overrides, state);
+  if (pinned !== undefined) return pinned;
 
   const rankMult = RANK_MULT[state.rank];
   if (rankMult === undefined) {
@@ -271,9 +319,22 @@ export function calculateBHR(champion: Champion, state: ChampionState): number {
 /**
  * Compute a champion's MAX BHR at full development (R5 sig 200, max ascension).
  * This is the ceiling for the ceiling view.
+ *
+ * Respects overrides at the ceiling state (R5 sig 200, max ascension) — if
+ * the user has calibrated their max-state BHR for this champion, the
+ * ceiling reflects that exact value.
  */
-export function calculateCeilingBHR(champion: Champion): number {
+export function calculateCeilingBHR(
+  champion: Champion,
+  overrides?: BHROverrideMap,
+): number {
+  const ceilingAsc: Ascension = champion.ascendable ? 'A2' : 'A0';
+  if (overrides && overrides.size > 0) {
+    const pinned = overrides.get(
+      bhrOverrideKey(champion.id, 5, 200, ceilingAsc),
+    );
+    if (pinned !== undefined) return pinned;
+  }
   const sig200R5 = champion.prestige.rank5['200'];
-  const maxAscMult = champion.ascendable ? ASCENSION_MULT.A2 : ASCENSION_MULT.A0;
-  return roundToTen(sig200R5 * maxAscMult);
+  return roundToTen(sig200R5 * ASCENSION_MULT[ceilingAsc]);
 }
