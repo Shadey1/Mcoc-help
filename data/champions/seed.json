@@ -3758,7 +3758,7 @@
           "140": 37620,
           "160": 38330,
           "180": 39000,
-          "200": 39660
+          "200": 39655
         },
         "rank4": {
           "0": 24770,
@@ -3777,7 +3777,7 @@
       "sigCurve": null,
       "tags": [],
       "_meta": {
-        "bhrSource": "mcoc.gg per-rank curves (R4 + R5 11-anchor, refreshed 2026-06-03)",
+        "bhrSource": "mcoc.gg per-rank curves (R4 + R5 11-anchor, refreshed 2026-06-03), R5.200 sub-10 calibrated 2026-06-04 from in-game R5 sig200 A2 = 46000",
         "ascendableSource": "mcoc.gg per-state-columns + kabam-forum-base-pool",
         "lastVerified": "2026-06-03"
       },
