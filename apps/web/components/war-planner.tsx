@@ -11,6 +11,7 @@ import {
 } from '@prestige-tools/engine';
 import { loadWarConfig, saveWarConfig, type WarConfig } from '../lib/war-storage';
 import { fetchShare } from '../lib/share-client';
+import { fetchSharedPool, type SharedPoolPayload } from '../lib/share-pool-client';
 import { WarPoolTickbox } from './war-pool-tickbox';
 import {
   WarShareInput,
@@ -18,6 +19,7 @@ import {
   type WarShareRowStatus,
 } from './war-share-input';
 import { WarPlacementTable } from './war-placement-table';
+import { SharePoolModal } from './share-pool-modal';
 
 /**
  * Floor options — rank only. Ascension is dropped from the floor UI; the
@@ -50,11 +52,41 @@ export function WarPlanner({ champions }: { champions: Champion[] }) {
   // Default collapsed if the pool has already been filled (returning user),
   // expanded if empty (first-time use).
   const [poolExpanded, setPoolExpanded] = useState<boolean | null>(null);
+  const [shareOpen, setShareOpen] = useState(false);
+  // Inbound shared-pool offer: when /war?pool=<id> loads, fetch and surface
+  // a banner so the user can decide whether to import (replacing their
+  // current pool + floor) rather than silently overwriting.
+  const [inboundPool, setInboundPool] = useState<
+    | { kind: 'loading' }
+    | { kind: 'ready'; payload: SharedPoolPayload; id: string }
+    | { kind: 'error'; message: string }
+    | null
+  >(null);
 
   useEffect(() => {
     const loaded = loadWarConfig();
     setConfig(loaded);
     setPoolExpanded(loaded.pool.length === 0);
+  }, []);
+
+  // Check ?pool=<id> on mount — fetch the shared pool but don't apply
+  // unless the user clicks Import.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const poolId = params.get('pool');
+    if (!poolId) return;
+    setInboundPool({ kind: 'loading' });
+    fetchSharedPool(poolId)
+      .then((payload) =>
+        setInboundPool({ kind: 'ready', payload, id: poolId }),
+      )
+      .catch((err: unknown) =>
+        setInboundPool({
+          kind: 'error',
+          message: err instanceof Error ? err.message : 'Failed to load',
+        }),
+      );
   }, []);
 
   const championLookup = useMemo(
@@ -150,16 +182,45 @@ export function WarPlanner({ champions }: { champions: Champion[] }) {
 
   return (
     <div className="space-y-10">
+      {inboundPool && (
+        <InboundPoolBanner
+          state={inboundPool}
+          onImport={(payload) => {
+            updateConfig({
+              ...config,
+              pool: [...payload.pool].sort(),
+              floor: payload.floor,
+            });
+            setInboundPool(null);
+            setPoolExpanded(false);
+          }}
+          onDismiss={() => setInboundPool(null)}
+        />
+      )}
+
       <section className="space-y-3">
-        <div>
-          <h2 className="editorial-heading text-2xl mb-1">
-            1. Pick your defender pool
-          </h2>
-          <p className="text-sm text-[var(--color-ink-soft)] max-w-2xl">
-            Tick every champion your alliance considers war-worthy on defence.
-            Minimum 50 (the war size); 60+ suggested to give headroom over
-            roster gaps. Saved locally; collapses to a single line once filled.
-          </p>
+        <div className="flex flex-wrap items-baseline justify-between gap-3">
+          <div>
+            <h2 className="editorial-heading text-2xl mb-1">
+              1. Pick your defender pool
+            </h2>
+            <p className="text-sm text-[var(--color-ink-soft)] max-w-2xl">
+              Tick every champion your alliance considers war-worthy on
+              defence. Minimum 50 (the war size); 60+ suggested to give
+              headroom over roster gaps. Saved locally; collapses to a
+              single line once filled.
+            </p>
+          </div>
+          {poolSet.size > 0 && (
+            <button
+              type="button"
+              onClick={() => setShareOpen(true)}
+              className="text-xs px-3 py-1.5 border border-[var(--color-rule)] rounded hover:bg-[var(--color-paper-soft)] transition-colors whitespace-nowrap"
+              title="Generate a link the alliance can use to load this pool"
+            >
+              Share pool →
+            </button>
+          )}
         </div>
         <WarPoolTickbox
           champions={champions}
@@ -251,6 +312,87 @@ export function WarPlanner({ champions }: { champions: Champion[] }) {
           />
         )}
       </section>
+
+      <SharePoolModal
+        open={shareOpen}
+        onClose={() => setShareOpen(false)}
+        pool={config.pool}
+        floor={config.floor}
+      />
+    </div>
+  );
+}
+
+function InboundPoolBanner({
+  state,
+  onImport,
+  onDismiss,
+}: {
+  state:
+    | { kind: 'loading' }
+    | { kind: 'ready'; payload: SharedPoolPayload; id: string }
+    | { kind: 'error'; message: string };
+  onImport: (payload: SharedPoolPayload) => void;
+  onDismiss: () => void;
+}) {
+  if (state.kind === 'loading') {
+    return (
+      <div className="border border-[var(--color-rule)] rounded-lg bg-[var(--color-paper-card)] p-4 text-sm text-[var(--color-ink-soft)] italic">
+        Loading shared pool…
+      </div>
+    );
+  }
+  if (state.kind === 'error') {
+    return (
+      <div className="border border-[var(--color-marvel-impact)] rounded-lg bg-[var(--color-paper-card)] p-4 text-sm flex items-baseline justify-between gap-3">
+        <span className="text-[var(--color-marvel-impact)]">
+          Couldn&apos;t load shared pool: {state.message}
+        </span>
+        <button
+          type="button"
+          onClick={onDismiss}
+          className="text-xs underline text-[var(--color-ink-soft)] hover:text-[var(--color-ink)]"
+        >
+          Dismiss
+        </button>
+      </div>
+    );
+  }
+  const { payload } = state;
+  return (
+    <div className="border-2 border-[var(--color-marvel-impact)] rounded-lg bg-[var(--color-paper-card)] p-4 space-y-3">
+      <div className="flex items-baseline justify-between gap-3 flex-wrap">
+        <div className="text-sm">
+          <strong>Shared defender pool</strong>{' '}
+          {payload.label && (
+            <span className="text-[var(--color-ink-soft)]">
+              · &ldquo;{payload.label}&rdquo;
+            </span>
+          )}
+          <span className="text-[var(--color-ink-soft)]">
+            {' '}— {payload.pool.length} champions, floor R{payload.floor.rank}
+          </span>
+        </div>
+        <span className="text-xs text-[var(--color-ink-soft)]">
+          imports replace your current pool + floor
+        </span>
+      </div>
+      <div className="flex gap-2">
+        <button
+          type="button"
+          onClick={() => onImport(payload)}
+          className="px-4 py-1.5 bg-[var(--color-marvel-impact)] text-white text-sm font-medium rounded hover:bg-[var(--color-marvel-editorial)]"
+        >
+          Import
+        </button>
+        <button
+          type="button"
+          onClick={onDismiss}
+          className="px-4 py-1.5 text-sm border border-[var(--color-rule)] rounded hover:bg-[var(--color-paper-soft)]"
+        >
+          Keep my current pool
+        </button>
+      </div>
     </div>
   );
 }
