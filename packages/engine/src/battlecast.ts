@@ -29,25 +29,63 @@
 
 import type { LevelBracket, RelicRank } from './relic.js';
 
-/** Stable id for each catalogued 6★ battlecast. Extended as more are seeded. */
+/** Stable id for each catalogued 6★ battlecast. Sourced from the Fandom
+ *  wiki's full battlecast page list (24 named battlecasts + Cosmic Egg).
+ *  Class assignments are best-guess from each named champion's typical
+ *  MCOC class — relic class is metadata only (doesn't affect prestige
+ *  math), so wrong guesses are fixable without engine impact. */
 export type Battlecast6Id =
   | 'cosmic-egg'
-  | 'spider-man-2099'
-  | 'gamora'
-  | 'gambit'
-  | 'black-widow'
   | 'ant-man'
   | 'black-panther'
+  | 'black-widow'
+  | 'captain-america-wwii'
+  | 'gambit'
+  | 'gamora'
+  | 'ghost-rider'
+  | 'green-goblin'
+  | 'hulk'
+  | 'hulkbuster'
+  | 'iron-fist'
+  | 'juggernaut'
+  | 'mister-sinister'
+  | 'ms-marvel'
+  | 'scarlet-witch'
+  | 'sentinel'
+  | 'spider-man-2099'
+  | 'storm'
+  | 'thor'
+  | 'valkyrie'
+  | 'venom'
+  | 'vision'
+  | 'winter-soldier'
   | 'wolverine';
 
 export const BATTLECAST_6STAR_IDS: readonly Battlecast6Id[] = [
   'cosmic-egg',
-  'spider-man-2099',
-  'gamora',
-  'gambit',
-  'black-widow',
   'ant-man',
   'black-panther',
+  'black-widow',
+  'captain-america-wwii',
+  'gambit',
+  'gamora',
+  'ghost-rider',
+  'green-goblin',
+  'hulk',
+  'hulkbuster',
+  'iron-fist',
+  'juggernaut',
+  'mister-sinister',
+  'ms-marvel',
+  'scarlet-witch',
+  'sentinel',
+  'spider-man-2099',
+  'storm',
+  'thor',
+  'valkyrie',
+  'venom',
+  'vision',
+  'winter-soldier',
   'wolverine',
 ] as const;
 
@@ -107,6 +145,134 @@ export const BATTLECAST_6STAR_CATALOG: Record<Battlecast6Id, Battlecast6Def> = {
     verified: [{ rank: 'R5', sig: 200, rating: 3060 }],
     mcochubAnchor: 2740,
   },
+  'ant-man': {
+    id: 'ant-man',
+    name: 'Ant-Man',
+    class: 'Tech',
+    boundChampions: [],
+    verified: [],
+    mcochubAnchor: 2262,
+  },
+  'black-panther': {
+    id: 'black-panther',
+    name: 'Black Panther',
+    class: 'Skill',
+    boundChampions: [],
+    verified: [],
+    mcochubAnchor: 1996,
+  },
+  'black-widow': {
+    id: 'black-widow',
+    name: 'Black Widow',
+    class: 'Skill',
+    boundChampions: [],
+    verified: [],
+    mcochubAnchor: 2266,
+  },
+  'captain-america-wwii': {
+    id: 'captain-america-wwii',
+    name: 'Captain America (WWII)',
+    class: 'Skill',
+    boundChampions: [],
+    verified: [],
+    mcochubAnchor: null,
+  },
+  gambit: {
+    id: 'gambit',
+    name: 'Gambit',
+    class: 'Mutant',
+    boundChampions: [],
+    verified: [],
+    mcochubAnchor: 2269,
+  },
+  gamora: {
+    id: 'gamora',
+    name: 'Gamora',
+    class: 'Cosmic',
+    boundChampions: [],
+    verified: [],
+    mcochubAnchor: 2275,
+  },
+  'ghost-rider': {
+    id: 'ghost-rider',
+    name: 'Ghost Rider',
+    class: 'Cosmic',
+    boundChampions: [],
+    verified: [],
+    mcochubAnchor: null,
+  },
+  'green-goblin': {
+    id: 'green-goblin',
+    name: 'Green Goblin',
+    class: 'Tech',
+    boundChampions: [],
+    verified: [],
+    mcochubAnchor: null,
+  },
+  hulk: {
+    id: 'hulk',
+    name: 'Hulk',
+    class: 'Science',
+    boundChampions: [],
+    verified: [],
+    mcochubAnchor: null,
+  },
+  hulkbuster: {
+    id: 'hulkbuster',
+    name: 'Hulkbuster',
+    class: 'Tech',
+    boundChampions: [],
+    verified: [],
+    mcochubAnchor: null,
+  },
+  'iron-fist': {
+    id: 'iron-fist',
+    name: 'Iron Fist',
+    class: 'Mystic',
+    boundChampions: [],
+    verified: [],
+    mcochubAnchor: null,
+  },
+  juggernaut: {
+    id: 'juggernaut',
+    name: 'Juggernaut',
+    class: 'Mutant',
+    boundChampions: [],
+    verified: [],
+    mcochubAnchor: null,
+  },
+  'mister-sinister': {
+    id: 'mister-sinister',
+    name: 'Mister Sinister',
+    class: 'Mutant',
+    boundChampions: [],
+    verified: [],
+    mcochubAnchor: null,
+  },
+  'ms-marvel': {
+    id: 'ms-marvel',
+    name: 'Ms. Marvel',
+    class: 'Cosmic',
+    boundChampions: [],
+    verified: [],
+    mcochubAnchor: null,
+  },
+  'scarlet-witch': {
+    id: 'scarlet-witch',
+    name: 'Scarlet Witch',
+    class: 'Mystic',
+    boundChampions: [],
+    verified: [],
+    mcochubAnchor: null,
+  },
+  sentinel: {
+    id: 'sentinel',
+    name: 'Sentinel',
+    class: 'Tech',
+    boundChampions: [],
+    verified: [],
+    mcochubAnchor: null,
+  },
   'spider-man-2099': {
     id: 'spider-man-2099',
     name: 'Spider-Man 2099',
@@ -134,45 +300,53 @@ export const BATTLECAST_6STAR_CATALOG: Record<Battlecast6Id, Battlecast6Def> = {
     verified: [],
     mcochubAnchor: 2283,
   },
-  gamora: {
-    id: 'gamora',
-    name: 'Gamora',
-    class: 'Cosmic',
-    boundChampions: [],
-    verified: [],
-    mcochubAnchor: 2275,
-  },
-  gambit: {
-    id: 'gambit',
-    name: 'Gambit',
+  storm: {
+    id: 'storm',
+    name: 'Storm',
     class: 'Mutant',
     boundChampions: [],
     verified: [],
-    mcochubAnchor: 2269,
+    mcochubAnchor: null,
   },
-  'black-widow': {
-    id: 'black-widow',
-    name: 'Black Widow',
-    class: 'Skill',
+  thor: {
+    id: 'thor',
+    name: 'Thor',
+    class: 'Cosmic',
     boundChampions: [],
     verified: [],
-    mcochubAnchor: 2266,
+    mcochubAnchor: null,
   },
-  'ant-man': {
-    id: 'ant-man',
-    name: 'Ant-Man',
+  valkyrie: {
+    id: 'valkyrie',
+    name: 'Valkyrie',
+    class: 'Mystic',
+    boundChampions: [],
+    verified: [],
+    mcochubAnchor: null,
+  },
+  venom: {
+    id: 'venom',
+    name: 'Venom',
+    class: 'Cosmic',
+    boundChampions: [],
+    verified: [],
+    mcochubAnchor: null,
+  },
+  vision: {
+    id: 'vision',
+    name: 'Vision',
     class: 'Tech',
     boundChampions: [],
     verified: [],
-    mcochubAnchor: 2262,
+    mcochubAnchor: null,
   },
-  'black-panther': {
-    id: 'black-panther',
-    name: 'Black Panther',
+  'winter-soldier': {
+    id: 'winter-soldier',
+    name: 'Winter Soldier',
     class: 'Skill',
     boundChampions: [],
     verified: [],
-    mcochubAnchor: 1996,
+    mcochubAnchor: null,
   },
   wolverine: {
     id: 'wolverine',

@@ -64,8 +64,8 @@ describe('catalogue structure', () => {
     }
   });
 
-  it('catalogue has 8 entries (Mister Sinister deferred — MCOCHUB data incomplete)', () => {
-    expect(BATTLECAST_6STAR_IDS.length).toBe(8);
+  it('catalogue has 25 entries — full 6★ battlecast roster from Fandom wiki + Cosmic Egg', () => {
+    expect(BATTLECAST_6STAR_IDS.length).toBe(25);
   });
 
   it('cosmic-egg is the only entry with a verified anchor', () => {
