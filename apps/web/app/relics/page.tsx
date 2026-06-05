@@ -1,4 +1,6 @@
 import { RelicsManager } from '../../components/relics-manager';
+import { RelicReferenceCard } from '../../components/relic-reference-card';
+import { RelicSubmitForm } from '../../components/relic-submit-form';
 
 export default function RelicsPage() {
   return (
@@ -18,18 +20,30 @@ export default function RelicsPage() {
         </span>
         <div className="text-sm space-y-2">
           <p>
-            Relic coverage is partial. So far only <strong>7-star Standard
-            Statcasts</strong> and the <strong>Cosmic Egg</strong> have full
-            BHR curves in the engine; everything else returns no contribution
-            to the prestige math.
+            <strong>7★ Standard Statcasts</strong> and the{' '}
+            <strong>Cosmic Egg</strong> have full BHR curves in the relic
+            engine — they contribute to your top-30 prestige below.
           </p>
           <p>
-            6-star relics are still in play for top-30 prestige but their data
-            isn&apos;t loaded yet — until that lands, counts you enter for
-            them won&apos;t move the headline number. Working on it.
+            <strong>6★ Standard Statcasts:</strong> a partial scaffold is
+            now landed — the verified anchors are shown in the reference
+            card below. The values are correct where labeled, but L80+ at
+            every rank and ranks R4 / R5 entirely are best-guess
+            extrapolation. 6★ counts in the inventory don&apos;t yet
+            contribute to top-30 prestige — when more readings come in and
+            R4 / R5 anchors land, that gets wired up.
+          </p>
+          <p>
+            If you can read a 6★ Standard Statcast rating off the in-game
+            card, please submit it via the form below. Anonymous, opt-in,
+            takes 10 seconds.
           </p>
         </div>
       </section>
+
+      <RelicReferenceCard />
+
+      <RelicSubmitForm />
 
       <RelicsManager />
     </div>

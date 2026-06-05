@@ -96,6 +96,25 @@ export {
   relicTop30Average,
 } from './relics/moves.js';
 
+// ─── 6★ Statcast relic prestige (v2 alpha — reference only) ────────────────
+//
+// Prefixed `r6Statcast*` to keep names from colliding with the existing
+// 7★ module (which already exports `RelicRank` as the 1..6 numeric).
+// Surfaced for the /relics reference card; NOT wired to the recommendations
+// or roster engine yet.
+export {
+  relicRating as r6StatcastRating,
+  RELIC_RATING as R6_STATCAST_RATING,
+  RELIC_RANKS as R6_STATCAST_RANKS,
+  LEVEL_BRACKETS as R6_STATCAST_LEVELS,
+} from './relic.js';
+
+export type {
+  RelicRank as R6StatcastRank,
+  LevelBracket as R6StatcastLevel,
+  RelicRating as R6StatcastRating,
+} from './relic.js';
+
 // ─── War defence placement ──────────────────────────────────────────────────
 
 export type {

@@ -16,11 +16,22 @@ type StoredReport = {
   createdAt: string;
 };
 
-type FetchState =
+type StoredRelicReport = {
+  key: string;
+  rank: 'R1' | 'R2' | 'R3' | 'R4' | 'R5';
+  level: number;
+  rating: number;
+  predictedRating: number | null;
+  isAlpha: boolean | null;
+  delta: number | null;
+  createdAt: string;
+};
+
+type FetchState<T> =
   | { kind: 'idle' }
   | { kind: 'loading' }
   | { kind: 'error'; message: string }
-  | { kind: 'ok'; reports: StoredReport[]; truncated: boolean; count: number };
+  | { kind: 'ok'; reports: T[]; truncated: boolean; count: number };
 
 /**
  * Token entry + report list for /admin/calibrations. The token is stored
@@ -34,13 +45,17 @@ type FetchState =
 export function CalibrationsAdmin() {
   const [token, setToken] = useState<string>('');
   const [savedToken, setSavedToken] = useState<string | null>(null);
-  const [state, setState] = useState<FetchState>({ kind: 'idle' });
+  const [state, setState] = useState<FetchState<StoredReport>>({ kind: 'idle' });
+  const [relicState, setRelicState] = useState<FetchState<StoredRelicReport>>({
+    kind: 'idle',
+  });
 
   useEffect(() => {
     const t = typeof window !== 'undefined' ? window.localStorage.getItem(TOKEN_KEY) : null;
     if (t) {
       setSavedToken(t);
       void fetchReports(t);
+      void fetchRelicReports(t);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -85,6 +100,46 @@ export function CalibrationsAdmin() {
     }
   }
 
+  async function fetchRelicReports(t: string) {
+    setRelicState({ kind: 'loading' });
+    try {
+      const res = await fetch('/api/relic-report', {
+        headers: { authorization: `Bearer ${t}` },
+      });
+      if (res.status === 401) {
+        setRelicState({ kind: 'error', message: 'Token rejected (401)' });
+        return;
+      }
+      if (res.status === 503) {
+        setRelicState({
+          kind: 'error',
+          message: 'Admin endpoint not configured',
+        });
+        return;
+      }
+      if (!res.ok) {
+        setRelicState({ kind: 'error', message: `Request failed (${res.status})` });
+        return;
+      }
+      const body = (await res.json()) as {
+        reports: StoredRelicReport[];
+        truncated: boolean;
+        count: number;
+      };
+      setRelicState({
+        kind: 'ok',
+        reports: body.reports,
+        truncated: body.truncated,
+        count: body.count,
+      });
+    } catch (err) {
+      setRelicState({
+        kind: 'error',
+        message: err instanceof Error ? err.message : 'Network error',
+      });
+    }
+  }
+
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!token.trim()) return;
@@ -92,12 +147,14 @@ export function CalibrationsAdmin() {
     setSavedToken(token.trim());
     setToken('');
     void fetchReports(token.trim());
+    void fetchRelicReports(token.trim());
   }
 
   function forgetToken() {
     window.localStorage.removeItem(TOKEN_KEY);
     setSavedToken(null);
     setState({ kind: 'idle' });
+    setRelicState({ kind: 'idle' });
   }
 
   if (!savedToken) {
@@ -132,7 +189,10 @@ export function CalibrationsAdmin() {
       <div className="flex items-center gap-3 text-sm">
         <button
           type="button"
-          onClick={() => void fetchReports(savedToken)}
+          onClick={() => {
+            void fetchReports(savedToken);
+            void fetchRelicReports(savedToken);
+          }}
           className="px-3 py-1 border border-[var(--color-rule)] rounded hover:bg-[var(--color-paper-soft)]"
         >
           Refresh
@@ -168,6 +228,183 @@ export function CalibrationsAdmin() {
       {state.kind === 'ok' && state.reports.length > 0 && (
         <ReportsTable reports={state.reports} />
       )}
+
+      <section className="space-y-2 border-t border-[var(--color-rule)] pt-6">
+        <div className="flex items-baseline justify-between flex-wrap gap-2">
+          <h2 className="editorial-heading text-2xl">6★ relic readings</h2>
+          {relicState.kind === 'ok' && (
+            <span className="text-xs text-[var(--color-ink-soft)]">
+              {relicState.count} report{relicState.count === 1 ? '' : 's'}
+              {relicState.truncated && ` (truncated)`}
+            </span>
+          )}
+        </div>
+        <p className="text-xs text-[var(--color-ink-soft)]">
+          User-submitted ratings for 6★ Standard Statcasts. Multiple reports
+          at the same (rank, level) are stronger signal; if a group is tight,
+          fold the median into RELIC_RATING and the next deploy flips that
+          cell from α to verified.
+        </p>
+        {relicState.kind === 'loading' && (
+          <div className="text-sm text-[var(--color-ink-soft)] italic">Loading…</div>
+        )}
+        {relicState.kind === 'error' && (
+          <div className="text-sm text-[var(--color-marvel-impact)] border border-[var(--color-marvel-impact)] rounded p-3">
+            {relicState.message}
+          </div>
+        )}
+        {relicState.kind === 'ok' && relicState.reports.length === 0 && (
+          <div className="text-sm text-[var(--color-ink-soft)] italic">
+            No relic reports yet.
+          </div>
+        )}
+        {relicState.kind === 'ok' && relicState.reports.length > 0 && (
+          <RelicReportsTable reports={relicState.reports} />
+        )}
+      </section>
+    </div>
+  );
+}
+
+function RelicReportsTable({ reports }: { reports: StoredRelicReport[] }) {
+  type Group = {
+    rank: 'R1' | 'R2' | 'R3' | 'R4' | 'R5';
+    level: number;
+    reports: StoredRelicReport[];
+  };
+  const groups = new Map<string, Group>();
+  for (const r of reports) {
+    const k = `${r.rank}|${r.level}`;
+    const existing = groups.get(k);
+    if (existing) existing.reports.push(r);
+    else groups.set(k, { rank: r.rank, level: r.level, reports: [r] });
+  }
+  const groupList = [...groups.values()].sort(
+    (a, b) => b.reports.length - a.reports.length,
+  );
+
+  return (
+    <div className="space-y-6">
+      <section className="space-y-2">
+        <h3 className="editorial-heading text-lg">Grouped by (rank, level)</h3>
+        <div className="overflow-x-auto border border-[var(--color-rule)] rounded">
+          <table className="w-full text-sm">
+            <thead className="bg-[var(--color-paper-soft)] border-b border-[var(--color-rule)]">
+              <tr>
+                <th className="text-center p-3">State</th>
+                <th className="text-right p-3">Reports</th>
+                <th className="text-right p-3">Predicted (median)</th>
+                <th className="text-right p-3">Actual (median)</th>
+                <th className="text-right p-3">Δ (median)</th>
+                <th className="text-right p-3">Δ range</th>
+                <th className="text-left p-3">α at submission?</th>
+              </tr>
+            </thead>
+            <tbody>
+              {groupList.map((g) => {
+                const predicteds = g.reports
+                  .map((r) => r.predictedRating)
+                  .filter((p): p is number => p !== null);
+                const predictedMedian = predicteds.length > 0 ? median(predicteds) : null;
+                const actualMedian = median(g.reports.map((r) => r.rating));
+                const deltas = g.reports
+                  .map((r) => r.delta)
+                  .filter((d): d is number => d !== null)
+                  .sort((a, b) => a - b);
+                const deltaMedian = deltas.length > 0 ? median(deltas) : null;
+                const deltaMin = deltas.length > 0 ? deltas[0]! : null;
+                const deltaMax = deltas.length > 0 ? deltas[deltas.length - 1]! : null;
+                const alphaCount = g.reports.filter((r) => r.isAlpha === true).length;
+                return (
+                  <tr
+                    key={`${g.rank}|${g.level}`}
+                    className="border-t border-[var(--color-rule)]/40"
+                  >
+                    <td className="p-3 text-center numeric text-xs">
+                      {g.rank} L{g.level}
+                    </td>
+                    <td className="p-3 text-right numeric">{g.reports.length}</td>
+                    <td className="p-3 text-right numeric">
+                      {predictedMedian ?? '—'}
+                    </td>
+                    <td className="p-3 text-right numeric">{actualMedian}</td>
+                    <td
+                      className={`p-3 text-right numeric font-medium ${
+                        deltaMedian === null || deltaMedian === 0
+                          ? 'text-[var(--color-ink-soft)]'
+                          : 'text-[var(--color-marvel-editorial)]'
+                      }`}
+                    >
+                      {deltaMedian === null
+                        ? '—'
+                        : `${deltaMedian > 0 ? '+' : ''}${deltaMedian}`}
+                    </td>
+                    <td className="p-3 text-right numeric text-xs text-[var(--color-ink-soft)]">
+                      {deltaMin === null || deltaMin === deltaMax
+                        ? '—'
+                        : `${deltaMin > 0 ? '+' : ''}${deltaMin} … ${
+                            (deltaMax ?? 0) > 0 ? '+' : ''
+                          }${deltaMax}`}
+                    </td>
+                    <td className="p-3 text-xs text-[var(--color-ink-soft)]">
+                      {alphaCount}/{g.reports.length}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section className="space-y-2">
+        <h3 className="editorial-heading text-lg">All relic reports (raw)</h3>
+        <div className="overflow-x-auto border border-[var(--color-rule)] rounded">
+          <table className="w-full text-xs">
+            <thead className="bg-[var(--color-paper-soft)] border-b border-[var(--color-rule)]">
+              <tr>
+                <th className="text-left p-2">Submitted</th>
+                <th className="text-center p-2">State</th>
+                <th className="text-right p-2">Predicted</th>
+                <th className="text-right p-2">Actual</th>
+                <th className="text-right p-2">Δ</th>
+                <th className="text-center p-2">α?</th>
+              </tr>
+            </thead>
+            <tbody>
+              {reports.map((r) => (
+                <tr
+                  key={r.key}
+                  className="border-t border-[var(--color-rule)]/40"
+                >
+                  <td className="p-2 numeric text-[10px] text-[var(--color-ink-soft)]">
+                    {r.createdAt.slice(0, 19).replace('T', ' ')}
+                  </td>
+                  <td className="p-2 text-center numeric">
+                    {r.rank} L{r.level}
+                  </td>
+                  <td className="p-2 text-right numeric">
+                    {r.predictedRating ?? '—'}
+                  </td>
+                  <td className="p-2 text-right numeric">{r.rating}</td>
+                  <td
+                    className={`p-2 text-right numeric ${
+                      r.delta === null || r.delta === 0
+                        ? 'text-[var(--color-ink-soft)]'
+                        : 'text-[var(--color-marvel-editorial)]'
+                    }`}
+                  >
+                    {r.delta === null ? '—' : `${r.delta > 0 ? '+' : ''}${r.delta}`}
+                  </td>
+                  <td className="p-2 text-center text-[var(--color-ink-soft)]">
+                    {r.isAlpha === true ? '✓' : r.isAlpha === false ? '—' : '?'}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
     </div>
   );
 }
