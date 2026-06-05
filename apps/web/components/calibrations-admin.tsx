@@ -18,6 +18,8 @@ type StoredReport = {
 
 type StoredRelicReport = {
   key: string;
+  kind?: 'statcast' | 'battlecast';
+  relicId?: string | null;
   rank: 'R1' | 'R2' | 'R3' | 'R4' | 'R5';
   level: number;
   rating: number;
@@ -267,26 +269,51 @@ export function CalibrationsAdmin() {
 }
 
 function RelicReportsTable({ reports }: { reports: StoredRelicReport[] }) {
+  // Split by kind so each section reads cleanly. Older reports may not have
+  // `kind` set — treat those as statcast (the original endpoint shape).
+  const statcasts = reports.filter((r) => (r.kind ?? 'statcast') === 'statcast');
+  const battlecasts = reports.filter((r) => r.kind === 'battlecast');
+
   type Group = {
+    relicId: string | null;
     rank: 'R1' | 'R2' | 'R3' | 'R4' | 'R5';
     level: number;
     reports: StoredRelicReport[];
   };
   const groups = new Map<string, Group>();
-  for (const r of reports) {
+  for (const r of statcasts) {
     const k = `${r.rank}|${r.level}`;
     const existing = groups.get(k);
     if (existing) existing.reports.push(r);
-    else groups.set(k, { rank: r.rank, level: r.level, reports: [r] });
+    else groups.set(k, { relicId: null, rank: r.rank, level: r.level, reports: [r] });
   }
   const groupList = [...groups.values()].sort(
+    (a, b) => b.reports.length - a.reports.length,
+  );
+
+  const battlecastGroups = new Map<string, Group>();
+  for (const r of battlecasts) {
+    const k = `${r.relicId ?? '?'}|${r.rank}|${r.level}`;
+    const existing = battlecastGroups.get(k);
+    if (existing) existing.reports.push(r);
+    else
+      battlecastGroups.set(k, {
+        relicId: r.relicId ?? null,
+        rank: r.rank,
+        level: r.level,
+        reports: [r],
+      });
+  }
+  const battlecastGroupList = [...battlecastGroups.values()].sort(
     (a, b) => b.reports.length - a.reports.length,
   );
 
   return (
     <div className="space-y-6">
       <section className="space-y-2">
-        <h3 className="editorial-heading text-lg">Grouped by (rank, level)</h3>
+        <h3 className="editorial-heading text-lg">
+          Statcast — grouped by (rank, sig)
+        </h3>
         <div className="overflow-x-auto border border-[var(--color-rule)] rounded">
           <table className="w-full text-sm">
             <thead className="bg-[var(--color-paper-soft)] border-b border-[var(--color-rule)]">
@@ -357,6 +384,60 @@ function RelicReportsTable({ reports }: { reports: StoredRelicReport[] }) {
         </div>
       </section>
 
+      {battlecastGroupList.length > 0 && (
+        <section className="space-y-2">
+          <h3 className="editorial-heading text-lg">
+            Battlecast — grouped by (relic, rank, sig)
+          </h3>
+          <div className="overflow-x-auto border border-[var(--color-rule)] rounded">
+            <table className="w-full text-sm">
+              <thead className="bg-[var(--color-paper-soft)] border-b border-[var(--color-rule)]">
+                <tr>
+                  <th className="text-left p-3">Relic</th>
+                  <th className="text-center p-3">State</th>
+                  <th className="text-right p-3">Reports</th>
+                  <th className="text-right p-3">Actual (median)</th>
+                  <th className="text-right p-3">Δ vs MCOCHUB α</th>
+                </tr>
+              </thead>
+              <tbody>
+                {battlecastGroupList.map((g) => {
+                  const actualMedian = median(g.reports.map((r) => r.rating));
+                  const deltas = g.reports
+                    .map((r) => r.delta)
+                    .filter((d): d is number => d !== null);
+                  const deltaMedian = deltas.length > 0 ? median(deltas) : null;
+                  return (
+                    <tr
+                      key={`${g.relicId}|${g.rank}|${g.level}`}
+                      className="border-t border-[var(--color-rule)]/40"
+                    >
+                      <td className="p-3 numeric text-xs">{g.relicId ?? '?'}</td>
+                      <td className="p-3 text-center numeric text-xs">
+                        {g.rank} sig {g.level}
+                      </td>
+                      <td className="p-3 text-right numeric">{g.reports.length}</td>
+                      <td className="p-3 text-right numeric">{actualMedian}</td>
+                      <td
+                        className={`p-3 text-right numeric ${
+                          deltaMedian === null || deltaMedian === 0
+                            ? 'text-[var(--color-ink-soft)]'
+                            : 'text-[var(--color-marvel-editorial)]'
+                        }`}
+                      >
+                        {deltaMedian === null
+                          ? '—'
+                          : `${deltaMedian > 0 ? '+' : ''}${deltaMedian}`}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
+
       <section className="space-y-2">
         <h3 className="editorial-heading text-lg">All relic reports (raw)</h3>
         <div className="overflow-x-auto border border-[var(--color-rule)] rounded">
@@ -364,6 +445,8 @@ function RelicReportsTable({ reports }: { reports: StoredRelicReport[] }) {
             <thead className="bg-[var(--color-paper-soft)] border-b border-[var(--color-rule)]">
               <tr>
                 <th className="text-left p-2">Submitted</th>
+                <th className="text-left p-2">Kind</th>
+                <th className="text-left p-2">Relic</th>
                 <th className="text-center p-2">State</th>
                 <th className="text-right p-2">Predicted</th>
                 <th className="text-right p-2">Actual</th>
@@ -380,8 +463,14 @@ function RelicReportsTable({ reports }: { reports: StoredRelicReport[] }) {
                   <td className="p-2 numeric text-[10px] text-[var(--color-ink-soft)]">
                     {r.createdAt.slice(0, 19).replace('T', ' ')}
                   </td>
+                  <td className="p-2 text-[var(--color-ink-soft)]">
+                    {r.kind ?? 'statcast'}
+                  </td>
+                  <td className="p-2 numeric text-[10px]">
+                    {r.relicId ?? '—'}
+                  </td>
                   <td className="p-2 text-center numeric">
-                    {r.rank} L{r.level}
+                    {r.rank} sig {r.level}
                   </td>
                   <td className="p-2 text-right numeric">
                     {r.predictedRating ?? '—'}

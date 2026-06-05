@@ -115,6 +115,24 @@ export type {
   RelicRating as R6StatcastRating,
 } from './relic.js';
 
+// ─── 6★ Battlecast catalogue (v2 alpha — reference + submission) ───────────
+//
+// Per-relic-id table for champion-bound battlecast relics. Cosmic Egg has
+// one verified anchor; everything else has only the MCOCHUB ranking value
+// (alpha-flagged). Not wired to roster / recommendations.
+export {
+  BATTLECAST_6STAR_CATALOG,
+  BATTLECAST_6STAR_IDS,
+  battlecast6Rating,
+} from './battlecast.js';
+
+export type {
+  Battlecast6Id,
+  Battlecast6Class,
+  Battlecast6Def,
+  Battlecast6Rating,
+} from './battlecast.js';
+
 // ─── War defence placement ──────────────────────────────────────────────────
 
 export type {

@@ -30,9 +30,16 @@ const RATE_LIMIT_HOUR = 50;
 const RATE_LIMIT_DAY = 200;
 
 const VALID_RANKS = new Set(['R1', 'R2', 'R3', 'R4', 'R5']);
-const VALID_LEVELS = new Set([0, 20, 40, 60, 80, 100, 120, 140, 160, 180]);
+const VALID_LEVELS = new Set([0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200]);
+const VALID_KINDS = new Set(['statcast', 'battlecast']);
+const MAX_RELIC_ID_LEN = 100;
 
 type RelicReportPayload = {
+  /** Which kind of relic this report is for. Defaults to 'statcast' for
+   *  backward compat with the original endpoint shape. */
+  kind: 'statcast' | 'battlecast';
+  /** Required when kind = 'battlecast'. Identifies which battlecast relic. */
+  relicId: string | null;
   rank: 'R1' | 'R2' | 'R3' | 'R4' | 'R5';
   level: number;
   rating: number;
@@ -42,6 +49,8 @@ type RelicReportPayload = {
 };
 
 type StoredRelicReport = {
+  kind: 'statcast' | 'battlecast';
+  relicId: string | null;
   rank: 'R1' | 'R2' | 'R3' | 'R4' | 'R5';
   level: number;
   rating: number;
@@ -83,11 +92,28 @@ function validatePayload(raw: unknown): RelicReportPayload | { error: string } {
     return { error: 'invalid request' };
   }
 
+  const kindRaw = obj.kind ?? 'statcast';
+  if (typeof kindRaw !== 'string' || !VALID_KINDS.has(kindRaw)) {
+    return { error: 'kind must be "statcast" or "battlecast"' };
+  }
+  const kind = kindRaw as 'statcast' | 'battlecast';
+
+  let relicId: string | null = null;
+  if (kind === 'battlecast') {
+    if (typeof obj.relicId !== 'string' || obj.relicId.length === 0) {
+      return { error: 'relicId required for battlecast reports' };
+    }
+    if (obj.relicId.length > MAX_RELIC_ID_LEN) {
+      return { error: 'relicId too long' };
+    }
+    relicId = obj.relicId;
+  }
+
   if (typeof obj.rank !== 'string' || !VALID_RANKS.has(obj.rank)) {
     return { error: 'rank must be R1, R2, R3, R4, or R5' };
   }
   if (typeof obj.level !== 'number' || !VALID_LEVELS.has(obj.level)) {
-    return { error: 'level must be one of 0, 20, 40, 60, 80, 100, 120, 140, 160, 180' };
+    return { error: 'level must be one of 0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200' };
   }
   if (
     typeof obj.rating !== 'number' ||
@@ -99,6 +125,7 @@ function validatePayload(raw: unknown): RelicReportPayload | { error: string } {
   }
   if (
     obj.predictedRating !== undefined &&
+    obj.predictedRating !== null &&
     (typeof obj.predictedRating !== 'number' ||
       !Number.isFinite(obj.predictedRating) ||
       obj.predictedRating <= 0 ||
@@ -111,6 +138,8 @@ function validatePayload(raw: unknown): RelicReportPayload | { error: string } {
   }
 
   return {
+    kind,
+    relicId,
     rank: obj.rank as RelicReportPayload['rank'],
     level: obj.level,
     rating: Math.round(obj.rating),
@@ -186,6 +215,8 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   const key = `relic:${now.toISOString()}:${id}`;
 
   const stored: StoredRelicReport = {
+    kind: result.kind,
+    relicId: result.relicId,
     rank: result.rank,
     level: result.level,
     rating: result.rating,

@@ -1,6 +1,7 @@
 import { RelicsManager } from '../../components/relics-manager';
 import { RelicReferenceCard } from '../../components/relic-reference-card';
 import { RelicSubmitForm } from '../../components/relic-submit-form';
+import { BattlecastCatalog } from '../../components/battlecast-catalog';
 
 export default function RelicsPage() {
   return (
@@ -9,7 +10,7 @@ export default function RelicsPage() {
         <h1 className="editorial-heading text-4xl mb-2">Relics</h1>
         <p className="text-lg text-[var(--color-ink-soft)] max-w-2xl">
           The other 6% of total prestige. Count what you own at each
-          (rank, level) state; the engine surfaces the highest-impact upgrades
+          (rank, sig) state; the engine surfaces the highest-impact upgrades
           above your top-30 cutoff.
         </p>
       </section>
@@ -20,37 +21,34 @@ export default function RelicsPage() {
         </span>
         <div className="text-sm space-y-2">
           <p>
-            <strong>7★ Standard Statcasts</strong> and the{' '}
-            <strong>Cosmic Egg</strong> have full BHR curves in the relic
-            engine — they contribute to your top-30 prestige below.
+            <strong>7★ Standard Statcasts</strong> and the <strong>7★
+            Cosmic Egg</strong> have full BHR curves in the relic engine
+            — they contribute to your top-30 prestige below.
           </p>
           <p>
-            <strong>6★ Standard Statcasts:</strong> a partial scaffold is
-            now landed — the verified anchors are shown in the reference
-            card below. The values are correct where labeled, but L80+ at
-            every rank and ranks R4 / R5 entirely are best-guess
-            extrapolation. 6★ counts in the inventory don&apos;t yet
-            contribute to top-30 prestige — when more readings come in and
-            R4 / R5 anchors land, that gets wired up.
+            <strong>6★ Standard Statcasts:</strong> partial scaffold —
+            verified anchors in the reference card below; sig 80+ and
+            ranks R4 / R5 entirely are best-guess extrapolation. 6★ counts
+            don&apos;t yet feed top-30 prestige.
           </p>
           <p>
-            <strong>Battlecast relics</strong> (the champion-bound ones
-            beyond the Cosmic Egg) are still outstanding at both 6★ and 7★.
-            Curves aren&apos;t published anywhere we can scrape, so the
-            plan is the same — collect readings from users who own them
-            and fold the values in. If you have any battlecast relic and
-            can read the rating, ping us; a structured submission form is
-            on the way.
+            <strong>6★ Battlecasts:</strong> catalogue scaffolded from
+            MCOCHUB&apos;s community ranking — each relic has one α anchor
+            (state unconfirmed). 6★ Cosmic Egg also has one verified
+            user-captured anchor. Submit your readings via the form below;
+            verified data flips α cells over time.
           </p>
           <p>
-            If you can read a 6★ Standard Statcast rating off the in-game
-            card, please submit it via the form below. Anonymous, opt-in,
-            takes 10 seconds.
+            Lower-tier relics (5★ statcasts, 3-5★ battlecasts) are out of
+            scope for now — most paragon rosters won&apos;t have them in
+            top-30.
           </p>
         </div>
       </section>
 
       <RelicReferenceCard />
+
+      <BattlecastCatalog />
 
       <RelicSubmitForm />
 

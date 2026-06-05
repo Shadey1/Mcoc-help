@@ -2,9 +2,13 @@
 
 import { useMemo, useState } from 'react';
 import {
+  BATTLECAST_6STAR_CATALOG,
+  BATTLECAST_6STAR_IDS,
+  battlecast6Rating,
   R6_STATCAST_LEVELS,
   R6_STATCAST_RANKS,
   r6StatcastRating,
+  type Battlecast6Id,
   type R6StatcastLevel,
   type R6StatcastRank,
 } from '@prestige-tools/engine';
@@ -16,24 +20,32 @@ type SubmitState =
   | { kind: 'success' }
   | { kind: 'error'; message: string };
 
+type Kind = 'statcast' | 'battlecast';
+
 /**
- * Submit-a-relic-reading form — collects (rank, level, rating) from a
- * 6★ Standard Statcast the user can read in-game, posts to the
- * /api/relic-report KV-backed endpoint. The predictedRating + isAlpha
- * flag from r6StatcastRating() are included so the admin review sees
- * the delta and can prioritise corrections that flip alpha to fact.
- *
- * Same opt-in pattern as the champion BHR calibration report — anonymous,
- * no user identifier collected, lives entirely on the user's explicit
- * "Submit" click.
+ * Unified relic submission form. Tab toggle picks 6★ Standard Statcast or
+ * a specific 6★ Battlecast; the rest of the inputs (rank / sig / rating)
+ * are the same shape. predictedRating + isAlpha are auto-filled from the
+ * engine so the admin review sees the delta in context.
  */
 export function RelicSubmitForm() {
-  const [rank, setRank] = useState<R6StatcastRank>('R1');
-  const [level, setLevel] = useState<R6StatcastLevel>(0);
+  const [kind, setKind] = useState<Kind>('statcast');
+  const [statcastRank, setStatcastRank] = useState<R6StatcastRank>('R1');
+  const [statcastSig, setStatcastSig] = useState<R6StatcastLevel>(0);
+  const [battlecastId, setBattlecastId] = useState<Battlecast6Id>('cosmic-egg');
+  const [battlecastRank, setBattlecastRank] = useState<R6StatcastRank>('R5');
+  const [battlecastSig, setBattlecastSig] = useState<R6StatcastLevel>(200);
   const [rating, setRating] = useState<string>('');
   const [state, setState] = useState<SubmitState>({ kind: 'idle' });
 
-  const predicted = useMemo(() => r6StatcastRating(rank, level), [rank, level]);
+  const statcastPredicted = useMemo(
+    () => r6StatcastRating(statcastRank, statcastSig),
+    [statcastRank, statcastSig],
+  );
+  const battlecastPredicted = useMemo(
+    () => battlecast6Rating(battlecastId, battlecastRank, battlecastSig),
+    [battlecastId, battlecastRank, battlecastSig],
+  );
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -44,13 +56,26 @@ export function RelicSubmitForm() {
     }
     setState({ kind: 'submitting' });
     try {
-      await submitRelicReport({
-        rank,
-        level,
-        rating: Math.round(n),
-        predictedRating: predicted.rating,
-        isAlpha: predicted.isAlpha,
-      });
+      if (kind === 'statcast') {
+        await submitRelicReport({
+          kind: 'statcast',
+          rank: statcastRank,
+          level: statcastSig,
+          rating: Math.round(n),
+          predictedRating: statcastPredicted.rating,
+          isAlpha: statcastPredicted.isAlpha,
+        });
+      } else {
+        await submitRelicReport({
+          kind: 'battlecast',
+          relicId: battlecastId,
+          rank: battlecastRank,
+          level: battlecastSig,
+          rating: Math.round(n),
+          predictedRating: battlecastPredicted?.rating ?? null,
+          isAlpha: battlecastPredicted?.source === 'mcochub-alpha' ? true : false,
+        });
+      }
       setState({ kind: 'success' });
       setRating('');
     } catch (err) {
@@ -69,67 +94,66 @@ export function RelicSubmitForm() {
       <div>
         <h3 className="editorial-heading text-xl mb-1">Submit a 6★ reading</h3>
         <p className="text-xs text-[var(--color-ink-soft)]">
-          Tap one of your 6★ Standard Statcasts in-game, read the rating off
-          the card, pick the rank/level here, and submit. Anonymous, opt-in,
-          no other data captured. The more readings come in, the more α
-          estimates flip to verified above.
+          Tap one of your 6★ relics in-game, read the rating off the card,
+          pick the rank/sig here, and submit. Anonymous, opt-in, no other
+          data captured. The more readings come in, the more α estimates
+          flip to verified above.
         </p>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_1fr_auto] gap-2 items-end">
-        <label className="text-xs">
-          Rank
-          <select
-            value={rank}
-            onChange={(e) => setRank(e.target.value as R6StatcastRank)}
-            className="block w-full mt-1 px-2 py-1.5 text-sm border border-[var(--color-rule)] rounded bg-[var(--color-paper)] focus:outline-none focus:border-[var(--color-marvel-impact)]"
+
+      <div className="inline-flex border border-[var(--color-rule)] rounded overflow-hidden text-xs">
+        {(['statcast', 'battlecast'] as Kind[]).map((option) => (
+          <button
+            key={option}
+            type="button"
+            onClick={() => setKind(option)}
+            className={`px-3 py-1.5 ${
+              kind === option
+                ? 'bg-[var(--color-marvel-impact)] text-white font-medium'
+                : 'bg-[var(--color-paper)] hover:bg-[var(--color-paper-soft)] text-[var(--color-ink-soft)]'
+            }`}
           >
-            {R6_STATCAST_RANKS.map((r) => (
-              <option key={r} value={r}>
-                {r}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="text-xs">
-          Level
-          <select
-            value={level}
-            onChange={(e) =>
-              setLevel(Number(e.target.value) as R6StatcastLevel)
-            }
-            className="block w-full mt-1 px-2 py-1.5 text-sm border border-[var(--color-rule)] rounded bg-[var(--color-paper)] focus:outline-none focus:border-[var(--color-marvel-impact)]"
-          >
-            {R6_STATCAST_LEVELS.map((l) => (
-              <option key={l} value={l}>
-                L{l}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="text-xs">
-          Rating (from in-game)
-          <input
-            type="number"
-            inputMode="numeric"
-            value={rating}
-            onChange={(e) => setRating(e.target.value)}
-            placeholder={predicted.rating.toString()}
-            className="block w-full mt-1 px-2 py-1.5 text-sm border border-[var(--color-rule)] rounded bg-[var(--color-paper)] focus:outline-none focus:border-[var(--color-marvel-impact)] numeric"
-          />
-        </label>
-        <button
-          type="submit"
-          disabled={state.kind === 'submitting' || rating.trim() === ''}
-          className="px-4 py-1.5 bg-[var(--color-marvel-impact)] text-white text-sm font-medium rounded disabled:bg-[var(--color-ink-soft)] disabled:cursor-not-allowed"
-        >
-          {state.kind === 'submitting' ? 'Submitting…' : 'Submit'}
-        </button>
+            {option === 'statcast' ? 'Standard Statcast' : 'Battlecast'}
+          </button>
+        ))}
       </div>
-      <div className="text-xs text-[var(--color-ink-soft)]">
-        Our current value for {rank} L{level}:{' '}
-        <span className="numeric">{predicted.rating.toLocaleString()}</span>
-        {predicted.isAlpha ? ' (α — alpha estimate)' : ' (verified)'}
-      </div>
+
+      {kind === 'statcast' ? (
+        <StatcastFields
+          rank={statcastRank}
+          sig={statcastSig}
+          onRank={setStatcastRank}
+          onSig={setStatcastSig}
+          rating={rating}
+          onRating={setRating}
+          predictedLabel={`${statcastPredicted.rating.toLocaleString()}${
+            statcastPredicted.isAlpha ? ' (α)' : ' (verified)'
+          }`}
+          submitting={state.kind === 'submitting'}
+        />
+      ) : (
+        <BattlecastFields
+          id={battlecastId}
+          rank={battlecastRank}
+          sig={battlecastSig}
+          onId={setBattlecastId}
+          onRank={setBattlecastRank}
+          onSig={setBattlecastSig}
+          rating={rating}
+          onRating={setRating}
+          predictedLabel={
+            battlecastPredicted
+              ? `${battlecastPredicted.rating.toLocaleString()}${
+                  battlecastPredicted.source === 'verified'
+                    ? ' (verified)'
+                    : ' (α, MCOCHUB)'
+                }`
+              : '— no data at this state'
+          }
+          submitting={state.kind === 'submitting'}
+        />
+      )}
+
       {state.kind === 'success' && (
         <div className="text-xs text-emerald-700">
           Submitted. Thanks — that&apos;s another anchor closer to fact.
@@ -141,5 +165,182 @@ export function RelicSubmitForm() {
         </div>
       )}
     </form>
+  );
+}
+
+function StatcastFields({
+  rank,
+  sig,
+  onRank,
+  onSig,
+  rating,
+  onRating,
+  predictedLabel,
+  submitting,
+}: {
+  rank: R6StatcastRank;
+  sig: R6StatcastLevel;
+  onRank: (r: R6StatcastRank) => void;
+  onSig: (s: R6StatcastLevel) => void;
+  rating: string;
+  onRating: (r: string) => void;
+  predictedLabel: string;
+  submitting: boolean;
+}) {
+  return (
+    <>
+      <div className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_1fr_auto] gap-2 items-end">
+        <RankField rank={rank} onRank={onRank} />
+        <SigField sig={sig} onSig={onSig} />
+        <RatingField rating={rating} onRating={onRating} />
+        <SubmitButton submitting={submitting} disabled={rating.trim() === ''} />
+      </div>
+      <div className="text-xs text-[var(--color-ink-soft)]">
+        Our current value for {rank} sig {sig}:{' '}
+        <span className="numeric">{predictedLabel}</span>
+      </div>
+    </>
+  );
+}
+
+function BattlecastFields({
+  id,
+  rank,
+  sig,
+  onId,
+  onRank,
+  onSig,
+  rating,
+  onRating,
+  predictedLabel,
+  submitting,
+}: {
+  id: Battlecast6Id;
+  rank: R6StatcastRank;
+  sig: R6StatcastLevel;
+  onId: (i: Battlecast6Id) => void;
+  onRank: (r: R6StatcastRank) => void;
+  onSig: (s: R6StatcastLevel) => void;
+  rating: string;
+  onRating: (r: string) => void;
+  predictedLabel: string;
+  submitting: boolean;
+}) {
+  return (
+    <>
+      <div className="grid grid-cols-1 sm:grid-cols-[2fr_1fr_1fr_1fr_auto] gap-2 items-end">
+        <label className="text-xs">
+          Relic
+          <select
+            value={id}
+            onChange={(e) => onId(e.target.value as Battlecast6Id)}
+            className="block w-full mt-1 px-2 py-1.5 text-sm border border-[var(--color-rule)] rounded bg-[var(--color-paper)] focus:outline-none focus:border-[var(--color-marvel-impact)]"
+          >
+            {BATTLECAST_6STAR_IDS.map((bid) => (
+              <option key={bid} value={bid}>
+                {BATTLECAST_6STAR_CATALOG[bid].name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <RankField rank={rank} onRank={onRank} />
+        <SigField sig={sig} onSig={onSig} />
+        <RatingField rating={rating} onRating={onRating} />
+        <SubmitButton submitting={submitting} disabled={rating.trim() === ''} />
+      </div>
+      <div className="text-xs text-[var(--color-ink-soft)]">
+        Our current value for {BATTLECAST_6STAR_CATALOG[id].name} {rank} sig {sig}:{' '}
+        <span className="numeric">{predictedLabel}</span>
+      </div>
+    </>
+  );
+}
+
+function RankField({
+  rank,
+  onRank,
+}: {
+  rank: R6StatcastRank;
+  onRank: (r: R6StatcastRank) => void;
+}) {
+  return (
+    <label className="text-xs">
+      Rank
+      <select
+        value={rank}
+        onChange={(e) => onRank(e.target.value as R6StatcastRank)}
+        className="block w-full mt-1 px-2 py-1.5 text-sm border border-[var(--color-rule)] rounded bg-[var(--color-paper)] focus:outline-none focus:border-[var(--color-marvel-impact)]"
+      >
+        {R6_STATCAST_RANKS.map((r) => (
+          <option key={r} value={r}>
+            {r}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
+function SigField({
+  sig,
+  onSig,
+}: {
+  sig: R6StatcastLevel;
+  onSig: (s: R6StatcastLevel) => void;
+}) {
+  return (
+    <label className="text-xs">
+      Sig
+      <select
+        value={sig}
+        onChange={(e) => onSig(Number(e.target.value) as R6StatcastLevel)}
+        className="block w-full mt-1 px-2 py-1.5 text-sm border border-[var(--color-rule)] rounded bg-[var(--color-paper)] focus:outline-none focus:border-[var(--color-marvel-impact)]"
+      >
+        {R6_STATCAST_LEVELS.map((l) => (
+          <option key={l} value={l}>
+            {l}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
+function RatingField({
+  rating,
+  onRating,
+}: {
+  rating: string;
+  onRating: (r: string) => void;
+}) {
+  return (
+    <label className="text-xs">
+      Rating (from in-game)
+      <input
+        type="number"
+        inputMode="numeric"
+        value={rating}
+        onChange={(e) => onRating(e.target.value)}
+        className="block w-full mt-1 px-2 py-1.5 text-sm border border-[var(--color-rule)] rounded bg-[var(--color-paper)] focus:outline-none focus:border-[var(--color-marvel-impact)] numeric"
+      />
+    </label>
+  );
+}
+
+function SubmitButton({
+  submitting,
+  disabled,
+}: {
+  submitting: boolean;
+  disabled: boolean;
+}) {
+  return (
+    <button
+      type="submit"
+      disabled={submitting || disabled}
+      className="px-4 py-1.5 bg-[var(--color-marvel-impact)] text-white text-sm font-medium rounded disabled:bg-[var(--color-ink-soft)] disabled:cursor-not-allowed"
+    >
+      {submitting ? 'Submitting…' : 'Submit'}
+    </button>
   );
 }

@@ -40,7 +40,7 @@ export function RelicReferenceCard() {
               <th className="text-left px-3 py-2 font-medium">Rank</th>
               {levels.map((l) => (
                 <th key={l} className="text-right px-2 py-2 font-medium">
-                  L{l}
+                  sig {l}
                 </th>
               ))}
             </tr>
@@ -80,7 +80,7 @@ export function RelicReferenceCard() {
       <div className="px-4 py-3 border-t border-[var(--color-rule)] text-xs text-[var(--color-ink-soft)]">
         Class, type, flavour and bound-champion don&apos;t affect this curve
         — verified across six different relic adjectives × five classes.
-        Single continuous ladder: R(n) L60 = R(n+1) L0.
+        Single continuous ladder: R(n) sig 60 = R(n+1) sig 0.
       </div>
     </div>
   );
