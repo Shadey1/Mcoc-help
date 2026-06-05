@@ -15,23 +15,18 @@ export default function WarPage() {
         </p>
       </section>
 
-      <section className="border-2 border-[var(--color-marvel-impact)] rounded-lg bg-[var(--color-paper-soft)] p-5 flex flex-col sm:flex-row gap-4 items-start">
-        <span className="text-sm font-mono uppercase tracking-widest px-2.5 py-1 rounded bg-[var(--color-marvel-impact)] text-[var(--color-paper)] whitespace-nowrap">
-          Alpha
-        </span>
-        <div className="text-sm space-y-2">
-          <p>
-            New tool, light testing. The planner picks placements
-            scarcity-first (rare champs first so they don&apos;t lose slots to
-            common metas), then by rank → ascension → sig. Each champion is
-            placed exactly once across the alliance.
-          </p>
-          <p>
-            If a player ends up underfilled (fewer than 5 placements), it
-            means their roster overlaps too much with the rest of the pool —
-            expand the pool or lower the floor and re-run.
-          </p>
-        </div>
+      <section className="border border-[var(--color-rule)] rounded-lg bg-[var(--color-paper-card)] p-5 text-sm space-y-2">
+        <p>
+          The planner picks placements scarcity-first — rare champs first so
+          they don&apos;t lose slots to common metas — then by rank →
+          ascension → sig. Each champion is placed exactly once across the
+          alliance.
+        </p>
+        <p>
+          If a player ends up underfilled (fewer than 5 placements), it
+          means their roster overlaps too much with the rest of the pool —
+          expand the pool or lower the floor and re-run.
+        </p>
       </section>
 
       <WarPlanner champions={champions} />

@@ -15,35 +15,28 @@ export default function RelicsPage() {
         </p>
       </section>
 
-      <section className="border-2 border-[var(--color-marvel-impact)] rounded-lg bg-[var(--color-paper-soft)] p-5 flex flex-col sm:flex-row gap-4 items-start">
-        <span className="text-sm font-mono uppercase tracking-widest px-2.5 py-1 rounded bg-[var(--color-marvel-impact)] text-[var(--color-paper)] whitespace-nowrap">
-          Alpha
-        </span>
-        <div className="text-sm space-y-2">
-          <p>
-            <strong>7★ Standard Statcasts</strong> and the <strong>7★
-            Cosmic Egg</strong> have full BHR curves in the relic engine
-            — they contribute to your top-30 prestige below.
-          </p>
-          <p>
-            <strong>6★ Standard Statcasts:</strong> partial scaffold —
-            verified anchors in the reference card below; sig 80+ and
-            ranks R4 / R5 entirely are best-guess extrapolation. 6★ counts
-            don&apos;t yet feed top-30 prestige.
-          </p>
-          <p>
-            <strong>6★ Battlecasts:</strong> catalogue scaffolded from
-            MCOCHUB&apos;s community ranking — each relic has one α anchor
-            (state unconfirmed). 6★ Cosmic Egg also has one verified
-            user-captured anchor. Submit your readings via the form below;
-            verified data flips α cells over time.
-          </p>
-          <p>
-            Lower-tier relics (5★ statcasts, 3-5★ battlecasts) are out of
-            scope for now — most paragon rosters won&apos;t have them in
-            top-30.
-          </p>
-        </div>
+      <section className="border border-[var(--color-rule)] rounded-lg bg-[var(--color-paper-card)] p-5 text-sm space-y-2">
+        <p>
+          <strong>Data coverage</strong> — 7★ Standard Statcasts and the
+          7★ Cosmic Egg have full BHR curves and contribute to your top-30
+          prestige below.
+        </p>
+        <p>
+          6★ Standard Statcasts have a partial scaffold — verified anchors
+          in the reference card below; sig 80+ and ranks R4 / R5 are
+          best-guess extrapolation, and 6★ counts don&apos;t yet feed
+          top-30 prestige.
+        </p>
+        <p>
+          6★ Battlecasts are catalogued from MCOCHUB&apos;s community
+          ranking with one α anchor each (state unconfirmed). 6★ Cosmic
+          Egg has one verified user-captured anchor. Submit your readings
+          via the form below; verified data flips α cells over time.
+        </p>
+        <p>
+          Lower-tier relics (5★ statcasts, 3-5★ battlecasts) are out of
+          scope — most paragon rosters won&apos;t have them in top-30.
+        </p>
       </section>
 
       <RelicReferenceCard />

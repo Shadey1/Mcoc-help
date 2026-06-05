@@ -66,10 +66,10 @@ export default function RootLayout({
             >
               <span>mcoc.help</span>
               <span
-                className="text-[10px] font-mono uppercase tracking-widest px-1.5 py-0.5 rounded border border-[var(--color-marvel-impact)] text-[var(--color-marvel-impact)]"
-                title="In active development. Data and features will keep improving — report anything that looks wrong."
+                className="text-[10px] font-mono uppercase tracking-widest px-1.5 py-0.5 rounded border border-[var(--color-ink-soft)]/40 text-[var(--color-ink-soft)]"
+                title="Still iterating. Data and features keep improving — report anything that looks wrong."
               >
-                alpha
+                beta
               </span>
             </Link>
             <ul className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-sm font-medium sm:flex-nowrap sm:justify-end sm:gap-x-6">
@@ -159,8 +159,8 @@ export default function RootLayout({
               </div>
             </div>
             <div className="text-xs italic">
-              Alpha — 7-star champions only. Older star levels aren&apos;t planned for retrofit;
-              this tool exists for 7-star prestige planning going forward.
+              Scope: 7-star champions, 6/7★ relics. Older star levels aren&apos;t planned
+              — this tool exists for 7-star prestige planning going forward.
             </div>
           </div>
         </footer>
