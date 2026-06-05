@@ -19,6 +19,7 @@ import { loadRoster, saveRoster } from '../lib/roster-storage';
 import { loadRelics, type RelicStateBundle } from '../lib/relics-storage';
 import { formatBHR, formatDelta } from '../lib/format';
 import { useBHROverrides } from '../lib/bhr-overrides-context';
+import { useRelicOverrides } from '../lib/relic-overrides-context';
 import { ChampionPortrait } from './champion-portrait';
 import { AddToRosterModal } from './add-to-roster-modal';
 import { RosterSummary } from './roster-summary';
@@ -51,6 +52,21 @@ export function RecommendationsView({ champions }: RecommendationsViewProps) {
   const [addingChampion, setAddingChampion] = useState<Champion | null>(null);
   const toastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { overrides } = useBHROverrides();
+  const relicOverridesCtx = useRelicOverrides();
+  const relicEngineOverrides = useMemo(
+    () => ({
+      statcast6: (
+        rank: Parameters<typeof relicOverridesCtx.getStatcast6>[0],
+        sig: Parameters<typeof relicOverridesCtx.getStatcast6>[1],
+      ) => relicOverridesCtx.getStatcast6(rank, sig),
+      battlecast6: (
+        id: string,
+        rank: Parameters<typeof relicOverridesCtx.getBattlecast6>[1],
+        sig: Parameters<typeof relicOverridesCtx.getBattlecast6>[2],
+      ) => relicOverridesCtx.getBattlecast6(id, rank, sig),
+    }),
+    [relicOverridesCtx],
+  );
 
   useEffect(() => {
     setRoster(loadRoster());
@@ -64,8 +80,12 @@ export function RecommendationsView({ champions }: RecommendationsViewProps) {
   // AtomicMovesList then converts to InterleavedAtomicMove.
   const relicMoves = useMemo(() => {
     if (!relicBundle) return [];
-    return enumerateRelicMoves(relicBundle.inventory, relicBundle.top30Cutoff);
-  }, [relicBundle]);
+    return enumerateRelicMoves(
+      relicBundle.inventory,
+      relicBundle.top30Cutoff,
+      relicEngineOverrides,
+    );
+  }, [relicBundle, relicEngineOverrides]);
   const relicCutoff = relicBundle?.top30Cutoff ?? 0;
 
   // Don't render computed data until we've hydrated from localStorage

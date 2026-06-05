@@ -12,9 +12,11 @@ import {
   standardStatcastBHR,
   type Battlecast6Entry,
   type Battlecast6Id,
+  type R6StatcastLevel,
   type R6StatcastRank,
   type RelicInventory,
   type RelicLevel,
+  type RelicOverrides,
   type RelicRank,
   type RelicStarTier,
   type ScoredRelicMove,
@@ -22,6 +24,8 @@ import {
   type SpecialRelicId,
 } from '@prestige-tools/engine';
 import { loadRelics, saveRelics, type RelicStateBundle } from '../lib/relics-storage';
+import { useRelicOverrides } from '../lib/relic-overrides-context';
+import { Collapsible } from './collapsible';
 
 // Only R1 and R2 are reachable in-game today for 7★ statcasts; the 6★ side
 // also covers R3+. Engine supports R3-R6 for forward compatibility, so the
@@ -49,34 +53,51 @@ const EMPTY_INVENTORY: RelicInventory = {
   battlecasts6Star: [],
 };
 
-/** Standard statcast BHR routed by tier — mirrors the engine helper. */
+/** Standard statcast BHR routed by tier — mirrors the engine helper.
+ *  When `getOverride` is supplied and returns a value, that overrides
+ *  both the curve and the α flag. */
 function statcastBHRByTier(
   starTier: RelicStarTier,
   rank: RelicRank,
   level: RelicLevel,
+  getOverride?: (rank: R6StatcastRank, sig: R6StatcastLevel) => number | undefined,
 ): number | null {
   if (starTier === 7) return standardStatcastBHR({ rank, level });
   if (rank < 1 || rank > 5) return null;
-  const result = r6StatcastRating(
-    `R${rank}` as R6StatcastRank,
-    level,
-  );
-  return result.rating;
+  const r6Rank = `R${rank}` as R6StatcastRank;
+  const override = getOverride?.(r6Rank, level);
+  if (override !== undefined) return override;
+  return r6StatcastRating(r6Rank, level).rating;
 }
 
+/** True if the rendered value comes from the alpha-fill curve (not verified
+ *  and not user-overridden). Used to tag cells with an "α" superscript. */
 function statcastIsAlphaByTier(
   starTier: RelicStarTier,
   rank: RelicRank,
   level: RelicLevel,
+  getOverride?: (rank: R6StatcastRank, sig: R6StatcastLevel) => number | undefined,
 ): boolean {
   if (starTier === 7) return false;
   if (rank < 1 || rank > 5) return false;
-  return r6StatcastRating(`R${rank}` as R6StatcastRank, level).isAlpha;
+  const r6Rank = `R${rank}` as R6StatcastRank;
+  if (getOverride?.(r6Rank, level) !== undefined) return false;
+  return r6StatcastRating(r6Rank, level).isAlpha;
 }
 
 export function RelicsManager() {
   const [bundle, setBundle] = useState<RelicStateBundle | null>(null);
-  const [activeTier, setActiveTier] = useState<RelicStarTier>(7);
+  const overridesCtx = useRelicOverrides();
+
+  // Build the override callback shape the engine expects from the context.
+  const engineOverrides = useMemo<RelicOverrides>(
+    () => ({
+      statcast6: (rank, sig) => overridesCtx.getStatcast6(rank, sig),
+      battlecast6: (id, rank, sig) =>
+        overridesCtx.getBattlecast6(id, rank, sig),
+    }),
+    [overridesCtx],
+  );
 
   // Load once on mount
   useEffect(() => {
@@ -104,23 +125,31 @@ export function RelicsManager() {
       inventory.battlecasts6Star.length,
     [inventory],
   );
-  const avgBHR = useMemo(() => relicTop30Average(inventory), [inventory]);
+  const avgBHR = useMemo(
+    () => relicTop30Average(inventory, engineOverrides),
+    [inventory, engineOverrides],
+  );
   const moves = useMemo(
-    () => enumerateRelicMoves(inventory, top30Cutoff),
-    [inventory, top30Cutoff],
+    () => enumerateRelicMoves(inventory, top30Cutoff, engineOverrides),
+    [inventory, top30Cutoff, engineOverrides],
   );
 
   // ── Mutators (closures; no hooks) ───────────────────────────────────────
 
-  function setCount(rank: RelicRank, level: RelicLevel, count: number) {
+  function setCount(
+    starTier: RelicStarTier,
+    rank: RelicRank,
+    level: RelicLevel,
+    count: number,
+  ) {
     setBundle((current) => {
       if (!current) return current;
       const filtered = current.inventory.standardCounts.filter(
-        (e) => !(e.starTier === activeTier && e.rank === rank && e.level === level),
+        (e) => !(e.starTier === starTier && e.rank === rank && e.level === level),
       );
       const next =
         count > 0
-          ? [...filtered, { starTier: activeTier, rank, level, count }]
+          ? [...filtered, { starTier, rank, level, count }]
           : filtered;
       return {
         ...current,
@@ -129,13 +158,23 @@ export function RelicsManager() {
     });
   }
 
-  function getCount(rank: RelicRank, level: RelicLevel): number {
+  function getCount(
+    starTier: RelicStarTier,
+    rank: RelicRank,
+    level: RelicLevel,
+  ): number {
     return (
       inventory.standardCounts.find(
         (e) =>
-          e.starTier === activeTier && e.rank === rank && e.level === level,
+          e.starTier === starTier && e.rank === rank && e.level === level,
       )?.count ?? 0
     );
+  }
+
+  function countTierTotal(starTier: RelicStarTier): number {
+    return inventory.standardCounts
+      .filter((e) => e.starTier === starTier)
+      .reduce((sum, e) => sum + e.count, 0);
   }
 
   function addBattlecast6(entry: Battlecast6Entry) {
@@ -235,324 +274,72 @@ export function RelicsManager() {
 
   return (
     <div className="space-y-10">
-      {/* Standard statcast grid */}
-      <section>
-        <div className="flex flex-wrap items-baseline justify-between gap-3 mb-1">
-          <h2 className="editorial-heading text-2xl">
-            Standard {activeTier}★ statcast relics
-          </h2>
-          <div className="inline-flex border border-[var(--color-rule)] rounded overflow-hidden text-xs">
-            {([7, 6] as const).map((tier) => (
-              <button
-                key={tier}
-                type="button"
-                onClick={() => setActiveTier(tier)}
-                className={`px-3 py-1.5 ${
-                  activeTier === tier
-                    ? 'bg-[var(--color-marvel-impact)] text-white font-medium'
-                    : 'bg-[var(--color-paper)] hover:bg-[var(--color-paper-soft)] text-[var(--color-ink-soft)]'
-                }`}
-              >
-                {tier}★
-              </button>
-            ))}
-          </div>
-        </div>
-        <p className="text-sm text-[var(--color-ink-soft)] mb-4 max-w-2xl">
-          Rank and sig count. Enter how many you own at each state.
-          {activeTier === 6 && (
-            <>
-              {' '}
-              6★ cells marked α are estimates — submit verified readings
-              via the form above.
-            </>
-          )}
-        </p>
+      {/* Standard 7★ statcast — at top per "7★ first" */}
+      <Collapsible
+        title="Standard 7★ statcast relics"
+        summary={`${countTierTotal(7)} owned · counts contribute to top-30`}
+      >
+        <StatcastGrid
+          starTier={7}
+          ranks={VISIBLE_RANKS_7STAR}
+          getCount={getCount}
+          setCount={setCount}
+          getOverride={undefined}
+          clearOverride={undefined}
+          setOverride={undefined}
+        />
+      </Collapsible>
 
-        <div className="overflow-x-auto">
-          <table className="border-collapse">
-            <thead>
-              <tr>
-                <th className="px-2 py-1 text-xs font-semibold text-[var(--color-ink-soft)] text-right">
-                  ↓ Rank
-                </th>
-                {LEVELS.map((l) => (
-                  <th
-                    key={l}
-                    className="px-1 py-1 text-xs font-semibold text-center w-16 text-[var(--color-ink-soft)]"
-                  >
-                    sig {l}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {(activeTier === 7 ? VISIBLE_RANKS_7STAR : VISIBLE_RANKS_6STAR).map(
-                (rank) => (
-                  <tr key={rank}>
-                    <td className="px-2 py-2 text-sm font-semibold text-right">
-                      R{rank}
-                    </td>
-                    {LEVELS.map((level) => {
-                      const bhr = statcastBHRByTier(activeTier, rank, level);
-                      const isAlpha = statcastIsAlphaByTier(
-                        activeTier,
-                        rank,
-                        level,
-                      );
-                      return (
-                        <td
-                          key={level}
-                          className="px-1 py-2 text-center align-top"
-                        >
-                          <input
-                            type="number"
-                            min={0}
-                            inputMode="numeric"
-                            value={getCount(rank, level) || ''}
-                            placeholder="0"
-                            onChange={(e) =>
-                              setCount(
-                                rank,
-                                level,
-                                parseInt(e.target.value || '0', 10) || 0,
-                              )
-                            }
-                            className="w-14 text-center text-sm border border-[var(--color-ink-soft)] rounded px-1 py-1"
-                            title={
-                              bhr !== null
-                                ? `${bhr} BHR per relic${isAlpha ? ' (α)' : ''}`
-                                : 'no data'
-                            }
-                          />
-                          <div
-                            className={`text-[10px] mt-1 ${
-                              isAlpha
-                                ? 'text-[var(--color-ink-soft)]/60 italic'
-                                : 'text-[var(--color-ink-soft)]'
-                            }`}
-                          >
-                            {bhr !== null ? bhr.toLocaleString() : '—'}
-                            {isAlpha && <sup className="ml-0.5 not-italic">α</sup>}
-                          </div>
-                        </td>
-                      );
-                    })}
-                  </tr>
-                ),
-              )}
-            </tbody>
-          </table>
-        </div>
-      </section>
+      {/* 7★ specials (Cosmic Egg) */}
+      <Collapsible
+        title="7★ Cosmic Egg & specials"
+        summary={`${inventory.specials.length} added`}
+      >
+        <SpecialsSection
+          specials={inventory.specials}
+          addSpecial={addSpecial}
+          updateSpecial={updateSpecial}
+          removeSpecial={removeSpecial}
+        />
+      </Collapsible>
 
-      {/* Specials */}
-      <section>
-        <h2 className="editorial-heading text-2xl mb-1">Special relics</h2>
-        <p className="text-sm text-[var(--color-ink-soft)] mb-4 max-w-2xl">
-          Champion-bound or event relics with their own scaling. Each tracked
-          individually since their prestige tables differ from the standard
-          curve.
-        </p>
+      {/* Standard 6★ statcast */}
+      <Collapsible
+        title="Standard 6★ statcast relics"
+        summary={`${countTierTotal(6)} owned · α cells are estimates`}
+      >
+        <StatcastGrid
+          starTier={6}
+          ranks={VISIBLE_RANKS_6STAR}
+          getCount={getCount}
+          setCount={setCount}
+          getOverride={overridesCtx.getStatcast6}
+          clearOverride={overridesCtx.clearStatcast6}
+          setOverride={overridesCtx.setStatcast6}
+        />
+      </Collapsible>
 
-        {inventory.specials.length === 0 && (
-          <p className="text-sm text-[var(--color-ink-soft)] mb-3 italic">
-            None added yet.
-          </p>
-        )}
-
-        <ul className="space-y-2 mb-3">
-          {inventory.specials.map((s, i) => {
-            const bhr = specialRelicBHR(s.id, { rank: s.rank, level: s.level });
-            return (
-              <li
-                key={i}
-                className="flex flex-wrap items-center gap-3 text-sm p-2 border border-[var(--color-ink-soft)] rounded"
-              >
-                <span className="font-semibold">
-                  {SPECIAL_LIBRARY[s.id]?.name ?? s.id}
-                </span>
-                <label className="flex items-center gap-1 text-xs">
-                  Rank
-                  <select
-                    value={s.rank}
-                    onChange={(e) =>
-                      updateSpecial(i, {
-                        rank: parseInt(e.target.value, 10) as RelicRank,
-                      })
-                    }
-                    className="border border-[var(--color-ink-soft)] rounded px-1 py-0.5 text-xs"
-                  >
-                    {ALL_RANKS.map((r) => (
-                      <option key={r} value={r}>
-                        R{r}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="flex items-center gap-1 text-xs">
-                  Level
-                  <select
-                    value={s.level}
-                    onChange={(e) =>
-                      updateSpecial(i, {
-                        level: parseInt(e.target.value, 10) as RelicLevel,
-                      })
-                    }
-                    className="border border-[var(--color-ink-soft)] rounded px-1 py-0.5 text-xs"
-                  >
-                    {LEVELS.map((l) => (
-                      <option key={l} value={l}>
-                        L{l}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <span className="text-xs text-[var(--color-ink-soft)]">
-                  {bhr === null
-                    ? '— no data for this state'
-                    : `${bhr.toLocaleString()} BHR`}
-                </span>
-                <button
-                  onClick={() => removeSpecial(i)}
-                  className="text-xs text-red-700 hover:underline ml-auto"
-                  type="button"
-                >
-                  remove
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-
-        {!inventory.specials.some((s) => s.id === 'cosmic-egg') && (
-          <button
-            onClick={() =>
-              addSpecial({ id: 'cosmic-egg', rank: 1, level: 0 })
-            }
-            className="text-sm px-3 py-1 border border-[var(--color-ink-soft)] rounded hover:bg-[var(--color-ink)] hover:text-white transition"
-            type="button"
-          >
-            + Add 7★ Cosmic Egg
-          </button>
-        )}
-      </section>
-
-      {/* 6★ Battlecasts — tracked individually */}
-      <section>
-        <h2 className="editorial-heading text-2xl mb-1">
-          6★ Battlecast relics
-        </h2>
-        <p className="text-sm text-[var(--color-ink-soft)] mb-4 max-w-2xl">
-          Champion-bound battlecasts at 6★. Each tracked individually.
-          Most curves are α (MCOCHUB community ranking, state guessed) —
-          a relic only contributes to top-30 when the engine has data at
-          its current (rank, sig).
-        </p>
-
-        {inventory.battlecasts6Star.length === 0 && (
-          <p className="text-sm text-[var(--color-ink-soft)] mb-3 italic">
-            None added yet.
-          </p>
-        )}
-
-        <ul className="space-y-2 mb-3">
-          {inventory.battlecasts6Star.map((bc, i) => {
-            const rating = battlecast6Rating(
-              bc.id as Battlecast6Id,
-              `R${bc.rank}` as R6StatcastRank,
-              bc.level,
-            );
-            const defName =
-              BATTLECAST_6STAR_CATALOG[bc.id as Battlecast6Id]?.name ?? bc.id;
-            return (
-              <li
-                key={i}
-                className="flex flex-wrap items-center gap-3 text-sm p-2 border border-[var(--color-ink-soft)] rounded"
-              >
-                <select
-                  value={bc.id}
-                  onChange={(e) =>
-                    updateBattlecast6(i, { id: e.target.value })
-                  }
-                  className="border border-[var(--color-ink-soft)] rounded px-1 py-0.5 text-sm font-medium"
-                >
-                  {BATTLECAST_6STAR_IDS.map((bid) => (
-                    <option key={bid} value={bid}>
-                      {BATTLECAST_6STAR_CATALOG[bid].name}
-                    </option>
-                  ))}
-                </select>
-                <label className="flex items-center gap-1 text-xs">
-                  Rank
-                  <select
-                    value={bc.rank}
-                    onChange={(e) =>
-                      updateBattlecast6(i, {
-                        rank: parseInt(e.target.value, 10) as RelicRank,
-                      })
-                    }
-                    className="border border-[var(--color-ink-soft)] rounded px-1 py-0.5 text-xs"
-                  >
-                    {BATTLECAST_RANKS.map((r) => (
-                      <option key={r} value={r}>
-                        R{r}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="flex items-center gap-1 text-xs">
-                  Sig
-                  <select
-                    value={bc.level}
-                    onChange={(e) =>
-                      updateBattlecast6(i, {
-                        level: parseInt(e.target.value, 10) as RelicLevel,
-                      })
-                    }
-                    className="border border-[var(--color-ink-soft)] rounded px-1 py-0.5 text-xs"
-                  >
-                    {LEVELS.map((l) => (
-                      <option key={l} value={l}>
-                        {l}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <span className="text-xs text-[var(--color-ink-soft)]">
-                  {rating === null
-                    ? '— no data for this state'
-                    : `${rating.rating.toLocaleString()} BHR${
-                        rating.source === 'mcochub-alpha' ? ' (α)' : ''
-                      }`}
-                </span>
-                <button
-                  onClick={() => removeBattlecast6(i)}
-                  className="text-xs text-red-700 hover:underline ml-auto"
-                  type="button"
-                  title={`Remove ${defName}`}
-                >
-                  remove
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-
-        <button
-          onClick={() =>
-            addBattlecast6({ id: 'cosmic-egg', rank: 1, level: 0 })
-          }
-          className="text-sm px-3 py-1 border border-[var(--color-ink-soft)] rounded hover:bg-[var(--color-ink)] hover:text-white transition"
-          type="button"
-        >
-          + Add a 6★ battlecast
-        </button>
-      </section>
+      {/* 6★ Battlecasts (after both statcast tiers so the page reads 7★ → 6★) */}
+      <Collapsible
+        title="6★ Battlecast relics"
+        summary={`${inventory.battlecasts6Star.length} added · MCOCHUB α + your overrides`}
+      >
+        <Battlecast6Section
+          entries={inventory.battlecasts6Star}
+          addEntry={addBattlecast6}
+          updateEntry={updateBattlecast6}
+          removeEntry={removeBattlecast6}
+          getOverride={overridesCtx.getBattlecast6}
+          clearOverride={overridesCtx.clearBattlecast6}
+          setOverride={overridesCtx.setBattlecast6}
+        />
+      </Collapsible>
 
       {/* Cutoff */}
-      <section>
-        <h2 className="editorial-heading text-2xl mb-1">Top-30 cutoff</h2>
+      <Collapsible
+        title="Top-30 cutoff"
+        summary={top30Cutoff > 0 ? `${top30Cutoff.toLocaleString()} BHR` : 'not set'}
+      >
         <p className="text-sm text-[var(--color-ink-soft)] mb-3 max-w-2xl">
           The BHR of your 30th-best relic (find it on the in-game Prestige
           page: top 30 relics → bottom row). Moves whose resulting BHR is
@@ -572,7 +359,7 @@ export function RelicsManager() {
           />
           <span className="text-xs text-[var(--color-ink-soft)]">BHR</span>
         </div>
-      </section>
+      </Collapsible>
 
       {/* Summary */}
       <section className="border-t border-[var(--color-ink-soft)] pt-6">
@@ -634,6 +421,505 @@ function specialName(id: SpecialRelicId): string {
 
 function battlecast6Name(id: string): string {
   return BATTLECAST_6STAR_CATALOG[id as Battlecast6Id]?.name ?? id;
+}
+
+// ─── Section sub-components (Collapsible wraps these) ─────────────────────
+
+type StatcastGridProps = {
+  starTier: RelicStarTier;
+  ranks: readonly RelicRank[];
+  getCount: (
+    starTier: RelicStarTier,
+    rank: RelicRank,
+    level: RelicLevel,
+  ) => number;
+  setCount: (
+    starTier: RelicStarTier,
+    rank: RelicRank,
+    level: RelicLevel,
+    count: number,
+  ) => void;
+  /** Override hooks — only passed for 6★ (7★ has verified curves). */
+  getOverride?: (rank: R6StatcastRank, sig: R6StatcastLevel) => number | undefined;
+  clearOverride?: (rank: R6StatcastRank, sig: R6StatcastLevel) => void;
+  setOverride?: (
+    rank: R6StatcastRank,
+    sig: R6StatcastLevel,
+    value: number,
+  ) => void;
+};
+
+function StatcastGrid({
+  starTier,
+  ranks,
+  getCount,
+  setCount,
+  getOverride,
+  clearOverride,
+  setOverride,
+}: StatcastGridProps) {
+  const editable = Boolean(getOverride && setOverride && clearOverride);
+  return (
+    <>
+      <p className="text-sm text-[var(--color-ink-soft)] mb-3 max-w-2xl">
+        Rank and sig count. Enter how many you own at each state.
+        {starTier === 6 && (
+          <>
+            {' '}α cells are estimates — click the value to pin your own
+            reading.
+          </>
+        )}
+      </p>
+      <div className="overflow-x-auto">
+        <table className="border-collapse">
+          <thead>
+            <tr>
+              <th className="px-2 py-1 text-xs font-semibold text-[var(--color-ink-soft)] text-right">
+                ↓ Rank
+              </th>
+              {LEVELS.map((l) => (
+                <th
+                  key={l}
+                  className="px-1 py-1 text-xs font-semibold text-center w-16 text-[var(--color-ink-soft)]"
+                >
+                  sig {l}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {ranks.map((rank) => (
+              <tr key={rank}>
+                <td className="px-2 py-2 text-sm font-semibold text-right">
+                  R{rank}
+                </td>
+                {LEVELS.map((level) => {
+                  const bhr = statcastBHRByTier(starTier, rank, level, getOverride);
+                  const isAlpha = statcastIsAlphaByTier(
+                    starTier,
+                    rank,
+                    level,
+                    getOverride,
+                  );
+                  const r6Rank = `R${rank}` as R6StatcastRank;
+                  const r6Sig = level;
+                  const overridden =
+                    starTier === 6 &&
+                    getOverride?.(r6Rank, r6Sig) !== undefined;
+                  return (
+                    <td
+                      key={level}
+                      className="px-1 py-2 text-center align-top"
+                    >
+                      <input
+                        type="number"
+                        min={0}
+                        inputMode="numeric"
+                        value={getCount(starTier, rank, level) || ''}
+                        placeholder="0"
+                        onChange={(e) =>
+                          setCount(
+                            starTier,
+                            rank,
+                            level,
+                            parseInt(e.target.value || '0', 10) || 0,
+                          )
+                        }
+                        className="w-14 text-center text-sm border border-[var(--color-ink-soft)] rounded px-1 py-1"
+                        title={
+                          bhr !== null
+                            ? `${bhr} BHR per relic${isAlpha ? ' (α)' : ''}`
+                            : 'no data'
+                        }
+                      />
+                      <div className="mt-1">
+                        {editable ? (
+                          <ValueEditor
+                            value={bhr}
+                            isAlpha={isAlpha}
+                            isOverridden={overridden}
+                            onSave={(v) => setOverride!(r6Rank, r6Sig, v)}
+                            onClear={() => clearOverride!(r6Rank, r6Sig)}
+                          />
+                        ) : (
+                          <span
+                            className={`text-[10px] ${
+                              isAlpha
+                                ? 'text-[var(--color-ink-soft)]/60 italic'
+                                : 'text-[var(--color-ink-soft)]'
+                            }`}
+                          >
+                            {bhr !== null ? bhr.toLocaleString() : '—'}
+                            {isAlpha && (
+                              <sup className="ml-0.5 not-italic">α</sup>
+                            )}
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
+  );
+}
+
+type SpecialsSectionProps = {
+  specials: readonly SpecialRelicEntry[];
+  addSpecial: (entry: SpecialRelicEntry) => void;
+  updateSpecial: (index: number, partial: Partial<SpecialRelicEntry>) => void;
+  removeSpecial: (index: number) => void;
+};
+
+function SpecialsSection({
+  specials,
+  addSpecial,
+  updateSpecial,
+  removeSpecial,
+}: SpecialsSectionProps) {
+  return (
+    <>
+      <p className="text-sm text-[var(--color-ink-soft)] mb-3 max-w-2xl">
+        Champion-bound 7★ relics with their own scaling (Cosmic Egg today).
+        Each tracked individually.
+      </p>
+      {specials.length === 0 && (
+        <p className="text-sm text-[var(--color-ink-soft)] mb-3 italic">
+          None added yet.
+        </p>
+      )}
+      <ul className="space-y-2 mb-3">
+        {specials.map((s, i) => {
+          const bhr = specialRelicBHR(s.id, { rank: s.rank, level: s.level });
+          return (
+            <li
+              key={i}
+              className="flex flex-wrap items-center gap-3 text-sm p-2 border border-[var(--color-ink-soft)] rounded"
+            >
+              <span className="font-semibold">
+                {SPECIAL_LIBRARY[s.id]?.name ?? s.id}
+              </span>
+              <label className="flex items-center gap-1 text-xs">
+                Rank
+                <select
+                  value={s.rank}
+                  onChange={(e) =>
+                    updateSpecial(i, {
+                      rank: parseInt(e.target.value, 10) as RelicRank,
+                    })
+                  }
+                  className="border border-[var(--color-ink-soft)] rounded px-1 py-0.5 text-xs"
+                >
+                  {ALL_RANKS.map((r) => (
+                    <option key={r} value={r}>
+                      R{r}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="flex items-center gap-1 text-xs">
+                Sig
+                <select
+                  value={s.level}
+                  onChange={(e) =>
+                    updateSpecial(i, {
+                      level: parseInt(e.target.value, 10) as RelicLevel,
+                    })
+                  }
+                  className="border border-[var(--color-ink-soft)] rounded px-1 py-0.5 text-xs"
+                >
+                  {LEVELS.map((l) => (
+                    <option key={l} value={l}>
+                      {l}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <span className="text-xs text-[var(--color-ink-soft)]">
+                {bhr === null
+                  ? '— no data for this state'
+                  : `${bhr.toLocaleString()} BHR`}
+              </span>
+              <button
+                onClick={() => removeSpecial(i)}
+                className="text-xs text-red-700 hover:underline ml-auto"
+                type="button"
+              >
+                remove
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+      {!specials.some((s) => s.id === 'cosmic-egg') && (
+        <button
+          onClick={() => addSpecial({ id: 'cosmic-egg', rank: 1, level: 0 })}
+          className="text-sm px-3 py-1 border border-[var(--color-ink-soft)] rounded hover:bg-[var(--color-ink)] hover:text-white transition"
+          type="button"
+        >
+          + Add 7★ Cosmic Egg
+        </button>
+      )}
+    </>
+  );
+}
+
+type Battlecast6SectionProps = {
+  entries: readonly Battlecast6Entry[];
+  addEntry: (entry: Battlecast6Entry) => void;
+  updateEntry: (index: number, partial: Partial<Battlecast6Entry>) => void;
+  removeEntry: (index: number) => void;
+  getOverride: (
+    id: string,
+    rank: R6StatcastRank,
+    sig: R6StatcastLevel,
+  ) => number | undefined;
+  clearOverride: (
+    id: string,
+    rank: R6StatcastRank,
+    sig: R6StatcastLevel,
+  ) => void;
+  setOverride: (
+    id: string,
+    rank: R6StatcastRank,
+    sig: R6StatcastLevel,
+    value: number,
+  ) => void;
+};
+
+function Battlecast6Section({
+  entries,
+  addEntry,
+  updateEntry,
+  removeEntry,
+  getOverride,
+  clearOverride,
+  setOverride,
+}: Battlecast6SectionProps) {
+  return (
+    <>
+      <p className="text-sm text-[var(--color-ink-soft)] mb-3 max-w-2xl">
+        Champion-bound battlecasts at 6★. Each tracked individually. Most
+        curves are α (MCOCHUB community ranking, state guessed) — click
+        the BHR to pin your own reading. A relic only contributes to top-30
+        when the engine has data (verified, α, or your override) at its
+        current (rank, sig).
+      </p>
+      {entries.length === 0 && (
+        <p className="text-sm text-[var(--color-ink-soft)] mb-3 italic">
+          None added yet.
+        </p>
+      )}
+      <ul className="space-y-2 mb-3">
+        {entries.map((bc, i) => {
+          const r6Rank = `R${bc.rank}` as R6StatcastRank;
+          const r6Sig = bc.level;
+          const override = getOverride(bc.id, r6Rank, r6Sig);
+          const rating =
+            override !== undefined
+              ? { rating: override, source: 'override' as const }
+              : battlecast6Rating(bc.id as Battlecast6Id, r6Rank, r6Sig);
+          const defName =
+            BATTLECAST_6STAR_CATALOG[bc.id as Battlecast6Id]?.name ?? bc.id;
+          return (
+            <li
+              key={i}
+              className="flex flex-wrap items-center gap-3 text-sm p-2 border border-[var(--color-ink-soft)] rounded"
+            >
+              <select
+                value={bc.id}
+                onChange={(e) =>
+                  updateEntry(i, { id: e.target.value })
+                }
+                className="border border-[var(--color-ink-soft)] rounded px-1 py-0.5 text-sm font-medium"
+              >
+                {BATTLECAST_6STAR_IDS.map((bid) => (
+                  <option key={bid} value={bid}>
+                    {BATTLECAST_6STAR_CATALOG[bid].name}
+                  </option>
+                ))}
+              </select>
+              <label className="flex items-center gap-1 text-xs">
+                Rank
+                <select
+                  value={bc.rank}
+                  onChange={(e) =>
+                    updateEntry(i, {
+                      rank: parseInt(e.target.value, 10) as RelicRank,
+                    })
+                  }
+                  className="border border-[var(--color-ink-soft)] rounded px-1 py-0.5 text-xs"
+                >
+                  {BATTLECAST_RANKS.map((r) => (
+                    <option key={r} value={r}>
+                      R{r}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="flex items-center gap-1 text-xs">
+                Sig
+                <select
+                  value={bc.level}
+                  onChange={(e) =>
+                    updateEntry(i, {
+                      level: parseInt(e.target.value, 10) as RelicLevel,
+                    })
+                  }
+                  className="border border-[var(--color-ink-soft)] rounded px-1 py-0.5 text-xs"
+                >
+                  {LEVELS.map((l) => (
+                    <option key={l} value={l}>
+                      {l}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <div className="text-xs">
+                <ValueEditor
+                  value={rating ? rating.rating : null}
+                  isAlpha={
+                    rating
+                      ? rating.source === 'mcochub-alpha'
+                      : false
+                  }
+                  isOverridden={
+                    rating ? rating.source === 'override' : false
+                  }
+                  onSave={(v) => setOverride(bc.id, r6Rank, r6Sig, v)}
+                  onClear={() => clearOverride(bc.id, r6Rank, r6Sig)}
+                />
+              </div>
+              <button
+                onClick={() => removeEntry(i)}
+                className="text-xs text-red-700 hover:underline ml-auto"
+                type="button"
+                title={`Remove ${defName}`}
+              >
+                remove
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+      <button
+        onClick={() => addEntry({ id: 'cosmic-egg', rank: 1, level: 0 })}
+        className="text-sm px-3 py-1 border border-[var(--color-ink-soft)] rounded hover:bg-[var(--color-ink)] hover:text-white transition"
+        type="button"
+      >
+        + Add a 6★ battlecast
+      </button>
+    </>
+  );
+}
+
+/**
+ * Inline editable BHR display. Default: shows the value (or "—") with an
+ * α superscript and a ✎ affordance. Click → expands into an input + save
+ * + clear + cancel. Used for 6★ statcast cells and 6★ battlecast rows.
+ */
+function ValueEditor({
+  value,
+  isAlpha,
+  isOverridden,
+  onSave,
+  onClear,
+}: {
+  value: number | null;
+  isAlpha: boolean;
+  isOverridden: boolean;
+  onSave: (v: number) => void;
+  onClear: () => void;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState<string>('');
+
+  if (editing) {
+    return (
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          const n = Number(draft);
+          if (Number.isFinite(n) && n > 0) onSave(Math.round(n));
+          setEditing(false);
+        }}
+        className="inline-flex items-center gap-1"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <input
+          type="number"
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          placeholder={value?.toString() ?? ''}
+          autoFocus
+          className="numeric w-16 px-1 py-0.5 text-[11px] border border-[var(--color-marvel-impact)] rounded"
+        />
+        <button
+          type="submit"
+          className="text-[10px] px-1 bg-[var(--color-marvel-impact)] text-white rounded"
+          title="Save"
+        >
+          ✓
+        </button>
+        {isOverridden && (
+          <button
+            type="button"
+            onClick={() => {
+              onClear();
+              setEditing(false);
+            }}
+            className="text-[10px] px-1 border border-[var(--color-rule)] rounded"
+            title="Remove override"
+          >
+            ×
+          </button>
+        )}
+        <button
+          type="button"
+          onClick={() => setEditing(false)}
+          className="text-[10px] px-0.5 text-[var(--color-ink-soft)]"
+          title="Cancel"
+        >
+          ✗
+        </button>
+      </form>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        setDraft(value?.toString() ?? '');
+        setEditing(true);
+      }}
+      className={`inline-flex items-baseline gap-0.5 text-[10px] ${
+        isOverridden
+          ? 'text-emerald-700 font-medium'
+          : isAlpha
+            ? 'text-[var(--color-ink-soft)]/60 italic'
+            : 'text-[var(--color-ink-soft)]'
+      } hover:text-[var(--color-marvel-impact)] transition-colors`}
+      title={
+        isOverridden
+          ? 'Pinned by you. Click to edit or remove.'
+          : isAlpha
+            ? 'Alpha estimate. Click to pin your reading.'
+            : 'Verified value. Click to override.'
+      }
+    >
+      <span>{value !== null ? value.toLocaleString() : '—'}</span>
+      {isOverridden ? (
+        <span className="not-italic">•</span>
+      ) : isAlpha ? (
+        <sup className="not-italic">α</sup>
+      ) : null}
+    </button>
+  );
 }
 
 function RelicMoveCard({ move }: { move: ScoredRelicMove }) {

@@ -100,6 +100,8 @@ export {
   relicTop30Average,
 } from './relics/moves.js';
 
+export type { RelicOverrides } from './relics/moves.js';
+
 // ─── 6★ Statcast relic prestige (v2 alpha — reference only) ────────────────
 //
 // Prefixed `r6Statcast*` to keep names from colliding with the existing
