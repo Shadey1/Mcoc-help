@@ -34,6 +34,15 @@ export default function RelicsPage() {
             R4 / R5 anchors land, that gets wired up.
           </p>
           <p>
+            <strong>Battlecast relics</strong> (the champion-bound ones
+            beyond the Cosmic Egg) are still outstanding at both 6★ and 7★.
+            Curves aren&apos;t published anywhere we can scrape, so the
+            plan is the same — collect readings from users who own them
+            and fold the values in. If you have any battlecast relic and
+            can read the rating, ping us; a structured submission form is
+            on the way.
+          </p>
+          <p>
             If you can read a 6★ Standard Statcast rating off the in-game
             card, please submit it via the form below. Anonymous, opt-in,
             takes 10 seconds.
