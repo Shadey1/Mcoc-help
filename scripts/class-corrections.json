@@ -1,29 +1,7 @@
 {
-  "generatedAt": "2026-06-02T09:35:05.275Z",
+  "generatedAt": "2026-06-04T07:31:09.553Z",
   "corrections": [],
-  "additions": [
-    {
-      "id": "shatterstar",
-      "name": "Shatterstar",
-      "proposedClass": "Mutant",
-      "sourceTitle": "Shatterstar",
-      "portraitUrl": null
-    },
-    {
-      "id": "phyla-vell",
-      "name": "Phyla-Vell",
-      "proposedClass": "Cosmic",
-      "sourceTitle": "Phyla-Vell",
-      "portraitUrl": null
-    },
-    {
-      "id": "wave",
-      "name": "Wave",
-      "proposedClass": "Science",
-      "sourceTitle": "Wave",
-      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/9/91/Wave_portrait.png/revision/latest/scale-to-width-down/200?cb=20260504222648"
-    }
-  ],
+  "additions": [],
   "issues": [
     {
       "name": "Black Widow (disambiguation)",
