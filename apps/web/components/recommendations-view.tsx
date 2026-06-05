@@ -712,7 +712,11 @@ function describeMove(move: ScoredMove): string {
 
 function describeRelicMove(move: ScoredRelicMove): string {
   const m = move.move;
-  if (m.kind === 'level-up' || m.kind === 'special-level-up') {
+  if (
+    m.kind === 'level-up' ||
+    m.kind === 'special-level-up' ||
+    m.kind === 'battlecast6-level-up'
+  ) {
     return `R${m.from.rank} L${m.from.level} → L${m.toLevel}`;
   }
   return `R${m.from.rank} L${m.from.level} → R${m.toRank}`;
@@ -720,12 +724,29 @@ function describeRelicMove(move: ScoredRelicMove): string {
 
 function relicMoveSubject(move: ScoredRelicMove): string {
   const m = move.move;
-  if (m.kind === 'level-up' || m.kind === 'rank-up') return 'Standard 7★ relic';
-  return SPECIAL_NAMES[m.id] ?? m.id;
+  if (m.kind === 'level-up' || m.kind === 'rank-up') {
+    return m.starTier === 6 ? 'Standard 6★ relic' : 'Standard 7★ relic';
+  }
+  if (m.kind === 'special-level-up' || m.kind === 'special-rank-up') {
+    return SPECIAL_NAMES[m.id] ?? m.id;
+  }
+  // battlecast6-level-up / battlecast6-rank-up
+  return BATTLECAST6_NAMES[m.id] ?? m.id;
 }
 
 const SPECIAL_NAMES: Record<SpecialRelicId, string> = {
-  'cosmic-egg': 'The Cosmic Egg',
+  'cosmic-egg': 'The Cosmic Egg (7★)',
+};
+
+const BATTLECAST6_NAMES: Record<string, string> = {
+  'cosmic-egg': 'The Cosmic Egg (6★)',
+  'spider-man-2099': 'Spider-Man 2099 (6★)',
+  gamora: 'Gamora (6★)',
+  gambit: 'Gambit (6★)',
+  'black-widow': 'Black Widow (6★)',
+  'ant-man': 'Ant-Man (6★)',
+  'black-panther': 'Black Panther (6★)',
+  wolverine: 'Wolverine (6★)',
 };
 
 /**
@@ -759,13 +780,17 @@ function moveKey(m: InterleavedAtomicMove): string {
   const rm = m.data.move;
   switch (rm.kind) {
     case 'level-up':
-      return `r-lvl-r${rm.from.rank}-l${rm.from.level}-to${rm.toLevel}`;
+      return `r-${rm.starTier}-lvl-r${rm.from.rank}-l${rm.from.level}-to${rm.toLevel}`;
     case 'rank-up':
-      return `r-rnk-r${rm.from.rank}-l${rm.from.level}-to${rm.toRank}`;
+      return `r-${rm.starTier}-rnk-r${rm.from.rank}-l${rm.from.level}-to${rm.toRank}`;
     case 'special-level-up':
       return `s-${rm.id}-lvl-r${rm.from.rank}-l${rm.from.level}-to${rm.toLevel}`;
     case 'special-rank-up':
       return `s-${rm.id}-rnk-r${rm.from.rank}-l${rm.from.level}-to${rm.toRank}`;
+    case 'battlecast6-level-up':
+      return `b6-${rm.id}-lvl-r${rm.from.rank}-l${rm.from.level}-to${rm.toLevel}`;
+    case 'battlecast6-rank-up':
+      return `b6-${rm.id}-rnk-r${rm.from.rank}-l${rm.from.level}-to${rm.toRank}`;
   }
 }
 

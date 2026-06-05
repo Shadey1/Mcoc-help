@@ -30,6 +30,8 @@ export const LevelSchema = z.union([
   z.literal(200),
 ]);
 
+export const StarTierSchema = z.union([z.literal(6), z.literal(7)]);
+
 export const SpecialRelicIdSchema = z.enum(['cosmic-egg']);
 
 export const RelicStateSchema = z.object({
@@ -38,6 +40,9 @@ export const RelicStateSchema = z.object({
 });
 
 export const RelicCountEntrySchema = z.object({
+  // Older saved entries don't have starTier — default to 7 so legacy data
+  // migrates without losing prestige contributions.
+  starTier: StarTierSchema.default(7),
   rank: RankSchema,
   level: LevelSchema,
   count: z.number().int().min(0),
@@ -49,7 +54,17 @@ export const SpecialRelicEntrySchema = z.object({
   level: LevelSchema,
 });
 
+export const Battlecast6EntrySchema = z.object({
+  // String to avoid cross-module enum coupling; battlecast6Rating() returns
+  // null for unknown ids so bad data degrades to "no contribution".
+  id: z.string().min(1).max(100),
+  rank: RankSchema,
+  level: LevelSchema,
+});
+
 export const RelicInventorySchema = z.object({
   standardCounts: z.array(RelicCountEntrySchema),
   specials: z.array(SpecialRelicEntrySchema),
+  // Default [] so legacy data (saved before this field existed) loads cleanly.
+  battlecasts6Star: z.array(Battlecast6EntrySchema).default([]),
 });

@@ -67,7 +67,10 @@ export const SPECIALS: Record<SpecialRelicId, SpecialDef> = {
       2: { 200: 4084 },
       3: {},
       4: {},
-      5: { 0: 3060 },
+      // R5 L0 = 3060 was previously attributed here; user clarified that
+      // value was actually a 6★ R5 sig 200 reading. It now lives in
+      // BATTLECAST_6STAR_CATALOG.'cosmic-egg' as a verified anchor.
+      5: {},
       6: {},
     },
   },

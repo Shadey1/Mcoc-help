@@ -64,11 +64,13 @@ export { costGatesFor, statePersistenceNoteFor } from './costs.js';
 export type {
   Rank as RelicRank,
   Level as RelicLevel,
+  StarTier as RelicStarTier,
   RelicState,
   RelicCountEntry,
   RelicInventory,
   SpecialRelicId,
   SpecialRelicEntry,
+  Battlecast6Entry,
   RelicMove,
   ScoredRelicMove,
 } from './relics/types.js';
@@ -76,11 +78,13 @@ export type {
 export {
   RankSchema as RelicRankSchema,
   LevelSchema as RelicLevelSchema,
+  StarTierSchema as RelicStarTierSchema,
   RelicStateSchema,
   RelicCountEntrySchema,
   RelicInventorySchema,
   SpecialRelicIdSchema,
   SpecialRelicEntrySchema,
+  Battlecast6EntrySchema,
 } from './relics/schemas.js';
 
 export {

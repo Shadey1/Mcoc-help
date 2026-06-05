@@ -41,14 +41,17 @@ describe('standardStatcastBHR', () => {
 });
 
 describe('specialRelicBHR — Cosmic Egg', () => {
-  it('returns known anchors exactly', () => {
+  it('returns the verified R2 L200 anchor exactly', () => {
+    // 7★ Cosmic Egg. The previously-attributed "R5 L0 = 3060" was actually
+    // a 6★ R5 sig 200 reading captured under the wrong tier label; it now
+    // lives in BATTLECAST_6STAR_CATALOG.'cosmic-egg' as a verified anchor.
     expect(specialRelicBHR('cosmic-egg', { rank: 2, level: 200 })).toBe(4084);
-    expect(specialRelicBHR('cosmic-egg', { rank: 5, level: 0 })).toBe(3060);
   });
 
   it('returns null for ranks with no known anchors', () => {
     expect(specialRelicBHR('cosmic-egg', { rank: 1, level: 100 })).toBeNull();
     expect(specialRelicBHR('cosmic-egg', { rank: 3, level: 100 })).toBeNull();
+    expect(specialRelicBHR('cosmic-egg', { rank: 5, level: 0 })).toBeNull();
   });
 });
 
@@ -69,7 +72,7 @@ describe('ceiling lookups', () => {
 describe('enumerateRelicMoves', () => {
   it('surfaces a level-up with the expected delta', () => {
     const moves = enumerateRelicMoves(
-      { standardCounts: [{ rank: 2, level: 60, count: 1 }], specials: [] },
+      { standardCounts: [{ starTier: 7, rank: 2, level: 60, count: 1 }], specials: [], battlecasts6Star: [] },
       0,
     );
     const levelUp = moves.find((m) => m.move.kind === 'level-up');
@@ -81,7 +84,7 @@ describe('enumerateRelicMoves', () => {
 
   it('surfaces a rank-up when at L200, with delta = ceiling gain', () => {
     const moves = enumerateRelicMoves(
-      { standardCounts: [{ rank: 1, level: 200, count: 1 }], specials: [] },
+      { standardCounts: [{ starTier: 7, rank: 1, level: 200, count: 1 }], specials: [], battlecasts6Star: [] },
       0,
     );
     const rankUp = moves.find((m) => m.move.kind === 'rank-up');
@@ -94,7 +97,7 @@ describe('enumerateRelicMoves', () => {
 
   it('does not surface a rank-up below L200', () => {
     const moves = enumerateRelicMoves(
-      { standardCounts: [{ rank: 1, level: 100, count: 1 }], specials: [] },
+      { standardCounts: [{ starTier: 7, rank: 1, level: 100, count: 1 }], specials: [], battlecasts6Star: [] },
       0,
     );
     expect(moves.some((m) => m.move.kind === 'rank-up')).toBe(false);
@@ -102,7 +105,7 @@ describe('enumerateRelicMoves', () => {
 
   it('filters moves whose afterBHR is below the cutoff', () => {
     const moves = enumerateRelicMoves(
-      { standardCounts: [{ rank: 1, level: 0, count: 1 }], specials: [] },
+      { standardCounts: [{ starTier: 7, rank: 1, level: 0, count: 1 }], specials: [], battlecasts6Star: [] },
       10000, // impossibly high cutoff
     );
     expect(moves).toEqual([]);
@@ -112,10 +115,11 @@ describe('enumerateRelicMoves', () => {
     const moves = enumerateRelicMoves(
       {
         standardCounts: [
-          { rank: 1, level: 200, count: 1 }, // rank-up: delta 454
-          { rank: 2, level: 60, count: 1 },  // level-up: delta 91
+          { starTier: 7, rank: 1, level: 200, count: 1 }, // rank-up: delta 454
+          { starTier: 7, rank: 2, level: 60, count: 1 },  // level-up: delta 91
         ],
         specials: [],
+        battlecasts6Star: [],
       },
       0,
     );
@@ -130,12 +134,12 @@ describe('enumerateRelicMoves', () => {
       {
         standardCounts: [],
         specials: [{ id: 'cosmic-egg', rank: 2, level: 200 }],
+        battlecasts6Star: [],
       },
       0,
     );
     // Cosmic Egg at R2 L200 should surface a rank-up... but R3 has no data, so
-    // the move is filtered (null ceiling). At R5 we have L0 = 3060, but that's
-    // skipping ranks. So no move surfaces.
+    // the move is filtered (null ceiling). No other anchors at R3+.
     expect(moves).toEqual([]);
   });
 });
@@ -144,10 +148,11 @@ describe('relicBHRs', () => {
   it('expands aggregated counts into individual BHRs', () => {
     const bhrs = relicBHRs({
       standardCounts: [
-        { rank: 2, level: 200, count: 3 },
-        { rank: 1, level: 0, count: 2 },
+        { starTier: 7, rank: 2, level: 200, count: 3 },
+        { starTier: 7, rank: 1, level: 0, count: 2 },
       ],
       specials: [{ id: 'cosmic-egg', rank: 2, level: 200 }],
+      battlecasts6Star: [],
     });
     // Sorted desc: cosmic-egg 4084, then 3x R2 L200 = 3400, then 2x R1 L0 = 1856
     expect(bhrs).toEqual([4084, 3400, 3400, 3400, 1856, 1856]);
@@ -155,8 +160,9 @@ describe('relicBHRs', () => {
 
   it('skips zero-count entries', () => {
     const bhrs = relicBHRs({
-      standardCounts: [{ rank: 2, level: 100, count: 0 }],
+      standardCounts: [{ starTier: 7, rank: 2, level: 100, count: 0 }],
       specials: [],
+      battlecasts6Star: [],
     });
     expect(bhrs).toEqual([]);
   });
@@ -165,14 +171,17 @@ describe('relicBHRs', () => {
 describe('relicTop30Average', () => {
   it('averages the top 30 from inventory', () => {
     const bhrs = relicTop30Average({
-      standardCounts: [{ rank: 2, level: 200, count: 30 }],
+      standardCounts: [{ starTier: 7, rank: 2, level: 200, count: 30 }],
       specials: [],
+      battlecasts6Star: [],
     });
     expect(bhrs).toBe(3400);
   });
 
   it('returns 0 on empty inventory', () => {
-    expect(relicTop30Average({ standardCounts: [], specials: [] })).toBe(0);
+    expect(
+      relicTop30Average({ standardCounts: [], specials: [], battlecasts6Star: [] }),
+    ).toBe(0);
   });
 
   it('caps at 30 when more relics exist', () => {
@@ -180,11 +189,79 @@ describe('relicTop30Average', () => {
     expect(
       relicTop30Average({
         standardCounts: [
-          { rank: 2, level: 200, count: 30 },
-          { rank: 1, level: 0, count: 5 },
+          { starTier: 7, rank: 2, level: 200, count: 30 },
+          { starTier: 7, rank: 1, level: 0, count: 5 },
         ],
         specials: [],
+        battlecasts6Star: [],
       }),
     ).toBe(3400);
+  });
+});
+
+describe('relic 6★ contributions', () => {
+  it('6★ standard statcast counts contribute to top-30 via r6Statcast curve', () => {
+    // 6★ R1 sig 60 = 1122 (verified anchor). 5 of them → contributes 5x 1122.
+    const bhrs = relicBHRs({
+      standardCounts: [{ starTier: 6, rank: 1, level: 60, count: 5 }],
+      specials: [],
+      battlecasts6Star: [],
+    });
+    expect(bhrs).toEqual([1122, 1122, 1122, 1122, 1122]);
+  });
+
+  it('6★ statcasts and 7★ statcasts merge into one top-30 sort', () => {
+    const bhrs = relicBHRs({
+      standardCounts: [
+        { starTier: 7, rank: 2, level: 200, count: 1 }, // 3400 (7★ side)
+        { starTier: 6, rank: 1, level: 60, count: 1 }, // 1122 (6★ side)
+      ],
+      specials: [],
+      battlecasts6Star: [],
+    });
+    // Sorted desc: 3400 (7★) above 1122 (6★).
+    expect(bhrs).toEqual([3400, 1122]);
+  });
+
+  it('6★ battlecast contributes via its catalogued anchor', () => {
+    // Cosmic Egg has a verified anchor at R5 sig 200 = 3060.
+    const bhrs = relicBHRs({
+      standardCounts: [],
+      specials: [],
+      battlecasts6Star: [{ id: 'cosmic-egg', rank: 5, level: 200 }],
+    });
+    expect(bhrs).toEqual([3060]);
+  });
+
+  it('6★ battlecast with no data for the state returns no contribution', () => {
+    // Cosmic Egg only has verified at R5 sig 200; R3 sig 100 has no data.
+    const bhrs = relicBHRs({
+      standardCounts: [],
+      specials: [],
+      battlecasts6Star: [{ id: 'cosmic-egg', rank: 3, level: 100 }],
+    });
+    expect(bhrs).toEqual([]);
+  });
+
+  it('6★ battlecast contributes the MCOCHUB α anchor at (R1, sig 0)', () => {
+    // Cosmic Egg at R1 sig 0 returns 2740 from the MCOCHUB-α path.
+    const bhrs = relicBHRs({
+      standardCounts: [],
+      specials: [],
+      battlecasts6Star: [{ id: 'cosmic-egg', rank: 1, level: 0 }],
+    });
+    expect(bhrs).toEqual([2740]);
+  });
+
+  it('mixed inventory: 7★ statcasts + 7★ special + 6★ statcast + 6★ battlecast', () => {
+    const bhrs = relicBHRs({
+      standardCounts: [
+        { starTier: 7, rank: 2, level: 200, count: 1 }, // 3400
+        { starTier: 6, rank: 1, level: 0, count: 1 }, // 852
+      ],
+      specials: [{ id: 'cosmic-egg', rank: 2, level: 200 }], // 4084
+      battlecasts6Star: [{ id: 'cosmic-egg', rank: 5, level: 200 }], // 3060
+    });
+    expect(bhrs).toEqual([4084, 3400, 3060, 852]);
   });
 });

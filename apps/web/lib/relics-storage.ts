@@ -19,7 +19,7 @@ const RelicStateBundleSchema = z.object({
 export type RelicStateBundle = z.infer<typeof RelicStateBundleSchema>;
 
 const EMPTY: RelicStateBundle = {
-  inventory: { standardCounts: [], specials: [] },
+  inventory: { standardCounts: [], specials: [], battlecasts6Star: [] },
   top30Cutoff: 0,
 };
 
