@@ -29,6 +29,10 @@
  *
  * Boundary verification: R1 L60 == R2 L0 == 1122 — single ladder confirmed.
  *
+ * Structural shape (user-confirmed): 5 ranks, 10 levels per rank (L0..L180
+ * in 20-step display brackets). Anything past L60 in any rank, and ranks
+ * R4 / R5 entirely, are extrapolation territory — best-guess, not fact.
+ *
  * Drop note: the earlier "unleveled R1 = 420" reading is treated as noise
  * (LV1 / awakened-lock artifact, doesn't fit the ladder) and intentionally
  * absent from the table.
@@ -36,15 +40,14 @@
 
 export type RelicRank = 'R1' | 'R2' | 'R3' | 'R4' | 'R5';
 
-/** Level brackets present in the in-game LV/20 readings. Sized 0..200 to
- *  match the conjectured 10-levels-per-rank range, but only L0..L60 are
- *  verified at any rank today — everything else is null and routes through
- *  the alpha-fill provisional curve. */
+/** In-game level brackets (LV/20 readings). 10 brackets per rank confirmed
+ *  by user, so the per-rank range is L0..L180. L80..L180 are uncaptured at
+ *  every rank today and route through the alpha-fill provisional curve. */
 export type LevelBracket =
-  | 0 | 20 | 40 | 60 | 80 | 100 | 120 | 140 | 160 | 180 | 200;
+  | 0 | 20 | 40 | 60 | 80 | 100 | 120 | 140 | 160 | 180;
 
 export const LEVEL_BRACKETS: readonly LevelBracket[] = [
-  0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200,
+  0, 20, 40, 60, 80, 100, 120, 140, 160, 180,
 ] as const;
 
 export const RELIC_RANKS: readonly RelicRank[] = ['R1', 'R2', 'R3', 'R4', 'R5'] as const;
@@ -68,7 +71,6 @@ export const RELIC_RATING: Record<RelicRank, Record<LevelBracket, number | null>
     140: null,
     160: null,
     180: null,
-    200: null,
   },
   R2: {
     0: 1122,
@@ -81,7 +83,6 @@ export const RELIC_RATING: Record<RelicRank, Record<LevelBracket, number | null>
     140: null,
     160: null,
     180: null,
-    200: null,
   },
   R3: {
     0: null,
@@ -94,15 +95,14 @@ export const RELIC_RATING: Record<RelicRank, Record<LevelBracket, number | null>
     140: null,
     160: null,
     180: null,
-    200: null,
   },
   R4: {
     0: null, 20: null, 40: null, 60: null, 80: null,
-    100: null, 120: null, 140: null, 160: null, 180: null, 200: null,
+    100: null, 120: null, 140: null, 160: null, 180: null,
   },
   R5: {
     0: null, 20: null, 40: null, 60: null, 80: null,
-    100: null, 120: null, 140: null, 160: null, 180: null, 200: null,
+    100: null, 120: null, 140: null, 160: null, 180: null,
   },
 };
 
