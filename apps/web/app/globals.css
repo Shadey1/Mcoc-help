@@ -92,6 +92,34 @@ html, body {
   font-variant-numeric: tabular-nums;
 }
 
+/* Roster table hover burst (Variant D §10 item 2) — a tiny starburst that
+   appears around the "max obtainable" value when the row is hovered, hinting
+   at the upside. Same shape as .burst-badge but smaller (no Bungee, no
+   font-size bump) and only visible inside a tr:hover. */
+.burst-on-hover {
+  position: relative;
+  display: inline-block;
+  isolation: isolate;
+}
+.burst-on-hover::before {
+  content: "";
+  position: absolute;
+  inset: -0.35em -0.5em;
+  z-index: -1;
+  background: var(--color-burst-yellow);
+  clip-path: polygon(
+    50% 0%, 61.7% 13.9%, 79.4% 9.5%, 80.7% 27.7%, 97.6% 34.5%,
+    88% 50%, 97.6% 65.5%, 80.7% 72.3%, 79.4% 90.5%, 61.7% 86.1%,
+    50% 100%, 38.3% 86.1%, 20.6% 90.5%, 19.3% 72.3%, 2.4% 65.5%,
+    12% 50%, 2.4% 34.5%, 19.3% 27.7%, 20.6% 9.5%, 38.3% 13.9%
+  );
+  opacity: 0;
+  transition: opacity 120ms ease-out;
+}
+tr:hover .burst-on-hover::before {
+  opacity: 1;
+}
+
 /* Roster row pulse — applied for 3 seconds after an inline rank/sig/asc edit
    so the user can track the row as it re-sorts into its new position. Two
    gentle pulses then fade. Uses marvel-impact red at low alpha — visible

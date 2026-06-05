@@ -497,7 +497,9 @@ export function RosterManager({ champions }: RosterManagerProps) {
                         />
                       </td>
                       <td className="p-3 text-right numeric">
-                        {formatBHR(entry.ceilingBHR)}
+                        <span className="burst-on-hover">
+                          {formatBHR(entry.ceilingBHR)}
+                        </span>
                       </td>
                       <td className="p-3 text-right numeric">
                         {entry.headroomBHR === 0
