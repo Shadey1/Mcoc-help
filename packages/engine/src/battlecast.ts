@@ -175,7 +175,7 @@ export const BATTLECAST_6STAR_CATALOG: Record<Battlecast6Id, Battlecast6Def> = {
     class: 'Skill',
     boundChampions: [],
     verified: [],
-    mcochubAnchor: null,
+    mcochubAnchor: 1735,
   },
   gambit: {
     id: 'gambit',
@@ -199,7 +199,7 @@ export const BATTLECAST_6STAR_CATALOG: Record<Battlecast6Id, Battlecast6Def> = {
     class: 'Cosmic',
     boundChampions: [],
     verified: [],
-    mcochubAnchor: null,
+    mcochubAnchor: 1735,
   },
   'green-goblin': {
     id: 'green-goblin',
@@ -207,7 +207,7 @@ export const BATTLECAST_6STAR_CATALOG: Record<Battlecast6Id, Battlecast6Def> = {
     class: 'Tech',
     boundChampions: [],
     verified: [],
-    mcochubAnchor: null,
+    mcochubAnchor: 1722,
   },
   hulk: {
     id: 'hulk',
@@ -215,7 +215,7 @@ export const BATTLECAST_6STAR_CATALOG: Record<Battlecast6Id, Battlecast6Def> = {
     class: 'Science',
     boundChampions: [],
     verified: [],
-    mcochubAnchor: null,
+    mcochubAnchor: 1732,
   },
   hulkbuster: {
     id: 'hulkbuster',
@@ -223,7 +223,7 @@ export const BATTLECAST_6STAR_CATALOG: Record<Battlecast6Id, Battlecast6Def> = {
     class: 'Tech',
     boundChampions: [],
     verified: [],
-    mcochubAnchor: null,
+    mcochubAnchor: 1732,
   },
   'iron-fist': {
     id: 'iron-fist',
@@ -231,7 +231,7 @@ export const BATTLECAST_6STAR_CATALOG: Record<Battlecast6Id, Battlecast6Def> = {
     class: 'Mystic',
     boundChampions: [],
     verified: [],
-    mcochubAnchor: null,
+    mcochubAnchor: 1736,
   },
   juggernaut: {
     id: 'juggernaut',
@@ -239,7 +239,7 @@ export const BATTLECAST_6STAR_CATALOG: Record<Battlecast6Id, Battlecast6Def> = {
     class: 'Mutant',
     boundChampions: [],
     verified: [],
-    mcochubAnchor: null,
+    mcochubAnchor: 1733,
   },
   'mister-sinister': {
     id: 'mister-sinister',
@@ -247,7 +247,7 @@ export const BATTLECAST_6STAR_CATALOG: Record<Battlecast6Id, Battlecast6Def> = {
     class: 'Mutant',
     boundChampions: [],
     verified: [],
-    mcochubAnchor: null,
+    mcochubAnchor: 1737,
   },
   'ms-marvel': {
     id: 'ms-marvel',
@@ -255,7 +255,7 @@ export const BATTLECAST_6STAR_CATALOG: Record<Battlecast6Id, Battlecast6Def> = {
     class: 'Cosmic',
     boundChampions: [],
     verified: [],
-    mcochubAnchor: null,
+    mcochubAnchor: 1733,
   },
   'scarlet-witch': {
     id: 'scarlet-witch',
@@ -263,7 +263,7 @@ export const BATTLECAST_6STAR_CATALOG: Record<Battlecast6Id, Battlecast6Def> = {
     class: 'Mystic',
     boundChampions: [],
     verified: [],
-    mcochubAnchor: null,
+    mcochubAnchor: 1735,
   },
   sentinel: {
     id: 'sentinel',
@@ -271,7 +271,7 @@ export const BATTLECAST_6STAR_CATALOG: Record<Battlecast6Id, Battlecast6Def> = {
     class: 'Tech',
     boundChampions: [],
     verified: [],
-    mcochubAnchor: null,
+    mcochubAnchor: 1735,
   },
   'spider-man-2099': {
     id: 'spider-man-2099',
@@ -306,7 +306,7 @@ export const BATTLECAST_6STAR_CATALOG: Record<Battlecast6Id, Battlecast6Def> = {
     class: 'Mutant',
     boundChampions: [],
     verified: [],
-    mcochubAnchor: null,
+    mcochubAnchor: 1736,
   },
   thor: {
     id: 'thor',
@@ -314,7 +314,7 @@ export const BATTLECAST_6STAR_CATALOG: Record<Battlecast6Id, Battlecast6Def> = {
     class: 'Cosmic',
     boundChampions: [],
     verified: [],
-    mcochubAnchor: null,
+    mcochubAnchor: 1735,
   },
   valkyrie: {
     id: 'valkyrie',
@@ -322,7 +322,7 @@ export const BATTLECAST_6STAR_CATALOG: Record<Battlecast6Id, Battlecast6Def> = {
     class: 'Mystic',
     boundChampions: [],
     verified: [],
-    mcochubAnchor: null,
+    mcochubAnchor: 1735,
   },
   venom: {
     id: 'venom',
@@ -330,7 +330,7 @@ export const BATTLECAST_6STAR_CATALOG: Record<Battlecast6Id, Battlecast6Def> = {
     class: 'Cosmic',
     boundChampions: [],
     verified: [],
-    mcochubAnchor: null,
+    mcochubAnchor: 1731,
   },
   vision: {
     id: 'vision',
@@ -338,7 +338,7 @@ export const BATTLECAST_6STAR_CATALOG: Record<Battlecast6Id, Battlecast6Def> = {
     class: 'Tech',
     boundChampions: [],
     verified: [],
-    mcochubAnchor: null,
+    mcochubAnchor: 1732,
   },
   'winter-soldier': {
     id: 'winter-soldier',
@@ -346,7 +346,7 @@ export const BATTLECAST_6STAR_CATALOG: Record<Battlecast6Id, Battlecast6Def> = {
     class: 'Skill',
     boundChampions: [],
     verified: [],
-    mcochubAnchor: null,
+    mcochubAnchor: 1734,
   },
   wolverine: {
     id: 'wolverine',
