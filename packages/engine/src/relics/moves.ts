@@ -137,7 +137,7 @@ export function enumerateRelicMoves(
     if (beforeBHR === null) continue;
 
     if (bc.level < 200) {
-      const toLevel = (bc.level + 20) as Level;
+      const toLevel = bc.level + 20;
       const afterBHR = battlecast6BHR(
         bc.id,
         { rank: bc.rank, level: toLevel },

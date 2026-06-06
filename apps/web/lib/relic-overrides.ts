@@ -28,7 +28,7 @@ export function statcast6Key(rank: R6StatcastRank, sig: R6StatcastLevel): RelicO
 export function battlecast6Key(
   relicId: string,
   rank: R6StatcastRank,
-  sig: R6StatcastLevel,
+  sig: number,
 ): RelicOverrideKey {
   return `b|${relicId}|${rank}|${sig}`;
 }

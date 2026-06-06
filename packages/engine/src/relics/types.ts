@@ -24,10 +24,13 @@ export const RANKS: readonly Rank[] = [1, 2, 3, 4, 5, 6] as const;
 
 export const STAR_TIERS: readonly StarTier[] = [6, 7] as const;
 
-/** State of a single relic. Class/adjective/effect omitted: irrelevant to prestige. */
+/** State of a single relic. Class/adjective/effect omitted: irrelevant to prestige.
+ *  `level` is widened to `number` (vs the 20-step `Level` union) so battlecast
+ *  states with per-1 sig (e.g. sig 41) round-trip. Statcast lookups still
+ *  index by 20-step in their own tables; a non-bracket sig just returns null. */
 export type RelicState = {
   rank: Rank;
-  level: Level;
+  level: number;
 };
 
 /** Aggregated inventory entry: "I have N standard statcasts at this (starTier, rank, level)." */
@@ -51,11 +54,19 @@ export type SpecialRelicEntry = {
 /** A single owned 6★ battlecast relic, tracked individually by id. The id
  *  is one of `Battlecast6Id` from src/battlecast.ts; typed as string here
  *  to avoid the cross-module import (the engine's lookup gracefully
- *  returns null for unknown ids). */
+ *  returns null for unknown ids).
+ *
+ *  `level` is per-1 sig (integer 0..200). The game accepts per-1 stones
+ *  so a relic can land between the 20-step brackets that statcasts use
+ *  (e.g. an awakening gem followed by a single sig stone produces sig 41).
+ *  The `Level` type is the statcast-side 20-step union, intentionally
+ *  widened to number here.
+ */
 export type Battlecast6Entry = {
   id: string;
   rank: Rank;
-  level: Level;
+  /** Sig 0..200 (integer). Widened from the 20-step Level union — see comment above. */
+  level: number;
 };
 
 /** The user's full relic inventory. */
@@ -74,7 +85,7 @@ export type RelicMove =
   | { kind: 'rank-up'; starTier: StarTier; from: RelicState; toRank: Rank }
   | { kind: 'special-level-up'; id: SpecialRelicId; from: RelicState; toLevel: Level }
   | { kind: 'special-rank-up'; id: SpecialRelicId; from: RelicState; toRank: Rank }
-  | { kind: 'battlecast6-level-up'; id: string; from: RelicState; toLevel: Level }
+  | { kind: 'battlecast6-level-up'; id: string; from: RelicState; toLevel: number }
   | { kind: 'battlecast6-rank-up'; id: string; from: RelicState; toRank: Rank };
 
 export type ScoredRelicMove = {

@@ -59,7 +59,9 @@ export const Battlecast6EntrySchema = z.object({
   // null for unknown ids so bad data degrades to "no contribution".
   id: z.string().min(1).max(100),
   rank: RankSchema,
-  level: LevelSchema,
+  // Per-1 sig (0..200). Battlecasts can land between the 20-step brackets
+  // statcasts use — see Battlecast6Entry doc comment.
+  level: z.number().int().min(0).max(200),
 });
 
 export const RelicInventorySchema = z.object({

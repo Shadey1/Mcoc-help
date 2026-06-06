@@ -14,40 +14,54 @@ describe('battlecast6Rating — verified anchors', () => {
   });
 });
 
-describe('battlecast6Rating — MCOCHUB anchors at (R1, 0)', () => {
-  it('cosmic-egg R1 sig 0 = 2740 (mcochub-alpha)', () => {
-    expect(battlecast6Rating('cosmic-egg', 'R1', 0)).toEqual({
-      rating: 2740,
-      source: 'mcochub-alpha',
-    });
-  });
-
-  it('spider-man-2099 R1 sig 0 = 2283 (mcochub-alpha)', () => {
-    expect(battlecast6Rating('spider-man-2099', 'R1', 0)).toEqual({
+describe('battlecast6Rating — verified anchors from user captures', () => {
+  it('spider-man-2099 R4 sig 200 = 2283 (verified)', () => {
+    expect(battlecast6Rating('spider-man-2099', 'R4', 200)).toEqual({
       rating: 2283,
-      source: 'mcochub-alpha',
+      source: 'verified',
     });
   });
 
-  it('wolverine R1 sig 0 = 1738 (mcochub-alpha)', () => {
-    expect(battlecast6Rating('wolverine', 'R1', 0)).toEqual({
+  it('wolverine R3 sig 100 = 1738 (verified)', () => {
+    expect(battlecast6Rating('wolverine', 'R3', 100)).toEqual({
       rating: 1738,
-      source: 'mcochub-alpha',
+      source: 'verified',
+    });
+  });
+
+  it('mister-sinister R4 sig 180 = 2213 (verified)', () => {
+    expect(battlecast6Rating('mister-sinister', 'R4', 180)).toEqual({
+      rating: 2213,
+      source: 'verified',
+    });
+  });
+
+  it('gamora R2 sig 41 = 1324 — per-1 sig (between 20-step brackets)', () => {
+    expect(battlecast6Rating('gamora', 'R2', 41)).toEqual({
+      rating: 1324,
+      source: 'verified',
+    });
+  });
+
+  it('scarlet-witch R1 sig 61 = 1102 — per-1 sig', () => {
+    expect(battlecast6Rating('scarlet-witch', 'R1', 61)).toEqual({
+      rating: 1102,
+      source: 'verified',
     });
   });
 });
 
 describe('battlecast6Rating — null returns', () => {
-  it('cosmic-egg R3 sig 60 returns null (no data)', () => {
+  it('cosmic-egg R3 sig 60 returns null (no data at this state)', () => {
     expect(battlecast6Rating('cosmic-egg', 'R3', 60)).toBeNull();
   });
 
-  it('cosmic-egg R1 sig 20 returns null — MCOCHUB anchor is only for (R1, 0)', () => {
-    expect(battlecast6Rating('cosmic-egg', 'R1', 20)).toBeNull();
+  it('cosmic-egg R1 sig 0 returns null — MCOCHUB-α fallback dropped', () => {
+    expect(battlecast6Rating('cosmic-egg', 'R1', 0)).toBeNull();
   });
 
-  it('gamora R5 sig 200 returns null (no verified, MCOCHUB only applies at R1 sig 0)', () => {
-    expect(battlecast6Rating('gamora', 'R5', 200)).toBeNull();
+  it('gamora R2 sig 40 returns null — verified is at sig 41, no interpolation', () => {
+    expect(battlecast6Rating('gamora', 'R2', 40)).toBeNull();
   });
 });
 
@@ -68,7 +82,14 @@ describe('catalogue structure', () => {
     expect(BATTLECAST_6STAR_IDS.length).toBe(25);
   });
 
-  it('cosmic-egg is the only entry with a verified anchor', () => {
+  it('every catalogued entry now has at least one verified anchor', () => {
+    const withoutVerified = BATTLECAST_6STAR_IDS.filter(
+      (id) => BATTLECAST_6STAR_CATALOG[id].verified.length === 0,
+    );
+    expect(withoutVerified).toEqual([]);
+  });
+
+  it.skip('cosmic-egg is the only entry with a verified anchor', () => {
     const withVerified = BATTLECAST_6STAR_IDS.filter(
       (id) => BATTLECAST_6STAR_CATALOG[id].verified.length > 0,
     );

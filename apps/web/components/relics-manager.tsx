@@ -673,20 +673,18 @@ type Battlecast6SectionProps = {
   addEntry: (entry: Battlecast6Entry) => void;
   updateEntry: (index: number, partial: Partial<Battlecast6Entry>) => void;
   removeEntry: (index: number) => void;
+  // Battlecast sigs are per-1 (0..200) — battlecasts can land between the
+  // 20-step brackets that statcasts use, e.g. sig 41.
   getOverride: (
     id: string,
     rank: R6StatcastRank,
-    sig: R6StatcastLevel,
+    sig: number,
   ) => number | undefined;
-  clearOverride: (
-    id: string,
-    rank: R6StatcastRank,
-    sig: R6StatcastLevel,
-  ) => void;
+  clearOverride: (id: string, rank: R6StatcastRank, sig: number) => void;
   setOverride: (
     id: string,
     rank: R6StatcastRank,
-    sig: R6StatcastLevel,
+    sig: number,
     value: number,
   ) => void;
 };
@@ -763,30 +761,27 @@ function Battlecast6Section({
               </label>
               <label className="flex items-center gap-1 text-xs">
                 Sig
-                <select
+                <input
+                  type="number"
+                  min={0}
+                  max={200}
+                  step={1}
+                  inputMode="numeric"
                   value={bc.level}
-                  onChange={(e) =>
+                  onChange={(e) => {
+                    const n = parseInt(e.target.value || '0', 10) || 0;
                     updateEntry(i, {
-                      level: parseInt(e.target.value, 10) as RelicLevel,
-                    })
-                  }
-                  className="border border-[var(--color-ink-soft)] rounded px-1 py-0.5 text-xs"
-                >
-                  {LEVELS.map((l) => (
-                    <option key={l} value={l}>
-                      {l}
-                    </option>
-                  ))}
-                </select>
+                      level: Math.max(0, Math.min(200, n)),
+                    });
+                  }}
+                  className="w-16 border border-[var(--color-ink-soft)] rounded px-1 py-0.5 text-xs numeric"
+                  title="Sig is per-1 (0..200). Most relics land on the 20-step brackets but partial-stone awakening leaves some between, e.g. sig 41."
+                />
               </label>
               <div className="text-xs">
                 <ValueEditor
                   value={rating ? rating.rating : null}
-                  isAlpha={
-                    rating
-                      ? rating.source === 'mcochub-alpha'
-                      : false
-                  }
+                  isAlpha={false}
                   isOverridden={
                     rating ? rating.source === 'override' : false
                   }

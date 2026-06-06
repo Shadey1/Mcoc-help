@@ -23,22 +23,25 @@ import type { R6StatcastLevel, R6StatcastRank } from '@prestige-tools/engine';
 type RelicOverridesContextValue = {
   overrides: RelicOverrideMap;
   loaded: boolean;
-  /** Pin the 6★ statcast value at this exact (rank, sig). */
+  /** Pin the 6★ statcast value at this exact (rank, sig). Sig uses the
+   *  20-step bracket union because the statcast curve only has data at
+   *  those positions. */
   setStatcast6: (rank: R6StatcastRank, sig: R6StatcastLevel, value: number) => void;
-  /** Pin a specific 6★ battlecast's value at (rank, sig). */
+  /** Pin a specific 6★ battlecast's value at (rank, sig). Sig is per-1
+   *  (number) because battlecasts can land between the 20-step brackets. */
   setBattlecast6: (
     relicId: string,
     rank: R6StatcastRank,
-    sig: R6StatcastLevel,
+    sig: number,
     value: number,
   ) => void;
   clearStatcast6: (rank: R6StatcastRank, sig: R6StatcastLevel) => void;
-  clearBattlecast6: (relicId: string, rank: R6StatcastRank, sig: R6StatcastLevel) => void;
+  clearBattlecast6: (relicId: string, rank: R6StatcastRank, sig: number) => void;
   getStatcast6: (rank: R6StatcastRank, sig: R6StatcastLevel) => number | undefined;
   getBattlecast6: (
     relicId: string,
     rank: R6StatcastRank,
-    sig: R6StatcastLevel,
+    sig: number,
   ) => number | undefined;
 };
 
@@ -65,7 +68,7 @@ export function RelicOverridesProvider({ children }: { children: ReactNode }) {
   );
 
   const setBattlecast6 = useCallback(
-    (relicId: string, rank: R6StatcastRank, sig: R6StatcastLevel, value: number) => {
+    (relicId: string, rank: R6StatcastRank, sig: number, value: number) => {
       setOverrides((prev) => {
         const next = setOp(prev, battlecast6Key(relicId, rank, sig), value);
         saveRelicOverrides(next);
@@ -87,7 +90,7 @@ export function RelicOverridesProvider({ children }: { children: ReactNode }) {
   );
 
   const clearBattlecast6 = useCallback(
-    (relicId: string, rank: R6StatcastRank, sig: R6StatcastLevel) => {
+    (relicId: string, rank: R6StatcastRank, sig: number) => {
       setOverrides((prev) => {
         const next = clearOp(prev, battlecast6Key(relicId, rank, sig));
         saveRelicOverrides(next);

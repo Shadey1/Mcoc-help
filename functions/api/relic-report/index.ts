@@ -112,8 +112,13 @@ function validatePayload(raw: unknown): RelicReportPayload | { error: string } {
   if (typeof obj.rank !== 'string' || !VALID_RANKS.has(obj.rank)) {
     return { error: 'rank must be R1, R2, R3, R4, or R5' };
   }
-  if (typeof obj.level !== 'number' || !VALID_LEVELS.has(obj.level)) {
-    return { error: 'level must be one of 0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200' };
+  // Statcasts: only the 20-step brackets (shared curve has data only there).
+  // Battlecasts: per-1 sig (0..200) — game accepts per-1 stones, e.g. sig 41.
+  if (typeof obj.level !== 'number' || !Number.isInteger(obj.level) || obj.level < 0 || obj.level > 200) {
+    return { error: 'level must be an integer 0..200' };
+  }
+  if (kind === 'statcast' && !VALID_LEVELS.has(obj.level)) {
+    return { error: 'statcast level must be one of 0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200' };
   }
   if (
     typeof obj.rating !== 'number' ||

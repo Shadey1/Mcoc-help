@@ -243,14 +243,24 @@ describe('relic 6★ contributions', () => {
     expect(bhrs).toEqual([]);
   });
 
-  it('6★ battlecast contributes the MCOCHUB α anchor at (R1, sig 0)', () => {
-    // Cosmic Egg at R1 sig 0 returns 2740 from the MCOCHUB-α path.
+  it('6★ battlecast contributes its verified anchor at the captured (rank, sig)', () => {
+    // Spider-Man 2099 R4 sig 200 = 2283 (verified from in-game capture).
+    const bhrs = relicBHRs({
+      standardCounts: [],
+      specials: [],
+      battlecasts6Star: [{ id: 'spider-man-2099', rank: 4, level: 200 }],
+    });
+    expect(bhrs).toEqual([2283]);
+  });
+
+  it('6★ battlecast returns nothing for an unattested (rank, sig) — no α fallback', () => {
+    // The previous MCOCHUB-α path at (R1, sig 0) was misattributed; dropped.
     const bhrs = relicBHRs({
       standardCounts: [],
       specials: [],
       battlecasts6Star: [{ id: 'cosmic-egg', rank: 1, level: 0 }],
     });
-    expect(bhrs).toEqual([2740]);
+    expect(bhrs).toEqual([]);
   });
 
   it('mixed inventory: 7★ statcasts + 7★ special + 6★ statcast + 6★ battlecast', () => {

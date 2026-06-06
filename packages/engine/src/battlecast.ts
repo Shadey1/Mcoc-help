@@ -27,7 +27,7 @@
  * modules will share more structure.
  */
 
-import type { LevelBracket, RelicRank } from './relic.js';
+import type { RelicRank } from './relic.js';
 
 /** Stable id for each catalogued 6★ battlecast. Sourced from the Fandom
  *  wiki's full battlecast page list (24 named battlecasts + Cosmic Egg).
@@ -111,18 +111,22 @@ export type Battlecast6Def = {
   /**
    * Verified prestige anchors from direct in-game readings. Sparse —
    * only populated where someone has captured the exact value at a
-   * specific (rank, sig).
+   * specific (rank, sig). Sig is an integer 0..200 (game accepts per-1
+   * stones; most readings land on 20-step brackets but not all).
    */
   verified: ReadonlyArray<{
     rank: RelicRank;
-    sig: LevelBracket;
+    sig: number;
     rating: number;
   }>;
   /**
-   * MCOCHUB community-ranking value. Single number per relic at an
-   * unspecified state; we attribute it to R1 sig 0 as the most common
-   * normalisation point used by community ranking pages. Treated as
-   * alpha. null if MCOCHUB has no value for this relic.
+   * MCOCHUB community-ranking value — preserved as catalogue metadata
+   * only. Earlier code attributed this to (R1, sig 0); user clarified
+   * the values are actually snapshots of one summoner's specific relic
+   * states (varying ranks + sigs), so the (R1, sig 0) attribution was
+   * misleading. Field stays for display ("community ranking: 1737") but
+   * isn't returned through battlecast6Rating any more. null if MCOCHUB
+   * doesn't list this relic.
    */
   mcochubAnchor: number | null;
 };
@@ -150,7 +154,7 @@ export const BATTLECAST_6STAR_CATALOG: Record<Battlecast6Id, Battlecast6Def> = {
     name: 'Ant-Man',
     class: 'Tech',
     boundChampions: [],
-    verified: [],
+    verified: [{ rank: 'R2', sig: 80, rating: 1414 }],
     mcochubAnchor: 2262,
   },
   'black-panther': {
@@ -158,7 +162,7 @@ export const BATTLECAST_6STAR_CATALOG: Record<Battlecast6Id, Battlecast6Def> = {
     name: 'Black Panther',
     class: 'Skill',
     boundChampions: [],
-    verified: [],
+    verified: [{ rank: 'R2', sig: 60, rating: 1360 }],
     mcochubAnchor: 1996,
   },
   'black-widow': {
@@ -166,7 +170,7 @@ export const BATTLECAST_6STAR_CATALOG: Record<Battlecast6Id, Battlecast6Def> = {
     name: 'Black Widow',
     class: 'Skill',
     boundChampions: [],
-    verified: [],
+    verified: [{ rank: 'R2', sig: 40, rating: 1315 }],
     mcochubAnchor: 2266,
   },
   'captain-america-wwii': {
@@ -174,7 +178,7 @@ export const BATTLECAST_6STAR_CATALOG: Record<Battlecast6Id, Battlecast6Def> = {
     name: 'Captain America (WWII)',
     class: 'Skill',
     boundChampions: [],
-    verified: [],
+    verified: [{ rank: 'R4', sig: 200, rating: 2265 }],
     mcochubAnchor: 1735,
   },
   gambit: {
@@ -182,7 +186,7 @@ export const BATTLECAST_6STAR_CATALOG: Record<Battlecast6Id, Battlecast6Def> = {
     name: 'Gambit',
     class: 'Mutant',
     boundChampions: [],
-    verified: [],
+    verified: [{ rank: 'R4', sig: 200, rating: 2236 }],
     mcochubAnchor: 2269,
   },
   gamora: {
@@ -190,7 +194,7 @@ export const BATTLECAST_6STAR_CATALOG: Record<Battlecast6Id, Battlecast6Def> = {
     name: 'Gamora',
     class: 'Cosmic',
     boundChampions: [],
-    verified: [],
+    verified: [{ rank: 'R2', sig: 41, rating: 1324 }],
     mcochubAnchor: 2275,
   },
   'ghost-rider': {
@@ -198,7 +202,7 @@ export const BATTLECAST_6STAR_CATALOG: Record<Battlecast6Id, Battlecast6Def> = {
     name: 'Ghost Rider',
     class: 'Cosmic',
     boundChampions: [],
-    verified: [],
+    verified: [{ rank: 'R2', sig: 100, rating: 1470 }],
     mcochubAnchor: 1735,
   },
   'green-goblin': {
@@ -206,7 +210,7 @@ export const BATTLECAST_6STAR_CATALOG: Record<Battlecast6Id, Battlecast6Def> = {
     name: 'Green Goblin',
     class: 'Tech',
     boundChampions: [],
-    verified: [],
+    verified: [{ rank: 'R4', sig: 140, rating: 2107 }],
     mcochubAnchor: 1722,
   },
   hulk: {
@@ -214,7 +218,7 @@ export const BATTLECAST_6STAR_CATALOG: Record<Battlecast6Id, Battlecast6Def> = {
     name: 'Hulk',
     class: 'Science',
     boundChampions: [],
-    verified: [],
+    verified: [{ rank: 'R2', sig: 40, rating: 1309 }],
     mcochubAnchor: 1732,
   },
   hulkbuster: {
@@ -222,7 +226,7 @@ export const BATTLECAST_6STAR_CATALOG: Record<Battlecast6Id, Battlecast6Def> = {
     name: 'Hulkbuster',
     class: 'Tech',
     boundChampions: [],
-    verified: [],
+    verified: [{ rank: 'R2', sig: 80, rating: 1415 }],
     mcochubAnchor: 1732,
   },
   'iron-fist': {
@@ -230,7 +234,7 @@ export const BATTLECAST_6STAR_CATALOG: Record<Battlecast6Id, Battlecast6Def> = {
     name: 'Iron Fist',
     class: 'Mystic',
     boundChampions: [],
-    verified: [],
+    verified: [{ rank: 'R4', sig: 200, rating: 2266 }],
     mcochubAnchor: 1736,
   },
   juggernaut: {
@@ -238,7 +242,7 @@ export const BATTLECAST_6STAR_CATALOG: Record<Battlecast6Id, Battlecast6Def> = {
     name: 'Juggernaut',
     class: 'Mutant',
     boundChampions: [],
-    verified: [],
+    verified: [{ rank: 'R2', sig: 80, rating: 1416 }],
     mcochubAnchor: 1733,
   },
   'mister-sinister': {
@@ -246,7 +250,7 @@ export const BATTLECAST_6STAR_CATALOG: Record<Battlecast6Id, Battlecast6Def> = {
     name: 'Mister Sinister',
     class: 'Mutant',
     boundChampions: [],
-    verified: [],
+    verified: [{ rank: 'R4', sig: 180, rating: 2213 }],
     mcochubAnchor: 1737,
   },
   'ms-marvel': {
@@ -254,7 +258,7 @@ export const BATTLECAST_6STAR_CATALOG: Record<Battlecast6Id, Battlecast6Def> = {
     name: 'Ms. Marvel',
     class: 'Cosmic',
     boundChampions: [],
-    verified: [],
+    verified: [{ rank: 'R3', sig: 120, rating: 1786 }],
     mcochubAnchor: 1733,
   },
   'scarlet-witch': {
@@ -262,7 +266,7 @@ export const BATTLECAST_6STAR_CATALOG: Record<Battlecast6Id, Battlecast6Def> = {
     name: 'Scarlet Witch',
     class: 'Mystic',
     boundChampions: [],
-    verified: [],
+    verified: [{ rank: 'R1', sig: 61, rating: 1102 }],
     mcochubAnchor: 1735,
   },
   sentinel: {
@@ -270,7 +274,7 @@ export const BATTLECAST_6STAR_CATALOG: Record<Battlecast6Id, Battlecast6Def> = {
     name: 'Sentinel',
     class: 'Tech',
     boundChampions: [],
-    verified: [],
+    verified: [{ rank: 'R2', sig: 60, rating: 1364 }],
     mcochubAnchor: 1735,
   },
   'spider-man-2099': {
@@ -297,7 +301,7 @@ export const BATTLECAST_6STAR_CATALOG: Record<Battlecast6Id, Battlecast6Def> = {
       'the-leader',
       'lizard',
     ],
-    verified: [],
+    verified: [{ rank: 'R4', sig: 200, rating: 2283 }],
     mcochubAnchor: 2283,
   },
   storm: {
@@ -305,7 +309,7 @@ export const BATTLECAST_6STAR_CATALOG: Record<Battlecast6Id, Battlecast6Def> = {
     name: 'Storm',
     class: 'Mutant',
     boundChampions: [],
-    verified: [],
+    verified: [{ rank: 'R4', sig: 200, rating: 2264 }],
     mcochubAnchor: 1736,
   },
   thor: {
@@ -313,7 +317,7 @@ export const BATTLECAST_6STAR_CATALOG: Record<Battlecast6Id, Battlecast6Def> = {
     name: 'Thor',
     class: 'Cosmic',
     boundChampions: [],
-    verified: [],
+    verified: [{ rank: 'R3', sig: 100, rating: 1735 }],
     mcochubAnchor: 1735,
   },
   valkyrie: {
@@ -321,7 +325,7 @@ export const BATTLECAST_6STAR_CATALOG: Record<Battlecast6Id, Battlecast6Def> = {
     name: 'Valkyrie',
     class: 'Mystic',
     boundChampions: [],
-    verified: [],
+    verified: [{ rank: 'R4', sig: 200, rating: 2263 }],
     mcochubAnchor: 1735,
   },
   venom: {
@@ -329,7 +333,7 @@ export const BATTLECAST_6STAR_CATALOG: Record<Battlecast6Id, Battlecast6Def> = {
     name: 'Venom',
     class: 'Cosmic',
     boundChampions: [],
-    verified: [],
+    verified: [{ rank: 'R4', sig: 120, rating: 2049 }],
     mcochubAnchor: 1731,
   },
   vision: {
@@ -337,7 +341,7 @@ export const BATTLECAST_6STAR_CATALOG: Record<Battlecast6Id, Battlecast6Def> = {
     name: 'Vision',
     class: 'Tech',
     boundChampions: [],
-    verified: [],
+    verified: [{ rank: 'R4', sig: 120, rating: 2050 }],
     mcochubAnchor: 1732,
   },
   'winter-soldier': {
@@ -345,7 +349,7 @@ export const BATTLECAST_6STAR_CATALOG: Record<Battlecast6Id, Battlecast6Def> = {
     name: 'Winter Soldier',
     class: 'Skill',
     boundChampions: [],
-    verified: [],
+    verified: [{ rank: 'R4', sig: 120, rating: 2025 }],
     mcochubAnchor: 1734,
   },
   wolverine: {
@@ -353,41 +357,36 @@ export const BATTLECAST_6STAR_CATALOG: Record<Battlecast6Id, Battlecast6Def> = {
     name: 'Wolverine',
     class: 'Mutant',
     boundChampions: [],
-    verified: [],
+    verified: [{ rank: 'R3', sig: 100, rating: 1738 }],
     mcochubAnchor: 1738,
   },
 };
 
-export type Battlecast6Rating =
-  | { rating: number; source: 'verified' }
-  | { rating: number; source: 'mcochub-alpha' };
+export type Battlecast6Rating = { rating: number; source: 'verified' };
 
 /**
  * Look up a 6★ battlecast's rating at (rank, sig).
  *
- *   - Returns `source: 'verified'` if a verified anchor matches exactly.
- *   - Returns `source: 'mcochub-alpha'` ONLY when the query is (R1, 0)
- *     AND the relic has a MCOCHUB anchor — MCOCHUB's state attribution
- *     is best-guess, we don't extrapolate from it.
- *   - Returns null otherwise. Callers display "—" or invite submissions.
+ *   - Returns `source: 'verified'` when an exact anchor match exists.
+ *   - Returns null otherwise. No fallback / extrapolation — battlecast
+ *     curves are per-relic with no shared shape, so guessing across
+ *     states would mislead. Callers display "—" or invite submissions.
+ *
+ * Sig is an integer 0..200. The game accepts per-1 sig stones; most
+ * relics land on 20-step brackets but not all (rare awakening-gem +
+ * partial sig combos produce values like sig 41 or sig 61).
  */
 export function battlecast6Rating(
   id: Battlecast6Id,
   rank: RelicRank,
-  sig: LevelBracket,
+  sig: number,
 ): Battlecast6Rating | null {
   const def = BATTLECAST_6STAR_CATALOG[id];
   if (!def) return null;
-
   for (const v of def.verified) {
     if (v.rank === rank && v.sig === sig) {
       return { rating: v.rating, source: 'verified' };
     }
   }
-
-  if (rank === 'R1' && sig === 0 && def.mcochubAnchor !== null) {
-    return { rating: def.mcochubAnchor, source: 'mcochub-alpha' };
-  }
-
   return null;
 }

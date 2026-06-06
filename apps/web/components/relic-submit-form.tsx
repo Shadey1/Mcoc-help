@@ -34,7 +34,8 @@ export function RelicSubmitForm() {
   const [statcastSig, setStatcastSig] = useState<R6StatcastLevel>(0);
   const [battlecastId, setBattlecastId] = useState<Battlecast6Id>('cosmic-egg');
   const [battlecastRank, setBattlecastRank] = useState<R6StatcastRank>('R5');
-  const [battlecastSig, setBattlecastSig] = useState<R6StatcastLevel>(200);
+  // Battlecasts use per-1 sig (0..200), not the 20-step statcast bracket.
+  const [battlecastSig, setBattlecastSig] = useState<number>(200);
   const [rating, setRating] = useState<string>('');
   const [state, setState] = useState<SubmitState>({ kind: 'idle' });
 
@@ -73,7 +74,7 @@ export function RelicSubmitForm() {
           level: battlecastSig,
           rating: Math.round(n),
           predictedRating: battlecastPredicted?.rating ?? null,
-          isAlpha: battlecastPredicted?.source === 'mcochub-alpha' ? true : false,
+          isAlpha: false,
         });
       }
       setState({ kind: 'success' });
@@ -217,10 +218,10 @@ function BattlecastFields({
 }: {
   id: Battlecast6Id;
   rank: R6StatcastRank;
-  sig: R6StatcastLevel;
+  sig: number;
   onId: (i: Battlecast6Id) => void;
   onRank: (r: R6StatcastRank) => void;
-  onSig: (s: R6StatcastLevel) => void;
+  onSig: (s: number) => void;
   rating: string;
   onRating: (r: string) => void;
   predictedLabel: string;
@@ -244,7 +245,23 @@ function BattlecastFields({
           </select>
         </label>
         <RankField rank={rank} onRank={onRank} />
-        <SigField sig={sig} onSig={onSig} />
+        <label className="text-xs">
+          Sig
+          <input
+            type="number"
+            min={0}
+            max={200}
+            step={1}
+            inputMode="numeric"
+            value={sig}
+            onChange={(e) => {
+              const n = parseInt(e.target.value || '0', 10) || 0;
+              onSig(Math.max(0, Math.min(200, n)));
+            }}
+            className="block w-full mt-1 px-2 py-1.5 text-sm border border-[var(--color-rule)] rounded bg-[var(--color-paper)] focus:outline-none focus:border-[var(--color-marvel-impact)] numeric"
+            title="Sig is per-1 (0..200) — partial-stone awakening leaves some between the 20-step brackets."
+          />
+        </label>
         <RatingField rating={rating} onRating={onRating} />
         <SubmitButton submitting={submitting} disabled={rating.trim() === ''} />
       </div>

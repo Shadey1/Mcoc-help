@@ -19,7 +19,9 @@ export type BattlecastReport = {
   kind: 'battlecast';
   relicId: Battlecast6Id;
   rank: R6StatcastRank;
-  level: R6StatcastLevel;
+  /** Sig 0..200 (per-1) — battlecasts can land between the 20-step
+   *  brackets statcasts use, e.g. sig 41 after a partial awakening. */
+  level: number;
   rating: number;
   predictedRating?: number | null;
   isAlpha?: boolean;

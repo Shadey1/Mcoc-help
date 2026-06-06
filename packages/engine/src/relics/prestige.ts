@@ -26,7 +26,10 @@ import {
 function lookupOrInterpolate(
   table: PrestigeTable,
   rank: Rank,
-  level: Level,
+  // Per-1 sig: battlecast states may land between the 20-step Level brackets.
+  // Statcast lookups still find their 20-step anchors; non-bracket sigs fall
+  // through to interpolation or null naturally.
+  level: number,
 ): number | null {
   const rankTable = table[rank];
   if (!rankTable) return null;
