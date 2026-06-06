@@ -53,6 +53,10 @@ export {
 // Atomic moves view
 export { enumerateMoves, applyMove, optimise } from './optimise.js';
 
+// Multi-step plan (atomic moves sequenced)
+export { planSteps } from './plan.js';
+export type { PlanStep } from './plan.js';
+
 // Ceiling view
 export { computeCeilings } from './ceiling.js';
 

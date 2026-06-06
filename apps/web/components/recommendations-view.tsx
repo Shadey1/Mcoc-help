@@ -7,12 +7,14 @@ import {
   computeCeilings,
   enumerateRelicMoves,
   optimise,
+  planSteps,
   type Champion,
   type ChampionState,
   type Roster,
   type ScoredMove,
   type ScoredRelicMove,
   type CeilingEntry,
+  type PlanStep,
   type SpecialRelicId,
 } from '@prestige-tools/engine';
 import { loadRoster, saveRoster } from '../lib/roster-storage';
@@ -28,7 +30,7 @@ type RecommendationsViewProps = {
   champions: Champion[];
 };
 
-type Mode = 'atomic' | 'ceiling';
+type Mode = 'atomic' | 'plan' | 'ceiling';
 
 type Toast = {
   message: string;
@@ -115,6 +117,10 @@ export function RecommendationsView({ champions }: RecommendationsViewProps) {
   // Defensive: drop states referencing champions not in the current seed
   const validStates = roster.champions.filter((s) => championLookup.has(s.championId));
   const moves = optimise(validStates, championLookup, 12, overrides);
+  // Multi-step plan: 10 greedy moves with cumulative delta. Computed
+  // lazily — only when the user switches to the Plan tab.
+  const plan: PlanStep[] =
+    mode === 'plan' ? planSteps(validStates, championLookup, 10, overrides) : [];
   // Long-term plan includes ALL active champions, not just owned — answers
   // "what would maxing any champion do for my prestige" including pulls
   // you'd want to prioritise. Unowned entries marked owned: false.
@@ -178,7 +184,11 @@ export function RecommendationsView({ champions }: RecommendationsViewProps) {
 
       <div className="flex items-center justify-between border-b border-[var(--color-rule)] pb-3">
         <h2 className="editorial-heading text-2xl">
-          {mode === 'atomic' ? 'Short-term plan' : 'Long-term plan'}
+          {mode === 'atomic'
+            ? 'Short-term plan'
+            : mode === 'plan'
+              ? 'Next 10 moves'
+              : 'Long-term plan'}
         </h2>
         <div className="flex gap-1 bg-[var(--color-paper-soft)] rounded-md p-1 border border-[var(--color-rule)] text-sm">
           <button
@@ -194,6 +204,17 @@ export function RecommendationsView({ champions }: RecommendationsViewProps) {
           </button>
           <button
             type="button"
+            onClick={() => setMode('plan')}
+            className={`px-3 py-1 rounded transition-colors ${
+              mode === 'plan'
+                ? 'bg-[var(--color-paper)] font-medium'
+                : 'text-[var(--color-ink-soft)] hover:text-[var(--color-ink)]'
+            }`}
+          >
+            Next 10 moves
+          </button>
+          <button
+            type="button"
             onClick={() => setMode('ceiling')}
             className={`px-3 py-1 rounded transition-colors ${
               mode === 'ceiling'
@@ -206,7 +227,7 @@ export function RecommendationsView({ champions }: RecommendationsViewProps) {
         </div>
       </div>
 
-      {mode === 'atomic' ? (
+      {mode === 'atomic' && (
         <AtomicMovesList
           moves={moves}
           relicMoves={relicMoves}
@@ -214,7 +235,17 @@ export function RecommendationsView({ champions }: RecommendationsViewProps) {
           championLookup={championLookup}
           onMoveDone={handleMoveDone}
         />
-      ) : (
+      )}
+
+      {mode === 'plan' && (
+        <PlanList
+          plan={plan}
+          championLookup={championLookup}
+          onStepDone={handleMoveDone}
+        />
+      )}
+
+      {mode === 'ceiling' && (
         <CeilingList
           key={`ceiling-${validStates.length}`}
           entries={ceilings}
@@ -528,6 +559,120 @@ function RelicMoveCard({
           {move.notes.join(' ')}
         </div>
       )}
+    </div>
+  );
+}
+
+function PlanList({
+  plan,
+  championLookup,
+  onStepDone,
+}: {
+  plan: PlanStep[];
+  championLookup: Map<string, Champion>;
+  onStepDone: (move: ScoredMove) => void;
+}) {
+  if (plan.length === 0) {
+    return (
+      <p className="text-[var(--color-ink-soft)] italic">
+        No positive-delta sequence available right now. Either your roster is
+        fully developed, or the only moves left are ascend-first deferred ones
+        — go ascend something and come back.
+      </p>
+    );
+  }
+  const finalCumulative = plan[plan.length - 1]!.cumulativeDelta;
+  return (
+    <div className="space-y-4">
+      <p className="text-sm text-[var(--color-ink-soft)] max-w-2xl">
+        The next moves in order. Each step assumes the previous ones are
+        done — that&apos;s why the deltas can change vs. the Short-term list.
+        Total expected prestige gain across these 10 steps:{' '}
+        <span className="numeric font-medium text-[var(--color-marvel-editorial)]">
+          {formatDelta(finalCumulative)}
+        </span>
+        .
+      </p>
+      <ol className="space-y-3 list-none p-0">
+        {plan.map((step) => {
+          const champion = championLookup.get(step.move.move.championId);
+          const isTop = step.index === 1;
+          const description = describeMove(step.move);
+          return (
+            <li key={step.index} className="flex gap-3 items-stretch">
+              <div className="flex-shrink-0 flex flex-col items-center justify-center w-12 pt-3">
+                <div className="text-lg font-medium text-[var(--color-ink-soft)] numeric">
+                  {step.index}.
+                </div>
+              </div>
+              <div
+                className={`flex-1 border rounded-lg p-3 transition-colors ${
+                  isTop
+                    ? 'border-[var(--color-marvel-impact)] bg-[var(--color-paper-card)] shadow-sm'
+                    : 'border-[var(--color-rule)] bg-[var(--color-paper-card)]'
+                }`}
+              >
+                <div className="flex items-start gap-3">
+                  {champion && (
+                    <div className="flex-shrink-0 flex flex-col items-center">
+                      <Link href={`/champions/${champion.id}/`}>
+                        <ChampionPortrait
+                          name={champion.name}
+                          klass={champion.class}
+                          portraitUrl={champion.portraitUrl ?? null}
+                          size={56}
+                          showClassOverlay={Boolean(champion.portraitUrl)}
+                        />
+                      </Link>
+                      <div className="text-xs text-[var(--color-ink-soft)] numeric mt-1 text-center">
+                        {description}
+                      </div>
+                    </div>
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <div
+                      className="font-medium leading-tight truncate"
+                      title={step.move.championName}
+                    >
+                      {step.move.championName}
+                    </div>
+                    <div className="text-xs text-[var(--color-ink-soft)] numeric mt-1">
+                      BHR {formatBHR(step.move.beforeBHR)} →{' '}
+                      {formatBHR(step.move.afterBHR)}
+                    </div>
+                  </div>
+                  <div className="text-right flex-shrink-0">
+                    <DeltaBurst
+                      value={formatDelta(step.move.top30Delta)}
+                      burst={isTop}
+                    />
+                    <div className="text-[10px] text-[var(--color-ink-soft)] numeric mt-1">
+                      cumulative {formatDelta(step.cumulativeDelta)}
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-3 pt-3 border-t border-[var(--color-rule)] flex flex-wrap items-center gap-2">
+                  {step.move.costGates.map((gate, i) => (
+                    <span
+                      key={i}
+                      className={`text-xs px-2 py-1 rounded numeric ${costGateBadge(gate.kind)}`}
+                    >
+                      {gate.label}
+                    </span>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => onStepDone(step.move)}
+                    className="ml-auto text-xs px-3 py-1.5 border border-[var(--color-rule)] rounded hover:bg-[var(--color-paper-soft)] hover:border-[var(--color-marvel-editorial)] transition-colors"
+                  >
+                    ✓ I&apos;ve done step {step.index}
+                  </button>
+                </div>
+              </div>
+            </li>
+          );
+        })}
+      </ol>
     </div>
   );
 }
