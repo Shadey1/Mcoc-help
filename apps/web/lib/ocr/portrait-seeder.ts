@@ -145,10 +145,11 @@ export async function seedPortraitStore(
     for (const bhr of gridAnchors) {
       const name = findNameAboveBhr(bhr, gridNames);
       if (name) coveredNames.add(name.championId);
-      // Read the gold ascension badge at the right end of the BHR row, but only
-      // for cards we'll import (those with a name) to save OCR calls. Absent
-      // badge ⇒ null ⇒ derivation falls back to fitting the best ascension.
-      const ascHint = name ? await ocrAscensionBadge(canvas, bhr.rect) : null;
+      // Read the gold ascension badge at the right end of the BHR row for
+      // every detected card (named or not). "No badge → A0" is a reliable
+      // signal — surfacing it for name-less cards lets the BHR-based
+      // candidate ranking pick the right ascension instead of defaulting.
+      const ascHint = await ocrAscensionBadge(canvas, bhr.rect);
       observations.push({
         value: bhr.value,
         rect: bhr.rect,
@@ -350,6 +351,10 @@ export async function seedPortraitStore(
         portraitHash,
         thumbnailDataUrl,
         derivedState,
+        // Absent badge → A0; the OCR returns null when nothing readable in
+        // the badge region (the user-confirmed signal "no badge means no
+        // ascension").
+        visualAscension: rep.ascHint ?? 'A0',
         nameText: rep.nameHintId
           ? (champLookup.get(rep.nameHintId)?.name ?? null)
           : null,

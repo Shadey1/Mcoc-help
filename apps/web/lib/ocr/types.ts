@@ -91,6 +91,15 @@ export type ProcessedTile = {
   derivedState: DerivedState | null;
   /** OCR'd champion name from below the portrait. May be noisy. */
   nameText: string | null;
+  /**
+   * Visually-detected ascension level from the bottom-right badge. Per the
+   * detector, "no badge" → A0, "1 band" → A1, "2 bands" → A2. Stored on
+   * every card (named or not) so the global BHR assignment can use it as
+   * an ascension hint when picking among candidates. The detector treats
+   * detection failures as A0, so a small soft-bonus is the right level of
+   * trust (not a hard filter).
+   */
+  visualAscension: 'A0' | 'A1' | 'A2';
 };
 
 /** Identification result — best champion match with supporting evidence. */

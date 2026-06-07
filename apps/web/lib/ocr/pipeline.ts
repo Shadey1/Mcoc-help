@@ -366,6 +366,7 @@ async function processCard(
       thumbnailDataUrl,
       derivedState,
       nameText: nameText || null,
+      visualAscension,
     },
     match,
     userOverrideId: null,
@@ -422,24 +423,34 @@ function globalBHRAssignment(
       null;
     if (!bhr) continue;
 
+    // Pass the per-card visual ascension as a soft hint so the global
+    // assignment respects it when picking among candidates. For name-less
+    // cards this is the only ascension signal we have; for named cards it
+    // confirms or breaks ties with the BHR-only candidate ranking.
     const candidates = findChampionsByBHR(
       bhr,
-      null,
+      card.tile.visualAscension,
       champions,
       GLOBAL_TOLERANCE,
     );
 
     const nameText = card.tile.nameText;
+    // Ascension hint bonus at the cross-champion level. Same -25 magnitude
+    // as findChampionsByBHR's within-champion tie-break — bigger nudge here
+    // because for name-less cards this is the only signal beyond BHR, and
+    // the "no badge → A0" case is empirically reliable.
+    const visualAsc = card.tile.visualAscension;
     for (const c of candidates) {
       const nameBonus =
         nameText && nameText.length >= 3
           ? nameSimilarity(nameText, c.championName) * 150
           : 0;
+      const ascBonus = c.ascension === visualAsc ? 25 : 0;
       allScored.push({
         cardIdx: ci,
         candidate: c,
         nameBonus,
-        effectiveError: c.absError - nameBonus,
+        effectiveError: c.absError - nameBonus - ascBonus,
       });
     }
   }
