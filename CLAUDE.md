@@ -29,22 +29,29 @@ scripts/           Seed ingestion, drift check, graph builder
 
 **Phase 0: complete.** Engine math verified against ground-truth roster (§16) — 36,115 predicted vs 36,120 in-game, within 5 BHR aggregate.
 
-**Phase 1 (web v1): in progress.** Critical path:
+**Phase 1 (web v1): shipped 2026-06-10.** Live on Cloudflare Pages, soft-launched to the alliance and posted to Reddit. Originally-scoped critical path all delivered:
+
 1. Roster input with persistent local storage
 2. Recommendations view (atomic + ceiling, cost-labelled)
 3. Roster table view (sortable, filterable)
-4. Champion list + detail pages
+4. Champion list + detail pages (now also with synergies + clickable partner navigation)
 5. Variant D visual direction
-6. Deploy to Cloudflare Pages, soft launch to alliance
+6. Cloudflare Pages deploy + alliance soft launch
 
-## What's out of scope for v1
+Extras shipped alongside v1 (originally tagged v2):
+- Multi-step planner ("next 10 moves" view)
+- Alliance shared defender pool for /war
+- 6★ relic catalog (statcasts + battlecasts) with per-relic calibration overrides
+- BHR overrides for local roster-state calibration
+- Champion synergies with partner-stub pages for non-7★ partners
 
-Do not build these — they are v2/v3 territory:
+**Phase 2 (post-launch): in progress.** Watching alliance + Reddit feedback; iterating on user-reported issues. Don't redo what's shipped — start from current state.
 
-- **Screenshot OCR import** — Phase 3. Code exists under `apps/web/lib/ocr/` and `apps/web/components/screenshot-import.tsx` / `confirmation-grid.tsx` as a working foundation, but the entry point is hidden behind a feature flag. Do not ship it in v1.
-- **Relic prestige optimiser** — v2. Champion prestige is 94% of total; relics are a separate loop.
-- **Multi-step planner** — v2+. v1 is atomic moves only.
-- **User accounts / cloud sync** — out of scope. Local storage only.
+## What's out of scope (still v2/v3 territory)
+
+- **Screenshot OCR import** — live behind `FEATURE_SCREENSHOT_IMPORT = false`. In alpha, accessible only via the always-visible "Seed portraits" tab. Stays gated until accuracy is solid.
+- **Relic prestige optimiser** — engine math TBD. Champion prestige is 94% of total; relics are a separate loop.
+- **User accounts / cloud sync** — local storage + KV-backed share links only.
 - **APK extraction fallback** — Phase 4 contingency.
 
 ## Dormant Phase 3 code (behind feature flags)
