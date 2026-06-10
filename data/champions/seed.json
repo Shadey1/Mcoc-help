@@ -2796,6 +2796,49 @@
       "sevenStarReleased": true
     },
     {
+      "id": "ghost-rider",
+      "name": "Ghost Rider",
+      "class": "Mystic",
+      "ascendable": true,
+      "prestige": {
+        "rank5": {
+          "0": 28770,
+          "20": 32390,
+          "40": 33600,
+          "60": 34600,
+          "80": 35500,
+          "100": 36320,
+          "120": 37090,
+          "140": 37820,
+          "160": 38510,
+          "180": 39170,
+          "200": 39810
+        },
+        "rank4": {
+          "0": 24260,
+          "20": 27310,
+          "40": 28320,
+          "60": 29170,
+          "80": 29930,
+          "100": 30620,
+          "120": 31270,
+          "140": 31880,
+          "160": 32470,
+          "180": 33020,
+          "200": 33560
+        }
+      },
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "mcoc.gg per-rank curves (R4 + R5 11-anchor, fetched 2026-06-10 — missed by earlier scrapes due to MCOCHUB name normalization)",
+        "ascendableSource": "mcoc.gg ascend=true",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/b/bc/Ghost_Rider_portrait.png/revision/latest/scale-to-width-down/200?cb=20260504222859",
+      "sevenStarReleased": true
+    },
+    {
       "id": "gladiator",
       "name": "Gladiator",
       "class": "Cosmic",
@@ -10702,7 +10745,7 @@
         "lastVerified": "2026-06-03"
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/9/91/Wave_portrait.png/revision/latest/scale-to-width-down/200?cb=20260504222648",
-      "sevenStarReleased": false
+      "sevenStarReleased": true
     },
     {
       "id": "werewolf-by-night",
