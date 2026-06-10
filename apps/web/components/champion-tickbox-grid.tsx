@@ -100,6 +100,10 @@ export function ChampionTickboxGrid({ champions, ownedIds, onAdd }: TickboxGridP
   const [selected, setSelected] = useState<Map<string, StateMode>>(new Map());
   const [activeMode, setActiveMode] = useState<StateMode>('floor');
   const [search, setSearch] = useState('');
+  // Classes whose champion list is currently collapsed. Default-open
+  // (empty set) so first-time use is unchanged; the user folds each class
+  // away once they're done ticking it.
+  const [collapsed, setCollapsed] = useState<Set<ChampionClass>>(new Set());
 
   const byClass = useMemo(() => {
     const map = new Map<ChampionClass, Champion[]>();
@@ -270,18 +274,35 @@ export function ChampionTickboxGrid({ champions, ownedIds, onAdd }: TickboxGridP
           const claimableInClass = list.length - ownedInClass;
           const allClaimed = claimableInClass > 0 && selectedInClass === claimableInClass;
 
+          const isCollapsed = collapsed.has(klass);
           return (
             <div
               key={klass}
               className="border border-[var(--color-rule)] rounded bg-[var(--color-paper)]"
             >
               <div className="flex items-center justify-between px-3 py-2 border-b border-[var(--color-rule)]">
-                <div className="font-medium text-sm flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setCollapsed((prev) => {
+                      const next = new Set(prev);
+                      if (next.has(klass)) next.delete(klass);
+                      else next.add(klass);
+                      return next;
+                    })
+                  }
+                  className="font-medium text-sm flex items-center gap-2 hover:text-[var(--color-marvel-impact)]"
+                  aria-expanded={!isCollapsed}
+                  title={isCollapsed ? 'Show champions' : 'Hide champions'}
+                >
+                  <span className="text-xs font-mono w-3 text-[var(--color-ink-soft)]">
+                    {isCollapsed ? '▶' : '▼'}
+                  </span>
                   <span>{klass}</span>
                   <span className="text-xs text-[var(--color-ink-soft)] font-normal">
                     {ownedInClass + selectedInClass} / {list.length}
                   </span>
-                </div>
+                </button>
                 {claimableInClass > 0 && (
                   <button
                     type="button"
@@ -294,6 +315,7 @@ export function ChampionTickboxGrid({ champions, ownedIds, onAdd }: TickboxGridP
                   </button>
                 )}
               </div>
+              {!isCollapsed && (
               <ul className="max-h-96 overflow-y-auto">
                 {list.length === 0 && (
                   <li className="px-3 py-4 text-xs text-[var(--color-ink-soft)] text-center">
@@ -362,6 +384,7 @@ export function ChampionTickboxGrid({ champions, ownedIds, onAdd }: TickboxGridP
                   );
                 })}
               </ul>
+              )}
             </div>
           );
         })}
