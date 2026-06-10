@@ -1,6 +1,20 @@
 {
   "champions": [
     {
+      "id": "abomination",
+      "name": "Abomination",
+      "class": "Science",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/c/cd/Abomination_portrait.png/revision/latest/scale-to-width-down/200?cb=20150830054937",
+      "sevenStarReleased": false
+    },
+    {
       "id": "abomination-immortal",
       "name": "Abomination (Immortal)",
       "class": "Science",
@@ -130,6 +144,48 @@
       "sevenStarReleased": true
     },
     {
+      "id": "aegon",
+      "name": "Aegon",
+      "class": "Skill",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": null,
+      "sevenStarReleased": false
+    },
+    {
+      "id": "agent-venom",
+      "name": "Agent Venom",
+      "class": "Skill",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/6/68/Agent_Venom_portrait.png/revision/latest/scale-to-width-down/200?cb=20160415213207",
+      "sevenStarReleased": false
+    },
+    {
+      "id": "air-walker",
+      "name": "Air-Walker",
+      "class": "Cosmic",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/4/4c/Air-Walker_portrait.png/revision/latest/scale-to-width-down/200?cb=20200811105407",
+      "sevenStarReleased": false
+    },
+    {
       "id": "america-chavez",
       "name": "America Chavez",
       "class": "Mystic",
@@ -214,6 +270,20 @@
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/2/2b/Angela_portrait.png/revision/latest/scale-to-width-down/200?cb=20170508052305",
       "sevenStarReleased": true
+    },
+    {
+      "id": "annihilus",
+      "name": "Annihilus",
+      "class": "Cosmic",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/8/8a/Annihilus_portrait.png/revision/latest/scale-to-width-down/200?cb=20190405185404",
+      "sevenStarReleased": false
     },
     {
       "id": "ant-man",
@@ -431,6 +501,20 @@
       "sevenStarReleased": true
     },
     {
+      "id": "archangel",
+      "name": "Archangel",
+      "class": "Mutant",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/6/6d/Archangel_portrait.png/revision/latest/scale-to-width-down/200?cb=20250411023139",
+      "sevenStarReleased": false
+    },
+    {
       "id": "arnim-zola",
       "name": "Arnim Zola",
       "class": "Tech",
@@ -603,6 +687,20 @@
       "sevenStarReleased": true
     },
     {
+      "id": "beast",
+      "name": "Beast",
+      "class": "Mutant",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/c/c5/Beast_portrait.png/revision/latest/scale-to-width-down/200?cb=20160721192517",
+      "sevenStarReleased": false
+    },
+    {
       "id": "beta-ray-bill",
       "name": "Beta Ray Bill",
       "class": "Cosmic",
@@ -687,6 +785,20 @@
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/c/cb/Bishop_portrait.png/revision/latest/scale-to-width-down/200?cb=20180318235045",
       "sevenStarReleased": true
+    },
+    {
+      "id": "black-bolt",
+      "name": "Black Bolt",
+      "class": "Cosmic",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/f/ff/Black_Bolt_portrait.png/revision/latest/scale-to-width-down/200?cb=20150830060831",
+      "sevenStarReleased": false
     },
     {
       "id": "black-cat",
@@ -816,6 +928,20 @@
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/9/95/Black_Panther_%28Civil_War%29_portrait.png/revision/latest/scale-to-width-down/200?cb=20160526170829",
       "sevenStarReleased": true
+    },
+    {
+      "id": "black-widow",
+      "name": "Black Widow",
+      "class": "Skill",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/4/46/Black_Widow_portrait.png/revision/latest/scale-to-width-down/200?cb=20150830061401",
+      "sevenStarReleased": false
     },
     {
       "id": "black-widow-claire-voyant",
@@ -1076,6 +1202,34 @@
       "sevenStarReleased": true
     },
     {
+      "id": "cable",
+      "name": "Cable",
+      "class": "Mutant",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/4/49/Cable_portrait.png/revision/latest/scale-to-width-down/200?cb=20170121235311",
+      "sevenStarReleased": false
+    },
+    {
+      "id": "captain-america",
+      "name": "Captain America",
+      "class": "Science",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/a/a1/Captain_America_portrait.png/revision/latest/scale-to-width-down/200?cb=20220105224719",
+      "sevenStarReleased": false
+    },
+    {
       "id": "captain-america-infinity-war",
       "name": "Captain America (Infinity War)",
       "class": "Science",
@@ -1162,6 +1316,20 @@
       "sevenStarReleased": true
     },
     {
+      "id": "captain-america-wwii",
+      "name": "Captain America (WWII)",
+      "class": "Science",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/f/f5/Captain_America_%28WWII%29_portrait.png/revision/latest/scale-to-width-down/200?cb=20150830061659",
+      "sevenStarReleased": false
+    },
+    {
       "id": "captain-britain",
       "name": "Captain Britain",
       "class": "Mutant",
@@ -1246,6 +1414,20 @@
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/9/9a/Captain_Marvel_portrait.png/revision/latest/scale-to-width-down/200?cb=20230825004507",
       "sevenStarReleased": true
+    },
+    {
+      "id": "captain-marvel-classic",
+      "name": "Captain Marvel (Classic)",
+      "class": "Cosmic",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/c/c7/Captain_Marvel_%28Classic%29_portrait.png/revision/latest/scale-to-width-down/200?cb=20150830061726",
+      "sevenStarReleased": false
     },
     {
       "id": "carnage",
@@ -1549,6 +1731,20 @@
       "sevenStarReleased": true
     },
     {
+      "id": "cosmic-ghost-rider",
+      "name": "Cosmic Ghost Rider",
+      "class": "Cosmic",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/f/f2/Cosmic_Ghost_Rider_portrait.png/revision/latest/scale-to-width-down/200?cb=20201005205101",
+      "sevenStarReleased": false
+    },
+    {
       "id": "count-nefaria",
       "name": "Count Nefaria",
       "class": "Science",
@@ -1721,6 +1917,20 @@
       "sevenStarReleased": true
     },
     {
+      "id": "cyclops-new-xavier-school",
+      "name": "Cyclops (New Xavier School)",
+      "class": "Mutant",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/2/2f/Cyclops_%28New_Xavier_School%29_portrait.png/revision/latest/scale-to-width-down/200?cb=20150830065142",
+      "sevenStarReleased": false
+    },
+    {
       "id": "dani-moonstar",
       "name": "Dani Moonstar",
       "class": "Mutant",
@@ -1762,6 +1972,20 @@
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/6/64/Dani_Moonstar_portrait.png/revision/latest/scale-to-width-down/200?cb=20230824215234",
       "sevenStarReleased": true
+    },
+    {
+      "id": "daredevil-classic",
+      "name": "Daredevil (Classic)",
+      "class": "Skill",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/b/b6/Daredevil_%28Classic%29_portrait.png/revision/latest/scale-to-width-down/200?cb=20150830065242",
+      "sevenStarReleased": false
     },
     {
       "id": "daredevil-hells-kitchen",
@@ -1848,6 +2072,20 @@
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/5/51/Dark_Phoenix_portrait.png/revision/latest/scale-to-width-down/200?cb=20250506034438",
       "sevenStarReleased": true
+    },
+    {
+      "id": "darkhawk",
+      "name": "Darkhawk",
+      "class": "Tech",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/5/54/Darkhawk_portrait.png/revision/latest/scale-to-width-down/200?cb=20230824231147",
+      "sevenStarReleased": false
     },
     {
       "id": "dazzler",
@@ -2065,6 +2303,34 @@
       "sevenStarReleased": true
     },
     {
+      "id": "doctor-doom",
+      "name": "Doctor Doom",
+      "class": "Mystic",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/e/e7/Doctor_Doom_portrait.png/revision/latest/scale-to-width-down/200?cb=20230824214057",
+      "sevenStarReleased": false
+    },
+    {
+      "id": "doctor-octopus",
+      "name": "Doctor Octopus",
+      "class": "Tech",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/e/ed/Doctor_Octopus_portrait.png/revision/latest/scale-to-width-down/200?cb=20230824223005",
+      "sevenStarReleased": false
+    },
+    {
       "id": "doctor-strange",
       "name": "Doctor Strange",
       "class": "Mystic",
@@ -2194,6 +2460,20 @@
       "sevenStarReleased": true
     },
     {
+      "id": "dormammu",
+      "name": "Dormammu",
+      "class": "Mystic",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/7/7f/Dormammu_portrait.png/revision/latest/scale-to-width-down/200?cb=20180916134734",
+      "sevenStarReleased": false
+    },
+    {
       "id": "dracula",
       "name": "Dracula",
       "class": "Mystic",
@@ -2280,6 +2560,20 @@
       "sevenStarReleased": true
     },
     {
+      "id": "drax",
+      "name": "Drax",
+      "class": "Cosmic",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/f/f2/Drax_portrait.png/revision/latest/scale-to-width-down/200?cb=20150830065434",
+      "sevenStarReleased": false
+    },
+    {
       "id": "dust",
       "name": "Dust",
       "class": "Mutant",
@@ -2364,6 +2658,34 @@
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/9/99/Ebony_Maw_portrait.png/revision/latest/scale-to-width-down/200?cb=20230824212927",
       "sevenStarReleased": true
+    },
+    {
+      "id": "electro",
+      "name": "Electro",
+      "class": "Science",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/9/9c/Electro_portrait.png/revision/latest/scale-to-width-down/200?cb=20161107000842",
+      "sevenStarReleased": false
+    },
+    {
+      "id": "elektra",
+      "name": "Elektra",
+      "class": "Skill",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/e/eb/Elektra_portrait.png/revision/latest/scale-to-width-down/200?cb=20150830065710",
+      "sevenStarReleased": false
     },
     {
       "id": "elsa-bloodstone",
@@ -2796,6 +3118,20 @@
       "sevenStarReleased": true
     },
     {
+      "id": "ghost",
+      "name": "Ghost",
+      "class": "Tech",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/1/15/Ghost_portrait.png/revision/latest/scale-to-width-down/200?cb=20230824222814",
+      "sevenStarReleased": false
+    },
+    {
       "id": "ghost-rider",
       "name": "Ghost Rider",
       "class": "Mystic",
@@ -2968,6 +3304,34 @@
       "sevenStarReleased": true
     },
     {
+      "id": "green-goblin",
+      "name": "Green Goblin",
+      "class": "Tech",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/6/6a/Green_Goblin_portrait.png/revision/latest/scale-to-width-down/200?cb=20170804041726",
+      "sevenStarReleased": false
+    },
+    {
+      "id": "groot",
+      "name": "Groot",
+      "class": "Cosmic",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/f/f3/Groot_portrait.png/revision/latest/scale-to-width-down/200?cb=20151224184045",
+      "sevenStarReleased": false
+    },
+    {
       "id": "guardian",
       "name": "Guardian",
       "class": "Tech",
@@ -3011,47 +3375,18 @@
       "sevenStarReleased": true
     },
     {
-      "id": "guillotine-deathless",
-      "name": "Guillotine (Deathless)",
+      "id": "guillotine",
+      "name": "Guillotine",
       "class": "Mystic",
       "ascendable": false,
-      "prestige": {
-        "rank5": {
-          "0": 28760,
-          "20": 31990,
-          "40": 33200,
-          "60": 34200,
-          "80": 35100,
-          "100": 35920,
-          "120": 36690,
-          "140": 37420,
-          "160": 38110,
-          "180": 38770,
-          "200": 39410
-        },
-        "rank4": {
-          "0": 24250,
-          "20": 26980,
-          "40": 27990,
-          "60": 28840,
-          "80": 29600,
-          "100": 30290,
-          "120": 30940,
-          "140": 31550,
-          "160": 32140,
-          "180": 32690,
-          "200": 33230
-        }
-      },
       "sigCurve": null,
       "tags": [],
       "_meta": {
-        "bhrSource": "mcoc.gg per-rank curves (R4 + R5 11-anchor, refreshed 2026-06-03)",
-        "ascendableSource": "non-ascendable per mcoc.gg",
-        "lastVerified": "2026-06-03"
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
       },
-      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/6/63/Guillotine_%28Deathless%29_portrait.png/revision/latest/scale-to-width-down/200?cb=20231208154204",
-      "sevenStarReleased": true
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/7/76/Guillotine_portrait.png/revision/latest/scale-to-width-down/200?cb=20151118003034",
+      "sevenStarReleased": false
     },
     {
       "id": "guillotine-2099",
@@ -3094,6 +3429,49 @@
         "lastVerified": "2026-06-03"
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/8/8a/Guillotine_2099_portrait.png/revision/latest/scale-to-width-down/200?cb=20230824211019",
+      "sevenStarReleased": true
+    },
+    {
+      "id": "guillotine-deathless",
+      "name": "Guillotine (Deathless)",
+      "class": "Mystic",
+      "ascendable": false,
+      "prestige": {
+        "rank5": {
+          "0": 28760,
+          "20": 31990,
+          "40": 33200,
+          "60": 34200,
+          "80": 35100,
+          "100": 35920,
+          "120": 36690,
+          "140": 37420,
+          "160": 38110,
+          "180": 38770,
+          "200": 39410
+        },
+        "rank4": {
+          "0": 24250,
+          "20": 26980,
+          "40": 27990,
+          "60": 28840,
+          "80": 29600,
+          "100": 30290,
+          "120": 30940,
+          "140": 31550,
+          "160": 32140,
+          "180": 32690,
+          "200": 33230
+        }
+      },
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "mcoc.gg per-rank curves (R4 + R5 11-anchor, refreshed 2026-06-03)",
+        "ascendableSource": "non-ascendable per mcoc.gg",
+        "lastVerified": "2026-06-03"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/6/63/Guillotine_%28Deathless%29_portrait.png/revision/latest/scale-to-width-down/200?cb=20231208154204",
       "sevenStarReleased": true
     },
     {
@@ -3267,6 +3645,34 @@
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/a/aa/Heimdall_portrait.png/revision/latest/scale-to-width-down/200?cb=20230825004302",
       "sevenStarReleased": true
+    },
+    {
+      "id": "hela",
+      "name": "Hela",
+      "class": "Cosmic",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/5/57/Hela_portrait.png/revision/latest/scale-to-width-down/200?cb=20230824231750",
+      "sevenStarReleased": false
+    },
+    {
+      "id": "hercules",
+      "name": "Hercules",
+      "class": "Cosmic",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/0/06/Hercules_portrait.png/revision/latest/scale-to-width-down/200?cb=20210710214126",
+      "sevenStarReleased": false
     },
     {
       "id": "high-evolutionary",
@@ -3484,6 +3890,20 @@
       "sevenStarReleased": true
     },
     {
+      "id": "hulk-ragnarok",
+      "name": "Hulk (Ragnarok)",
+      "class": "Science",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/b/b2/Hulk_%28Ragnarok%29_portrait.png/revision/latest/scale-to-width-down/200?cb=20180401181436",
+      "sevenStarReleased": false
+    },
+    {
       "id": "hulkbuster",
       "name": "Hulkbuster",
       "class": "Tech",
@@ -3699,6 +4119,20 @@
       "sevenStarReleased": true
     },
     {
+      "id": "ikaris",
+      "name": "Ikaris",
+      "class": "Cosmic",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/3/31/Ikaris_portrait.png/revision/latest/scale-to-width-down/200?cb=20230824213459",
+      "sevenStarReleased": false
+    },
+    {
       "id": "imperiosa",
       "name": "Imperiosa",
       "class": "Cosmic",
@@ -3783,6 +4217,34 @@
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/6/6f/Invisible_Woman_portrait.png/revision/latest/scale-to-width-down/200?cb=20190607071428",
       "sevenStarReleased": true
+    },
+    {
+      "id": "iron-fist",
+      "name": "Iron Fist",
+      "class": "Mystic",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/2/2f/Iron_Fist_portrait.png/revision/latest/scale-to-width-down/200?cb=20150825223034",
+      "sevenStarReleased": false
+    },
+    {
+      "id": "iron-fist-immortal",
+      "name": "Iron Fist (Immortal)",
+      "class": "Mystic",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/b/b4/Iron_Fist_%28Immortal%29_portrait.png/revision/latest/scale-to-width-down/200?cb=20151121222555",
+      "sevenStarReleased": false
     },
     {
       "id": "iron-man",
@@ -3912,6 +4374,20 @@
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/b/b7/Iron_Man_%28Infinity_War%29_portrait.png/revision/latest/scale-to-width-down/200?cb=20180808000823",
       "sevenStarReleased": true
+    },
+    {
+      "id": "iron-patriot",
+      "name": "Iron Patriot",
+      "class": "Tech",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/0/07/Iron_Patriot_portrait.png/revision/latest/scale-to-width-down/200?cb=20150830074335",
+      "sevenStarReleased": false
     },
     {
       "id": "ironheart",
@@ -4215,6 +4691,20 @@
       "sevenStarReleased": true
     },
     {
+      "id": "jubilee",
+      "name": "Jubilee",
+      "class": "Mutant",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/6/6a/Jubilee_portrait.png/revision/latest/scale-to-width-down/200?cb=20230824234159",
+      "sevenStarReleased": false
+    },
+    {
       "id": "juggernaut",
       "name": "Juggernaut",
       "class": "Mystic",
@@ -4387,6 +4877,20 @@
       "sevenStarReleased": true
     },
     {
+      "id": "kate-bishop",
+      "name": "Kate Bishop",
+      "class": "Skill",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/b/bc/Kate_Bishop_portrait.png/revision/latest/scale-to-width-down/200?cb=20230824212305",
+      "sevenStarReleased": false
+    },
+    {
       "id": "killmonger",
       "name": "Killmonger",
       "class": "Skill",
@@ -4471,6 +4975,20 @@
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/a/a2/Kindred_portrait.png/revision/latest/scale-to-width-down/200?cb=20230805193931",
       "sevenStarReleased": true
+    },
+    {
+      "id": "king-groot",
+      "name": "King Groot",
+      "class": "Cosmic",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/1/16/King_Groot_portrait.png/revision/latest/scale-to-width-down/200?cb=20170709021739",
+      "sevenStarReleased": false
     },
     {
       "id": "king-groot-deathless",
@@ -4860,6 +5378,20 @@
       "sevenStarReleased": true
     },
     {
+      "id": "loki",
+      "name": "Loki",
+      "class": "Mystic",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/2/21/Loki_portrait.png/revision/latest/scale-to-width-down/200?cb=20160804212646",
+      "sevenStarReleased": false
+    },
+    {
       "id": "longshot",
       "name": "Longshot",
       "class": "Mystic",
@@ -4986,92 +5518,6 @@
         "lastVerified": "2026-06-03"
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/9/98/Lumatrix_portrait.png/revision/latest/scale-to-width-down/200?cb=20250408214026",
-      "sevenStarReleased": true
-    },
-    {
-      "id": "mbaku",
-      "name": "M'Baku",
-      "class": "Skill",
-      "ascendable": true,
-      "prestige": {
-        "rank5": {
-          "0": 27830,
-          "20": 32480,
-          "40": 33650,
-          "60": 34620,
-          "80": 35490,
-          "100": 36290,
-          "120": 37030,
-          "140": 37730,
-          "160": 38400,
-          "180": 39040,
-          "200": 39660
-        },
-        "rank4": {
-          "0": 0,
-          "20": 0,
-          "40": 0,
-          "60": 0,
-          "80": 0,
-          "100": 0,
-          "120": 0,
-          "140": 0,
-          "160": 0,
-          "180": 0,
-          "200": 33440
-        }
-      },
-      "sigCurve": null,
-      "tags": [],
-      "_meta": {
-        "bhrSource": "mcoc.gg per-rank curves (R4 + R5 11-anchor, refreshed 2026-06-03)",
-        "ascendableSource": "mcoc.gg per-state-columns + kabam-forum-base-pool",
-        "lastVerified": "2026-06-03"
-      },
-      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/6/65/M%27Baku_portrait.png/revision/latest/scale-to-width-down/200?cb=20260203121626",
-      "sevenStarReleased": true
-    },
-    {
-      "id": "modok",
-      "name": "M.O.D.O.K.",
-      "class": "Science",
-      "ascendable": false,
-      "prestige": {
-        "rank5": {
-          "0": 28610,
-          "20": 32020,
-          "40": 33220,
-          "60": 34220,
-          "80": 35120,
-          "100": 35940,
-          "120": 36700,
-          "140": 37420,
-          "160": 38110,
-          "180": 38770,
-          "200": 39400
-        },
-        "rank4": {
-          "0": 24110,
-          "20": 26980,
-          "40": 28000,
-          "60": 28840,
-          "80": 29590,
-          "100": 30280,
-          "120": 30920,
-          "140": 31530,
-          "160": 32110,
-          "180": 32670,
-          "200": 33200
-        }
-      },
-      "sigCurve": null,
-      "tags": [],
-      "_meta": {
-        "bhrSource": "mcoc.gg per-rank curves (R4 + R5 11-anchor, refreshed 2026-06-03)",
-        "ascendableSource": "non-ascendable per mcoc.gg",
-        "lastVerified": "2026-06-03"
-      },
-      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/9/91/M.O.D.O.K._portrait.png/revision/latest/scale-to-width-down/200?cb=20171209233126",
       "sevenStarReleased": true
     },
     {
@@ -5202,6 +5648,20 @@
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/f/fd/Magik_portrait.png/revision/latest/scale-to-width-down/200?cb=20260303231322",
       "sevenStarReleased": true
+    },
+    {
+      "id": "magneto",
+      "name": "Magneto",
+      "class": "Mutant",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/9/9b/Magneto_portrait.png/revision/latest/scale-to-width-down/200?cb=20250305233715",
+      "sevenStarReleased": false
     },
     {
       "id": "magneto-house-of-x",
@@ -5419,6 +5879,49 @@
       "sevenStarReleased": true
     },
     {
+      "id": "mbaku",
+      "name": "M'Baku",
+      "class": "Skill",
+      "ascendable": true,
+      "prestige": {
+        "rank5": {
+          "0": 27830,
+          "20": 32480,
+          "40": 33650,
+          "60": 34620,
+          "80": 35490,
+          "100": 36290,
+          "120": 37030,
+          "140": 37730,
+          "160": 38400,
+          "180": 39040,
+          "200": 39660
+        },
+        "rank4": {
+          "0": 0,
+          "20": 0,
+          "40": 0,
+          "60": 0,
+          "80": 0,
+          "100": 0,
+          "120": 0,
+          "140": 0,
+          "160": 0,
+          "180": 0,
+          "200": 33440
+        }
+      },
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "mcoc.gg per-rank curves (R4 + R5 11-anchor, refreshed 2026-06-03)",
+        "ascendableSource": "mcoc.gg per-state-columns + kabam-forum-base-pool",
+        "lastVerified": "2026-06-03"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/6/65/M%27Baku_portrait.png/revision/latest/scale-to-width-down/200?cb=20260203121626",
+      "sevenStarReleased": true
+    },
+    {
       "id": "medusa",
       "name": "Medusa",
       "class": "Cosmic",
@@ -5460,6 +5963,20 @@
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/2/2e/Medusa_portrait.png/revision/latest/scale-to-width-down/200?cb=20230824235527",
       "sevenStarReleased": true
+    },
+    {
+      "id": "mephisto",
+      "name": "Mephisto",
+      "class": "Mystic",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/8/8a/Mephisto_portrait.png/revision/latest/scale-to-width-down/200?cb=20230824221353",
+      "sevenStarReleased": false
     },
     {
       "id": "mister-fantastic",
@@ -5634,6 +6151,49 @@
       "sevenStarReleased": true
     },
     {
+      "id": "modok",
+      "name": "M.O.D.O.K.",
+      "class": "Science",
+      "ascendable": false,
+      "prestige": {
+        "rank5": {
+          "0": 28610,
+          "20": 32020,
+          "40": 33220,
+          "60": 34220,
+          "80": 35120,
+          "100": 35940,
+          "120": 36700,
+          "140": 37420,
+          "160": 38110,
+          "180": 38770,
+          "200": 39400
+        },
+        "rank4": {
+          "0": 24110,
+          "20": 26980,
+          "40": 28000,
+          "60": 28840,
+          "80": 29590,
+          "100": 30280,
+          "120": 30920,
+          "140": 31530,
+          "160": 32110,
+          "180": 32670,
+          "200": 33200
+        }
+      },
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "mcoc.gg per-rank curves (R4 + R5 11-anchor, refreshed 2026-06-03)",
+        "ascendableSource": "non-ascendable per mcoc.gg",
+        "lastVerified": "2026-06-03"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/9/91/M.O.D.O.K._portrait.png/revision/latest/scale-to-width-down/200?cb=20171209233126",
+      "sevenStarReleased": true
+    },
+    {
       "id": "mojo",
       "name": "Mojo",
       "class": "Mystic",
@@ -5718,6 +6278,20 @@
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/c/cf/Mole_Man_portrait.png/revision/latest/scale-to-width-down/200?cb=20230824235426",
       "sevenStarReleased": true
+    },
+    {
+      "id": "moon-knight",
+      "name": "Moon Knight",
+      "class": "Skill",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/8/87/Moon_Knight_portrait.png/revision/latest/scale-to-width-down/200?cb=20151118002943",
+      "sevenStarReleased": false
     },
     {
       "id": "moondragon",
@@ -5849,6 +6423,20 @@
       "sevenStarReleased": true
     },
     {
+      "id": "morningstar",
+      "name": "Morningstar",
+      "class": "Mystic",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/4/48/Morningstar_portrait.png/revision/latest/scale-to-width-down/200?cb=20230825000642",
+      "sevenStarReleased": false
+    },
+    {
       "id": "mr-knight",
       "name": "Mr. Knight",
       "class": "Skill",
@@ -5890,6 +6478,34 @@
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/6/6c/Mr._Knight_portrait.png/revision/latest/scale-to-width-down/200?cb=20250904112100",
       "sevenStarReleased": true
+    },
+    {
+      "id": "ms-marvel",
+      "name": "Ms. Marvel",
+      "class": "Cosmic",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/e/ec/Ms._Marvel_portrait.png/revision/latest/scale-to-width-down/200?cb=20150830074710",
+      "sevenStarReleased": false
+    },
+    {
+      "id": "ms-marvel-kamala-khan",
+      "name": "Ms. Marvel (Kamala Khan)",
+      "class": "Cosmic",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/b/b5/Ms._Marvel_%28Kamala_Khan%29_portrait.png/revision/latest/scale-to-width-down/200?cb=20160331143709",
+      "sevenStarReleased": false
     },
     {
       "id": "mysterio",
@@ -5976,6 +6592,20 @@
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/a/a4/Namor_portrait.png/revision/latest/scale-to-width-down/200?cb=20190607071149",
       "sevenStarReleased": true
+    },
+    {
+      "id": "nebula",
+      "name": "Nebula",
+      "class": "Tech",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/5/5b/Nebula_portrait.png/revision/latest/scale-to-width-down/200?cb=20170709021529",
+      "sevenStarReleased": false
     },
     {
       "id": "negasonic-teenage-warhead",
@@ -6406,6 +7036,20 @@
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/b/b7/Okoye_portrait.png/revision/latest/scale-to-width-down/200?cb=20250114130713",
       "sevenStarReleased": true
+    },
+    {
+      "id": "old-man-logan",
+      "name": "Old Man Logan",
+      "class": "Mutant",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/9/9d/Old_Man_Logan_portrait.png/revision/latest/scale-to-width-down/200?cb=20160205150825",
+      "sevenStarReleased": false
     },
     {
       "id": "omega-red",
@@ -6923,6 +7567,48 @@
       "sevenStarReleased": true
     },
     {
+      "id": "proxima-midnight",
+      "name": "Proxima Midnight",
+      "class": "Cosmic",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/1/13/Proxima_Midnight_portrait.png/revision/latest/scale-to-width-down/200?cb=20230824233930",
+      "sevenStarReleased": false
+    },
+    {
+      "id": "psycho-man",
+      "name": "Psycho-Man",
+      "class": "Tech",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/0/03/Psycho-Man_portrait.png/revision/latest/scale-to-width-down/200?cb=20230824220816",
+      "sevenStarReleased": false
+    },
+    {
+      "id": "psylocke",
+      "name": "Psylocke",
+      "class": "Mutant",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/d/d8/Psylocke_portrait.png/revision/latest/scale-to-width-down/200?cb=20170508054518",
+      "sevenStarReleased": false
+    },
+    {
       "id": "punisher",
       "name": "Punisher",
       "class": "Skill",
@@ -7050,6 +7736,20 @@
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/b/bb/Purgatory_portrait.png/revision/latest/scale-to-width-down/200?cb=20210531201227",
       "sevenStarReleased": true
+    },
+    {
+      "id": "quake",
+      "name": "Quake",
+      "class": "Science",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/f/f4/Quake_portrait.png/revision/latest/scale-to-width-down/200?cb=20160920215011",
+      "sevenStarReleased": false
     },
     {
       "id": "quicksilver",
@@ -7394,6 +8094,34 @@
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/0/01/Rocket_Raccoon_portrait.png/revision/latest/scale-to-width-down/200?cb=20150830075026",
       "sevenStarReleased": true
+    },
+    {
+      "id": "rogue",
+      "name": "Rogue",
+      "class": "Mutant",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/d/d7/Rogue_portrait.png/revision/latest/scale-to-width-down/200?cb=20160917030600",
+      "sevenStarReleased": false
+    },
+    {
+      "id": "ronan",
+      "name": "Ronan",
+      "class": "Cosmic",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/1/1d/Ronan_portrait.png/revision/latest/scale-to-width-down/200?cb=20150830075114",
+      "sevenStarReleased": false
     },
     {
       "id": "ronin",
@@ -8298,6 +9026,20 @@
       "sevenStarReleased": true
     },
     {
+      "id": "silver-centurion",
+      "name": "Silver Centurion",
+      "class": "Tech",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/e/e8/Silver_Centurion_portrait.png/revision/latest/scale-to-width-down/200?cb=20210406135822",
+      "sevenStarReleased": false
+    },
+    {
       "id": "silver-sable",
       "name": "Silver Sable",
       "class": "Skill",
@@ -8513,135 +9255,6 @@
       "sevenStarReleased": true
     },
     {
-      "id": "spider-man-stark-enhanced",
-      "name": "Spider Man (Stark Enhanced)",
-      "class": "Tech",
-      "ascendable": false,
-      "prestige": {
-        "rank5": {
-          "0": 29460,
-          "20": 34190,
-          "40": 34850,
-          "60": 35360,
-          "80": 35800,
-          "100": 36190,
-          "120": 36550,
-          "140": 36880,
-          "160": 37180,
-          "180": 37470,
-          "200": 37750
-        },
-        "rank4": {
-          "0": 24850,
-          "20": 28850,
-          "40": 29400,
-          "60": 29840,
-          "80": 30210,
-          "100": 30540,
-          "120": 30840,
-          "140": 31110,
-          "160": 31370,
-          "180": 31610,
-          "200": 31850
-        }
-      },
-      "sigCurve": null,
-      "tags": [],
-      "_meta": {
-        "bhrSource": "mcoc.gg per-rank curves (R4 + R5 11-anchor, refreshed 2026-06-03)",
-        "ascendableSource": "non-ascendable per mcoc.gg",
-        "lastVerified": "2026-06-03"
-      },
-      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/a/a9/Spider-Man_%28Stark_Enhanced%29_portrait.png/revision/latest/scale-to-width-down/200?cb=20170722100121",
-      "sevenStarReleased": true
-    },
-    {
-      "id": "spider-man-2099",
-      "name": "Spider Man 2099",
-      "class": "Science",
-      "ascendable": false,
-      "prestige": {
-        "rank5": {
-          "0": 28890,
-          "20": 31880,
-          "40": 33090,
-          "60": 34100,
-          "80": 35000,
-          "100": 35830,
-          "120": 36600,
-          "140": 37330,
-          "160": 38020,
-          "180": 38690,
-          "200": 39330
-        },
-        "rank4": {
-          "0": 24370,
-          "20": 26900,
-          "40": 27920,
-          "60": 28780,
-          "80": 29540,
-          "100": 30230,
-          "120": 30880,
-          "140": 31500,
-          "160": 32080,
-          "180": 32650,
-          "200": 33190
-        }
-      },
-      "sigCurve": null,
-      "tags": [],
-      "_meta": {
-        "bhrSource": "mcoc.gg per-rank curves (R4 + R5 11-anchor, refreshed 2026-06-03)",
-        "ascendableSource": "non-ascendable per mcoc.gg",
-        "lastVerified": "2026-06-03"
-      },
-      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/8/81/Spider-Man_2099_portrait.png/revision/latest/scale-to-width-down/200?cb=20210814015916",
-      "sevenStarReleased": true
-    },
-    {
-      "id": "spider-man-miles-morales",
-      "name": "Spider man (Miles Morales)",
-      "class": "Science",
-      "ascendable": false,
-      "prestige": {
-        "rank5": {
-          "0": 28060,
-          "20": 31350,
-          "40": 32520,
-          "60": 33500,
-          "80": 34380,
-          "100": 35180,
-          "120": 35930,
-          "140": 36640,
-          "160": 37310,
-          "180": 37960,
-          "200": 38580
-        },
-        "rank4": {
-          "0": 23660,
-          "20": 26440,
-          "40": 27430,
-          "60": 28260,
-          "80": 29000,
-          "100": 29680,
-          "120": 30310,
-          "140": 30900,
-          "160": 31470,
-          "180": 32020,
-          "200": 32540
-        }
-      },
-      "sigCurve": null,
-      "tags": [],
-      "_meta": {
-        "bhrSource": "mcoc.gg per-rank curves (R4 + R5 11-anchor, refreshed 2026-06-03)",
-        "ascendableSource": "non-ascendable per mcoc.gg",
-        "lastVerified": "2026-06-03"
-      },
-      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/e/e0/Spider-Man_%28Miles_Morales%29_portrait.png/revision/latest/scale-to-width-down/200?cb=20160108034734",
-      "sevenStarReleased": true
-    },
-    {
       "id": "spider-gwen",
       "name": "Spider-Gwen",
       "class": "Science",
@@ -8728,6 +9341,49 @@
       "sevenStarReleased": true
     },
     {
+      "id": "spider-man-2099",
+      "name": "Spider Man 2099",
+      "class": "Science",
+      "ascendable": false,
+      "prestige": {
+        "rank5": {
+          "0": 28890,
+          "20": 31880,
+          "40": 33090,
+          "60": 34100,
+          "80": 35000,
+          "100": 35830,
+          "120": 36600,
+          "140": 37330,
+          "160": 38020,
+          "180": 38690,
+          "200": 39330
+        },
+        "rank4": {
+          "0": 24370,
+          "20": 26900,
+          "40": 27920,
+          "60": 28780,
+          "80": 29540,
+          "100": 30230,
+          "120": 30880,
+          "140": 31500,
+          "160": 32080,
+          "180": 32650,
+          "200": 33190
+        }
+      },
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "mcoc.gg per-rank curves (R4 + R5 11-anchor, refreshed 2026-06-03)",
+        "ascendableSource": "non-ascendable per mcoc.gg",
+        "lastVerified": "2026-06-03"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/8/81/Spider-Man_2099_portrait.png/revision/latest/scale-to-width-down/200?cb=20210814015916",
+      "sevenStarReleased": true
+    },
+    {
       "id": "spider-man-classic",
       "name": "Spider-Man (Classic)",
       "class": "Science",
@@ -8771,6 +9427,49 @@
       "sevenStarReleased": true
     },
     {
+      "id": "spider-man-miles-morales",
+      "name": "Spider man (Miles Morales)",
+      "class": "Science",
+      "ascendable": false,
+      "prestige": {
+        "rank5": {
+          "0": 28060,
+          "20": 31350,
+          "40": 32520,
+          "60": 33500,
+          "80": 34380,
+          "100": 35180,
+          "120": 35930,
+          "140": 36640,
+          "160": 37310,
+          "180": 37960,
+          "200": 38580
+        },
+        "rank4": {
+          "0": 23660,
+          "20": 26440,
+          "40": 27430,
+          "60": 28260,
+          "80": 29000,
+          "100": 29680,
+          "120": 30310,
+          "140": 30900,
+          "160": 31470,
+          "180": 32020,
+          "200": 32540
+        }
+      },
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "mcoc.gg per-rank curves (R4 + R5 11-anchor, refreshed 2026-06-03)",
+        "ascendableSource": "non-ascendable per mcoc.gg",
+        "lastVerified": "2026-06-03"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/e/e0/Spider-Man_%28Miles_Morales%29_portrait.png/revision/latest/scale-to-width-down/200?cb=20160108034734",
+      "sevenStarReleased": true
+    },
+    {
       "id": "spider-man-pavitr-prabhakar",
       "name": "Spider-Man (Pavitr Prabhakar)",
       "class": "Mystic",
@@ -8811,6 +9510,49 @@
         "lastVerified": "2026-06-03"
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/8/83/Spider-Man_%28Pavitr_Prabhakar%29_portrait.png/revision/latest/scale-to-width-down/200?cb=20251104193111",
+      "sevenStarReleased": true
+    },
+    {
+      "id": "spider-man-stark-enhanced",
+      "name": "Spider Man (Stark Enhanced)",
+      "class": "Tech",
+      "ascendable": false,
+      "prestige": {
+        "rank5": {
+          "0": 29460,
+          "20": 34190,
+          "40": 34850,
+          "60": 35360,
+          "80": 35800,
+          "100": 36190,
+          "120": 36550,
+          "140": 36880,
+          "160": 37180,
+          "180": 37470,
+          "200": 37750
+        },
+        "rank4": {
+          "0": 24850,
+          "20": 28850,
+          "40": 29400,
+          "60": 29840,
+          "80": 30210,
+          "100": 30540,
+          "120": 30840,
+          "140": 31110,
+          "160": 31370,
+          "180": 31610,
+          "200": 31850
+        }
+      },
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "mcoc.gg per-rank curves (R4 + R5 11-anchor, refreshed 2026-06-03)",
+        "ascendableSource": "non-ascendable per mcoc.gg",
+        "lastVerified": "2026-06-03"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/a/a9/Spider-Man_%28Stark_Enhanced%29_portrait.png/revision/latest/scale-to-width-down/200?cb=20170722100121",
       "sevenStarReleased": true
     },
     {
@@ -8898,6 +9640,20 @@
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/e/e6/Spider-Man_%28Supreme%29_portrait.png/revision/latest/scale-to-width-down/200?cb=20221012192822",
       "sevenStarReleased": true
+    },
+    {
+      "id": "spider-man-symbiote",
+      "name": "Spider-Man (Symbiote)",
+      "class": "Cosmic",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/6/6e/Spider-Man_%28Symbiote%29_portrait.png/revision/latest/scale-to-width-down/200?cb=20150912165012",
+      "sevenStarReleased": false
     },
     {
       "id": "spider-punk",
@@ -9113,6 +9869,20 @@
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/b/b4/Spot_portrait.png/revision/latest/scale-to-width-down/200?cb=20221012192749",
       "sevenStarReleased": true
+    },
+    {
+      "id": "squirrel-girl",
+      "name": "Squirrel Girl",
+      "class": "Skill",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/a/ad/Squirrel_Girl_portrait.png/revision/latest/scale-to-width-down/200?cb=20230824235013",
+      "sevenStarReleased": false
     },
     {
       "id": "star-lord",
@@ -9502,6 +10272,20 @@
       "sevenStarReleased": true
     },
     {
+      "id": "taskmaster",
+      "name": "Taskmaster",
+      "class": "Skill",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/5/55/Taskmaster_portrait.png/revision/latest/scale-to-width-down/200?cb=20230824221201",
+      "sevenStarReleased": false
+    },
+    {
       "id": "terrax",
       "name": "Terrax",
       "class": "Cosmic",
@@ -9629,6 +10413,20 @@
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/6/6d/Thanos_%28Deathless%29_portrait.png/revision/latest/scale-to-width-down/200?cb=20250411031656",
       "sevenStarReleased": true
+    },
+    {
+      "id": "the-champion",
+      "name": "The Champion",
+      "class": "Cosmic",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/5/5a/The_Champion_portrait.png/revision/latest/scale-to-width-down/200?cb=20230824211525",
+      "sevenStarReleased": false
     },
     {
       "id": "the-destroyer",
@@ -9932,6 +10730,20 @@
       "sevenStarReleased": true
     },
     {
+      "id": "thor",
+      "name": "Thor",
+      "class": "Cosmic",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/6/6f/Thor_portrait.png/revision/latest/scale-to-width-down/200?cb=20150830075957",
+      "sevenStarReleased": false
+    },
+    {
       "id": "thor-jane-foster",
       "name": "Thor (Jane Foster)",
       "class": "Mystic",
@@ -9973,6 +10785,20 @@
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/0/0f/Thor_%28Jane_Foster%29_portrait.png/revision/latest/scale-to-width-down/200?cb=20220708201655",
       "sevenStarReleased": true
+    },
+    {
+      "id": "thor-ragnarok",
+      "name": "Thor (Ragnarok)",
+      "class": "Skill",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/2/2a/Thor_%28Ragnarok%29_portrait.png/revision/latest/scale-to-width-down/200?cb=20260604155336",
+      "sevenStarReleased": false
     },
     {
       "id": "tigra",
@@ -10188,6 +11014,20 @@
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/a/a7/Ultron_%28Classic%29_portrait.png/revision/latest/scale-to-width-down/200?cb=20161009164857",
       "sevenStarReleased": true
+    },
+    {
+      "id": "unstoppable-colossus",
+      "name": "Unstoppable Colossus",
+      "class": "Mystic",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/3/3c/Unstoppable_Colossus_portrait.png/revision/latest/scale-to-width-down/200?cb=20150830080204",
+      "sevenStarReleased": false
     },
     {
       "id": "valkyrie",
@@ -10448,6 +11288,20 @@
       "sevenStarReleased": true
     },
     {
+      "id": "vision-age-of-ultron",
+      "name": "Vision (Age of Ultron)",
+      "class": "Tech",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/1/19/Vision_%28Age_of_Ultron%29_portrait.png/revision/latest/scale-to-width-down/200?cb=20150830075913",
+      "sevenStarReleased": false
+    },
+    {
       "id": "vision-deathless",
       "name": "Vision (Deathless)",
       "class": "Tech",
@@ -10620,6 +11474,20 @@
       "sevenStarReleased": true
     },
     {
+      "id": "vulture",
+      "name": "Vulture",
+      "class": "Tech",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/9/90/Vulture_portrait.png/revision/latest/scale-to-width-down/200?cb=20170722100226",
+      "sevenStarReleased": false
+    },
+    {
       "id": "war-machine",
       "name": "War Machine",
       "class": "Tech",
@@ -10704,6 +11572,20 @@
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/b/b5/Warlock_portrait.png/revision/latest/scale-to-width-down/200?cb=20190807141643",
       "sevenStarReleased": true
+    },
+    {
+      "id": "wasp",
+      "name": "Wasp",
+      "class": "Science",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/1/1f/Wasp_portrait.png/revision/latest/scale-to-width-down/200?cb=20180708105402",
+      "sevenStarReleased": false
     },
     {
       "id": "wave",
@@ -10877,6 +11759,34 @@
       "sevenStarReleased": true
     },
     {
+      "id": "winter-soldier",
+      "name": "Winter Soldier",
+      "class": "Skill",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/b/b9/Winter_Soldier_portrait.png/revision/latest/scale-to-width-down/200?cb=20150830080418",
+      "sevenStarReleased": false
+    },
+    {
+      "id": "wolverine",
+      "name": "Wolverine",
+      "class": "Mutant",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/b/b4/Wolverine_portrait.png/revision/latest/scale-to-width-down/200?cb=20250212224940",
+      "sevenStarReleased": false
+    },
+    {
       "id": "wolverine-weapon-x",
       "name": "Wolverine (Weapon X)",
       "class": "Mutant",
@@ -11047,6 +11957,20 @@
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/d/de/Yelena_Belova_portrait.png/revision/latest/scale-to-width-down/200?cb=20250510042323",
       "sevenStarReleased": true
+    },
+    {
+      "id": "yellowjacket",
+      "name": "Yellowjacket",
+      "class": "Science",
+      "ascendable": false,
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "partner-only stub — not yet released at 7★",
+        "lastVerified": "2026-06-10"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/b/b1/Yellowjacket_portrait.png/revision/latest/scale-to-width-down/200?cb=20150830080630",
+      "sevenStarReleased": false
     },
     {
       "id": "yondu",

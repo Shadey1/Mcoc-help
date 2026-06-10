@@ -63,11 +63,19 @@ export const Champion = z.object({
   name: z.string(),
   class: ChampionClass,
   ascendable: z.boolean(),
-  prestige: z.object({
-    rank5: SigBrackets,
-    rank4: SigBrackets.optional(),
-    rank3: SigBrackets.optional(),
-  }),
+  /**
+   * Optional — entries representing champions that exist only as synergy
+   * partners (not yet released at 7-star, no Kabam-published prestige data)
+   * carry sevenStarReleased=false and omit prestige entirely. The engine
+   * never sees them: loadActiveChampions() filters them out before lookup.
+   */
+  prestige: z
+    .object({
+      rank5: SigBrackets,
+      rank4: SigBrackets.optional(),
+      rank3: SigBrackets.optional(),
+    })
+    .optional(),
   /** Override identifier for non-standard sig curves (Aegon, Hercules, etc.). null = use rank default. */
   sigCurve: z.string().nullable().default(null),
   tags: z.array(z.string()).default([]),

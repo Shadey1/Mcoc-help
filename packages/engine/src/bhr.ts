@@ -260,6 +260,11 @@ export function calculateBHR(
       `Champion mismatch: state references ${state.championId}, champion is ${champion.id}`,
     );
   }
+  if (!champion.prestige) {
+    throw new Error(
+      `Champion ${champion.id} has no prestige data — partner-only stubs must never reach the engine. Use loadActiveChampions().`,
+    );
+  }
 
   const pinned = lookupOverride(overrides, state);
   if (pinned !== undefined) return pinned;
@@ -328,6 +333,11 @@ export function calculateCeilingBHR(
   champion: Champion,
   overrides?: BHROverrideMap,
 ): number {
+  if (!champion.prestige) {
+    throw new Error(
+      `Champion ${champion.id} has no prestige data — partner-only stubs must never reach the engine.`,
+    );
+  }
   const ceilingAsc: Ascension = champion.ascendable ? 'A2' : 'A0';
   if (overrides && overrides.size > 0) {
     const pinned = overrides.get(

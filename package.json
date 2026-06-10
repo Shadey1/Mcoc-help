@@ -12,6 +12,7 @@
     "refresh-classes": "tsx scripts/refresh-classes-from-fandom.ts",
     "refresh-bhr": "tsx scripts/refresh-bhr-from-mcochub.ts",
     "refresh-bhr-r4": "tsx scripts/refresh-bhr-from-mcocgg.ts",
+    "refresh-synergies": "tsx scripts/refresh-synergies-from-mcocgg.ts",
     "lint": "pnpm -F web lint"
   },
   "devDependencies": {

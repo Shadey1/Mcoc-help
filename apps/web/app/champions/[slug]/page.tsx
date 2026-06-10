@@ -1,9 +1,15 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { loadAllChampions, findChampionById } from '../../../lib/data-loader';
+import {
+  loadAllChampions,
+  loadChampionLookup,
+  findChampionById,
+} from '../../../lib/data-loader';
+import { loadSynergiesForChampion } from '../../../lib/synergies-loader';
 import { ChampionPortrait } from '../../../components/champion-portrait';
 import { ScalingChart } from '../../../components/scaling-chart';
 import { BhrReferenceTable } from '../../../components/bhr-reference-table';
+import { SynergiesSection } from '../../../components/synergies-section';
 
 // Required for Next.js static export
 export function generateStaticParams() {
@@ -19,7 +25,13 @@ export default async function ChampionDetailPage({
   const champion = findChampionById(slug);
   if (!champion) notFound();
 
+  const synergies = loadSynergiesForChampion(slug);
+  const championLookup = loadChampionLookup();
+  const hasPrestige = champion.prestige !== undefined;
   const unreleased = champion.sevenStarReleased === false;
+  // Partner-only stubs: never released at 7★, no prestige data — display
+  // identity + synergies only and link out for full champ details.
+  const partnerOnly = unreleased && !hasPrestige;
   const fandomUrl = `https://marvel-contestofchampions.fandom.com/wiki/${encodeURIComponent(
     champion.name.replace(/ /g, '_'),
   )}`;
@@ -32,11 +44,18 @@ export default async function ChampionDetailPage({
         </Link>
       </nav>
 
-      {unreleased && (
+      {unreleased && !partnerOnly && (
         <div className="bg-amber-50 border border-amber-300 rounded p-3 text-sm text-amber-900">
           <strong>Not yet released at 7-star.</strong> Prestige reference shown below is
           anticipated. This champion is excluded from your roster recommendations and
           ceiling calculations until released.
+        </div>
+      )}
+      {partnerOnly && (
+        <div className="bg-amber-50 border border-amber-300 rounded p-3 text-sm text-amber-900">
+          <strong>Not currently available at 7-star.</strong> Shown as a synergy
+          partner reference. No prestige curves are tracked yet — when Kabam releases
+          this champion at 7★ we&rsquo;ll fill them in.
         </div>
       )}
 
@@ -76,16 +95,22 @@ export default async function ChampionDetailPage({
         </div>
       </section>
 
-      <BhrReferenceTable champion={champion} />
+      {champion.prestige && (
+        <>
+          <BhrReferenceTable champion={champion} />
 
-      <section className="space-y-3">
-        <h2 className="editorial-heading text-xl">BHR scaling</h2>
-        <ScalingChart
-          rank5Sig0={champion.prestige.rank5['0']}
-          rank5Sig200={champion.prestige.rank5['200']}
-          ascendable={champion.ascendable}
-        />
-      </section>
+          <section className="space-y-3">
+            <h2 className="editorial-heading text-xl">BHR scaling</h2>
+            <ScalingChart
+              rank5Sig0={champion.prestige.rank5['0']}
+              rank5Sig200={champion.prestige.rank5['200']}
+              ascendable={champion.ascendable}
+            />
+          </section>
+        </>
+      )}
+
+      <SynergiesSection synergies={synergies} championLookup={championLookup} />
 
       <section className="space-y-2 border-t border-[var(--color-rule)] pt-6">
         <h2 className="editorial-heading text-xl">Sources</h2>

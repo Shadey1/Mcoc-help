@@ -20,9 +20,14 @@ export function loadAllChampions(): Champion[] {
 /**
  * Load only champions actually released at 7-star — the set the engine should
  * use for optimisation, ceiling computation, picker/bulk-import options, etc.
+ *
+ * Also filters out partner-only stub entries (sevenStarReleased=false AND no
+ * prestige data) so the engine never sees a champion without prestige curves.
  */
 export function loadActiveChampions(): Champion[] {
-  return loadAllChampions().filter((c) => c.sevenStarReleased !== false);
+  return loadAllChampions().filter(
+    (c) => c.sevenStarReleased !== false && c.prestige !== undefined,
+  );
 }
 
 export function loadChampionLookup(): Map<string, Champion> {
