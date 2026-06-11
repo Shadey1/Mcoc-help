@@ -414,12 +414,18 @@ function MoveCard({
   champion,
   onDone,
   dimmed,
+  cumulativeDelta,
+  doneLabel,
 }: {
   move: ScoredMove;
   rank: number | null;
   champion: Champion | undefined;
   onDone?: () => void;
   dimmed?: boolean;
+  /** Multi-step plan only — cumulative delta after this step. */
+  cumulativeDelta?: number;
+  /** Override the done-button label (defaults to "✓ I've done this"). */
+  doneLabel?: string;
 }) {
   const moveDescription = describeMove(move);
   const isTop = rank === 1;
@@ -476,10 +482,15 @@ function MoveCard({
           </div>
         </div>
 
-        {/* Right: prestige delta + BHR */}
+        {/* Right: prestige delta + cumulative (plan mode) + BHR */}
         <div className="text-right flex-shrink-0">
           <DeltaBurst value={formatDelta(move.top30Delta)} burst={isTop} />
-          <div className="text-xs text-[var(--color-ink-soft)] numeric">
+          {cumulativeDelta !== undefined && (
+            <div className="text-[10px] text-[var(--color-ink-soft)] numeric mt-0.5">
+              cumulative {formatDelta(cumulativeDelta)}
+            </div>
+          )}
+          <div className="text-xs text-[var(--color-ink-soft)] numeric mt-0.5">
             BHR {formatBHR(move.beforeBHR)} → {formatBHR(move.afterBHR)}
           </div>
         </div>
@@ -502,7 +513,7 @@ function MoveCard({
               onClick={onDone}
               className="ml-auto text-xs px-3 py-1.5 border border-[var(--color-rule)] rounded hover:bg-[var(--color-paper-soft)] hover:border-[var(--color-marvel-editorial)] transition-colors"
             >
-              ✓ I&apos;ve done this
+              {doneLabel ?? "✓ I've done this"}
             </button>
           )}
         </div>
@@ -609,85 +620,19 @@ function PlanList({
         </span>
         .
       </p>
-      <ol className="space-y-3 list-none p-0">
-        {plan.map((step) => {
-          const champion = championLookup.get(step.move.move.championId);
-          const isTop = step.index === 1;
-          const description = describeMove(step.move);
-          return (
-            <li key={step.index} className="flex gap-3 items-stretch">
-              <div className="flex-shrink-0 flex flex-col items-center justify-center w-12 pt-3">
-                <div className="text-lg font-medium text-[var(--color-ink-soft)] numeric">
-                  {step.index}.
-                </div>
-              </div>
-              <div
-                className={`flex-1 border rounded-lg p-3 transition-colors ${
-                  isTop
-                    ? 'border-[var(--color-marvel-impact)] bg-[var(--color-paper-card)] shadow-sm'
-                    : 'border-[var(--color-rule)] bg-[var(--color-paper-card)]'
-                }`}
-              >
-                <div className="flex items-start gap-3">
-                  {champion && (
-                    <div className="flex-shrink-0 flex flex-col items-center">
-                      <Link href={`/champions/${champion.id}/`}>
-                        <ChampionPortrait
-                          name={champion.name}
-                          klass={champion.class}
-                          portraitUrl={champion.portraitUrl ?? null}
-                          size={56}
-                          showClassOverlay={Boolean(champion.portraitUrl)}
-                        />
-                      </Link>
-                      <div className="text-xs text-[var(--color-ink-soft)] numeric mt-1 text-center">
-                        {description}
-                      </div>
-                    </div>
-                  )}
-                  <div className="min-w-0 flex-1">
-                    <div
-                      className="font-medium leading-tight truncate"
-                      title={step.move.championName}
-                    >
-                      {step.move.championName}
-                    </div>
-                    <div className="text-xs text-[var(--color-ink-soft)] numeric mt-1">
-                      BHR {formatBHR(step.move.beforeBHR)} →{' '}
-                      {formatBHR(step.move.afterBHR)}
-                    </div>
-                  </div>
-                  <div className="text-right flex-shrink-0">
-                    <DeltaBurst
-                      value={formatDelta(step.move.top30Delta)}
-                      burst={isTop}
-                    />
-                    <div className="text-[10px] text-[var(--color-ink-soft)] numeric mt-1">
-                      cumulative {formatDelta(step.cumulativeDelta)}
-                    </div>
-                  </div>
-                </div>
-                <div className="mt-3 pt-3 border-t border-[var(--color-rule)] flex flex-wrap items-center gap-2">
-                  {step.move.costGates.map((gate, i) => (
-                    <span
-                      key={i}
-                      className={`text-xs px-2 py-1 rounded numeric ${costGateBadge(gate.kind)}`}
-                    >
-                      {gate.label}
-                    </span>
-                  ))}
-                  <button
-                    type="button"
-                    onClick={() => onStepDone(step.move)}
-                    className="ml-auto text-xs px-3 py-1.5 border border-[var(--color-rule)] rounded hover:bg-[var(--color-paper-soft)] hover:border-[var(--color-marvel-editorial)] transition-colors"
-                  >
-                    ✓ I&apos;ve done step {step.index}
-                  </button>
-                </div>
-              </div>
-            </li>
-          );
-        })}
+      <ol className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 list-none p-0">
+        {plan.map((step) => (
+          <li key={step.index}>
+            <MoveCard
+              move={step.move}
+              rank={step.index}
+              champion={championLookup.get(step.move.move.championId)}
+              cumulativeDelta={step.cumulativeDelta}
+              onDone={() => onStepDone(step.move)}
+              doneLabel={`✓ I've done step ${step.index}`}
+            />
+          </li>
+        ))}
       </ol>
     </div>
   );
