@@ -21,6 +21,7 @@ export const Rank = z.union([
   z.literal(3),
   z.literal(4),
   z.literal(5),
+  z.literal(6),
 ]);
 export type Rank = z.infer<typeof Rank>;
 

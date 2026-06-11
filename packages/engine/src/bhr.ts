@@ -272,11 +272,11 @@ export function calculateBHR(
   const rankMult = RANK_MULT[state.rank];
   if (rankMult === undefined) {
     throw new Error(
-      `Rank ${state.rank} multiplier not yet supported (R1, R2 out of scope for v1).`,
+      `Rank ${state.rank} has no BHR multiplier calibrated. R3/R4/R5 are the only ranks with ground-truth data (§16 roster). R1/R2 are out of scope; R6 is reserved for the war planner only — no prestige math yet.`,
     );
   }
 
-  // Type narrowing: only R3/R4/R5 reach this point (R1/R2 throw above)
+  // Type narrowing: only R3/R4/R5 reach this point.
   const rankKey = `rank${state.rank}` as 'rank3' | 'rank4' | 'rank5';
   const rankBrackets = champion.prestige[rankKey];
   const rank5Brackets = champion.prestige.rank5;

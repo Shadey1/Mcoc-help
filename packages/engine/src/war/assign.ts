@@ -11,23 +11,46 @@ import type {
 const ASC_TIER: Record<Ascension, number> = { A0: 0, A1: 1, A2: 2 };
 
 /**
- * True if the state meets-or-exceeds the floor.
- * Compares rank first (higher always wins), then ascension as the
- * second axis. Sig is not a floor concern — it's only a tiebreaker.
+ * Base power for an unascended rank. R6 sits a full ascension step above R5
+ * because in-game R5 A2 and R6 A0 are equivalent power tiers — going up
+ * from R5 max takes a big jump (dual T6 catalysts) that's worth two
+ * ascension-equivalents, not one.
+ *
+ * R1/R2 are out of scope for war (no defenders sit there) but the table
+ * carries placeholder values for type completeness.
  */
-function meetsFloor(state: ChampionState, floor: WarStateFloor): boolean {
-  if (state.rank > floor.rank) return true;
-  if (state.rank < floor.rank) return false;
-  return ASC_TIER[state.ascension] >= ASC_TIER[floor.ascension];
+const RANK_BASE: Record<number, number> = { 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 7 };
+
+/**
+ * Effective power tier on the in-game ladder:
+ *   R4 < R4 A1 ≡ R5 A0 < R4 A2 ≡ R5 A1 < R5 A2 ≡ R6 A0 < R6 A1 < R6 A2.
+ * Computed as RANK_BASE[rank] + ascension level. Tied tiers (R4 A1 and
+ * R5 A0, etc.) are deliberately interchangeable; sig breaks the tie.
+ */
+function effectiveRank(rank: number, ascension: Ascension): number {
+  return (RANK_BASE[rank] ?? rank) + ASC_TIER[ascension];
 }
 
 /**
- * Score a champion state for tiebreaking: rank → ascension → sig.
- * Encoded as a single sortable number with large step sizes so a lower
- * tier can never beat a higher tier (R4 A2 sig 200 < R5 A0 sig 0).
+ * True if the state meets-or-exceeds the floor by effective rank.
+ * E.g. floor R5 (effective 5) accepts R4 A1 (5), R4 A2 (6), R5 A0 (5),
+ * R5 A1 (6), R5 A2 (7) — but rejects R4 A0 (4).
+ */
+function meetsFloor(state: ChampionState, floor: WarStateFloor): boolean {
+  return (
+    effectiveRank(state.rank, state.ascension) >=
+    effectiveRank(floor.rank, floor.ascension)
+  );
+}
+
+/**
+ * Score a champion state for tiebreaking: effective rank, then sig.
+ * Encoded as a single sortable number — effective rank dominates, sig is
+ * the within-tier tiebreaker. Tied effective ranks (e.g. R5 A0 vs R4 A1)
+ * are intentionally interchangeable; sig decides between them.
  */
 function stateScore(state: ChampionState): number {
-  return state.rank * 1_000_000 + ASC_TIER[state.ascension] * 1_000 + state.sig;
+  return effectiveRank(state.rank, state.ascension) * 1_000 + state.sig;
 }
 
 /**
@@ -35,7 +58,7 @@ function stateScore(state: ChampionState): number {
  * as stateScore but exposed so callers can mirror the engine's row order.
  */
 export function assignmentStateScore(a: WarAssignment): number {
-  return a.rank * 1_000_000 + ASC_TIER[a.ascension] * 1_000 + a.sig;
+  return effectiveRank(a.rank, a.ascension) * 1_000 + a.sig;
 }
 
 type Candidate = {

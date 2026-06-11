@@ -11,7 +11,7 @@ import { assignWar, type ChampionState, type WarPlayer } from '../../index.js';
 
 function state(
   championId: string,
-  rank: 3 | 4 | 5,
+  rank: 3 | 4 | 5 | 6,
   ascension: 'A0' | 'A1' | 'A2',
   sig = 200,
 ): ChampionState {
@@ -111,8 +111,9 @@ describe('assignWar — scarcity-first greedy placement', () => {
     expect(result.assignments[0]!.sig).toBe(200);
   });
 
-  it('higher rank always beats lower regardless of ascension', () => {
-    // alice has R4 A2 (1.16x), bob has R5 A0 (1.0x). Rank wins.
+  it('effective rank beats raw rank — R4 A2 (effective 6) wins over R5 A0 (effective 5)', () => {
+    // Power ladder: R4 A2 ≡ R5 A1 = effective-6, R5 A0 ≡ R4 A1 = effective-5.
+    // alice's R4 A2 beats bob's R5 A0 because ascension counts as a full rank.
     const result = assignWar({
       defenderPool: new Set(['photon']),
       floor: { rank: 4, ascension: 'A0' },
@@ -123,8 +124,50 @@ describe('assignWar — scarcity-first greedy placement', () => {
       slotsPerPlayer: 5,
     });
 
+    expect(result.assignments[0]!.playerId).toBe('p1');
+    expect(result.assignments[0]!.rank).toBe(4);
+    expect(result.assignments[0]!.ascension).toBe('A2');
+  });
+
+  it('effective-rank ties resolve by sig — R5 A0 sig 200 beats R4 A1 sig 100 (both effective-5)', () => {
+    const result = assignWar({
+      defenderPool: new Set(['photon']),
+      floor: { rank: 4, ascension: 'A0' },
+      players: [
+        player('p1', 'alice', [state('photon', 4, 'A1', 100)]),
+        player('p2', 'bob', [state('photon', 5, 'A0', 200)]),
+      ],
+      slotsPerPlayer: 5,
+    });
+
     expect(result.assignments[0]!.playerId).toBe('p2');
-    expect(result.assignments[0]!.rank).toBe(5);
+  });
+
+  it('R6 sits at the top of the ladder — R6 A0 (effective 7) beats R5 A2 (effective 7) on sig, beats R5 A1 (effective 6) outright', () => {
+    // Two effective-7 (R6 A0 vs R5 A2): sig breaks tie.
+    const tied = assignWar({
+      defenderPool: new Set(['photon']),
+      floor: { rank: 4, ascension: 'A0' },
+      players: [
+        player('p1', 'alice', [state('photon', 5, 'A2', 100)]),
+        player('p2', 'bob', [state('photon', 6, 'A0', 200)]),
+      ],
+      slotsPerPlayer: 5,
+    });
+    expect(tied.assignments[0]!.playerId).toBe('p2');
+
+    // R6 A0 (7) > R5 A1 (6) outright.
+    const clearWin = assignWar({
+      defenderPool: new Set(['photon']),
+      floor: { rank: 4, ascension: 'A0' },
+      players: [
+        player('p1', 'alice', [state('photon', 5, 'A1', 200)]),
+        player('p2', 'bob', [state('photon', 6, 'A0', 0)]),
+      ],
+      slotsPerPlayer: 5,
+    });
+    expect(clearWin.assignments[0]!.playerId).toBe('p2');
+    expect(clearWin.assignments[0]!.rank).toBe(6);
   });
 
   it('respects the state floor — champs below floor are filtered out', () => {
