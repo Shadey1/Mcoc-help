@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import Link from 'next/link';
+import Script from 'next/script';
 import { Fraunces, Libre_Franklin, JetBrains_Mono, Bungee } from 'next/font/google';
 import './globals.css';
 import { BHROverridesProvider } from '../lib/bhr-overrides-context';
@@ -168,6 +169,14 @@ export default function RootLayout({
         </footer>
         </RelicOverridesProvider>
         </BHROverridesProvider>
+        {/* Umami: cookieless analytics. No PII; no consent banner needed.
+            Self-traffic excluded via localStorage["umami.disabled"]="1". */}
+        <Script
+          defer
+          src="https://cloud.umami.is/script.js"
+          data-website-id="a0f89c67-f296-4fb2-9920-7b8187d8a15f"
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   );

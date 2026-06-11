@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import type { ChampionState } from '@prestige-tools/engine';
 import { createShare, recordLocalShare } from '../lib/share-client';
+import { trackEvent } from '../lib/analytics';
 
 type ShareModalProps = {
   open: boolean;
@@ -64,6 +65,7 @@ export function ShareModal({ open, onClose, roster }: ShareModalProps) {
     try {
       await navigator.clipboard.writeText(url);
       setCopied(true);
+      trackEvent('share_clicked');
       setTimeout(() => setCopied(false), 2000);
     } catch {
       // Clipboard API can fail in some browsers / contexts — fall back to selecting
@@ -72,6 +74,7 @@ export function ShareModal({ open, onClose, roster }: ShareModalProps) {
         input.select();
         document.execCommand('copy');
         setCopied(true);
+        trackEvent('share_clicked');
         setTimeout(() => setCopied(false), 2000);
       }
     }

@@ -11,6 +11,7 @@ import {
 import { loadRoster, saveRoster } from '../lib/roster-storage';
 import { formatBHR, formatDelta } from '../lib/format';
 import { useBHROverrides } from '../lib/bhr-overrides-context';
+import { trackEvent } from '../lib/analytics';
 import { RosterPicker } from './roster-picker';
 import { BulkImport } from './bulk-import';
 import { ChampionTickboxGrid } from './champion-tickbox-grid';
@@ -107,18 +108,25 @@ export function RosterManager({ champions }: RosterManagerProps) {
   };
 
   function handleAdd(state: ChampionState) {
+    const wasEmpty = roster.champions.length === 0;
     setRoster((prev) => ({
       champions: [...prev.champions.filter((s) => s.championId !== state.championId), state],
     }));
+    if (wasEmpty) trackEvent('roster_built', { method: 'manual' });
   }
 
-  function handleBulkImport(states: ChampionState[]) {
+  function handleBulkImport(
+    states: ChampionState[],
+    method: 'manual' | 'ocr' = 'manual',
+  ) {
+    const wasEmpty = roster.champions.length === 0;
     setRoster((prev) => {
       // For each incoming state, replace any existing state for that champion
       const incomingIds = new Set(states.map((s) => s.championId));
       const kept = prev.champions.filter((s) => !incomingIds.has(s.championId));
       return { champions: [...kept, ...states] };
     });
+    if (wasEmpty && states.length > 0) trackEvent('roster_built', { method });
     scrollToRoster();
   }
 
@@ -303,7 +311,7 @@ export function RosterManager({ champions }: RosterManagerProps) {
         {FEATURE_SCREENSHOT_IMPORT && addMode === 'screenshot' && (
           <ScreenshotImport
             champions={champions}
-            onImport={handleBulkImport}
+            onImport={(states) => handleBulkImport(states, 'ocr')}
           />
         )}
         {addMode === 'bulk' && (
@@ -312,7 +320,7 @@ export function RosterManager({ champions }: RosterManagerProps) {
         {addMode === 'seed' && (
           <PortraitSeed
             champions={champions}
-            onImport={handleBulkImport}
+            onImport={(states) => handleBulkImport(states, 'ocr')}
           />
         )}
       </section>

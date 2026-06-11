@@ -7,6 +7,7 @@ import type { Champion, ChampionState } from '@prestige-tools/engine';
 import { fetchShare, type SharedRosterPayload } from '../../lib/share-client';
 import { loadActiveChampions } from '../../lib/data-loader';
 import { saveRoster } from '../../lib/roster-storage';
+import { trackEvent } from '../../lib/analytics';
 import { SharedRosterView } from '../../components/shared-roster-view';
 
 /**
@@ -135,6 +136,7 @@ function SharedRosterPageInner() {
       knownIds.has(s.championId),
     );
     saveRoster({ champions: validStates });
+    if (validStates.length > 0) trackEvent('roster_built', { method: 'url' });
     router.push('/roster/');
   }
 

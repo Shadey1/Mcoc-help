@@ -22,6 +22,7 @@ import { loadRelics, type RelicStateBundle } from '../lib/relics-storage';
 import { formatBHR, formatDelta } from '../lib/format';
 import { useBHROverrides } from '../lib/bhr-overrides-context';
 import { useRelicOverrides } from '../lib/relic-overrides-context';
+import { trackEvent } from '../lib/analytics';
 import { ChampionPortrait } from './champion-portrait';
 import { AddToRosterModal } from './add-to-roster-modal';
 import { RosterSummary } from './roster-summary';
@@ -75,6 +76,21 @@ export function RecommendationsView({ champions }: RecommendationsViewProps) {
     setRelicBundle(loadRelics());
     setHydrated(true);
   }, []);
+
+  // Fire `recommendation_viewed` once per mount, when the value moment
+  // actually displays (hydrated, non-empty roster, real recommendations
+  // about to render). Guarded by a ref so it doesn't refire on re-renders.
+  const recordedViewRef = useRef(false);
+  useEffect(() => {
+    if (
+      hydrated &&
+      roster.champions.length > 0 &&
+      !recordedViewRef.current
+    ) {
+      recordedViewRef.current = true;
+      trackEvent('recommendation_viewed');
+    }
+  }, [hydrated, roster.champions.length]);
 
   // Compute relic moves unconditionally (hook must run on every render,
   // regardless of whether bundle has loaded or roster is empty). Falls back
