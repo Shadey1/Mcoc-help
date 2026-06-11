@@ -141,7 +141,7 @@ export function ChampionsBrowser({ champions }: ChampionsBrowserProps) {
                 portraitUrl={c.portraitUrl ?? null}
                 fill
                 showClassOverlay={Boolean(c.portraitUrl)}
-
+                rarity={unreleased ? 'unreleased' : '7-star'}
               />
               <div className="mt-1 text-[11px] sm:text-sm font-medium leading-tight line-clamp-2">
                 {c.name}

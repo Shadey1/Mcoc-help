@@ -66,6 +66,7 @@ export default async function ChampionDetailPage({
           portraitUrl={champion.portraitUrl ?? null}
           size={120}
           showClassOverlay={Boolean(champion.portraitUrl)}
+          rarity={partnerOnly ? 'unreleased' : '7-star'}
         />
         <div className="flex-1 min-w-0">
           <h1 className="editorial-heading text-4xl mb-2">{champion.name}</h1>

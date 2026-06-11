@@ -1,11 +1,12 @@
 import Link from 'next/link';
 import type { Champion, ChampionClass } from '@prestige-tools/engine';
 import type { Synergy, PartnerRef } from '../lib/synergies-loader';
-import { ChampionPortrait } from './champion-portrait';
+import { ChampionPortrait, type Rarity } from './champion-portrait';
 
 type PartnerWithMeta = PartnerRef & {
   klass: ChampionClass | null;
   portraitUrl: string | null;
+  rarity: Rarity;
 };
 
 /**
@@ -35,10 +36,15 @@ export function SynergiesSection({
         {synergies.map((s) => {
           const partners: PartnerWithMeta[] = s.partners.map((p) => {
             const c = p.slug ? championLookup.get(p.slug) : undefined;
+            // Partner-only stubs (no prestige curves) get the muted "unreleased"
+            // frame; everything else gets the 7★ gem frame.
+            const rarity: Rarity =
+              c && c.sevenStarReleased === false ? 'unreleased' : '7-star';
             return {
               ...p,
               klass: c?.class ?? null,
               portraitUrl: c?.portraitUrl ?? null,
+              rarity,
             };
           });
           return <SynergyCard key={s.synergyId} synergy={s} partners={partners} />;
@@ -97,6 +103,7 @@ function PartnerTile({ partner }: { partner: PartnerWithMeta }) {
           name={partner.name}
           klass={partner.klass}
           portraitUrl={partner.portraitUrl}
+          rarity={partner.rarity}
           size={32}
         />
       ) : (
