@@ -96,6 +96,14 @@ export const Champion = z.object({
    * Defaults to true — the bulk of the seed represents released 7-stars.
    */
   sevenStarReleased: z.boolean().default(true),
+  /**
+   * Highest rarity this champion exists at in-game. Only meaningful when
+   * sevenStarReleased=false — distinguishes "6★ but not yet 7★" (default
+   * for partner-only stubs) from champions that capped out earlier (e.g.
+   * Quake stops at 5★). Drives the rarity frame on partner tiles. Defaults
+   * to '6-star' for unreleased stubs and '7-star' for everything else.
+   */
+  maxRarity: z.enum(['5-star', '6-star', '7-star']).optional(),
   _meta: z
     .object({
       lastVerified: z.string().optional(),

@@ -7745,11 +7745,12 @@
       "sigCurve": null,
       "tags": [],
       "_meta": {
-        "bhrSource": "partner-only stub — not yet released at 7★",
-        "lastVerified": "2026-06-10"
+        "bhrSource": "partner-only stub — capped at 5★ in-game",
+        "lastVerified": "2026-06-11"
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/f/f4/Quake_portrait.png/revision/latest/scale-to-width-down/200?cb=20160920215011",
-      "sevenStarReleased": false
+      "sevenStarReleased": false,
+      "maxRarity": "5-star"
     },
     {
       "id": "quicksilver",

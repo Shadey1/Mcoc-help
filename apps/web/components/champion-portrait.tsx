@@ -52,7 +52,13 @@ import {
  * 1.04 from its bottom edge on hover; frame and backdrop stay still.
  * Respects prefers-reduced-motion.
  */
-export type Rarity = '7-star' | 'unreleased' | null;
+/**
+ *   '7-star'     → t7 (purple/violet) — released at 7★
+ *   'unreleased' → t6 (cyan)         — stuck at 6★, not yet at 7★
+ *   '5-star'     → leg (red)         — capped out at 5★ (e.g. Quake)
+ *   null         → bare portrait, no frame
+ */
+export type Rarity = '7-star' | 'unreleased' | '5-star' | null;
 
 type ChampionPortraitProps = {
   name: string;
@@ -84,6 +90,7 @@ type ChampionPortraitProps = {
 const FRAME_SRC: Record<Exclude<Rarity, null>, string> = {
   '7-star': '/frames/t7.png',
   'unreleased': '/frames/t6.png',
+  '5-star': '/frames/leg.png',
 };
 
 // Derived CSS percentages — translate the fraction-of-Fw constants from

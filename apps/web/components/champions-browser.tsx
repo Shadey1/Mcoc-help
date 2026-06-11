@@ -5,6 +5,7 @@ import Link from 'next/link';
 import type { Champion, ChampionClass } from '@prestige-tools/engine';
 import { ChampionPortrait } from './champion-portrait';
 import { ClassIcon, classColors } from './class-icon';
+import { displayRarity, rarityLabel } from '../lib/champion-rarity';
 
 type ChampionsBrowserProps = {
   champions: Champion[];
@@ -128,12 +129,14 @@ export function ChampionsBrowser({ champions }: ChampionsBrowserProps) {
       <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 gap-1.5">
         {filtered.map((c) => {
           const unreleased = c.sevenStarReleased === false;
+          const rarity = displayRarity(c);
+          const subLabel = rarityLabel(rarity);
           return (
             <Link
               key={c.id}
               href={`/champions/${c.id}/`}
-              className={`border border-[var(--color-rule)] rounded-lg p-1.5 bg-[var(--color-paper-card)] hover:bg-[var(--color-paper-soft)] transition-colors flex flex-col text-center ${unreleased ? 'opacity-60' : ''}`}
-              title={unreleased ? `${c.name} — not yet released at 7-star` : undefined}
+              className={`group border border-[var(--color-rule)] rounded-lg p-1.5 bg-[var(--color-paper-card)] hover:bg-[var(--color-paper-soft)] transition-colors flex flex-col text-center ${unreleased ? 'opacity-60' : ''}`}
+              title={subLabel ? `${c.name} — ${subLabel}` : undefined}
             >
               <ChampionPortrait
                 name={c.name}
@@ -141,14 +144,15 @@ export function ChampionsBrowser({ champions }: ChampionsBrowserProps) {
                 portraitUrl={c.portraitUrl ?? null}
                 fill
                 showClassOverlay={Boolean(c.portraitUrl)}
-                rarity={unreleased ? 'unreleased' : '7-star'}
+                rarity={rarity}
+                hoverPop
               />
               <div className="mt-1 text-[11px] sm:text-sm font-medium leading-tight line-clamp-2">
                 {c.name}
               </div>
-              {unreleased ? (
+              {subLabel ? (
                 <div className="text-[10px] sm:text-xs text-[var(--color-ink-soft)] italic mt-0.5">
-                  Not yet 7★
+                  {subLabel}
                 </div>
               ) : c.ascendable ? (
                 <div className="text-[10px] sm:text-xs text-[var(--color-marvel-editorial)] font-medium mt-0.5">

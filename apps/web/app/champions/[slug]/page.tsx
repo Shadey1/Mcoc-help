@@ -10,6 +10,7 @@ import { ChampionPortrait } from '../../../components/champion-portrait';
 import { ScalingChart } from '../../../components/scaling-chart';
 import { BhrReferenceTable } from '../../../components/bhr-reference-table';
 import { SynergiesSection } from '../../../components/synergies-section';
+import { displayRarity } from '../../../lib/champion-rarity';
 
 // Required for Next.js static export
 export function generateStaticParams() {
@@ -66,7 +67,7 @@ export default async function ChampionDetailPage({
           portraitUrl={champion.portraitUrl ?? null}
           size={120}
           showClassOverlay={Boolean(champion.portraitUrl)}
-          rarity={partnerOnly ? 'unreleased' : '7-star'}
+          rarity={displayRarity(champion)}
         />
         <div className="flex-1 min-w-0">
           <h1 className="editorial-heading text-4xl mb-2">{champion.name}</h1>
