@@ -67,37 +67,46 @@ type Candidate = {
 };
 
 /**
- * Power-first max bipartite matching via Kuhn's algorithm.
+ * Tier-respecting max bipartite matching, plus same-tier rebalance.
+ *
+ * Optimisation criteria, in priority order:
+ *   1. NO DUPLICATES — each champion appears at most once across the table.
+ *   2. ABOVE FLOOR — every placement is at or above the effective-tier
+ *      floor selected by the officer.
+ *   3. HIGHEST-TIER OWNER WINS — if a champion is owned by anyone at tier
+ *      N, it is NEVER placed at tier <N. A R5 A0 Jean Grey beats a R4 A0
+ *      Jean Grey; the algorithm only ever drops a tier when every higher-
+ *      tier owner is full of their own higher-tier placements.
+ *   4. MAX PLACEMENTS — fill as many slots as the pool/roster intersection
+ *      structurally allows. Kuhn's gives this for free; we don't sacrifice
+ *      it for tier (a tier-grouped edge list still finds the same max
+ *      matching count, just at higher tier).
+ *   5. FAIR DISTRIBUTION WITHIN A TIER — when two owners hold the same
+ *      champ at the same effective tier, share evenly so one player isn't
+ *      stacked at 5/5 while another sits at 0/5 with the same roster.
  *
  * Algorithm:
  *   1. For each champion in the defender pool, collect every eligible
  *      (player, state) pair — players who own the champion at ≥ floor.
- *   2. Sort each champion's owners by stateScore desc, so the best-developed
- *      owner gets first try.
+ *   2. Sort each champion's owners by stateScore desc.
  *   3. Sort the champions by best-owner effective tier desc, tiebreak by
  *      scarcity asc (rare champs first within a tier), then championId.
- *   4. Build a bipartite graph: each player is split into `slotsPerPlayer`
+ *   4. Build a bipartite graph. Each player is split into `slotsPerPlayer`
  *      slot-nodes; an edge connects a champion to slot (p, k) iff p owns
- *      the champion ≥ floor. Slot edges are interleaved across owners
- *      (for each k, list every owner's k-th slot before the next k) so
- *      Kuhn's distributes placements evenly across owners at the same
- *      tier instead of stacking on the alphabetically-first one.
- *   5. Run Kuhn's: for each champion in tier order, try to find an
- *      augmenting path via DFS. Champions that come earlier (higher tier)
- *      take precedence; later ones displace them only when the augmenting
- *      path finds an alternative slot for the displaced champion.
+ *      the champion ≥ floor. Edges are GROUPED BY OWNER TIER DESC, then
+ *      INTERLEAVED ACROSS OWNERS WITHIN A TIER: every tier-N owner's k-th
+ *      slot is tried before any tier-(N-1) owner's k-th slot, and within
+ *      tier-N, owner-A's slot 0 alternates with owner-B's slot 0 before
+ *      anyone's slot 1. So augmenting paths exhaust same-tier alternatives
+ *      before downgrading — criterion 3.
+ *   5. Run Kuhn's: for each champion in championOrder, find an augmenting
+ *      path via DFS.
+ *   6. Post-pass: redistribute placements between (max-count, min-count)
+ *      players when a same-tier swap exists — criterion 5. Tier never
+ *      drops in this pass; if the only available swap is a downgrade,
+ *      the imbalance stays.
  *
- * Why max matching: earlier greedy + 1-step-repair variants left
- * placements on the table when the augmenting path needed two or more
- * concurrent swaps. Kuhn's finds every placement that is structurally
- * possible given the roster overlaps — equivalent to min-cost flow's
- * max-flow component for unit capacities. Runtime is O(V × E), which is
- * trivial at war scale (~80 champs × ~40 slots).
- *
- * Tier optimisation is the secondary objective via championOrder: high-
- * tier champions are tried first and only displaced when necessary. Sig
- * is a tertiary signal (owners pre-sorted by sig within tier). Slot
- * interleaving handles the load-balance objective.
+ * Runtime O(V × E), trivial at war scale (~80 champs × ~40 slots).
  */
 export function assignWar(input: WarInput): WarResult {
   const slotsPerPlayer = input.slotsPerPlayer ?? 5;
@@ -146,28 +155,38 @@ export function assignWar(input: WarInput): WarResult {
     playerNameLookup.set(p.id, p.name);
   }
 
-  // Max bipartite matching via Kuhn's algorithm with augmenting-path DFS.
+  // Edges grouped by owner effective tier (desc), interleaved within tier.
   //
-  // Each player is represented as `slotsPerPlayer` slot nodes; an edge
-  // connects a champion to a slot iff its player owns the champion ≥ floor.
-  // Processing champions in championOrder (best-owner state desc, scarcity
-  // asc) gives high-tier champions first claim — augmenting paths displace
-  // earlier placements only when necessary to fit a new one.
+  // The grouping is what enforces criterion 3 (highest-tier owner wins).
+  // Within a champion's edge list, every slot of every tier-N owner is
+  // listed before any slot of a tier-(N-1) owner. So when Kuhn's DFS
+  // augments a placement, it tries other slots at the SAME tier before
+  // dropping the placement to a lower-tier owner. A R5 A0 Jean Grey on
+  // K-guns only moves to a R4 A0 owner if EVERY R5+ owner of Jean Grey
+  // is at slot cap.
   //
-  // Edges are interleaved by slot-index across owners: for each k from 0
-  // to slotsPerPlayer-1, every owner's k-th slot is listed before any
-  // owner's (k+1)-th. This means a champion's first attempt fills the
-  // first owner's slot 0; the second attempt finds slot 0 taken and goes
-  // to the second owner's slot 0; etc. — distributing placements evenly
-  // across owners at the same tier instead of stacking on whichever owner
-  // happens to be alphabetically first.
+  // Within a tier, slots are interleaved by k across owners: slot 0 of
+  // every tier-N owner, then slot 1 of every tier-N owner, etc. — so two
+  // same-tier owners share placements evenly instead of one filling first.
   type SlotKey = string; // `${playerId}::${slotIndex}`
   const edgesByChamp = new Map<string, SlotKey[]>();
   for (const [champId, owners] of championOrder) {
+    const tierBuckets = new Map<number, Candidate[]>();
+    for (const owner of owners) {
+      const tier = effectiveRank(owner.state.rank, owner.state.ascension);
+      const bucket = tierBuckets.get(tier);
+      if (bucket) bucket.push(owner);
+      else tierBuckets.set(tier, [owner]);
+    }
+    const tiersDesc = [...tierBuckets.keys()].sort((a, b) => b - a);
+
     const edges: SlotKey[] = [];
-    for (let k = 0; k < slotsPerPlayer; k++) {
-      for (const owner of owners) {
-        edges.push(`${owner.playerId}::${k}`);
+    for (const tier of tiersDesc) {
+      const group = tierBuckets.get(tier)!;
+      for (let k = 0; k < slotsPerPlayer; k++) {
+        for (const owner of group) {
+          edges.push(`${owner.playerId}::${k}`);
+        }
       }
     }
     edgesByChamp.set(champId, edges);

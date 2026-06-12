@@ -153,6 +153,38 @@ describe('assignWar — power-first greedy placement', () => {
     expect(bobChamp?.championId).toBe('y-shared-high');
   });
 
+  it('Jean Grey scenario — highest-tier owner wins, never downgrade for spread', () => {
+    // K-guns owns Jean Grey at R5 A0 (tier 5). Rons owns it at R4 A0
+    // (tier 4). Both also own a bunch of other tier-5 champs. In the user's
+    // bug report, an earlier algorithm displaced Jean Grey to Rons (tier
+    // 4) so K-guns could take another champ — total +1 placement but a
+    // tier dropped for Jean Grey. Tier-grouped edges fix it: Jean Grey
+    // stays on K-guns at tier 5 unless K-guns is genuinely full of OTHER
+    // tier-5 champs.
+    const result = assignWar({
+      defenderPool: new Set(['jean-grey', 'champ-a', 'champ-b']),
+      floor: { rank: 4, ascension: 'A0' },
+      players: [
+        player('p1-k-guns', 'K-guns', [
+          state('jean-grey', 5, 'A0'), // tier 5
+          state('champ-a', 5, 'A0'),
+          state('champ-b', 5, 'A0'),
+        ]),
+        player('p2-rons', 'Rons', [
+          state('jean-grey', 4, 'A0'), // tier 4
+        ]),
+      ],
+      slotsPerPlayer: 5,
+    });
+
+    const jeanGreyAssignment = result.assignments.find(
+      (a) => a.championId === 'jean-grey',
+    );
+    expect(jeanGreyAssignment).toBeDefined();
+    expect(jeanGreyAssignment!.playerId).toBe('p1-k-guns');
+    expect(jeanGreyAssignment!.rank).toBe(5);
+  });
+
   it('redistributes same-tier placements toward fairness without dropping count', () => {
     // 5 champs all co-owned by all 4 players at R5 A2 sig 200 (tier 7).
     // slotsPerPlayer = 5; max placements = 5 (one per champion). Kuhn's
