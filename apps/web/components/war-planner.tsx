@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   assignWar,
+  type Ascension,
   type Champion,
   type ChampionState,
   type Rank,
@@ -30,20 +31,50 @@ import { WarPlacementTable } from './war-placement-table';
 import { SharePoolModal } from './share-pool-modal';
 
 /**
- * Floor options — rank only. The engine ranks states by effective power
- * (rank + ascension), so "R4 minimum" lets a R3 A2 through too (same
- * effective tier as R4 A1). Ascension is dropped from the floor UI; we
- * always pass A0 so the floor sits at the bottom of its tier.
+ * Floor options expressed on the effective-rank ladder. The engine compares
+ * `state.rank + ascensionLevel` (with R6 base = 7), so a single tier admits
+ * multiple {rank, ascension} pairs — picking the lowest-rank representative
+ * for each tier so the saved floor reads naturally.
+ *
+ *   tier 3 — R3 A0
+ *   tier 4 — R4 A0 / R3 A1
+ *   tier 5 — R4 A1 / R5 A0
+ *   tier 6 — R4 A2 / R5 A1
+ *   tier 7 — R5 A2 / R6 A0
+ *   tier 8 — R6 A1
+ *   tier 9 — R6 A2
+ *
+ * R6 tiers are included for forward-compat (no roster UI for R6 yet);
+ * picking them today produces 0 placements.
  */
-const FLOOR_OPTIONS: ReadonlyArray<{
+type FloorOption = {
   value: string;
   rank: Rank;
+  ascension: Ascension;
   label: string;
-}> = [
-  { value: '3', rank: 3, label: 'R3 minimum (any rank-3+)' },
-  { value: '4', rank: 4, label: 'R4 minimum (default)' },
-  { value: '5', rank: 5, label: 'R5 minimum (top alliances only)' },
+};
+const FLOOR_OPTIONS: ReadonlyArray<FloorOption> = [
+  { value: 't3', rank: 3, ascension: 'A0', label: 'R3 minimum (any rank-3+)' },
+  { value: 't4', rank: 4, ascension: 'A0', label: 'R4 minimum (default)' },
+  { value: 't5', rank: 4, ascension: 'A1', label: 'R4 A1 / R5 A0 minimum' },
+  { value: 't6', rank: 4, ascension: 'A2', label: 'R4 A2 / R5 A1 minimum' },
+  { value: 't7', rank: 5, ascension: 'A2', label: 'R5 A2 / R6 A0 minimum' },
+  { value: 't8', rank: 6, ascension: 'A1', label: 'R6 A1 minimum' },
+  { value: 't9', rank: 6, ascension: 'A2', label: 'R6 A2 minimum (top of the ladder)' },
 ];
+
+/** Resolve the current floor back to its dropdown value via effective rank. */
+const RANK_BASE: Record<number, number> = { 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 7 };
+const ASC_LEVEL: Record<Ascension, number> = { A0: 0, A1: 1, A2: 2 };
+function effectiveTier(rank: Rank, ascension: Ascension): number {
+  return (RANK_BASE[rank] ?? rank) + ASC_LEVEL[ascension];
+}
+function floorOptionValue(floor: { rank: Rank; ascension: Ascension }): string {
+  const tier = effectiveTier(floor.rank, floor.ascension);
+  return FLOOR_OPTIONS.find(
+    (o) => effectiveTier(o.rank, o.ascension) === tier,
+  )?.value ?? 't4';
+}
 
 type BgIndex = 0 | 1 | 2;
 const BG_INDICES: readonly BgIndex[] = [0, 1, 2] as const;
@@ -328,23 +359,23 @@ export function WarPlanner({ champions }: { champions: Champion[] }) {
         <div>
           <h2 className="editorial-heading text-2xl mb-1">2. Minimum rank</h2>
           <p className="text-sm text-[var(--color-ink-soft)] max-w-2xl">
-            Champions below this effective rank won&apos;t count as placeable.
-            R4 is a sensible default for most rosters; the engine now
-            compares by effective power (R5 A0 = R4 A1 etc.) so the floor
-            is permissive within its tier.
+            Champions below this effective tier won&apos;t count as
+            placeable. The ladder ties each ascension to a rank step:
+            R4 A1 ≡ R5 A0, R4 A2 ≡ R5 A1, R5 A2 ≡ R6 A0. R4 minimum
+            is the default for most rosters.
           </p>
         </div>
         <select
-          value={String(config.floor.rank)}
+          value={floorOptionValue(config.floor)}
           onChange={(e) => {
             const opt = FLOOR_OPTIONS.find((o) => o.value === e.target.value);
             if (!opt) return;
             updateConfig({
               ...config,
-              floor: { rank: opt.rank, ascension: 'A0' },
+              floor: { rank: opt.rank, ascension: opt.ascension },
             });
           }}
-          className="px-3 py-2 text-sm border border-[var(--color-rule)] rounded bg-[var(--color-paper)] focus:outline-none focus:border-[var(--color-marvel-impact)] min-w-[20rem]"
+          className="px-3 py-2 text-sm border border-[var(--color-rule)] rounded bg-[var(--color-paper)] focus:outline-none focus:border-[var(--color-marvel-impact)] min-w-[22rem]"
         >
           {FLOOR_OPTIONS.map((opt) => (
             <option key={opt.value} value={opt.value}>

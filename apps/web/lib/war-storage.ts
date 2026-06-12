@@ -86,15 +86,21 @@ export function loadWarConfig(): WarConfig {
       pool: Array.isArray(parsed.pool)
         ? parsed.pool.filter((id): id is string => typeof id === 'string')
         : [],
-      // Ascension is normalised to A0 — the UI floor axis is rank-only and
-      // the engine now uses effective rank for ordering. Saved A1/A2 floors
-      // from earlier alpha builds are discarded.
+      // Floor now spans rank + ascension on the effective-rank ladder
+      // (R4 A1 / R5 A0 / etc.). Preserve A1/A2 when present; default to A0.
       floor:
         parsed.floor &&
         typeof parsed.floor.rank === 'number' &&
         parsed.floor.rank >= 3 &&
         parsed.floor.rank <= 6
-          ? { rank: parsed.floor.rank as Rank, ascension: 'A0' }
+          ? {
+              rank: parsed.floor.rank as Rank,
+              ascension:
+                parsed.floor.ascension === 'A1' ||
+                parsed.floor.ascension === 'A2'
+                  ? parsed.floor.ascension
+                  : 'A0',
+            }
           : DEFAULT_CONFIG.floor,
       bgs,
     };
