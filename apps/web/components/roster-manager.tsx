@@ -12,6 +12,7 @@ import { loadRoster, saveRoster } from '../lib/roster-storage';
 import { formatBHR, formatDelta } from '../lib/format';
 import { useBHROverrides } from '../lib/bhr-overrides-context';
 import { trackEvent } from '../lib/analytics';
+import { useLiveShareSync } from '../lib/use-live-share-sync';
 import { RosterPicker } from './roster-picker';
 import { BulkImport } from './bulk-import';
 import { ChampionTickboxGrid } from './champion-tickbox-grid';
@@ -96,6 +97,10 @@ export function RosterManager({ champions }: RosterManagerProps) {
     if (!hydrated) return;
     saveRoster(roster);
   }, [roster, hydrated]);
+
+  // Debounced auto-PUT to any live shares the owner has created. Silent —
+  // recipient sees the freshness via "synced X min ago" on the share page.
+  useLiveShareSync(roster, hydrated);
 
   const championLookup = new Map(champions.map((c) => [c.id, c]));
   const ownedIds = new Set(roster.champions.map((s) => s.championId));

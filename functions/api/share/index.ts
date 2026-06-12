@@ -39,12 +39,15 @@ const DELETE_TOKEN_LENGTH = 16;
 const RATE_LIMIT_HOUR = 10;
 const RATE_LIMIT_DAY = 100;
 
-const VALID_RANKS = new Set([3, 4, 5]);
+const VALID_RANKS = new Set([3, 4, 5, 6]);
 const VALID_ASCENSIONS = new Set(['A0', 'A1', 'A2']);
+const VALID_MODES = new Set(['snapshot', 'live']);
+
+type ShareMode = 'snapshot' | 'live';
 
 type ChampionState = {
   championId: string;
-  rank: 3 | 4 | 5;
+  rank: 3 | 4 | 5 | 6;
   sig: number;
   ascension: 'A0' | 'A1' | 'A2';
 };
@@ -52,6 +55,13 @@ type ChampionState = {
 type SharePayload = {
   label?: string;
   champions: ChampionState[];
+  /**
+   * 'live' means the owner can PUT updates to this share over time so the
+   * recipient sees their latest roster. 'snapshot' (default) freezes the
+   * roster at creation. New shares ship as live by default from the client;
+   * older clients that don't send this field still get a snapshot.
+   */
+  mode?: ShareMode;
   /** Honeypot — should always be empty for real users */
   website?: string;
 };
@@ -59,8 +69,11 @@ type SharePayload = {
 type StoredShare = {
   label: string | null;
   champions: ChampionState[];
+  mode: ShareMode;
   createdAt: string;
   expiresAt: string;
+  /** ISO timestamp of the last PUT update (or createdAt for never-updated). */
+  lastSyncedAt: string;
   deleteToken: string;
 };
 
@@ -133,7 +146,7 @@ function validatePayload(raw: unknown): SharePayload | { error: string } {
       return { error: `champion at index ${i}: championId too long` };
     }
     if (typeof champ.rank !== 'number' || !VALID_RANKS.has(champ.rank)) {
-      return { error: `champion at index ${i}: rank must be 3, 4, or 5` };
+      return { error: `champion at index ${i}: rank must be 3, 4, 5, or 6` };
     }
     if (typeof champ.sig !== 'number' || champ.sig < 0 || champ.sig > 200) {
       return { error: `champion at index ${i}: sig must be 0-200` };
@@ -143,9 +156,18 @@ function validatePayload(raw: unknown): SharePayload | { error: string } {
     }
   }
 
+  let mode: ShareMode | undefined;
+  if (obj.mode !== undefined) {
+    if (typeof obj.mode !== 'string' || !VALID_MODES.has(obj.mode)) {
+      return { error: "mode must be 'snapshot' or 'live'" };
+    }
+    mode = obj.mode as ShareMode;
+  }
+
   return {
     label: typeof obj.label === 'string' ? obj.label : undefined,
     champions: obj.champions as ChampionState[],
+    mode,
   };
 }
 
@@ -224,8 +246,13 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   const stored: StoredShare = {
     label: result.label ?? null,
     champions: result.champions,
+    // Default to snapshot when the client didn't send a mode — older
+    // clients keep working as before. The web app now sends mode='live'
+    // on new shares unless the user explicitly chose snapshot.
+    mode: result.mode ?? 'snapshot',
     createdAt: now.toISOString(),
     expiresAt: expiresAt.toISOString(),
+    lastSyncedAt: now.toISOString(),
     deleteToken,
   };
 

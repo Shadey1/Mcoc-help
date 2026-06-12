@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import {
   calculateBHR,
@@ -11,6 +11,7 @@ import {
 } from '@prestige-tools/engine';
 import { ChampionPortrait } from './champion-portrait';
 import { formatBHR } from '../lib/format';
+import type { ShareMode } from '../lib/share-client';
 
 type SortMode = 'bhr' | 'name' | 'class';
 type Rank = 3 | 4 | 5;
@@ -23,6 +24,10 @@ type SharedRosterViewProps = {
   roster: ChampionState[];
   label: string | null;
   expiresAt: string;
+  /** Defaults to 'snapshot' if the upstream payload didn't carry mode. */
+  mode?: ShareMode;
+  /** ISO timestamp of the last owner-side update (or createdAt for snapshots). */
+  lastSyncedAt?: string;
   onImport: () => void;
 };
 
@@ -37,6 +42,8 @@ export function SharedRosterView({
   roster,
   label,
   expiresAt,
+  mode,
+  lastSyncedAt,
   onImport,
 }: SharedRosterViewProps) {
   const [sortMode, setSortMode] = useState<SortMode>('bhr');
@@ -143,9 +150,12 @@ export function SharedRosterView({
         <h1 className="editorial-heading text-3xl">
           {label ? label : <span className="text-[var(--color-ink-soft)] italic">Anonymous</span>}
         </h1>
-        <p className="text-sm text-[var(--color-ink-soft)]">
-          View-only · expires {new Date(expiresAt).toLocaleDateString()}
-        </p>
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-[var(--color-ink-soft)]">
+          <span>View-only · expires {new Date(expiresAt).toLocaleDateString()}</span>
+          {mode === 'live' && lastSyncedAt && (
+            <LiveBadge lastSyncedAt={lastSyncedAt} />
+          )}
+        </div>
       </section>
 
       <section className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -335,4 +345,47 @@ function FilterChip({
       {children}
     </button>
   );
+}
+
+/**
+ * Live-share freshness badge. Shows "Live · synced X ago" with a relative
+ * timestamp that updates every 30s, so a recipient leaving the tab open
+ * during war planning can tell whether the data is current. The dot is
+ * green-pulse to match the convention of "live" indicators elsewhere on
+ * the web.
+ */
+function LiveBadge({ lastSyncedAt }: { lastSyncedAt: string }) {
+  const [, force] = useState(0);
+
+  // Re-render every 30s so the relative time stays current. Tied to the
+  // lastSyncedAt prop so a re-fetch (which changes the timestamp) resets
+  // the timer immediately.
+  useEffect(() => {
+    const t = window.setInterval(() => force((n) => n + 1), 30_000);
+    return () => window.clearInterval(t);
+  }, [lastSyncedAt]);
+
+  const synced = new Date(lastSyncedAt).getTime();
+  const ago = formatRelativeAgo(Date.now() - synced);
+
+  return (
+    <span
+      className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-[var(--color-paper-soft)] border border-[var(--color-rule)] text-xs"
+      title={`Last updated ${new Date(lastSyncedAt).toLocaleString()}`}
+    >
+      <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+      <span className="font-medium text-[var(--color-ink)]">Live</span>
+      <span className="text-[var(--color-ink-soft)]">· synced {ago}</span>
+    </span>
+  );
+}
+
+function formatRelativeAgo(ms: number): string {
+  if (ms < 60_000) return 'just now';
+  const min = Math.floor(ms / 60_000);
+  if (min < 60) return `${min} min ago`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `${hr} hr ago`;
+  const day = Math.floor(hr / 24);
+  return `${day} day${day === 1 ? '' : 's'} ago`;
 }

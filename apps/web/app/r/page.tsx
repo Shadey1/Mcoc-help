@@ -39,7 +39,7 @@ function demoStateFor(c: Champion): ChampionState {
   // manual entry. Provenance is honestly 'manual' since the entries are
   // hand-coded here, even if the values are mechanically derived.
   const make = (
-    rank: 3 | 4 | 5,
+    rank: 3 | 4 | 5 | 6,
     sig: number,
     ascension: 'A0' | 'A1' | 'A2',
   ): ChampionState => ({
@@ -97,13 +97,16 @@ function SharedRosterPageInner() {
       // champion id) so the same demo looks the same every time — useful for
       // screenshots and layout verification with a large roster (~250 champs).
       const demoChampions: ChampionState[] = champions.map((c) => demoStateFor(c));
+      const demoNow = new Date().toISOString();
       setState({
         phase: 'loaded',
         demo: true,
         payload: {
           label: `Demo · all ${demoChampions.length} 7★ champions at R3+`,
           champions: demoChampions,
-          createdAt: new Date().toISOString(),
+          mode: 'snapshot',
+          createdAt: demoNow,
+          lastSyncedAt: demoNow,
           expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 180).toISOString(),
         },
       });
@@ -117,6 +120,38 @@ function SharedRosterPageInner() {
       .then((payload) => setState({ phase: 'loaded', payload }))
       .catch((err) => setState({ phase: 'error', message: (err as Error).message }));
   }, [id, isDemo, champions]);
+
+  // Live shares — silently re-fetch when the recipient brings the tab back
+  // into focus so the "synced X ago" stays honest. Snapshots never change,
+  // so skip the listener for them.
+  useEffect(() => {
+    if (state.phase !== 'loaded') return;
+    if (state.demo) return;
+    if (state.payload.mode !== 'live') return;
+    if (!id) return;
+    if (typeof window === 'undefined') return;
+
+    const refetch = () => {
+      if (document.visibilityState !== 'visible') return;
+      fetchShare(id)
+        .then((payload) =>
+          setState((prev) =>
+            prev.phase === 'loaded' && !prev.demo
+              ? { ...prev, payload }
+              : prev,
+          ),
+        )
+        .catch(() => {
+          // Silent — the stale view is still useful.
+        });
+    };
+    document.addEventListener('visibilitychange', refetch);
+    window.addEventListener('focus', refetch);
+    return () => {
+      document.removeEventListener('visibilitychange', refetch);
+      window.removeEventListener('focus', refetch);
+    };
+  }, [id, state]);
 
   function handleImport() {
     if (state.phase !== 'loaded') return;
@@ -177,6 +212,8 @@ function SharedRosterPageInner() {
         champions={champions}
         roster={state.payload.champions}
         label={state.payload.label}
+        mode={state.payload.mode}
+        lastSyncedAt={state.payload.lastSyncedAt}
         expiresAt={state.payload.expiresAt}
         onImport={handleImport}
       />

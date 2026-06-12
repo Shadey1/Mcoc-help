@@ -29,6 +29,10 @@ type ModalState =
  */
 export function ShareModal({ open, onClose, roster }: ShareModalProps) {
   const [label, setLabel] = useState('');
+  // Defaults to live — the QoL win is recipients seeing the owner's latest
+  // roster without a re-share. Officers can opt into snapshot for archival
+  // (e.g. "AW week 12 freeze").
+  const [keepLive, setKeepLive] = useState(true);
   const [state, setState] = useState<ModalState>({ phase: 'form' });
   const [copied, setCopied] = useState(false);
 
@@ -37,14 +41,18 @@ export function ShareModal({ open, onClose, roster }: ShareModalProps) {
   async function handleGenerate() {
     setState({ phase: 'generating' });
     try {
-      const result = await createShare(roster, label.trim() || null);
+      const mode = keepLive ? 'live' : 'snapshot';
+      const result = await createShare(roster, label.trim() || null, mode);
       const url = `${window.location.origin}/r/?id=${result.id}`;
+      const createdAt = new Date().toISOString();
 
       recordLocalShare({
         id: result.id,
         deleteToken: result.deleteToken,
         label: label.trim() || null,
-        createdAt: new Date().toISOString(),
+        mode,
+        createdAt,
+        lastSyncedAt: createdAt,
         expiresAt: result.expiresAt,
       });
 
@@ -125,6 +133,21 @@ export function ShareModal({ open, onClose, roster }: ShareModalProps) {
                 Shows on the shared page so people know whose roster it is. No verification.
               </p>
             </div>
+
+            <label className="flex items-start gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={keepLive}
+                onChange={(e) => setKeepLive(e.target.checked)}
+                className="mt-0.5 accent-[var(--color-marvel-impact)]"
+              />
+              <span className="text-sm">
+                <span className="font-medium">Keep updated automatically</span>
+                <span className="block text-xs text-[var(--color-ink-soft)] mt-0.5">
+                  Recipients see your latest roster whenever they reload. Untick to freeze the share at today&apos;s state (good for &quot;AW week 12 snapshot&quot;-style archival).
+                </span>
+              </span>
+            </label>
 
             <div className="flex gap-2 pt-2">
               <button
