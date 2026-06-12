@@ -153,6 +153,48 @@ describe('assignWar — power-first greedy placement', () => {
     expect(bobChamp?.championId).toBe('y-shared-high');
   });
 
+  it('Kuhn matching recovers 2-step augmenting chains the 1-step repair missed', () => {
+    // Structure:
+    //   - alice owns A, B, C    (all R5 A2)
+    //   - bob   owns A          (R5 A2)
+    //   - carol owns B          (R5 A2)
+    //   - dave  owns C, D       (R5 A2)
+    //   - slotsPerPlayer = 1, so 4 slots total. Pool = {A, B, C, D}.
+    //
+    // Greedy ChampionId order: A, B, C, D.
+    //   A → alice (alpha-first owner). alice full.
+    //   B → carol (alice full). carol full.
+    //   C → dave (alice full). dave full.
+    //   D → only dave. dave full. SKIP.
+    // 1-step repair: D stuck. dave's C has no alt with capacity (alice full).
+    //   ALSO no chain of single-swap iterations succeeds because every step
+    //   needs another swap to free up an intermediate slot.
+    //
+    // Kuhn's: when D tries its only edge (dave:0), dave:0 is held by C.
+    //   Augment C: try alice's slots (alice:0 held by A), augment A → try
+    //   bob:0 (unmatched). Take. A → bob:0. C → alice:0. D → dave:0.
+    //   All 4 placed.
+    const result = assignWar({
+      defenderPool: new Set(['a', 'b', 'c', 'd']),
+      floor: { rank: 4, ascension: 'A0' },
+      players: [
+        player('p1', 'alice', [
+          state('a', 5, 'A2'),
+          state('b', 5, 'A2'),
+          state('c', 5, 'A2'),
+        ]),
+        player('p2', 'bob', [state('a', 5, 'A2')]),
+        player('p3', 'carol', [state('b', 5, 'A2')]),
+        player('p4', 'dave', [state('c', 5, 'A2'), state('d', 5, 'A2')]),
+      ],
+      slotsPerPlayer: 1,
+    });
+
+    expect(result.totalPlaced).toBe(4);
+    const placed = new Set(result.assignments.map((a) => a.championId));
+    expect(placed).toEqual(new Set(['a', 'b', 'c', 'd']));
+  });
+
   it('balances placements across equally-developed owners', () => {
     // 6 R5 A2 sig 200 champs in the pool, two owners (alice + bob), both
     // hold every champ at R5 A2 sig 200 — i.e. an effective-tier tie on
