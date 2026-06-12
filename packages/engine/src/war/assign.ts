@@ -67,25 +67,27 @@ type Candidate = {
 };
 
 /**
- * Scarcity-first greedy assignment.
+ * Power-first greedy assignment, with scarcity as tiebreaker.
  *
  * Algorithm:
  *   1. For each champion in the defender pool, collect every eligible
  *      (player, state) pair — i.e. players who own the champion at ≥ floor.
  *   2. Sort each champion's owners by stateScore desc, so the best-developed
  *      owner is preferred.
- *   3. Sort the champions themselves by owner-count asc (rarest first),
- *      tiebreak by best-owner state desc (so among equally-rare champs,
- *      the highest-tier one is placed first).
+ *   3. Sort the champions themselves by best-owner effective tier desc
+ *      (the "highest placements first" rule from the floor dropdown),
+ *      tiebreak by scarcity asc (rarer locked in first within a tier),
+ *      tiebreak by championId for determinism.
  *   4. Walk the champion list. For each, walk its owners until we find one
  *      with a free slot; assign and move on. Skip the champion if no
  *      eligible owner has capacity.
  *
- * Why scarcity first: a R4 Modok owned by one player would lose out to a
- * R5 Photon owned by eight if we sorted purely by rank tier — the Modok
- * owner would burn their slots on common metas. Processing scarce champs
- * first locks the unique placements in before the common pool gets carved
- * up.
+ * Why power first: officers want their strongest defenders deployed. The
+ * earlier scarcity-first variant prioritised unique meta locks at the cost
+ * of bumping R5s out of the placement set when their owners' slots were
+ * eaten by rare R4s. Real users said "my best defence" means tier-first;
+ * scarcity drops to a within-tier preference, so rare R5 metas still beat
+ * common R5s in the same effective tier.
  *
  * This is a greedy heuristic, not provably optimal. Min-cost flow would
  * give the exact optimum, but at 10 players × ~60 candidates the greedy
@@ -121,13 +123,14 @@ export function assignWar(input: WarInput): WarResult {
     });
   }
 
-  // Champions sorted by scarcity asc (rarest first), tiebreak by
-  // best-owner state desc, then by championId for determinism.
+  // Champions sorted by best-owner state desc (power first), tiebreak by
+  // scarcity asc (rarest within a tier first), then by championId for
+  // determinism.
   const championOrder = [...candidatesByChamp.entries()].sort((a, b) => {
-    const scarcityDelta = a[1].length - b[1].length;
-    if (scarcityDelta !== 0) return scarcityDelta;
     const stateDelta = stateScore(b[1][0]!.state) - stateScore(a[1][0]!.state);
     if (stateDelta !== 0) return stateDelta;
+    const scarcityDelta = a[1].length - b[1].length;
+    if (scarcityDelta !== 0) return scarcityDelta;
     return a[0].localeCompare(b[0]);
   });
 

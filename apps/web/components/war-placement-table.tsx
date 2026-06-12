@@ -1,7 +1,8 @@
-import type {
-  Champion,
-  WarAssignment,
-  WarResult,
+import {
+  assignmentStateScore,
+  type Champion,
+  type WarAssignment,
+  type WarResult,
 } from '@prestige-tools/engine';
 import { ChampionPortrait } from './champion-portrait';
 
@@ -45,9 +46,18 @@ export function WarPlacementTable({
   for (const id of byPlayer.keys()) {
     if (!playerIds.includes(id)) playerIds.push(id);
   }
+  // Row order: strongest placement first (the user reads top-down expecting
+  // "best defence first"). Within a player's row, slots are already sorted
+  // state-desc by the engine, so [0] is that player's top placement. Fall
+  // back to playerName when tier is tied (or for players with no placements).
   playerIds.sort((a, b) => {
-    const an = byPlayer.get(a)?.[0]?.playerName ?? result.underfilled.find((u) => u.playerId === a)?.playerName ?? a;
-    const bn = byPlayer.get(b)?.[0]?.playerName ?? result.underfilled.find((u) => u.playerId === b)?.playerName ?? b;
+    const aTop = byPlayer.get(a)?.[0];
+    const bTop = byPlayer.get(b)?.[0];
+    const aScore = aTop ? assignmentStateScore(aTop) : -Infinity;
+    const bScore = bTop ? assignmentStateScore(bTop) : -Infinity;
+    if (aScore !== bScore) return bScore - aScore;
+    const an = aTop?.playerName ?? result.underfilled.find((u) => u.playerId === a)?.playerName ?? a;
+    const bn = bTop?.playerName ?? result.underfilled.find((u) => u.playerId === b)?.playerName ?? b;
     return an.localeCompare(bn);
   });
 

@@ -29,13 +29,14 @@ function player(id: string, name: string, roster: ChampionState[]): WarPlayer {
   return { id, name, roster };
 }
 
-describe('assignWar — scarcity-first greedy placement', () => {
-  it('scarcity-first locks rare champs in before slot caps eat them', () => {
-    // Without scarcity-first, a naive rank-tier greedy would fill alice's
-    // 5 slots with her 5 popular R5A2 champs and skip her rare R4A0 — the
-    // rank tier of a popular R5 always beats a rare R4. Scarcity-first
-    // processes the rare champion first (only alice owns it) so it gets
-    // locked in before the popular ones eat her slot budget.
+describe('assignWar — power-first greedy placement', () => {
+  it('power-first places highest-tier champs before lower-tier rare ones', () => {
+    // Alice owns 6 popular R5 A2 champs plus a rare R4 A0 (only she has it).
+    // Bob owns the same 6 popular R5 A2s. Power-first must place all 6 R5
+    // A2s (filling both players to 3 each) before ever considering the
+    // rare R4 — the user's "best defence" is the strongest tier, not the
+    // rarest champ. The rare-R4 gets squeezed only if a slot is free
+    // after the strong tier is exhausted.
     const result = assignWar({
       defenderPool: new Set([
         'rare-modok',
@@ -69,13 +70,47 @@ describe('assignWar — scarcity-first greedy placement', () => {
       slotsPerPlayer: 5,
     });
 
+    // Power-first fills all alice's 5 slots with R5 A2s before considering
+    // the rare R4, then bob picks up the spillover R5. The rare-R4 drops
+    // because alice (its only owner) is now full — and that's the desired
+    // trade-off: officers asked for "strongest defence", which can leave a
+    // unique lower-tier meta unplaced.
+    expect(result.totalPlaced).toBe(6);
+    const aliceR5s = result.assignments.filter(
+      (a) => a.playerId === 'p1' && a.rank === 5,
+    );
+    expect(aliceR5s).toHaveLength(5);
+    const placedChamps = new Set(result.assignments.map((a) => a.championId));
+    expect(placedChamps.has('rare-modok')).toBe(false);
+  });
+
+  it('within a tier, rarer champs are placed before common ones', () => {
+    // Two R5 A2s in the pool — Modok owned by alice alone, Photon by both.
+    // Power tier is identical, so the within-tier scarcity tiebreaker
+    // should process Modok first and pin it to alice; Photon then goes
+    // to whoever's left.
+    const result = assignWar({
+      defenderPool: new Set(['rare-modok', 'common-photon']),
+      floor: { rank: 4, ascension: 'A0' },
+      players: [
+        player('p1', 'alice', [
+          state('rare-modok', 5, 'A2'),
+          state('common-photon', 5, 'A2'),
+        ]),
+        player('p2', 'bob', [state('common-photon', 5, 'A2')]),
+      ],
+      slotsPerPlayer: 1,
+    });
+
+    expect(result.totalPlaced).toBe(2);
     const aliceChamps = result.assignments
       .filter((a) => a.playerId === 'p1')
       .map((a) => a.championId);
     expect(aliceChamps).toContain('rare-modok');
-    expect(aliceChamps).toHaveLength(5);
-    // Bob takes the popular ones alice couldn't fit.
-    expect(result.totalPlaced).toBe(7);
+    const bobChamps = result.assignments
+      .filter((a) => a.playerId === 'p2')
+      .map((a) => a.championId);
+    expect(bobChamps).toEqual(['common-photon']);
   });
 
   it('ascension breaks ties within the same rank', () => {
