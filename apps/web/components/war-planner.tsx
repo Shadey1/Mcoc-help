@@ -90,12 +90,22 @@ type BgRunState = {
   statuses: WarShareRowStatus[];
   rosters: Map<number, LoadedRoster>;
   result: WarResult | null;
+  /**
+   * Snapshots taken at the moment Generate placements was clicked. Used to
+   * detect when the user has edited the pool or floor since the last run —
+   * the placement table is still useful in that case, but worth flagging
+   * as stale so they know to re-generate.
+   */
+  poolSnapshot: ReadonlySet<string> | null;
+  floorSnapshot: { rank: number; ascension: string } | null;
 };
 
 const EMPTY_RUN: BgRunState = {
   statuses: [],
   rosters: new Map(),
   result: null,
+  poolSnapshot: null,
+  floorSnapshot: null,
 };
 
 export function WarPlanner({ champions }: { champions: Champion[] }) {
@@ -164,11 +174,22 @@ export function WarPlanner({ champions }: { champions: Champion[] }) {
     return <div className="text-sm text-[var(--color-ink-soft)] italic">Loading…</div>;
   }
 
+  /**
+   * Update the saved config WITHOUT wiping cached rosters/placement results.
+   * Used for pool + floor edits — those don't invalidate the fetched roster
+   * data, so the placement table can stay visible (marked stale via the
+   * snapshot comparison) while the user continues to tweak.
+   */
   function updateConfig(next: WarConfig) {
     setConfig(next);
     saveWarConfig(next);
-    // Editing any row invalidates that BG's loaded state — wipe all results
-    // so a stale table can't sit next to fresh URLs.
+  }
+
+  /**
+   * Wipe cached rosters/results across all three BGs. Called whenever the
+   * BG paste rows change — those URLs need to be re-fetched.
+   */
+  function clearAllRuns() {
     setRuns({ 0: EMPTY_RUN, 1: EMPTY_RUN, 2: EMPTY_RUN });
   }
 
@@ -177,6 +198,7 @@ export function WarPlanner({ champions }: { champions: Champion[] }) {
     const nextBgs: WarBgs = [...config.bgs] as WarBgs;
     nextBgs[bg] = rows;
     updateConfig({ ...config, bgs: nextBgs });
+    clearAllRuns();
   }
 
   async function processBg(bg: BgIndex) {
@@ -234,24 +256,42 @@ export function WarPlanner({ champions }: { champions: Champion[] }) {
       }),
     );
 
+    const poolSnapshot: ReadonlySet<string> = new Set(config.pool);
+    const floorSnapshot = {
+      rank: config.floor.rank,
+      ascension: config.floor.ascension,
+    };
+
     if (players.length === 0) {
       setRuns((prev) => ({
         ...prev,
-        [bg]: { statuses: newStatuses, rosters: newRosters, result: null },
+        [bg]: {
+          statuses: newStatuses,
+          rosters: newRosters,
+          result: null,
+          poolSnapshot,
+          floorSnapshot,
+        },
       }));
       setRunning(null);
       return;
     }
 
     const r = assignWar({
-      defenderPool: new Set(config.pool),
+      defenderPool: poolSnapshot,
       floor: config.floor,
       players,
       slotsPerPlayer: 5,
     });
     setRuns((prev) => ({
       ...prev,
-      [bg]: { statuses: newStatuses, rosters: newRosters, result: r },
+      [bg]: {
+        statuses: newStatuses,
+        rosters: newRosters,
+        result: r,
+        poolSnapshot,
+        floorSnapshot,
+      },
     }));
     setRunning(null);
   }
@@ -315,6 +355,9 @@ export function WarPlanner({ champions }: { champions: Champion[] }) {
               floor: payload.floor,
               bgs: nextBgs,
             });
+            // Inbound import can replace BG rows entirely — wipe cached
+            // rosters so the new ones get re-fetched.
+            if (incomingBgs) clearAllRuns();
             setInboundPool(null);
             setPoolExpanded(false);
           }}
@@ -481,11 +524,29 @@ export function WarPlanner({ champions }: { champions: Champion[] }) {
         </div>
 
         {activeRun.result && (
-          <WarPlacementTable
-            result={activeRun.result}
-            championLookup={championLookup}
-            slotsPerPlayer={5}
-          />
+          <>
+            {isRunStale(activeRun, config) && (
+              <div className="border border-[var(--color-marvel-editorial)] bg-[var(--color-paper-soft)] rounded p-3 text-sm flex flex-wrap items-baseline justify-between gap-2">
+                <span>
+                  ⚠ Pool or floor changed since this run — placements below
+                  are stale. Add more from the suggestions, then regenerate.
+                </span>
+                <button
+                  type="button"
+                  onClick={() => void processBg(activeBg)}
+                  disabled={!canProcessActive}
+                  className="text-xs px-3 py-1.5 bg-[var(--color-marvel-impact)] text-white rounded hover:bg-[var(--color-marvel-editorial)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Re-generate {BG_LABELS[activeBg]}
+                </button>
+              </div>
+            )}
+            <WarPlacementTable
+              result={activeRun.result}
+              championLookup={championLookup}
+              slotsPerPlayer={5}
+            />
+          </>
         )}
 
         {activeRun.result && activeRun.rosters.size > 0 && (
@@ -514,6 +575,27 @@ export function WarPlanner({ champions }: { champions: Champion[] }) {
       />
     </div>
   );
+}
+
+/**
+ * True if the current config's pool or floor differs from what was snapshotted
+ * when the run completed. The placement table is still rendered (the user's
+ * mid-flight tweaks shouldn't yank the data out from under them) but a
+ * banner above the table flags the staleness so they regenerate when ready.
+ */
+function isRunStale(run: BgRunState, config: WarConfig): boolean {
+  if (!run.poolSnapshot || !run.floorSnapshot) return false;
+  if (
+    run.floorSnapshot.rank !== config.floor.rank ||
+    run.floorSnapshot.ascension !== config.floor.ascension
+  ) {
+    return true;
+  }
+  if (run.poolSnapshot.size !== config.pool.length) return true;
+  for (const id of config.pool) {
+    if (!run.poolSnapshot.has(id)) return true;
+  }
+  return false;
 }
 
 function findDuplicateUrls(bgs: WarBgs): Set<string> {
