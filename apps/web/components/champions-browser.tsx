@@ -21,9 +21,18 @@ const ALL_CLASSES: ChampionClass[] = [
 ];
 
 type AscendableFilter = 'all' | 'ascendable' | 'non-ascendable';
+type RarityFilter = 'all' | '7-star' | '6-star' | '5-star';
+
+const RARITY_OPTIONS: ReadonlyArray<{ value: RarityFilter; label: string }> = [
+  { value: 'all', label: 'All' },
+  { value: '7-star', label: '7★ only' },
+  { value: '6-star', label: '6★ only' },
+  { value: '5-star', label: '5★ only' },
+];
 
 /**
- * Browseable champion grid with class filter chips and ascendable toggle.
+ * Browseable champion grid with class filter chips, ascendable toggle, and
+ * a ★-rating filter that mirrors the portrait-frame rarity.
  * Sorts alphabetically by default.
  */
 export function ChampionsBrowser({ champions }: ChampionsBrowserProps) {
@@ -31,6 +40,7 @@ export function ChampionsBrowser({ champions }: ChampionsBrowserProps) {
     new Set(ALL_CLASSES),
   );
   const [ascendableFilter, setAscendableFilter] = useState<AscendableFilter>('all');
+  const [rarityFilter, setRarityFilter] = useState<RarityFilter>('all');
 
   const filtered = useMemo(() => {
     return champions
@@ -40,8 +50,18 @@ export function ChampionsBrowser({ champions }: ChampionsBrowserProps) {
         if (ascendableFilter === 'ascendable') return c.ascendable;
         return !c.ascendable;
       })
+      .filter((c) => {
+        if (rarityFilter === 'all') return true;
+        const r = displayRarity(c);
+        // Map our internal rarity to filter buckets:
+        // 'unreleased' is the cyan "6★ in-game, no 7★ yet" frame.
+        if (rarityFilter === '7-star') return r === '7-star';
+        if (rarityFilter === '6-star') return r === 'unreleased';
+        if (rarityFilter === '5-star') return r === '5-star';
+        return true;
+      })
       .sort((a, b) => a.name.localeCompare(b.name));
-  }, [champions, activeClasses, ascendableFilter]);
+  }, [champions, activeClasses, ascendableFilter, rarityFilter]);
 
   function toggleClass(klass: ChampionClass) {
     setActiveClasses((prev) => {
@@ -116,6 +136,26 @@ export function ChampionsBrowser({ champions }: ChampionsBrowserProps) {
               }`}
             >
               {opt === 'all' ? 'All' : opt === 'ascendable' ? 'Ascendable only' : 'Non-ascendable only'}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs uppercase tracking-wide text-[var(--color-ink-soft)] mr-2">
+            Rarity
+          </span>
+          {RARITY_OPTIONS.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => setRarityFilter(opt.value)}
+              className={`px-2 py-1 rounded border text-xs font-medium transition-colors ${
+                rarityFilter === opt.value
+                  ? 'border-[var(--color-ink)] bg-[var(--color-paper)]'
+                  : 'border-[var(--color-rule)] bg-[var(--color-paper-soft)] text-[var(--color-ink-soft)]'
+              }`}
+            >
+              {opt.label}
             </button>
           ))}
         </div>
