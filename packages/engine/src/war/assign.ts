@@ -85,26 +85,35 @@ type Candidate = {
  *      champ at the same effective tier, share evenly so one player isn't
  *      stacked at 5/5 while another sits at 0/5 with the same roster.
  *
- * Algorithm:
- *   1. For each champion in the defender pool, collect every eligible
- *      (player, state) pair — players who own the champion at ≥ floor.
- *   2. Sort each champion's owners by stateScore desc.
- *   3. Sort the champions by best-owner effective tier desc, tiebreak by
- *      scarcity asc (rare champs first within a tier), then championId.
- *   4. Build a bipartite graph. Each player is split into `slotsPerPlayer`
- *      slot-nodes; an edge connects a champion to slot (p, k) iff p owns
- *      the champion ≥ floor. Edges are GROUPED BY OWNER TIER DESC, then
- *      INTERLEAVED ACROSS OWNERS WITHIN A TIER: every tier-N owner's k-th
- *      slot is tried before any tier-(N-1) owner's k-th slot, and within
- *      tier-N, owner-A's slot 0 alternates with owner-B's slot 0 before
- *      anyone's slot 1. So augmenting paths exhaust same-tier alternatives
- *      before downgrading — criterion 3.
- *   5. Run Kuhn's: for each champion in championOrder, find an augmenting
- *      path via DFS.
- *   6. Post-pass: redistribute placements between (max-count, min-count)
+ * Algorithm (two-phase):
+ *   1. For each champion, collect every eligible (player, state) pair —
+ *      players who own the champion at ≥ floor. Sort owners by stateScore
+ *      desc. Sort champions by best-owner tier desc → scarcity asc →
+ *      championId.
+ *   2. Build TWO edge lists per champion:
+ *        - phase1Edges: only the best-tier owners' slots.
+ *        - phase2Edges: every owner's slots, grouped by tier desc with
+ *          interleaving within tier.
+ *   3. PHASE 1 — strict best-tier matching. For each champion in order,
+ *      run Kuhn's DFS but restricted to phase1Edges for BOTH the caller
+ *      and any displaced champion. A champion can only move between its
+ *      own best-tier slots. A R5 A2 Maestro on Jpang stays at tier 7
+ *      forever; the augmenting path tries Jpang's other slots before
+ *      giving up. If Jpang is genuinely full of OTHER tier-6+ best
+ *      champs, Maestro stays put and a different champ is left for Phase 2.
+ *   4. PHASE 2 — downgrade fallback. For champions still unplaced after
+ *      Phase 1, retry with phase2Edges as the CALLER's edge list (lower-
+ *      tier owners now in scope), but any DISPLACED champion still uses
+ *      phase1Edges. Only the unplaced champ absorbs a tier drop; already-
+ *      placed champions stay at their best tier.
+ *   5. Post-pass: redistribute placements between (max-count, min-count)
  *      players when a same-tier swap exists — criterion 5. Tier never
- *      drops in this pass; if the only available swap is a downgrade,
- *      the imbalance stays.
+ *      drops in this pass.
+ *
+ * Trade-off: this is no longer pure max-matching. A champ that can't fit
+ * at its best tier and has no other owner stays unplaced rather than
+ * dropping below best-tier. The user explicitly asked for "highest-tier
+ * owner wins for each champ" over "fill every slot at any tier".
  *
  * Runtime O(V × E), trivial at war scale (~80 champs × ~40 slots).
  */
@@ -155,22 +164,35 @@ export function assignWar(input: WarInput): WarResult {
     playerNameLookup.set(p.id, p.name);
   }
 
-  // Edges grouped by owner effective tier (desc), interleaved within tier.
-  //
-  // The grouping is what enforces criterion 3 (highest-tier owner wins).
-  // Within a champion's edge list, every slot of every tier-N owner is
-  // listed before any slot of a tier-(N-1) owner. So when Kuhn's DFS
-  // augments a placement, it tries other slots at the SAME tier before
-  // dropping the placement to a lower-tier owner. A R5 A0 Jean Grey on
-  // K-guns only moves to a R4 A0 owner if EVERY R5+ owner of Jean Grey
-  // is at slot cap.
-  //
-  // Within a tier, slots are interleaved by k across owners: slot 0 of
-  // every tier-N owner, then slot 1 of every tier-N owner, etc. — so two
-  // same-tier owners share placements evenly instead of one filling first.
+  // Two edge lists per champion:
+  //   phase1Edges: only the BEST-TIER owners' slots. Augmenting paths
+  //     restricted to these never displace a placement below its best
+  //     tier — that's how criterion 3 is enforced.
+  //   phase2Edges: every owner's slot, grouped by tier desc. Used in the
+  //     downgrade-fallback phase for champions that couldn't fit at their
+  //     best tier (the slot was full of OTHER best-tier-N champions).
+  // Within each tier in either list, slots are interleaved by k across
+  // owners so same-tier owners share placements evenly (criterion 5).
   type SlotKey = string; // `${playerId}::${slotIndex}`
-  const edgesByChamp = new Map<string, SlotKey[]>();
+  const phase1Edges = new Map<string, SlotKey[]>();
+  const phase2Edges = new Map<string, SlotKey[]>();
   for (const [champId, owners] of championOrder) {
+    const bestTier = effectiveRank(
+      owners[0]!.state.rank,
+      owners[0]!.state.ascension,
+    );
+    const bestTierOwners = owners.filter(
+      (o) =>
+        effectiveRank(o.state.rank, o.state.ascension) === bestTier,
+    );
+    const phase1: SlotKey[] = [];
+    for (let k = 0; k < slotsPerPlayer; k++) {
+      for (const owner of bestTierOwners) {
+        phase1.push(`${owner.playerId}::${k}`);
+      }
+    }
+    phase1Edges.set(champId, phase1);
+
     const tierBuckets = new Map<number, Candidate[]>();
     for (const owner of owners) {
       const tier = effectiveRank(owner.state.rank, owner.state.ascension);
@@ -179,29 +201,34 @@ export function assignWar(input: WarInput): WarResult {
       else tierBuckets.set(tier, [owner]);
     }
     const tiersDesc = [...tierBuckets.keys()].sort((a, b) => b - a);
-
-    const edges: SlotKey[] = [];
+    const phase2: SlotKey[] = [];
     for (const tier of tiersDesc) {
       const group = tierBuckets.get(tier)!;
       for (let k = 0; k < slotsPerPlayer; k++) {
         for (const owner of group) {
-          edges.push(`${owner.playerId}::${k}`);
+          phase2.push(`${owner.playerId}::${k}`);
         }
       }
     }
-    edgesByChamp.set(champId, edges);
+    phase2Edges.set(champId, phase2);
   }
 
   const matching = new Map<SlotKey, string>(); // slot -> championId
 
-  function tryAugment(champId: string, visited: Set<SlotKey>): boolean {
-    const edges = edgesByChamp.get(champId);
+  // Phase 1 — strict best-tier matching. The displaced champ in augmenting
+  // is restricted to its own phase1Edges, so it can only move to ANOTHER
+  // of its best-tier slots. It cannot drop a tier to make room.
+  function tryAugmentPhase1(
+    champId: string,
+    visited: Set<SlotKey>,
+  ): boolean {
+    const edges = phase1Edges.get(champId);
     if (!edges) return false;
     for (const slot of edges) {
       if (visited.has(slot)) continue;
       visited.add(slot);
       const occupant = matching.get(slot);
-      if (occupant === undefined || tryAugment(occupant, visited)) {
+      if (occupant === undefined || tryAugmentPhase1(occupant, visited)) {
         matching.set(slot, champId);
         return true;
       }
@@ -210,7 +237,39 @@ export function assignWar(input: WarInput): WarResult {
   }
 
   for (const [champId] of championOrder) {
-    tryAugment(champId, new Set());
+    tryAugmentPhase1(champId, new Set());
+  }
+
+  // Phase 2 — downgrade fallback. For champions still unplaced after
+  // Phase 1, attempt placement across the full tier-grouped edge list.
+  // The CALLER may end up at a lower-tier slot (acceptable: the
+  // alternative is leaving the champ unplaced). But any DISPLACED champ
+  // along the augmenting path is restricted to phase1Edges, so it stays
+  // at its best tier. This is the key asymmetry: only the unplaced
+  // champion absorbs the downgrade.
+  const placedChamps = new Set<string>(matching.values());
+
+  function tryAugmentPhase2Caller(
+    champId: string,
+    visited: Set<SlotKey>,
+  ): boolean {
+    const edges = phase2Edges.get(champId);
+    if (!edges) return false;
+    for (const slot of edges) {
+      if (visited.has(slot)) continue;
+      visited.add(slot);
+      const occupant = matching.get(slot);
+      if (occupant === undefined || tryAugmentPhase1(occupant, visited)) {
+        matching.set(slot, champId);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  for (const [champId] of championOrder) {
+    if (placedChamps.has(champId)) continue;
+    tryAugmentPhase2Caller(champId, new Set());
   }
 
   // Convert the matching back to WarAssignment[].
