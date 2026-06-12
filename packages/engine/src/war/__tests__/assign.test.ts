@@ -153,6 +153,54 @@ describe('assignWar — power-first greedy placement', () => {
     expect(bobChamp?.championId).toBe('y-shared-high');
   });
 
+  it('redistributes same-tier placements toward fairness without dropping count', () => {
+    // 5 champs all co-owned by all 4 players at R5 A2 sig 200 (tier 7).
+    // slotsPerPlayer = 5; max placements = 5 (one per champion). Kuhn's
+    // tends to over-favour the alphabetically-first player, so the bare
+    // matching might come out 5/0/0/0 or 4/1/0/0. Redistribution should
+    // even it to 2/1/1/1 (rounded), within 1 of each other.
+    const champs = ['c1', 'c2', 'c3', 'c4', 'c5'];
+    const result = assignWar({
+      defenderPool: new Set(champs),
+      floor: { rank: 4, ascension: 'A0' },
+      players: [
+        player(
+          'p1-alice',
+          'alice',
+          champs.map((id) => state(id, 5, 'A2')),
+        ),
+        player(
+          'p2-bob',
+          'bob',
+          champs.map((id) => state(id, 5, 'A2')),
+        ),
+        player(
+          'p3-carol',
+          'carol',
+          champs.map((id) => state(id, 5, 'A2')),
+        ),
+        player(
+          'p4-dave',
+          'dave',
+          champs.map((id) => state(id, 5, 'A2')),
+        ),
+      ],
+      slotsPerPlayer: 5,
+    });
+
+    expect(result.totalPlaced).toBe(5);
+    const counts = new Map<string, number>();
+    for (const a of result.assignments) {
+      counts.set(a.playerId, (counts.get(a.playerId) ?? 0) + 1);
+    }
+    // All 4 players should have at least one placement when 5 same-tier
+    // champs are split 4 ways with slot capacity 5.
+    expect(counts.size).toBe(4);
+    const values = [...counts.values()];
+    const gap = Math.max(...values) - Math.min(...values);
+    expect(gap).toBeLessThanOrEqual(1);
+  });
+
   it('Kuhn matching recovers 2-step augmenting chains the 1-step repair missed', () => {
     // Structure:
     //   - alice owns A, B, C    (all R5 A2)

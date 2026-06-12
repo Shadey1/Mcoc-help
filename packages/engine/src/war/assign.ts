@@ -216,6 +216,27 @@ export function assignWar(input: WarInput): WarResult {
     slotsUsed.set(playerId, (slotsUsed.get(playerId) ?? 0) + 1);
   }
 
+  // Max-min redistribution.
+  //
+  // Kuhn's gives the optimum placement COUNT but the distribution can be
+  // uneven: when many champions are co-owned at the same tier, augmenting
+  // paths tend to land them on the alphabetically-earliest player's slots
+  // first. The total is right; whose row is full vs partial is biased.
+  //
+  // Walk pairs of (max-count player, min-count player). If the max player
+  // holds a champion that the min player ALSO owns at the same effective
+  // tier, reassign it. Each swap shrinks the slot-count gap by 1 with no
+  // change to total placements and no drop in tier (a R5 A2 placement can
+  // never be downgraded to a R5 A0 by this pass). Iterates until the
+  // distribution is within 1 of perfectly even, or no further tier-
+  // preserving swap exists.
+  redistributeForFairness(
+    assignments,
+    candidatesByChamp,
+    slotsUsed,
+    playerNameLookup,
+  );
+
   // Output sort: by playerId, then state desc within each player.
   assignments.sort((a, b) => {
     if (a.playerId !== b.playerId) return a.playerId.localeCompare(b.playerId);
@@ -251,5 +272,67 @@ export function assignWar(input: WarInput): WarResult {
     unavailableChamps,
     totalPlaced: assignments.length,
   };
+}
+
+/**
+ * Max-min redistribution post-pass. Walks (max-count player, min-count
+ * player) pairs and reassigns shared-tier placements from the over-filled
+ * player to the under-filled one. Mutates `assignments` and `slotsUsed`.
+ *
+ * Convergence: each swap reduces (max − min) by 1 or leaves the pair
+ * unchanged if no tier-preserving swap exists. The safety iteration cap
+ * (200) is well above any realistic war scale; the loop also exits early
+ * as soon as the slot-count gap is ≤ 1 (perfect balance modulo rounding).
+ */
+function redistributeForFairness(
+  assignments: WarAssignment[],
+  candidatesByChamp: Map<string, Candidate[]>,
+  slotsUsed: Map<WarPlayerId, number>,
+  playerNameLookup: Map<WarPlayerId, string>,
+): void {
+  let safetyIters = 0;
+  while (safetyIters++ < 200) {
+    let maxCount = -Infinity;
+    let minCount = Infinity;
+    for (const count of slotsUsed.values()) {
+      if (count > maxCount) maxCount = count;
+      if (count < minCount) minCount = count;
+    }
+    if (maxCount - minCount <= 1) return;
+
+    let swapped = false;
+    for (let i = 0; i < assignments.length && !swapped; i++) {
+      const curr = assignments[i]!;
+      const currCount = slotsUsed.get(curr.playerId) ?? 0;
+      if (currCount !== maxCount) continue;
+      const currTier = effectiveRank(curr.rank, curr.ascension);
+
+      const candidates = candidatesByChamp.get(curr.championId) ?? [];
+      for (const alt of candidates) {
+        if (alt.playerId === curr.playerId) continue;
+        const altCount = slotsUsed.get(alt.playerId) ?? 0;
+        if (altCount !== minCount) continue;
+        const altTier = effectiveRank(alt.state.rank, alt.state.ascension);
+        // Tier preservation: never downgrade a placement just to balance
+        // the row. R5 A2 placements stay R5 A2; swapping to a R5 A0 owner
+        // would lower the overall defence strength.
+        if (altTier !== currTier) continue;
+
+        assignments[i] = {
+          playerId: alt.playerId,
+          playerName: playerNameLookup.get(alt.playerId) ?? alt.playerId,
+          championId: curr.championId,
+          rank: alt.state.rank,
+          ascension: alt.state.ascension,
+          sig: alt.state.sig,
+        };
+        slotsUsed.set(curr.playerId, currCount - 1);
+        slotsUsed.set(alt.playerId, altCount + 1);
+        swapped = true;
+      }
+    }
+
+    if (!swapped) return;
+  }
 }
 
