@@ -29,20 +29,31 @@ const DELETE_TOKEN_LENGTH = 16;
 const RATE_LIMIT_HOUR = 10;
 const RATE_LIMIT_DAY = 100;
 
-const VALID_RANKS = new Set([3, 4, 5]);
+const VALID_RANKS = new Set([3, 4, 5, 6]);
 const VALID_ASCENSIONS = new Set(['A0', 'A1', 'A2']);
+
+const MAX_BG_ROW_LEN = 500; // share URL + name fits comfortably
+const PLAYERS_PER_BG = 10;
+const BG_COUNT = 3;
+
+type FloorRank = 3 | 4 | 5 | 6;
+type FloorAsc = 'A0' | 'A1' | 'A2';
+type BgRow = { url: string; name: string };
 
 type PoolPayload = {
   label?: string;
   pool: string[];
-  floor: { rank: 3 | 4 | 5; ascension: 'A0' | 'A1' | 'A2' };
+  floor: { rank: FloorRank; ascension: FloorAsc };
+  /** Optional BG roster paste URLs — three groups of up to 10. */
+  bgs?: BgRow[][];
   website?: string;
 };
 
 type StoredPool = {
   label: string | null;
   pool: string[];
-  floor: { rank: 3 | 4 | 5; ascension: 'A0' | 'A1' | 'A2' };
+  floor: { rank: FloorRank; ascension: FloorAsc };
+  bgs?: BgRow[][];
   createdAt: string;
   expiresAt: string;
   deleteToken: string;
@@ -109,19 +120,54 @@ function validatePayload(raw: unknown): PoolPayload | { error: string } {
     return { error: 'floor must be an object' };
   }
   if (typeof floor.rank !== 'number' || !VALID_RANKS.has(floor.rank)) {
-    return { error: 'floor.rank must be 3, 4, or 5' };
+    return { error: 'floor.rank must be 3, 4, 5, or 6' };
   }
   if (typeof floor.ascension !== 'string' || !VALID_ASCENSIONS.has(floor.ascension)) {
     return { error: 'floor.ascension must be A0, A1, or A2' };
+  }
+
+  // Optional bgs: 3 arrays, each ≤10 rows of { url, name } strings. Reject
+  // anything outside that shape so the KV blob can't be poisoned.
+  let bgs: BgRow[][] | undefined;
+  if (obj.bgs !== undefined) {
+    if (!Array.isArray(obj.bgs) || obj.bgs.length > BG_COUNT) {
+      return { error: `bgs must be an array of up to ${BG_COUNT} groups` };
+    }
+    bgs = [];
+    for (let g = 0; g < obj.bgs.length; g++) {
+      const group = obj.bgs[g];
+      if (!Array.isArray(group)) {
+        return { error: `bgs[${g}] must be an array` };
+      }
+      if (group.length > PLAYERS_PER_BG) {
+        return { error: `bgs[${g}] has more than ${PLAYERS_PER_BG} players` };
+      }
+      const cleanGroup: BgRow[] = [];
+      for (let i = 0; i < group.length; i++) {
+        const row = group[i] as Record<string, unknown> | undefined;
+        if (!row || typeof row !== 'object') {
+          return { error: `bgs[${g}][${i}] must be an object` };
+        }
+        if (typeof row.url !== 'string' || row.url.length > MAX_BG_ROW_LEN) {
+          return { error: `bgs[${g}][${i}].url invalid` };
+        }
+        if (typeof row.name !== 'string' || row.name.length > MAX_BG_ROW_LEN) {
+          return { error: `bgs[${g}][${i}].name invalid` };
+        }
+        cleanGroup.push({ url: row.url, name: row.name });
+      }
+      bgs.push(cleanGroup);
+    }
   }
 
   return {
     label: typeof obj.label === 'string' ? obj.label : undefined,
     pool: obj.pool as string[],
     floor: {
-      rank: floor.rank as 3 | 4 | 5,
-      ascension: floor.ascension as 'A0' | 'A1' | 'A2',
+      rank: floor.rank as FloorRank,
+      ascension: floor.ascension as FloorAsc,
     },
+    bgs,
   };
 }
 
@@ -192,6 +238,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     label: result.label ?? null,
     pool: result.pool,
     floor: result.floor,
+    bgs: result.bgs,
     createdAt: now.toISOString(),
     expiresAt: expiresAt.toISOString(),
     deleteToken,

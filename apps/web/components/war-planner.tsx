@@ -296,10 +296,22 @@ export function WarPlanner({ champions }: { champions: Champion[] }) {
         <InboundPoolBanner
           state={inboundPool}
           onImport={(payload) => {
+            // Bundled BGs (shares created after the BG-bundling change)
+            // come through as `bgs` — pad to length 3 and clip per-BG to
+            // the local cap so a stale schema can't blow past UI limits.
+            const incomingBgs = payload.bgs;
+            const nextBgs: WarBgs = incomingBgs
+              ? [
+                  (incomingBgs[0] ?? []).slice(0, 10),
+                  (incomingBgs[1] ?? []).slice(0, 10),
+                  (incomingBgs[2] ?? []).slice(0, 10),
+                ]
+              : config.bgs;
             updateConfig({
               ...config,
               pool: [...payload.pool].sort(),
               floor: payload.floor,
+              bgs: nextBgs,
             });
             setInboundPool(null);
             setPoolExpanded(false);
@@ -480,6 +492,7 @@ export function WarPlanner({ champions }: { champions: Champion[] }) {
         onClose={() => setShareOpen(false)}
         pool={config.pool}
         floor={config.floor}
+        bgs={config.bgs}
       />
     </div>
   );
@@ -611,6 +624,10 @@ function InboundPoolBanner({
     );
   }
   const { payload } = state;
+  const bgPlayerCounts = (payload.bgs ?? []).map((g) =>
+    g.filter((r) => r.url.trim().length > 0).length,
+  );
+  const totalBgPlayers = bgPlayerCounts.reduce((a, b) => a + b, 0);
   return (
     <div className="border-2 border-[var(--color-marvel-impact)] rounded-lg bg-[var(--color-paper-card)] p-4 space-y-3">
       <div className="flex items-baseline justify-between gap-3 flex-wrap">
@@ -623,10 +640,14 @@ function InboundPoolBanner({
           )}
           <span className="text-[var(--color-ink-soft)]">
             {' '}— {payload.pool.length} champions, floor R{payload.floor.rank}
+            {totalBgPlayers > 0 && (
+              <> · {totalBgPlayers} BG roster URL{totalBgPlayers === 1 ? '' : 's'} bundled</>
+            )}
           </span>
         </div>
         <span className="text-xs text-[var(--color-ink-soft)]">
           imports replace your current pool + floor
+          {totalBgPlayers > 0 && ' + BG rosters'}
         </span>
       </div>
       <div className="flex gap-2">

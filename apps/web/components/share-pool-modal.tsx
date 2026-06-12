@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import type { Ascension, Rank } from '@prestige-tools/engine';
 import { createSharedPool } from '../lib/share-pool-client';
+import type { WarPlayerInput } from '../lib/war-storage';
 
 type ShareModalState =
   | { phase: 'form' }
@@ -15,6 +16,8 @@ type Props = {
   onClose: () => void;
   pool: string[];
   floor: { rank: Rank; ascension: Ascension };
+  /** Three BG roster-paste lists — bundled into the share when non-empty. */
+  bgs?: WarPlayerInput[][];
 };
 
 /**
@@ -22,17 +25,27 @@ type Props = {
  * the alliance chat. Members open it and the war planner offers to swap in
  * the shared pool + floor. Mirrors the roster ShareModal pattern.
  */
-export function SharePoolModal({ open, onClose, pool, floor }: Props) {
+export function SharePoolModal({ open, onClose, pool, floor, bgs }: Props) {
   const [label, setLabel] = useState('');
   const [state, setState] = useState<ShareModalState>({ phase: 'form' });
   const [copied, setCopied] = useState(false);
 
   if (!open) return null;
 
+  const bgPlayerCounts = (bgs ?? [[], [], []]).map(
+    (group) => group.filter((r) => r.url.trim().length > 0).length,
+  );
+  const totalBgPlayers = bgPlayerCounts.reduce((a, b) => a + b, 0);
+
   async function handleGenerate() {
     setState({ phase: 'generating' });
     try {
-      const result = await createSharedPool(pool, floor, label.trim() || null);
+      const result = await createSharedPool(
+        pool,
+        floor,
+        label.trim() || null,
+        bgs,
+      );
       const url = `${window.location.origin}/war/?pool=${result.id}`;
       setState({
         phase: 'done',
@@ -98,9 +111,21 @@ export function SharePoolModal({ open, onClose, pool, floor }: Props) {
             <p className="text-sm text-[var(--color-ink-soft)]">
               Generate a link that loads your defender pool ({pool.length}{' '}
               champions) and minimum-rank floor ({`R${floor.rank}`}) into
-              the war planner. Alliance members open it, click load — their
-              own roster URLs and placements stay theirs. Link expires in
-              6 months.
+              the war planner.{' '}
+              {totalBgPlayers > 0 ? (
+                <>
+                  Also bundling the share URLs you&apos;ve pasted into BG1/2/3
+                  ({bgPlayerCounts.join(' / ')} = {totalBgPlayers} players)
+                  so the recipient gets the full war snapshot. Otherwise
+                  their own roster URLs stay theirs.
+                </>
+              ) : (
+                <>
+                  Alliance members open it, click load — their own roster
+                  URLs and placements stay theirs.
+                </>
+              )}{' '}
+              Link expires in 6 months.
             </p>
 
             <div>
