@@ -143,7 +143,7 @@ export function SharePoolModal({ open, onClose, pool, floor, bgs }: Props) {
                 type="text"
                 value={label}
                 onChange={(e) => setLabel(e.target.value)}
-                placeholder="e.g. LONGSHOT — Jun 2026 meta"
+                placeholder="e.g. X-Men — Jun 2026 meta"
                 maxLength={100}
                 className="w-full px-3 py-2 border border-[var(--color-rule)] rounded bg-[var(--color-paper-soft)] focus:outline-none focus:border-[var(--color-marvel-impact)]"
               />

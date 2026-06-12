@@ -117,7 +117,7 @@ export function ShareModal({ open, onClose, roster }: ShareModalProps) {
                 type="text"
                 value={label}
                 onChange={(e) => setLabel(e.target.value)}
-                placeholder="e.g. mu3rto / LONGSHOT"
+                placeholder="e.g. mu3rto / X-Men"
                 maxLength={100}
                 className="w-full px-3 py-2 border border-[var(--color-rule)] rounded bg-[var(--color-paper-soft)] focus:outline-none focus:border-[var(--color-marvel-impact)]"
               />
