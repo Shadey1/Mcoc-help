@@ -28,6 +28,7 @@ import {
   type WarShareRowStatus,
 } from './war-share-input';
 import { WarPlacementTable } from './war-placement-table';
+import { WarPoolCoverage } from './war-pool-coverage';
 import { SharePoolModal } from './share-pool-modal';
 
 /**
@@ -217,6 +218,7 @@ export function WarPlanner({ champions }: { champions: Champion[] }) {
             state: 'loaded',
             label: payload.label,
             champCount: payload.champions.length,
+            lastSyncedAt: payload.lastSyncedAt,
           };
           players.push({
             id: `bg${bg}-slot-${idx}`,
@@ -483,6 +485,22 @@ export function WarPlanner({ champions }: { champions: Champion[] }) {
             result={activeRun.result}
             championLookup={championLookup}
             slotsPerPlayer={5}
+          />
+        )}
+
+        {activeRun.result && activeRun.rosters.size > 0 && (
+          <WarPoolCoverage
+            champions={champions}
+            pool={poolSet}
+            floor={config.floor}
+            rosters={[...activeRun.rosters.values()]}
+            onAddToPool={(championId) => {
+              if (poolSet.has(championId)) return;
+              updateConfig({
+                ...config,
+                pool: [...config.pool, championId].sort(),
+              });
+            }}
           />
         )}
       </section>

@@ -155,4 +155,4 @@ export type {
   WarResult,
 } from './war/types.js';
 
-export { assignWar, assignmentStateScore } from './war/assign.js';
+export { assignWar, assignmentStateScore, effectiveRank } from './war/assign.js';

@@ -18,7 +18,13 @@ import type { WarPlayerInput } from '../lib/war-storage';
 export type WarShareRowStatus =
   | { state: 'empty' }
   | { state: 'loading' }
-  | { state: 'loaded'; label: string | null; champCount: number }
+  | {
+      state: 'loaded';
+      label: string | null;
+      champCount: number;
+      /** ISO timestamp the share was last updated server-side. */
+      lastSyncedAt?: string;
+    }
   | { state: 'error'; message: string };
 
 type Props = {
@@ -122,15 +128,34 @@ function StatusBadge({ status }: { status: WarShareRowStatus }) {
           loading…
         </span>
       );
-    case 'loaded':
+    case 'loaded': {
+      const stale = isStale(status.lastSyncedAt);
+      const ago = formatSyncedAgo(status.lastSyncedAt);
       return (
         <span
-          className="text-xs text-emerald-700 text-center min-w-[5rem]"
-          title={`${status.champCount} champions loaded`}
+          className="text-xs text-center min-w-[5rem] inline-flex flex-col leading-tight"
+          title={
+            status.lastSyncedAt
+              ? `${status.champCount} champions · last synced ${new Date(status.lastSyncedAt).toLocaleString()}`
+              : `${status.champCount} champions loaded`
+          }
         >
-          ✓ {status.champCount}
+          <span className="text-emerald-700">✓ {status.champCount}</span>
+          {ago && (
+            <span
+              className={
+                stale
+                  ? 'text-[var(--color-marvel-impact)] font-medium'
+                  : 'text-[var(--color-ink-soft)]'
+              }
+            >
+              {stale ? '⚠ ' : ''}
+              {ago}
+            </span>
+          )}
         </span>
       );
+    }
     case 'error':
       return (
         <span
@@ -141,6 +166,36 @@ function StatusBadge({ status }: { status: WarShareRowStatus }) {
         </span>
       );
   }
+}
+
+/**
+ * "Stale" = the share hasn't been synced in more than a week. Crude but it
+ * matches the alliance war cadence (one war per week, so anything older than
+ * a week is at risk of having missed a rank-up since the last refresh).
+ */
+const STALE_AFTER_MS = 7 * 24 * 60 * 60 * 1000;
+
+function isStale(lastSyncedAt: string | undefined): boolean {
+  if (!lastSyncedAt) return false;
+  const t = Date.parse(lastSyncedAt);
+  if (Number.isNaN(t)) return false;
+  return Date.now() - t > STALE_AFTER_MS;
+}
+
+function formatSyncedAgo(lastSyncedAt: string | undefined): string | null {
+  if (!lastSyncedAt) return null;
+  const t = Date.parse(lastSyncedAt);
+  if (Number.isNaN(t)) return null;
+  const diff = Date.now() - t;
+  if (diff < 60_000) return 'just now';
+  const min = Math.floor(diff / 60_000);
+  if (min < 60) return `${min}m ago`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `${hr}h ago`;
+  const day = Math.floor(hr / 24);
+  if (day < 30) return `${day}d ago`;
+  const mo = Math.floor(day / 30);
+  return `${mo}mo ago`;
 }
 
 /**

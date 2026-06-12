@@ -27,7 +27,7 @@ const RANK_BASE: Record<number, number> = { 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 7 }
  * Computed as RANK_BASE[rank] + ascension level. Tied tiers (R4 A1 and
  * R5 A0, etc.) are deliberately interchangeable; sig breaks the tie.
  */
-function effectiveRank(rank: number, ascension: Ascension): number {
+export function effectiveRank(rank: number, ascension: Ascension): number {
   return (RANK_BASE[rank] ?? rank) + ASC_TIER[ascension];
 }
 
