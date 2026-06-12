@@ -187,20 +187,13 @@ export function ChampionTickboxGrid({ champions, ownedIds, onAdd }: TickboxGridP
     setSelected(new Map());
   }
 
-  // Per-mode counts for the Add button breakdown
+  // Per-mode counts for the Add button breakdown — built off MODE_ORDER so
+  // new modes don't fail the type-check on a stale initializer.
   const counts = useMemo(() => {
-    const c: Record<StateMode, number> = {
-      'floor': 0,
-      'r3-max': 0,
-      'r4-sig0': 0,
-      'r4-max-a0': 0,
-      'r4-max-a1': 0,
-      'r4-max-a2': 0,
-      'r5-sig0': 0,
-      'r5-max-a0': 0,
-      'r5-max-a1': 0,
-      'r5-max-a2': 0,
-    };
+    const c = Object.fromEntries(MODE_ORDER.map((m) => [m, 0])) as Record<
+      StateMode,
+      number
+    >;
     for (const m of selected.values()) c[m]++;
     return c;
   }, [selected]);
