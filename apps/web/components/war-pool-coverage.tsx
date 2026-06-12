@@ -42,7 +42,7 @@ type WarPoolCoverageProps = {
   onAddToPool: (championId: string) => void;
 };
 
-const MAX_SUGGESTIONS_VISIBLE = 12;
+const MAX_SUGGESTIONS_VISIBLE = 20;
 
 export function WarPoolCoverage({
   champions,
@@ -166,20 +166,20 @@ export function WarPoolCoverage({
               </button>
             )}
           </div>
-          <ul className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2">
+          <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-3">
             {visible.map((s) => {
               const champion = championLookup.get(s.championId);
               return (
                 <li
                   key={s.championId}
-                  className="flex items-center gap-2 border border-[var(--color-rule)] rounded p-2 bg-[var(--color-paper)]"
+                  className="flex items-center gap-3 border border-[var(--color-rule)] rounded p-3 bg-[var(--color-paper)]"
                 >
                   {champion && (
                     <ChampionPortrait
                       name={champion.name}
                       klass={champion.class}
                       portraitUrl={champion.portraitUrl ?? null}
-                      size={32}
+                      size={44}
                       rarity={null}
                     />
                   )}
@@ -187,14 +187,14 @@ export function WarPoolCoverage({
                     <div className="text-sm font-medium leading-tight truncate">
                       {champion?.name ?? s.championId}
                     </div>
-                    <div className="text-[10px] text-[var(--color-ink-soft)] numeric">
+                    <div className="text-xs text-[var(--color-ink-soft)] numeric mt-0.5">
                       {s.ownerCount} owner{s.ownerCount === 1 ? '' : 's'} at floor
                     </div>
                   </div>
                   <button
                     type="button"
                     onClick={() => onAddToPool(s.championId)}
-                    className="text-xs px-2 py-1 border border-[var(--color-rule)] rounded hover:bg-[var(--color-paper-soft)] hover:border-[var(--color-marvel-editorial)] transition-colors whitespace-nowrap"
+                    className="text-xs px-3 py-1.5 border border-[var(--color-rule)] rounded hover:bg-[var(--color-paper-soft)] hover:border-[var(--color-marvel-editorial)] transition-colors whitespace-nowrap"
                     title="Add to defender pool"
                   >
                     + Add
