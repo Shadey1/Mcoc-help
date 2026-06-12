@@ -70,18 +70,55 @@ describe('assignWar — power-first greedy placement', () => {
       slotsPerPlayer: 5,
     });
 
-    // Power-first fills all alice's 5 slots with R5 A2s before considering
-    // the rare R4, then bob picks up the spillover R5. The rare-R4 drops
-    // because alice (its only owner) is now full — and that's the desired
-    // trade-off: officers asked for "strongest defence", which can leave a
-    // unique lower-tier meta unplaced.
-    expect(result.totalPlaced).toBe(6);
+    // Power-first walks the R5 A2 pool before considering rare-modok, AND
+    // the load-balancer alternates the R5 A2 placements between alice and
+    // bob so alice doesn't fill to 5 on R5s alone. By the time rare-modok
+    // is processed, alice still has a free slot for it. All 7 fit (6 R5
+    // A2s split 3/3, plus alice's rare R4) — the algorithm gets both the
+    // tier priority right AND finds room for the rare lower-tier meta.
+    expect(result.totalPlaced).toBe(7);
+    const placedChamps = new Set(result.assignments.map((a) => a.championId));
+    expect(placedChamps.has('rare-modok')).toBe(true);
     const aliceR5s = result.assignments.filter(
       (a) => a.playerId === 'p1' && a.rank === 5,
     );
-    expect(aliceR5s).toHaveLength(5);
-    const placedChamps = new Set(result.assignments.map((a) => a.championId));
-    expect(placedChamps.has('rare-modok')).toBe(false);
+    // Alice gets her share of R5 placements (3) and the rare R4.
+    expect(aliceR5s.length).toBeGreaterThanOrEqual(3);
+  });
+
+  it('balances placements across equally-developed owners', () => {
+    // 6 R5 A2 sig 200 champs in the pool, two owners (alice + bob), both
+    // hold every champ at R5 A2 sig 200 — i.e. an effective-tier tie on
+    // every assignment. Without the slots-used load balancer, alice (alpha-
+    // first playerId) wins every tie and ends up at 5/1 vs bob; the
+    // user's screenshot was the real-roster version of this — one player
+    // ending at 0/5 while another was at 5/5 with equivalent champs in
+    // both rosters. With balancing, the count should be roughly even.
+    const champs = ['c1', 'c2', 'c3', 'c4', 'c5', 'c6'];
+    const result = assignWar({
+      defenderPool: new Set(champs),
+      floor: { rank: 4, ascension: 'A0' },
+      players: [
+        player(
+          'p1-alice',
+          'alice',
+          champs.map((id) => state(id, 5, 'A2')),
+        ),
+        player(
+          'p2-bob',
+          'bob',
+          champs.map((id) => state(id, 5, 'A2')),
+        ),
+      ],
+      slotsPerPlayer: 5,
+    });
+
+    expect(result.totalPlaced).toBe(6);
+    const aliceCount = result.assignments.filter((a) => a.playerId === 'p1-alice').length;
+    const bobCount = result.assignments.filter((a) => a.playerId === 'p2-bob').length;
+    // Allow a 1-difference for the odd-count case (6 across 2 owners = 3/3).
+    expect(Math.abs(aliceCount - bobCount)).toBeLessThanOrEqual(1);
+    expect(aliceCount + bobCount).toBe(6);
   });
 
   it('within a tier, rarer champs are placed before common ones', () => {

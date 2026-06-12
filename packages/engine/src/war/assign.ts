@@ -67,7 +67,7 @@ type Candidate = {
 };
 
 /**
- * Power-first greedy assignment, with scarcity as tiebreaker.
+ * Power-first greedy assignment with load-balancing tiebreaker.
  *
  * Algorithm:
  *   1. For each champion in the defender pool, collect every eligible
@@ -78,9 +78,14 @@ type Candidate = {
  *      (the "highest placements first" rule from the floor dropdown),
  *      tiebreak by scarcity asc (rarer locked in first within a tier),
  *      tiebreak by championId for determinism.
- *   4. Walk the champion list. For each, walk its owners until we find one
- *      with a free slot; assign and move on. Skip the champion if no
- *      eligible owner has capacity.
+ *   4. Walk the champion list. For each, find the best owner by:
+ *         effective tier desc → slots-used asc (load balance) →
+ *         sig desc → playerId asc.
+ *      Without the slots-used tiebreaker the alphabetically-first owner
+ *      wins every state tie and fills to 5 before any other equally-
+ *      developed player gets a placement; balancing it gives roughly
+ *      equal counts across owners who hold the same tier.
+ *      Skip the champion if no eligible owner has capacity.
  *
  * Why power first: officers want their strongest defenders deployed. The
  * earlier scarcity-first variant prioritised unique meta locks at the cost
@@ -142,21 +147,58 @@ export function assignWar(input: WarInput): WarResult {
     playerNameLookup.set(p.id, p.name);
   }
 
+  // For each champion, pick its owner by (effective tier desc, slots-used
+  // asc, sig desc, playerId asc). The slots-used tiebreaker is the
+  // load-balancing fairness fix: when two owners hold a champ at the same
+  // effective tier (e.g. K-guns and jpang both have it at R5 A2), the one
+  // who's been assigned fewer slots so far wins. Without this, the
+  // alphabetically-first owner wins every tie and fills to 5 before any
+  // other equally-developed player gets a single placement.
   const assignments: WarAssignment[] = [];
   for (const [championId, owners] of championOrder) {
-    for (const { playerId, state } of owners) {
-      if ((slotsUsed.get(playerId) ?? 0) < slotsPerPlayer) {
-        assignments.push({
-          playerId,
-          playerName: playerNameLookup.get(playerId) ?? playerId,
-          championId,
-          rank: state.rank,
-          ascension: state.ascension,
-          sig: state.sig,
-        });
-        slotsUsed.set(playerId, (slotsUsed.get(playerId) ?? 0) + 1);
-        break;
+    let chosen: Candidate | null = null;
+    let chosenTier = -Infinity;
+    let chosenUsed = Infinity;
+    let chosenSig = -Infinity;
+    for (const candidate of owners) {
+      const used = slotsUsed.get(candidate.playerId) ?? 0;
+      if (used >= slotsPerPlayer) continue;
+      const tier = effectiveRank(
+        candidate.state.rank,
+        candidate.state.ascension,
+      );
+      const sig = candidate.state.sig;
+      if (tier > chosenTier) {
+        chosen = candidate;
+        chosenTier = tier;
+        chosenUsed = used;
+        chosenSig = sig;
+      } else if (tier === chosenTier) {
+        if (used < chosenUsed) {
+          chosen = candidate;
+          chosenUsed = used;
+          chosenSig = sig;
+        } else if (used === chosenUsed && sig > chosenSig) {
+          chosen = candidate;
+          chosenSig = sig;
+        }
+        // else: keep current (owners array is pre-sorted by playerId asc
+        // when state ties, so the first hit is the deterministic winner).
       }
+    }
+    if (chosen) {
+      assignments.push({
+        playerId: chosen.playerId,
+        playerName: playerNameLookup.get(chosen.playerId) ?? chosen.playerId,
+        championId,
+        rank: chosen.state.rank,
+        ascension: chosen.state.ascension,
+        sig: chosen.state.sig,
+      });
+      slotsUsed.set(
+        chosen.playerId,
+        (slotsUsed.get(chosen.playerId) ?? 0) + 1,
+      );
     }
   }
 
