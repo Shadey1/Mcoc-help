@@ -112,8 +112,13 @@ export function WarPlacementTable({
                   key={pid}
                   className="border-b border-[var(--color-rule)]/40"
                 >
-                  <td className="px-2 py-3 align-top">
-                    <div className="font-medium text-sm">{playerName}</div>
+                  <td className="px-2 py-3 align-top w-32 max-w-32">
+                    <div
+                      className="font-medium text-sm truncate"
+                      title={playerName}
+                    >
+                      {playerName}
+                    </div>
                     <div
                       className={`text-xs ${
                         isUnderfilled
@@ -137,18 +142,25 @@ export function WarPlacementTable({
                       );
                     }
                     const c = championLookup.get(a.championId);
+                    const champName = c?.name ?? a.championId;
                     return (
-                      <td key={i} className="px-2 py-3 align-top">
+                      <td
+                        key={i}
+                        className="px-2 py-3 align-top max-w-[11rem]"
+                      >
                         <div className="flex items-center gap-2">
                           <ChampionPortrait
-                            name={c?.name ?? a.championId}
+                            name={champName}
                             klass={c?.class ?? 'Tech'}
                             portraitUrl={c?.portraitUrl ?? null}
                             size={40}
                           />
                           <div className="min-w-0">
-                            <div className="text-sm font-medium truncate">
-                              {c?.name ?? a.championId}
+                            <div
+                              className="text-sm font-medium truncate"
+                              title={champName}
+                            >
+                              {champName}
                             </div>
                             <div className="text-[10px] font-mono text-[var(--color-ink-soft)]">
                               R{a.rank} {a.ascension}
