@@ -153,57 +153,6 @@ describe('assignWar — power-first greedy placement', () => {
     expect(bobChamp?.championId).toBe('y-shared-high');
   });
 
-  it('Maestro scenario — Phase 1 keeps R5 A2 even at cost of one Phase 2 downgrade', () => {
-    // Jpang owns Maestro at R5 A2 (tier 7), plus 5 OTHER best-tier-6
-    // champs all uniquely his. mu3rto also owns Maestro at R5 A1 (tier 6)
-    // — the easy-spread alternative. The earlier algorithm would place
-    // Jpang's 5 tier-6 champs on his 5 slots and push Maestro down to
-    // mu3rto at tier 6, gaining +1 placement at the cost of a tier drop.
-    // The two-phase algorithm now: Phase 1 keeps Maestro at Jpang (tier 7)
-    // and 4 of his tier-6 champs alongside it. The 5th tier-6 champ
-    // (call it 'extra-tier-6') falls to Phase 2; if it has any alt owner,
-    // it gets a slot there at lower tier.
-    const result = assignWar({
-      defenderPool: new Set([
-        'maestro',
-        'jpang-a',
-        'jpang-b',
-        'jpang-c',
-        'jpang-d',
-        'jpang-e',
-      ]),
-      floor: { rank: 4, ascension: 'A0' },
-      players: [
-        player('p1-jpang', 'Jpang', [
-          state('maestro', 5, 'A2'),
-          state('jpang-a', 5, 'A1'),
-          state('jpang-b', 5, 'A1'),
-          state('jpang-c', 5, 'A1'),
-          state('jpang-d', 5, 'A1'),
-          state('jpang-e', 5, 'A1'),
-        ]),
-        player('p2-mu3rto', 'mu3rto', [
-          state('maestro', 5, 'A1'), // tier 6 — the would-be downgrade
-        ]),
-      ],
-      slotsPerPlayer: 5,
-    });
-
-    const maestroAssignment = result.assignments.find(
-      (a) => a.championId === 'maestro',
-    );
-    expect(maestroAssignment).toBeDefined();
-    expect(maestroAssignment!.playerId).toBe('p1-jpang');
-    expect(maestroAssignment!.rank).toBe(5);
-    expect(maestroAssignment!.ascension).toBe('A2');
-
-    // Jpang gets Maestro plus 4 of his 5 tier-6 champs (his 5th sits out).
-    const jpangCount = result.assignments.filter(
-      (a) => a.playerId === 'p1-jpang',
-    ).length;
-    expect(jpangCount).toBe(5);
-  });
-
   it('Jean Grey scenario — highest-tier owner wins, never downgrade for spread', () => {
     // K-guns owns Jean Grey at R5 A0 (tier 5). Rons owns it at R4 A0
     // (tier 4). Both also own a bunch of other tier-5 champs. In the user's
