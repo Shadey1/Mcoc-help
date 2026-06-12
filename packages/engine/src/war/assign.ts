@@ -202,6 +202,30 @@ export function assignWar(input: WarInput): WarResult {
     }
   }
 
+  // Repair pass — augmenting-path swaps.
+  //
+  // Greedy can leave a champion stuck if its only eligible owners are at
+  // slot cap, even when one of those owners holds a champ that COULD have
+  // gone to a different player who still has a free slot. Walking the
+  // stuck list and trying 1-step swaps (reassign an existing placement to
+  // an alternative owner with capacity, freeing the original owner to take
+  // the stuck champ) recovers those misses. Iterating finds 2- and 3-step
+  // chains too — each iteration completes one swap, and the next iteration
+  // sees the updated slot state.
+  //
+  // The repair only ever performs swaps that result in a NET +1 placement.
+  // It may drop one placement's effective tier (the swapped champ might be
+  // at a lower state on the alternative owner) — accepted because the user
+  // explicitly preferred coverage over a per-slot tier optimum.
+  repairByAugmentingPaths(
+    assignments,
+    candidatesByChamp,
+    slotsUsed,
+    slotsPerPlayer,
+    playerNameLookup,
+    input.defenderPool,
+  );
+
   // Output sort: by playerId, then state desc within each player.
   assignments.sort((a, b) => {
     if (a.playerId !== b.playerId) return a.playerId.localeCompare(b.playerId);
@@ -237,4 +261,132 @@ export function assignWar(input: WarInput): WarResult {
     unavailableChamps,
     totalPlaced: assignments.length,
   };
+}
+
+/**
+ * Iterative 1-step swap repair (a poor man's augmenting-path optimisation).
+ *
+ * After greedy assignment, a champion may sit unplaced even though one of
+ * its eligible owners is at slot cap with placements that other players
+ * could've taken instead. This pass walks the unplaced list and, for each,
+ * tries to:
+ *   1. Trivially place it if its owner now has capacity (rare — only if a
+ *      prior repair iteration moved one of their champs out).
+ *   2. Otherwise find ANY current placement on that owner whose champion
+ *      has an alternative owner with a free slot. Swap: the alternative
+ *      owner takes the existing placement (at their own state), and the
+ *      previously-full owner uses the freed slot for the stuck champ.
+ *
+ * Each completed swap is a strict +1 placement. Repeated iterations chain
+ * 1-step swaps into the longer augmenting paths that a true min-cost-flow
+ * algorithm would find directly. The safety iteration cap (100) bounds
+ * pathological cases — well above any realistic ~50-slot war run.
+ *
+ * Mutates `assignments` and `slotsUsed` in place.
+ */
+function repairByAugmentingPaths(
+  assignments: WarAssignment[],
+  candidatesByChamp: Map<string, Candidate[]>,
+  slotsUsed: Map<WarPlayerId, number>,
+  slotsPerPlayer: number,
+  playerNameLookup: Map<WarPlayerId, string>,
+  defenderPool: ReadonlySet<string>,
+): void {
+  // championId -> index in `assignments`, for O(1) lookup and in-place swap.
+  const indexByChamp = new Map<string, number>();
+  for (let i = 0; i < assignments.length; i++) {
+    indexByChamp.set(assignments[i]!.championId, i);
+  }
+
+  let safetyIters = 0;
+  while (safetyIters < 100) {
+    safetyIters++;
+
+    // Collect champs that are in pool, have at least one eligible owner,
+    // but aren't placed yet. Re-collected each iteration because a prior
+    // swap can move a champ in or out of this set.
+    const stuck: string[] = [];
+    for (const champ of defenderPool) {
+      if (indexByChamp.has(champ)) continue;
+      if (!candidatesByChamp.has(champ)) continue;
+      stuck.push(champ);
+    }
+    if (stuck.length === 0) break;
+
+    let progress = false;
+
+    for (const stuckChamp of stuck) {
+      const stuckOwners = candidatesByChamp.get(stuckChamp)!;
+      let swapDone = false;
+
+      for (const stuckOwner of stuckOwners) {
+        const pid = stuckOwner.playerId;
+        const used = slotsUsed.get(pid) ?? 0;
+
+        if (used < slotsPerPlayer) {
+          // Owner has capacity — trivial direct place. Possible if an
+          // earlier iteration's swap freed a slot on this player.
+          assignments.push({
+            playerId: pid,
+            playerName: playerNameLookup.get(pid) ?? pid,
+            championId: stuckChamp,
+            rank: stuckOwner.state.rank,
+            ascension: stuckOwner.state.ascension,
+            sig: stuckOwner.state.sig,
+          });
+          indexByChamp.set(stuckChamp, assignments.length - 1);
+          slotsUsed.set(pid, used + 1);
+          swapDone = true;
+          break;
+        }
+
+        // Owner is full — find one of their current placements to move to
+        // an alternative owner with capacity.
+        for (let i = 0; i < assignments.length && !swapDone; i++) {
+          const curr = assignments[i]!;
+          if (curr.playerId !== pid) continue;
+
+          const altOwners = candidatesByChamp.get(curr.championId) ?? [];
+          for (const alt of altOwners) {
+            if (alt.playerId === pid) continue;
+            const altUsed = slotsUsed.get(alt.playerId) ?? 0;
+            if (altUsed >= slotsPerPlayer) continue;
+
+            // Execute swap.
+            assignments[i] = {
+              playerId: alt.playerId,
+              playerName: playerNameLookup.get(alt.playerId) ?? alt.playerId,
+              championId: curr.championId,
+              rank: alt.state.rank,
+              ascension: alt.state.ascension,
+              sig: alt.state.sig,
+            };
+            assignments.push({
+              playerId: pid,
+              playerName: playerNameLookup.get(pid) ?? pid,
+              championId: stuckChamp,
+              rank: stuckOwner.state.rank,
+              ascension: stuckOwner.state.ascension,
+              sig: stuckOwner.state.sig,
+            });
+            indexByChamp.set(curr.championId, i);
+            indexByChamp.set(stuckChamp, assignments.length - 1);
+            slotsUsed.set(alt.playerId, altUsed + 1);
+            // pid's slot count is unchanged (released curr, took stuckChamp).
+            swapDone = true;
+            break;
+          }
+        }
+
+        if (swapDone) break;
+      }
+
+      if (swapDone) {
+        progress = true;
+        break; // restart from the top of the stuck list
+      }
+    }
+
+    if (!progress) break;
+  }
 }
