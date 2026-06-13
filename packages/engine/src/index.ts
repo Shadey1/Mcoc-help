@@ -151,6 +151,7 @@ export type {
   WarPlayer,
   WarInput,
   WarAssignment,
+  WarTier,
   WarUnderfilledPlayer,
   WarResult,
 } from './war/types.js';

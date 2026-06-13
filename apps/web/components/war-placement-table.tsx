@@ -10,8 +10,41 @@ import {
   type Rank,
   type WarAssignment,
   type WarResult,
+  type WarTier,
 } from '@prestige-tools/engine';
 import { ChampionPortrait } from './champion-portrait';
+
+const TIER_BADGE_TEXT: Record<WarTier, string> = {
+  strong: 'S',
+  mid: 'M',
+  base: 'B',
+};
+const TIER_BADGE_TITLE: Record<WarTier, string> = {
+  strong: 'Strong — must-place meta defender',
+  mid: 'Mid — preferred fill',
+  base: 'Base — diversity gap-filler',
+};
+const TIER_BADGE_CLASS: Record<WarTier, string> = {
+  strong: 'bg-[var(--color-marvel-impact)] text-white',
+  mid: 'bg-[var(--color-ink)] text-[var(--color-paper)]',
+  base: 'bg-[var(--color-ink-soft)] text-[var(--color-paper)]',
+};
+
+/**
+ * Tier corner badge on a placed slot's portrait. One-letter, high-contrast,
+ * intended for at-a-glance verification that Strong defenders made it in.
+ */
+function TierBadge({ tier }: { tier: WarTier }) {
+  return (
+    <span
+      className={`absolute -top-1 -right-1 w-4 h-4 rounded-full text-[9px] font-medium flex items-center justify-center shadow-sm ${TIER_BADGE_CLASS[tier]}`}
+      title={TIER_BADGE_TITLE[tier]}
+      aria-label={TIER_BADGE_TITLE[tier]}
+    >
+      {TIER_BADGE_TEXT[tier]}
+    </span>
+  );
+}
 
 /**
  * War placement table — the output of assignWar().
@@ -261,12 +294,15 @@ export function WarPlacementTable({
                         className="px-2 py-3 align-top max-w-[11rem]"
                       >
                         <div className="flex items-center gap-2">
-                          <ChampionPortrait
-                            name={champName}
-                            klass={c?.class ?? 'Tech'}
-                            portraitUrl={c?.portraitUrl ?? null}
-                            size={40}
-                          />
+                          <div className="relative shrink-0">
+                            <ChampionPortrait
+                              name={champName}
+                              klass={c?.class ?? 'Tech'}
+                              portraitUrl={c?.portraitUrl ?? null}
+                              size={40}
+                            />
+                            <TierBadge tier={a.tier} />
+                          </div>
                           <div className="min-w-0">
                             <div
                               className="text-sm font-medium truncate"

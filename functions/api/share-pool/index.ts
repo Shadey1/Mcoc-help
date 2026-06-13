@@ -39,10 +39,11 @@ const BG_COUNT = 3;
 type FloorRank = 3 | 4 | 5 | 6;
 type FloorAsc = 'A0' | 'A1' | 'A2';
 type BgRow = { url: string; name: string };
+type TieredPool = { strong: string[]; mid: string[]; base: string[] };
 
 type PoolPayload = {
   label?: string;
-  pool: string[];
+  pool: TieredPool;
   floor: { rank: FloorRank; ascension: FloorAsc };
   /** Optional BG roster paste URLs — three groups of up to 10. */
   bgs?: BgRow[][];
@@ -51,7 +52,7 @@ type PoolPayload = {
 
 type StoredPool = {
   label: string | null;
-  pool: string[];
+  pool: TieredPool;
   floor: { rank: FloorRank; ascension: FloorAsc };
   bgs?: BgRow[][];
   createdAt: string;
@@ -96,23 +97,39 @@ function validatePayload(raw: unknown): PoolPayload | { error: string } {
     if (obj.label.length > 100) return { error: 'label too long (max 100 chars)' };
   }
 
-  if (!Array.isArray(obj.pool)) {
-    return { error: 'pool must be an array of champion ids' };
+  // Pool is tiered: { strong: string[], mid: string[], base: string[] }.
+  // Legacy flat-array shares aren't accepted on write any more — clients
+  // post the tiered shape exclusively after the v2 rollout. Reads still
+  // tolerate either shape so old KV blobs keep loading (see [id].ts).
+  if (!obj.pool || typeof obj.pool !== 'object' || Array.isArray(obj.pool)) {
+    return { error: 'pool must be an object with strong/mid/base arrays' };
   }
-  if (obj.pool.length < MIN_POOL_SIZE) {
+  const poolObj = obj.pool as Record<string, unknown>;
+  const tieredPool: TieredPool = { strong: [], mid: [], base: [] };
+  for (const tier of ['strong', 'mid', 'base'] as const) {
+    const raw = poolObj[tier];
+    if (raw === undefined) continue;
+    if (!Array.isArray(raw)) {
+      return { error: `pool.${tier} must be an array of champion ids` };
+    }
+    for (let i = 0; i < raw.length; i++) {
+      const c = raw[i];
+      if (typeof c !== 'string' || c.length === 0) {
+        return { error: `pool.${tier}[${i}] must be a non-empty string` };
+      }
+      if (c.length > MAX_CHAMPION_ID_LEN) {
+        return { error: `pool.${tier}[${i}] too long` };
+      }
+      tieredPool[tier].push(c);
+    }
+  }
+  const totalPool =
+    tieredPool.strong.length + tieredPool.mid.length + tieredPool.base.length;
+  if (totalPool < MIN_POOL_SIZE) {
     return { error: 'pool is empty' };
   }
-  if (obj.pool.length > MAX_POOL_SIZE) {
+  if (totalPool > MAX_POOL_SIZE) {
     return { error: `pool too large (max ${MAX_POOL_SIZE})` };
-  }
-  for (let i = 0; i < obj.pool.length; i++) {
-    const c = obj.pool[i];
-    if (typeof c !== 'string' || c.length === 0) {
-      return { error: `pool[${i}] must be a non-empty string` };
-    }
-    if (c.length > MAX_CHAMPION_ID_LEN) {
-      return { error: `pool[${i}] too long` };
-    }
   }
 
   const floor = obj.floor as Record<string, unknown> | undefined;
@@ -162,7 +179,7 @@ function validatePayload(raw: unknown): PoolPayload | { error: string } {
 
   return {
     label: typeof obj.label === 'string' ? obj.label : undefined,
-    pool: obj.pool as string[],
+    pool: tieredPool,
     floor: {
       rank: floor.rank as FloorRank,
       ascension: floor.ascension as FloorAsc,

@@ -9,6 +9,7 @@ import {
   type Rank,
 } from '@prestige-tools/engine';
 import { ChampionPortrait } from './champion-portrait';
+import { poolIdSet, poolSize, type WarPool } from '../lib/war-storage';
 
 /**
  * Diagnostic panel that surfaces how well the defender pool fits the BG's
@@ -35,7 +36,7 @@ type Roster = {
 
 type WarPoolCoverageProps = {
   champions: Champion[];
-  pool: ReadonlySet<string>;
+  pool: WarPool;
   floor: { rank: Rank; ascension: Ascension };
   /** Rosters for every player loaded into the active BG. */
   rosters: Roster[];
@@ -76,24 +77,33 @@ export function WarPoolCoverage({
     return { eligibleAtFloor: eligible, ownerCount: counts };
   }, [rosters, floorTier]);
 
+  const poolIds = useMemo(() => poolIdSet(pool), [pool]);
+
   const stats = useMemo(() => {
-    let eligibleInPool = 0;
-    let unavailableInPool = 0;
-    for (const id of pool) {
-      if (eligibleAtFloor.has(id)) eligibleInPool++;
-      else unavailableInPool++;
+    function countTier(ids: string[]) {
+      let eligible = 0;
+      let unavailable = 0;
+      for (const id of ids) {
+        if (eligibleAtFloor.has(id)) eligible++;
+        else unavailable++;
+      }
+      return { eligible, unavailable, total: ids.length };
     }
     return {
-      total: pool.size,
-      eligible: eligibleInPool,
-      unavailable: unavailableInPool,
+      strong: countTier(pool.strong),
+      mid: countTier(pool.mid),
+      base: countTier(pool.base),
+      totalPool: poolSize(pool),
     };
   }, [pool, eligibleAtFloor]);
+
+  const totalUnavailable =
+    stats.strong.unavailable + stats.mid.unavailable + stats.base.unavailable;
 
   const suggestions = useMemo(() => {
     const list: { championId: string; ownerCount: number }[] = [];
     for (const [championId, count] of ownerCount) {
-      if (pool.has(championId)) continue;
+      if (poolIds.has(championId)) continue;
       list.push({ championId, ownerCount: count });
     }
     list.sort((a, b) => {
@@ -103,7 +113,7 @@ export function WarPoolCoverage({
       return an.localeCompare(bn);
     });
     return list;
-  }, [ownerCount, pool, championLookup]);
+  }, [ownerCount, poolIds, championLookup]);
 
   if (rosters.length === 0) return null;
 
@@ -120,26 +130,23 @@ export function WarPoolCoverage({
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-3 text-sm">
-        <Stat label="In pool" value={stats.total} />
-        <Stat
-          label="Eligible at floor"
-          value={stats.eligible}
-          accent="positive"
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+        <TierStat
+          label="Strong"
+          accent="strong"
+          counts={stats.strong}
         />
-        <Stat
-          label="Unavailable (dead weight)"
-          value={stats.unavailable}
-          accent={stats.unavailable > 0 ? 'warn' : undefined}
-        />
+        <TierStat label="Mid" accent="mid" counts={stats.mid} />
+        <TierStat label="Base" accent="base" counts={stats.base} />
       </div>
 
-      {stats.unavailable > 0 && (
+      {totalUnavailable > 0 && (
         <p className="text-xs text-[var(--color-ink-soft)] italic">
-          {stats.unavailable} pool champions aren&apos;t owned by anyone in this BG
-          at the floor — they sit in the &quot;In pool but unavailable&quot; list
-          below the placement table and never contribute. Consider trimming
-          them or lowering the floor.
+          {totalUnavailable} pool champion{totalUnavailable === 1 ? '' : 's'}{' '}
+          aren&apos;t owned by anyone in this BG at the floor — they sit in
+          the &quot;In pool but unavailable&quot; list below the placement
+          table and never contribute. Consider trimming them or lowering the
+          floor.
         </p>
       )}
 
@@ -209,28 +216,49 @@ export function WarPoolCoverage({
   );
 }
 
-function Stat({
+/**
+ * Per-tier coverage cell. Shows tier total + eligible-at-floor + unavailable
+ * count so the officer can see at a glance whether a tier is over-stocked
+ * with dead weight (e.g. Strong has 8 champs but only 3 owned at floor).
+ */
+function TierStat({
   label,
-  value,
+  counts,
   accent,
 }: {
   label: string;
-  value: number;
-  accent?: 'positive' | 'warn';
+  counts: { total: number; eligible: number; unavailable: number };
+  accent: 'strong' | 'mid' | 'base';
 }) {
-  const valueColor =
-    accent === 'positive'
-      ? 'text-emerald-700'
-      : accent === 'warn'
-        ? 'text-[var(--color-marvel-impact)]'
-        : 'text-[var(--color-ink)]';
+  const labelColor =
+    accent === 'strong'
+      ? 'text-[var(--color-marvel-impact)]'
+      : accent === 'mid'
+        ? 'text-[var(--color-ink)]'
+        : 'text-[var(--color-ink-soft)]';
   return (
-    <div className="flex flex-col">
-      <div className="text-xs uppercase tracking-wide text-[var(--color-ink-soft)]">
+    <div className="flex flex-col border border-[var(--color-rule)] rounded p-3 bg-[var(--color-paper)]">
+      <div
+        className={`text-xs uppercase tracking-wide font-medium ${labelColor}`}
+      >
         {label}
       </div>
-      <div className={`text-2xl font-medium numeric ${valueColor}`}>
-        {value}
+      <div className="flex items-baseline gap-2 mt-1">
+        <span className="text-2xl font-medium numeric text-[var(--color-ink)]">
+          {counts.total}
+        </span>
+        <span className="text-xs text-[var(--color-ink-soft)] numeric">
+          <span className="text-emerald-700">{counts.eligible}</span> at floor
+          {counts.unavailable > 0 && (
+            <>
+              {' · '}
+              <span className="text-[var(--color-marvel-impact)]">
+                {counts.unavailable}
+              </span>{' '}
+              dead
+            </>
+          )}
+        </span>
       </div>
     </div>
   );

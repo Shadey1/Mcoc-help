@@ -1,11 +1,14 @@
 'use client';
 
 import type { Ascension, Rank } from '@prestige-tools/engine';
-import type { WarPlayerInput } from './war-storage';
+import type { WarPlayerInput, WarPool } from './war-storage';
 
 export type SharedPoolPayload = {
   label: string | null;
-  pool: string[];
+  /** Tiered pool. Older shares may carry a flat `string[]` instead; the
+   *  /war page normalizes those to `{ strong: [], mid: [...], base: [] }`
+   *  on import so this field is always tiered after parsing. */
+  pool: WarPool;
   floor: { rank: Rank; ascension: Ascension };
   /** Optional — present on shares created after the BG bundling change. */
   bgs?: WarPlayerInput[][];
@@ -26,7 +29,7 @@ export type CreatePoolResponse = {
  * recipient gets the full war snapshot rather than just the defenders.
  */
 export async function createSharedPool(
-  pool: string[],
+  pool: WarPool,
   floor: { rank: Rank; ascension: Ascension },
   label: string | null,
   bgs?: WarPlayerInput[][],

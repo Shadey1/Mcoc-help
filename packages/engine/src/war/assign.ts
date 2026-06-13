@@ -5,8 +5,22 @@ import type {
   WarPlayerId,
   WarResult,
   WarStateFloor,
+  WarTier,
   WarUnderfilledPlayer,
 } from './types.js';
+
+/**
+ * Tier priority for the champion sort order. Strong < Mid < Base — Strong
+ * champs are processed FIRST by Kuhn's, so every Strong placement that
+ * structurally CAN exist DOES exist in the final matching. Augmenting paths
+ * for later (Mid / Base) champs can only displace Strong placements if
+ * those Strong champs can re-place themselves, so Strong count never drops.
+ */
+const TIER_PRIORITY: Record<WarTier, number> = {
+  strong: 0,
+  mid: 1,
+  base: 2,
+};
 
 const ASC_TIER: Record<Ascension, number> = { A0: 0, A1: 1, A2: 2 };
 
@@ -134,6 +148,9 @@ export function assignWar(input: WarInput): WarResult {
     }
   }
 
+  const tierFor = (championId: string): WarTier =>
+    input.defenderPool.get(championId) ?? 'mid';
+
   // Within each champion, best-developed owner first.
   // Stable tiebreak by playerId so results are deterministic.
   for (const owners of candidatesByChamp.values()) {
@@ -144,10 +161,19 @@ export function assignWar(input: WarInput): WarResult {
     });
   }
 
-  // Champions sorted by best-owner state desc (power first), tiebreak by
-  // scarcity asc (rarest within a tier first), then by championId for
-  // determinism.
+  // Champions sorted by pool tier first (Strong → Mid → Base), then by
+  // best-owner state desc (power first), then by scarcity asc (rarest first
+  // within a tier+state group), then by championId for determinism.
+  //
+  // Why tier dominates: Kuhn's processes champions in order; each augmenting
+  // step preserves all prior matches. Sorting Strong first guarantees every
+  // structurally-possible Strong placement IS in the final matching, even
+  // if it means a higher-state Mid champ doesn't get placed. That's the
+  // officer's stated priority — meta defenders take precedence over raw
+  // tier when slots are scarce.
   const championOrder = [...candidatesByChamp.entries()].sort((a, b) => {
+    const tierDelta = TIER_PRIORITY[tierFor(a[0])] - TIER_PRIORITY[tierFor(b[0])];
+    if (tierDelta !== 0) return tierDelta;
     const stateDelta = stateScore(b[1][0]!.state) - stateScore(a[1][0]!.state);
     if (stateDelta !== 0) return stateDelta;
     const scarcityDelta = a[1].length - b[1].length;
@@ -232,6 +258,7 @@ export function assignWar(input: WarInput): WarResult {
       rank: owner.state.rank,
       ascension: owner.state.ascension,
       sig: owner.state.sig,
+      tier: tierFor(champId),
     });
     slotsUsed.set(playerId, (slotsUsed.get(playerId) ?? 0) + 1);
   }
@@ -279,7 +306,7 @@ export function assignWar(input: WarInput): WarResult {
 
   // Unavailable champions (in pool but no eligible owner)
   const unavailableChamps: string[] = [];
-  for (const championId of input.defenderPool) {
+  for (const championId of input.defenderPool.keys()) {
     if (!candidatesByChamp.has(championId)) {
       unavailableChamps.push(championId);
     }
@@ -345,6 +372,7 @@ function redistributeForFairness(
           rank: alt.state.rank,
           ascension: alt.state.ascension,
           sig: alt.state.sig,
+          tier: curr.tier,
         };
         slotsUsed.set(curr.playerId, currCount - 1);
         slotsUsed.set(alt.playerId, altCount + 1);

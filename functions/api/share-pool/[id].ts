@@ -49,6 +49,17 @@ export const onRequestGet: PagesFunction<Env> = async ({ params, env }) => {
   // Don't return the delete token to recipients
   const { deleteToken: _, ...publicPool } = parsed;
 
+  // Backwards-compat: shares stored before the tiered-pool rollout have
+  // pool as a flat string[]. Normalize them to {strong:[],mid:[...],base:[]}
+  // so clients only have to handle one shape after parsing.
+  if (Array.isArray(publicPool.pool)) {
+    publicPool.pool = {
+      strong: [],
+      mid: publicPool.pool,
+      base: [],
+    };
+  }
+
   return jsonResponse(publicPool);
 };
 

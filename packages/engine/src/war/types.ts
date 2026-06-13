@@ -15,6 +15,14 @@ import type { Ascension, ChampionState, Rank } from '../types.js';
 export type WarPlayerId = string;
 
 /**
+ * Defender priority tier. Set per champion in the alliance pool. The
+ * placement algorithm fills Strong first (mandatory if anyone owns at
+ * floor), then Mid (best fill), then Base (diversity / gap-filler).
+ * Tier overrides raw power: a Strong R3 A0 places before a Mid R6 A2.
+ */
+export type WarTier = 'strong' | 'mid' | 'base';
+
+/**
  * Minimum acceptable state for a champion to be considered placeable.
  * E.g. `{ rank: 4, ascension: 'A0' }` means champion must be ≥ R4 A0.
  *
@@ -38,9 +46,13 @@ export type WarPlayer = {
 
 /** Inputs to the assignment algorithm. */
 export type WarInput = {
-  /** Champion IDs the officer has designated as war-worthy defenders.
-   *  Anything not in this set is ignored, even if a player owns it. */
-  defenderPool: ReadonlySet<string>;
+  /**
+   * Champion IDs the officer has designated as defenders, each tagged with
+   * a priority tier. Strong defenders place first (mandatory at floor); Mid
+   * fills remaining slots; Base fills any leftover gaps as diversity
+   * filler. Anything not in this map is ignored, even if a player owns it.
+   */
+  defenderPool: ReadonlyMap<string, WarTier>;
   /** Minimum acceptable state. Champs below this floor don't count, even
    *  if they're in the defender pool. */
   floor: WarStateFloor;
@@ -59,6 +71,9 @@ export type WarAssignment = {
   rank: Rank;
   ascension: Ascension;
   sig: number;
+  /** Priority tier this champion came from in the pool. Surfaced so the
+   *  UI can show a per-slot badge ("S/M/B"). */
+  tier: WarTier;
 };
 
 /** Player who couldn't fill their full slot count given the inputs. */

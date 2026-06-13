@@ -1,5 +1,21 @@
 import { describe, expect, it } from 'vitest';
-import { assignWar, type ChampionState, type WarPlayer } from '../../index.js';
+import {
+  assignWar,
+  type ChampionState,
+  type WarPlayer,
+  type WarTier,
+} from '../../index.js';
+
+/**
+ * Helper: build a tier-tagged defender pool from a string array. Default
+ * tier is 'mid' — most legacy tests don't care about tier ordering, so
+ * 'mid' lets them keep their existing matching/tier behavior unchanged.
+ */
+function pool(ids: string[], tier: WarTier = 'mid'): Map<string, WarTier> {
+  const m = new Map<string, WarTier>();
+  for (const id of ids) m.set(id, tier);
+  return m;
+}
 
 /**
  * War assignment tests.
@@ -38,7 +54,7 @@ describe('assignWar — power-first greedy placement', () => {
     // rarest champ. The rare-R4 gets squeezed only if a slot is free
     // after the strong tier is exhausted.
     const result = assignWar({
-      defenderPool: new Set([
+      defenderPool: pool([
         'rare-modok',
         'pop-a',
         'pop-b',
@@ -102,7 +118,7 @@ describe('assignWar — power-first greedy placement', () => {
     // other ordering, the repair pass should still recover both placements.
     // Force greedy to fail by making B come before A alphabetically.
     const result = assignWar({
-      defenderPool: new Set(['a-rare', 'z-shared']),
+      defenderPool: pool(['a-rare', 'z-shared']),
       floor: { rank: 4, ascension: 'A0' },
       players: [
         player('p1', 'alice', [
@@ -131,7 +147,7 @@ describe('assignWar — power-first greedy placement', () => {
     // tier 5). alice now full. X cannot be placed (only alice owns).
     // Repair: alice's Y can move to bob; alice takes X. Both placed.
     const result = assignWar({
-      defenderPool: new Set(['x-rare-low', 'y-shared-high']),
+      defenderPool: pool(['x-rare-low', 'y-shared-high']),
       floor: { rank: 4, ascension: 'A0' },
       players: [
         player('p1', 'alice', [
@@ -162,7 +178,7 @@ describe('assignWar — power-first greedy placement', () => {
     // stays on K-guns at tier 5 unless K-guns is genuinely full of OTHER
     // tier-5 champs.
     const result = assignWar({
-      defenderPool: new Set(['jean-grey', 'champ-a', 'champ-b']),
+      defenderPool: pool(['jean-grey', 'champ-a', 'champ-b']),
       floor: { rank: 4, ascension: 'A0' },
       players: [
         player('p1-k-guns', 'K-guns', [
@@ -193,7 +209,7 @@ describe('assignWar — power-first greedy placement', () => {
     // even it to 2/1/1/1 (rounded), within 1 of each other.
     const champs = ['c1', 'c2', 'c3', 'c4', 'c5'];
     const result = assignWar({
-      defenderPool: new Set(champs),
+      defenderPool: pool(champs),
       floor: { rank: 4, ascension: 'A0' },
       players: [
         player(
@@ -255,7 +271,7 @@ describe('assignWar — power-first greedy placement', () => {
     //   bob:0 (unmatched). Take. A → bob:0. C → alice:0. D → dave:0.
     //   All 4 placed.
     const result = assignWar({
-      defenderPool: new Set(['a', 'b', 'c', 'd']),
+      defenderPool: pool(['a', 'b', 'c', 'd']),
       floor: { rank: 4, ascension: 'A0' },
       players: [
         player('p1', 'alice', [
@@ -285,7 +301,7 @@ describe('assignWar — power-first greedy placement', () => {
     // both rosters. With balancing, the count should be roughly even.
     const champs = ['c1', 'c2', 'c3', 'c4', 'c5', 'c6'];
     const result = assignWar({
-      defenderPool: new Set(champs),
+      defenderPool: pool(champs),
       floor: { rank: 4, ascension: 'A0' },
       players: [
         player(
@@ -316,7 +332,7 @@ describe('assignWar — power-first greedy placement', () => {
     // should process Modok first and pin it to alice; Photon then goes
     // to whoever's left.
     const result = assignWar({
-      defenderPool: new Set(['rare-modok', 'common-photon']),
+      defenderPool: pool(['rare-modok', 'common-photon']),
       floor: { rank: 4, ascension: 'A0' },
       players: [
         player('p1', 'alice', [
@@ -342,7 +358,7 @@ describe('assignWar — power-first greedy placement', () => {
   it('ascension breaks ties within the same rank', () => {
     // Both players have Photon at R5, alice at A2, bob at A0. Alice wins.
     const result = assignWar({
-      defenderPool: new Set(['photon']),
+      defenderPool: pool(['photon']),
       floor: { rank: 4, ascension: 'A0' },
       players: [
         player('p1', 'alice', [state('photon', 5, 'A2')]),
@@ -358,7 +374,7 @@ describe('assignWar — power-first greedy placement', () => {
 
   it('sig breaks ties within the same rank+ascension', () => {
     const result = assignWar({
-      defenderPool: new Set(['photon']),
+      defenderPool: pool(['photon']),
       floor: { rank: 4, ascension: 'A0' },
       players: [
         player('p1', 'alice', [state('photon', 5, 'A2', 100)]),
@@ -376,7 +392,7 @@ describe('assignWar — power-first greedy placement', () => {
     // Power ladder: R4 A2 ≡ R5 A1 = effective-6, R5 A0 ≡ R4 A1 = effective-5.
     // alice's R4 A2 beats bob's R5 A0 because ascension counts as a full rank.
     const result = assignWar({
-      defenderPool: new Set(['photon']),
+      defenderPool: pool(['photon']),
       floor: { rank: 4, ascension: 'A0' },
       players: [
         player('p1', 'alice', [state('photon', 4, 'A2')]),
@@ -392,7 +408,7 @@ describe('assignWar — power-first greedy placement', () => {
 
   it('effective-rank ties resolve by sig — R5 A0 sig 200 beats R4 A1 sig 100 (both effective-5)', () => {
     const result = assignWar({
-      defenderPool: new Set(['photon']),
+      defenderPool: pool(['photon']),
       floor: { rank: 4, ascension: 'A0' },
       players: [
         player('p1', 'alice', [state('photon', 4, 'A1', 100)]),
@@ -407,7 +423,7 @@ describe('assignWar — power-first greedy placement', () => {
   it('R6 sits at the top of the ladder — R6 A0 (effective 7) beats R5 A2 (effective 7) on sig, beats R5 A1 (effective 6) outright', () => {
     // Two effective-7 (R6 A0 vs R5 A2): sig breaks tie.
     const tied = assignWar({
-      defenderPool: new Set(['photon']),
+      defenderPool: pool(['photon']),
       floor: { rank: 4, ascension: 'A0' },
       players: [
         player('p1', 'alice', [state('photon', 5, 'A2', 100)]),
@@ -419,7 +435,7 @@ describe('assignWar — power-first greedy placement', () => {
 
     // R6 A0 (7) > R5 A1 (6) outright.
     const clearWin = assignWar({
-      defenderPool: new Set(['photon']),
+      defenderPool: pool(['photon']),
       floor: { rank: 4, ascension: 'A0' },
       players: [
         player('p1', 'alice', [state('photon', 5, 'A1', 200)]),
@@ -434,7 +450,7 @@ describe('assignWar — power-first greedy placement', () => {
   it('respects the state floor — champs below floor are filtered out', () => {
     // alice has Photon only at R3, bob has it at R5. Floor R4 A0 excludes alice.
     const result = assignWar({
-      defenderPool: new Set(['photon']),
+      defenderPool: pool(['photon']),
       floor: { rank: 4, ascension: 'A0' },
       players: [
         player('p1', 'alice', [state('photon', 3, 'A0')]),
@@ -450,7 +466,7 @@ describe('assignWar — power-first greedy placement', () => {
   it('floor uses ascension as the second axis within a rank', () => {
     // Floor R4 A1: an R4 A0 champ is below floor, R4 A1 meets it.
     const result = assignWar({
-      defenderPool: new Set(['photon']),
+      defenderPool: pool(['photon']),
       floor: { rank: 4, ascension: 'A1' },
       players: [
         player('p1', 'alice', [state('photon', 4, 'A0')]),
@@ -467,7 +483,7 @@ describe('assignWar — power-first greedy placement', () => {
     // alice has 7 candidates, slotsPerPlayer = 5 → 5 assigned, 2 skipped.
     const champs = ['a', 'b', 'c', 'd', 'e', 'f', 'g'];
     const result = assignWar({
-      defenderPool: new Set(champs),
+      defenderPool: pool(champs),
       floor: { rank: 4, ascension: 'A0' },
       players: [
         player(
@@ -486,7 +502,7 @@ describe('assignWar — power-first greedy placement', () => {
   it('never places the same champion twice', () => {
     // Both players have Photon. Should only be placed once total.
     const result = assignWar({
-      defenderPool: new Set(['photon', 'modok']),
+      defenderPool: pool(['photon', 'modok']),
       floor: { rank: 4, ascension: 'A0' },
       players: [
         player('p1', 'alice', [
@@ -507,7 +523,7 @@ describe('assignWar — power-first greedy placement', () => {
   it('reports underfilled players when the pool is too sparse', () => {
     // 2 players, 5 slots each = 10 total slots, but only 3 placeable champs.
     const result = assignWar({
-      defenderPool: new Set(['a', 'b', 'c']),
+      defenderPool: pool(['a', 'b', 'c']),
       floor: { rank: 4, ascension: 'A0' },
       players: [
         player('p1', 'alice', [
@@ -528,7 +544,7 @@ describe('assignWar — power-first greedy placement', () => {
   it('reports champions in the pool with no eligible owner', () => {
     // Punisher is in the pool but nobody owns it ≥ floor.
     const result = assignWar({
-      defenderPool: new Set(['photon', 'punisher']),
+      defenderPool: pool(['photon', 'punisher']),
       floor: { rank: 4, ascension: 'A0' },
       players: [
         player('p1', 'alice', [
@@ -545,7 +561,7 @@ describe('assignWar — power-first greedy placement', () => {
   it('ignores champions outside the defender pool', () => {
     // Alice has 5 champs, but only Photon is in the pool. Other 4 ignored.
     const result = assignWar({
-      defenderPool: new Set(['photon']),
+      defenderPool: pool(['photon']),
       floor: { rank: 4, ascension: 'A0' },
       players: [
         player('p1', 'alice', [
@@ -566,21 +582,21 @@ describe('assignWar — power-first greedy placement', () => {
   it('full alliance scenario — 10 players, 50 placements, all unique', () => {
     // 60 champs in the pool, 10 players, each owns 10 of the 60 with
     // partial overlap. Should fill all 50 slots with 50 unique champs.
-    const pool: string[] = [];
-    for (let i = 0; i < 60; i++) pool.push(`c${i}`);
+    const champIds: string[] = [];
+    for (let i = 0; i < 60; i++) champIds.push(`c${i}`);
     const players: WarPlayer[] = [];
     for (let i = 0; i < 10; i++) {
       // Each player owns 12 champs in a rolling window so neighbours share 6
       const roster: ChampionState[] = [];
       for (let j = 0; j < 12; j++) {
-        const champ = pool[(i * 6 + j) % 60]!;
+        const champ = champIds[(i * 6 + j) % 60]!;
         roster.push(state(champ, 5, 'A2'));
       }
       players.push(player(`p${i.toString().padStart(2, '0')}`, `player${i}`, roster));
     }
 
     const result = assignWar({
-      defenderPool: new Set(pool),
+      defenderPool: pool(champIds),
       floor: { rank: 4, ascension: 'A0' },
       players,
       slotsPerPlayer: 5,
@@ -597,9 +613,102 @@ describe('assignWar — power-first greedy placement', () => {
     }
   });
 
+  it('strong tier places before mid tier even when mid champ is higher rank', () => {
+    // alice owns one Strong R4 A0 (hercules) and one Mid R5 A2 (mojo).
+    // With only one slot per player and only alice owning either champ,
+    // the algorithm has to pick exactly one. Strong-tier priority means
+    // hercules wins, even though mojo is two effective tiers higher.
+    const tiered = new Map<string, 'strong' | 'mid' | 'base'>();
+    tiered.set('hercules', 'strong');
+    tiered.set('mojo', 'mid');
+    const result = assignWar({
+      defenderPool: tiered,
+      floor: { rank: 4, ascension: 'A0' },
+      players: [
+        player('p1', 'alice', [state('hercules', 4, 'A0'), state('mojo', 5, 'A2')]),
+      ],
+      slotsPerPlayer: 1,
+    });
+    expect(result.totalPlaced).toBe(1);
+    expect(result.assignments[0]!.championId).toBe('hercules');
+    expect(result.assignments[0]!.tier).toBe('strong');
+  });
+
+  it('strong > mid > base ordering across a small alliance', () => {
+    // 3 players, 1 slot each = 3 total placements. 5 champs in the pool
+    // split across tiers (1 strong, 2 mid, 2 base). Every player owns
+    // every champ at the same tier, so Kuhn's would happily mix any of
+    // them — tier ordering should force the 1 strong + 2 mids and leave
+    // the bases unplaced.
+    const tiered = new Map<string, 'strong' | 'mid' | 'base'>();
+    tiered.set('strong-a', 'strong');
+    tiered.set('mid-a', 'mid');
+    tiered.set('mid-b', 'mid');
+    tiered.set('base-a', 'base');
+    tiered.set('base-b', 'base');
+    const roster = [
+      state('strong-a', 5, 'A0'),
+      state('mid-a', 5, 'A0'),
+      state('mid-b', 5, 'A0'),
+      state('base-a', 5, 'A0'),
+      state('base-b', 5, 'A0'),
+    ];
+    const result = assignWar({
+      defenderPool: tiered,
+      floor: { rank: 4, ascension: 'A0' },
+      players: [
+        player('p1', 'alice', roster),
+        player('p2', 'bob', roster),
+        player('p3', 'cara', roster),
+      ],
+      slotsPerPlayer: 1,
+    });
+    expect(result.totalPlaced).toBe(3);
+    const placed = new Set(result.assignments.map((a) => a.championId));
+    expect(placed.has('strong-a')).toBe(true);
+    expect(placed.has('mid-a')).toBe(true);
+    expect(placed.has('mid-b')).toBe(true);
+    // No base placed because all 3 slots are consumed by higher tiers.
+    expect(placed.has('base-a')).toBe(false);
+    expect(placed.has('base-b')).toBe(false);
+  });
+
+  it('strong placement survives adding more mid champs (no displacement)', () => {
+    // alice owns 1 Strong (hercules) and 5 Mids. With 5 slots, Kuhn's
+    // processes Strong first, places hercules in some slot, then walks
+    // the mids. The mid augmenting paths can only displace hercules if
+    // hercules can re-place itself — and since alice owns 6 distinct
+    // champs at floor for 5 slots, hercules always survives.
+    const tiered = new Map<string, 'strong' | 'mid' | 'base'>();
+    tiered.set('hercules', 'strong');
+    tiered.set('m1', 'mid');
+    tiered.set('m2', 'mid');
+    tiered.set('m3', 'mid');
+    tiered.set('m4', 'mid');
+    tiered.set('m5', 'mid');
+    const result = assignWar({
+      defenderPool: tiered,
+      floor: { rank: 4, ascension: 'A0' },
+      players: [
+        player('p1', 'alice', [
+          state('hercules', 4, 'A0'),
+          state('m1', 5, 'A2'),
+          state('m2', 5, 'A2'),
+          state('m3', 5, 'A2'),
+          state('m4', 5, 'A2'),
+          state('m5', 5, 'A2'),
+        ]),
+      ],
+      slotsPerPlayer: 5,
+    });
+    expect(result.totalPlaced).toBe(5);
+    const placed = new Set(result.assignments.map((a) => a.championId));
+    expect(placed.has('hercules')).toBe(true);
+  });
+
   it('deterministic: same inputs produce same outputs across runs', () => {
     const input = {
-      defenderPool: new Set(['a', 'b', 'c', 'd']),
+      defenderPool: pool(['a', 'b', 'c', 'd']),
       floor: { rank: 4 as const, ascension: 'A0' as const },
       players: [
         player('p1', 'alice', [state('a', 5, 'A2'), state('b', 5, 'A2')]),

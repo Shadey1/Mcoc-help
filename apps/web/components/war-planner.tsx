@@ -9,15 +9,21 @@ import {
   type Rank,
   type WarPlayer,
   type WarResult,
+  type WarTier,
 } from '@prestige-tools/engine';
 import {
   decodeBgShare,
   encodeBgShare,
   loadWarConfig,
+  poolIdSet,
+  poolSize,
+  poolToTierMap,
   saveWarConfig,
+  setPoolTier,
   type WarBgs,
   type WarConfig,
   type WarPlayerInput,
+  type WarPool,
 } from '../lib/war-storage';
 import { fetchShare } from '../lib/share-client';
 import { fetchSharedPool, type SharedPoolPayload } from '../lib/share-pool-client';
@@ -96,7 +102,11 @@ type BgRunState = {
    * the placement table is still useful in that case, but worth flagging
    * as stale so they know to re-generate.
    */
-  poolSnapshot: ReadonlySet<string> | null;
+  /** Pool snapshot as tier-keyed map — captures both membership AND tier
+   *  at the moment the run was generated. Used by `isRunStale` so promoting
+   *  a Mid champ to Strong (without ticking new champs) still flags the
+   *  result as stale. */
+  poolSnapshot: ReadonlyMap<string, WarTier> | null;
   floorSnapshot: { rank: number; ascension: string } | null;
 };
 
@@ -135,7 +145,7 @@ export function WarPlanner({ champions }: { champions: Champion[] }) {
   useEffect(() => {
     const loaded = loadWarConfig();
     setConfig(loaded);
-    setPoolExpanded(loaded.pool.length === 0);
+    setPoolExpanded(poolSize(loaded.pool) === 0);
   }, []);
 
   // ?pool=<id> → fetch shared pool, banner offers import.
@@ -268,7 +278,7 @@ export function WarPlanner({ champions }: { champions: Champion[] }) {
       }),
     );
 
-    const poolSnapshot: ReadonlySet<string> = new Set(config.pool);
+    const poolSnapshot = poolToTierMap(config.pool);
     const floorSnapshot = {
       rank: config.floor.rank,
       ascension: config.floor.ascension,
@@ -379,11 +389,13 @@ export function WarPlanner({ champions }: { champions: Champion[] }) {
   // Cross-BG dup detection: any URLs that appear in more than one BG?
   const dupUrls = findDuplicateUrls(config.bgs);
 
-  const poolSet = new Set(config.pool);
+  const poolIds = poolIdSet(config.pool);
+  const totalPoolSize = poolSize(config.pool);
   const activeRun = runs[activeBg];
   const activeBgRows = config.bgs[activeBg];
   const hasActiveUrls = activeBgRows.some((p) => p.url.trim().length > 0);
-  const canProcessActive = hasActiveUrls && poolSet.size > 0 && running === null;
+  const canProcessActive =
+    hasActiveUrls && totalPoolSize > 0 && running === null;
 
   return (
     <div className="space-y-10">
@@ -404,7 +416,7 @@ export function WarPlanner({ champions }: { champions: Champion[] }) {
               : config.bgs;
             updateConfig({
               ...config,
-              pool: [...payload.pool].sort(),
+              pool: payload.pool,
               floor: payload.floor,
               bgs: nextBgs,
             });
@@ -443,7 +455,7 @@ export function WarPlanner({ champions }: { champions: Champion[] }) {
               Saved locally; collapses to a single line once filled.
             </p>
           </div>
-          {poolSet.size > 0 && (
+          {totalPoolSize > 0 && (
             <button
               type="button"
               onClick={() => setShareOpen(true)}
@@ -456,10 +468,8 @@ export function WarPlanner({ champions }: { champions: Champion[] }) {
         </div>
         <WarPoolTickbox
           champions={champions}
-          selected={poolSet}
-          onChange={(next) =>
-            updateConfig({ ...config, pool: [...next].sort() })
-          }
+          pool={config.pool}
+          onChange={(next) => updateConfig({ ...config, pool: next })}
           expanded={poolExpanded}
           onToggleExpanded={() => setPoolExpanded((v) => !v)}
         />
@@ -569,7 +579,7 @@ export function WarPlanner({ champions }: { champions: Champion[] }) {
               Paste at least one share URL above.
             </p>
           )}
-          {hasActiveUrls && poolSet.size === 0 && (
+          {hasActiveUrls && totalPoolSize === 0 && (
             <p className="text-xs text-[var(--color-marvel-impact)]">
               Tick at least one champion in your defender pool.
             </p>
@@ -610,14 +620,17 @@ export function WarPlanner({ champions }: { champions: Champion[] }) {
         {activeRun.result && activeRun.rosters.size > 0 && (
           <WarPoolCoverage
             champions={champions}
-            pool={poolSet}
+            pool={config.pool}
             floor={config.floor}
             rosters={[...activeRun.rosters.values()]}
             onAddToPool={(championId) => {
-              if (poolSet.has(championId)) return;
+              if (poolIds.has(championId)) return;
+              // Default tier when added from the coverage panel: Mid.
+              // Officer can re-tier from the tickbox grid if it's actually
+              // a meta defender or a diversity-only pick.
               updateConfig({
                 ...config,
-                pool: [...config.pool, championId].sort(),
+                pool: setPoolTier(config.pool, championId, 'mid'),
               });
             }}
           />
@@ -649,9 +662,10 @@ function isRunStale(run: BgRunState, config: WarConfig): boolean {
   ) {
     return true;
   }
-  if (run.poolSnapshot.size !== config.pool.length) return true;
-  for (const id of config.pool) {
-    if (!run.poolSnapshot.has(id)) return true;
+  const currentTierMap = poolToTierMap(config.pool);
+  if (run.poolSnapshot.size !== currentTierMap.size) return true;
+  for (const [id, tier] of currentTierMap) {
+    if (run.poolSnapshot.get(id) !== tier) return true;
   }
   return false;
 }
@@ -797,7 +811,10 @@ function InboundPoolBanner({
             </span>
           )}
           <span className="text-[var(--color-ink-soft)]">
-            {' '}— {payload.pool.length} champions, floor R{payload.floor.rank}
+            {' '}— {poolSize(payload.pool)} champions ({payload.pool.strong.length}S
+            {' / '}
+            {payload.pool.mid.length}M / {payload.pool.base.length}B), floor R
+            {payload.floor.rank}
             {totalBgPlayers > 0 && (
               <> · {totalBgPlayers} BG roster URL{totalBgPlayers === 1 ? '' : 's'} bundled</>
             )}

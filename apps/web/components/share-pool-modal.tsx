@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import type { Ascension, Rank } from '@prestige-tools/engine';
 import { createSharedPool } from '../lib/share-pool-client';
-import type { WarPlayerInput } from '../lib/war-storage';
+import { poolSize, type WarPlayerInput, type WarPool } from '../lib/war-storage';
 
 type ShareModalState =
   | { phase: 'form' }
@@ -14,7 +14,7 @@ type ShareModalState =
 type Props = {
   open: boolean;
   onClose: () => void;
-  pool: string[];
+  pool: WarPool;
   floor: { rank: Rank; ascension: Ascension };
   /** Three BG roster-paste lists — bundled into the share when non-empty. */
   bgs?: WarPlayerInput[][];
@@ -109,9 +109,10 @@ export function SharePoolModal({ open, onClose, pool, floor, bgs }: Props) {
         {state.phase === 'form' && (
           <div className="space-y-4">
             <p className="text-sm text-[var(--color-ink-soft)]">
-              Generate a link that loads your defender pool ({pool.length}{' '}
-              champions) and minimum-rank floor ({`R${floor.rank}`}) into
-              the war planner.{' '}
+              Generate a link that loads your defender pool ({poolSize(pool)}{' '}
+              champions — {pool.strong.length}S / {pool.mid.length}M /{' '}
+              {pool.base.length}B) and minimum-rank floor ({`R${floor.rank}`})
+              into the war planner.{' '}
               {totalBgPlayers > 0 ? (
                 <>
                   Also bundling the share URLs you&apos;ve pasted into BG1/2/3
@@ -156,7 +157,7 @@ export function SharePoolModal({ open, onClose, pool, floor, bgs }: Props) {
               <button
                 type="button"
                 onClick={handleGenerate}
-                disabled={pool.length === 0}
+                disabled={poolSize(pool) === 0}
                 className="px-4 py-2 bg-[var(--color-marvel-impact)] text-[var(--color-paper)] font-medium rounded hover:bg-[var(--color-marvel-editorial)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Generate share link
