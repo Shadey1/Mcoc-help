@@ -1,6 +1,13 @@
+'use client';
+
+import { useMemo, useState } from 'react';
 import {
   assignmentStateScore,
+  effectiveRank,
+  type Ascension,
   type Champion,
+  type ChampionState,
+  type Rank,
   type WarAssignment,
   type WarResult,
 } from '@prestige-tools/engine';
@@ -23,11 +30,37 @@ export function WarPlacementTable({
   result,
   championLookup,
   slotsPerPlayer,
+  playerRosters,
+  floor,
+  onSwap,
 }: {
   result: WarResult;
   championLookup: Map<string, Champion>;
   slotsPerPlayer: number;
+  /** Per-player roster lookup. Enables officer-driven manual swaps when set. */
+  playerRosters?: Map<string, ChampionState[]>;
+  /** Floor for swap eligibility — must match what produced `result`. */
+  floor?: { rank: Rank; ascension: Ascension };
+  /** Called when an officer swaps one of a player's placements for another
+   *  champion from that player's roster. Required for manual editing. */
+  onSwap?: (
+    playerId: string,
+    replacedChampionId: string,
+    newState: ChampionState,
+  ) => void;
 }) {
+  const editable = Boolean(onSwap && playerRosters && floor);
+  const [editingPlayerId, setEditingPlayerId] = useState<string | null>(null);
+  const floorTier = floor ? effectiveRank(floor.rank, floor.ascension) : 0;
+
+  // championIds occupying a slot in this BG — any swap candidate must NOT be
+  // in this set (except the slot being swapped out, handled per-cell).
+  const placedChampionIds = useMemo(() => {
+    const s = new Set<string>();
+    for (const a of result.assignments) s.add(a.championId);
+    return s;
+  }, [result.assignments]);
+
   // Group assignments by playerId. Engine already sorts them within-player by
   // state desc, so we can use the order as-is.
   const byPlayer = new Map<string, WarAssignment[]>();
@@ -138,6 +171,22 @@ export function WarPlacementTable({
                     >
                       {placements.length}/{slotsPerPlayer}
                     </div>
+                    {editable && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setEditingPlayerId((cur) => (cur === pid ? null : pid))
+                        }
+                        className="text-[11px] text-[var(--color-ink-soft)] hover:text-[var(--color-marvel-impact)] underline mt-1"
+                        title={
+                          editingPlayerId === pid
+                            ? 'Stop editing this row'
+                            : 'Swap in a different champion from this player’s roster'
+                        }
+                      >
+                        {editingPlayerId === pid ? 'done' : 'edit'}
+                      </button>
+                    )}
                   </td>
                   {Array.from({ length: slotsPerPlayer }, (_, i) => {
                     const a = placements[i];
@@ -153,6 +202,54 @@ export function WarPlacementTable({
                     }
                     const c = championLookup.get(a.championId);
                     const champName = c?.name ?? a.championId;
+                    const isEditingThisRow = editable && editingPlayerId === pid;
+                    if (isEditingThisRow) {
+                      const eligible = eligibleSwapsFor(
+                        pid,
+                        a.championId,
+                        playerRosters,
+                        placedChampionIds,
+                        floorTier,
+                      );
+                      return (
+                        <td
+                          key={i}
+                          className="px-2 py-3 align-top max-w-[11rem]"
+                        >
+                          <select
+                            value={a.championId}
+                            onChange={(e) => {
+                              const next = eligible.find(
+                                (s) => s.championId === e.target.value,
+                              );
+                              if (next && onSwap) {
+                                onSwap(pid, a.championId, next);
+                              }
+                            }}
+                            className="w-full text-sm border border-[var(--color-rule)] rounded px-2 py-1.5 bg-[var(--color-paper)] focus:outline-none focus:border-[var(--color-marvel-impact)]"
+                            title="Swap this slot for another champion in this player’s roster"
+                          >
+                            <option value={a.championId}>
+                              {champName} — R{a.rank} {a.ascension}
+                              {a.sig > 0 ? ` · sig ${a.sig}` : ''}
+                            </option>
+                            {eligible.map((state) => {
+                              const oc = championLookup.get(state.championId);
+                              const oname = oc?.name ?? state.championId;
+                              return (
+                                <option
+                                  key={state.championId}
+                                  value={state.championId}
+                                >
+                                  {oname} — R{state.rank} {state.ascension}
+                                  {state.sig > 0 ? ` · sig ${state.sig}` : ''}
+                                </option>
+                              );
+                            })}
+                          </select>
+                        </td>
+                      );
+                    }
                     return (
                       <td
                         key={i}
@@ -201,4 +298,36 @@ export function WarPlacementTable({
       )}
     </div>
   );
+}
+
+/**
+ * Eligible swap targets for one slot: champs in the given player's roster at
+ * ≥ floor, excluding everything already placed in this BG (except the slot
+ * being swapped out itself, which is implicitly excluded by `championId !==
+ * currentChampionId` since `placedChampionIds` contains it). Sorted by
+ * effective tier desc, then name asc — strongest options first.
+ */
+function eligibleSwapsFor(
+  playerId: string,
+  currentChampionId: string,
+  playerRosters: Map<string, ChampionState[]> | undefined,
+  placedChampionIds: ReadonlySet<string>,
+  floorTier: number,
+): ChampionState[] {
+  const roster = playerRosters?.get(playerId);
+  if (!roster) return [];
+  const list = roster.filter((s) => {
+    if (s.championId === currentChampionId) return false;
+    if (placedChampionIds.has(s.championId)) return false;
+    if (effectiveRank(s.rank, s.ascension) < floorTier) return false;
+    return true;
+  });
+  list.sort((a, b) => {
+    const at = effectiveRank(a.rank, a.ascension);
+    const bt = effectiveRank(b.rank, b.ascension);
+    if (at !== bt) return bt - at;
+    if (a.sig !== b.sig) return b.sig - a.sig;
+    return a.championId.localeCompare(b.championId);
+  });
+  return list;
 }

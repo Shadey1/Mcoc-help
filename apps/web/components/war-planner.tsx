@@ -55,8 +55,8 @@ type FloorOption = {
   label: string;
 };
 const FLOOR_OPTIONS: ReadonlyArray<FloorOption> = [
-  { value: 't3', rank: 3, ascension: 'A0', label: 'R3 minimum (any rank-3+)' },
-  { value: 't4', rank: 4, ascension: 'A0', label: 'R4 minimum (default)' },
+  { value: 't3', rank: 3, ascension: 'A0', label: 'R3 minimum' },
+  { value: 't4', rank: 4, ascension: 'A0', label: 'R4 minimum' },
   { value: 't5', rank: 4, ascension: 'A1', label: 'R4 A1 / R5 A0 minimum' },
   { value: 't6', rank: 4, ascension: 'A2', label: 'R4 A2 / R5 A1 minimum' },
   { value: 't7', rank: 5, ascension: 'A2', label: 'R5 A2 / R6 A0 minimum' },
@@ -169,6 +169,18 @@ export function WarPlanner({ champions }: { champions: Champion[] }) {
     () => new Map(champions.map((c) => [c.id, c])),
     [champions],
   );
+
+  // playerId → champion roster, for the active BG. Keys mirror the
+  // `bg${bg}-slot-${idx}` convention used when building WarPlayer entries
+  // in processBg(). Built fresh from the active run's rosters so the manual
+  // swap UI in WarPlacementTable can list each player's eligible swaps.
+  const activePlayerRosters = useMemo(() => {
+    const m = new Map<string, ChampionState[]>();
+    for (const [idx, roster] of runs[activeBg].rosters) {
+      m.set(`bg${activeBg}-slot-${idx}`, roster.champions);
+    }
+    return m;
+  }, [runs, activeBg]);
 
   if (!config || poolExpanded === null) {
     return <div className="text-sm text-[var(--color-ink-soft)] italic">Loading…</div>;
@@ -294,6 +306,47 @@ export function WarPlanner({ champions }: { champions: Champion[] }) {
       },
     }));
     setRunning(null);
+  }
+
+  /**
+   * Officer-driven manual swap: replace one of a player's placed champions
+   * with a different one from the same player's roster. Conflict-prevention
+   * happens upstream — the WarPlacementTable picker only surfaces champs
+   * that aren't already placed elsewhere in this BG — so we can mutate the
+   * matching assignment in place without any further checks.
+   *
+   * Overrides live only in the in-memory run state; the next Generate wipes
+   * them. That's intentional — manual swaps are last-mile tweaks on top of
+   * the algorithm, not a parallel planning surface.
+   */
+  function swapAssignment(
+    bg: BgIndex,
+    playerId: string,
+    replacedChampionId: string,
+    newState: ChampionState,
+  ) {
+    setRuns((prev) => {
+      const run = prev[bg];
+      if (!run.result) return prev;
+      const nextAssignments = run.result.assignments.map((a) =>
+        a.playerId === playerId && a.championId === replacedChampionId
+          ? {
+              ...a,
+              championId: newState.championId,
+              rank: newState.rank,
+              ascension: newState.ascension,
+              sig: newState.sig,
+            }
+          : a,
+      );
+      return {
+        ...prev,
+        [bg]: {
+          ...run,
+          result: { ...run.result, assignments: nextAssignments },
+        },
+      };
+    });
   }
 
   function copyFromBg(source: BgIndex, target: BgIndex) {
@@ -545,6 +598,11 @@ export function WarPlanner({ champions }: { champions: Champion[] }) {
               result={activeRun.result}
               championLookup={championLookup}
               slotsPerPlayer={5}
+              playerRosters={activePlayerRosters}
+              floor={config.floor}
+              onSwap={(playerId, replacedChampionId, newState) =>
+                swapAssignment(activeBg, playerId, replacedChampionId, newState)
+              }
             />
           </>
         )}
