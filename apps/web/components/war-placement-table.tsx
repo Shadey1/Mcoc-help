@@ -230,6 +230,13 @@ export function WarPlacementTable({
                             className="block w-full text-sm border border-[var(--color-rule)] rounded px-2 py-1.5 bg-[var(--color-paper)] focus:outline-none focus:border-[var(--color-marvel-impact)] truncate"
                             title={closedLabel}
                           >
+                            {/* Currently-selected option gets the short label
+                                so the closed display stays compact. Every
+                                other option gets the full rank/asc/sig
+                                breakdown so the open list is informative. On
+                                swap, the newly-picked champ becomes the
+                                selected one and instantly re-renders with
+                                the short label. */}
                             <option value={a.championId}>{closedLabel}</option>
                             {eligible.map((state) => {
                               const oc = championLookup.get(state.championId);
@@ -239,7 +246,8 @@ export function WarPlacementTable({
                                   key={state.championId}
                                   value={state.championId}
                                 >
-                                  {oname} · R{state.rank}{state.ascension}
+                                  {oname} — R{state.rank} {state.ascension}
+                                  {state.sig > 0 ? ` · sig ${state.sig}` : ''}
                                 </option>
                               );
                             })}
