@@ -211,6 +211,7 @@ export function WarPlacementTable({
                         placedChampionIds,
                         floorTier,
                       );
+                      const closedLabel = `${champName} · R${a.rank}${a.ascension}`;
                       return (
                         <td
                           key={i}
@@ -226,13 +227,10 @@ export function WarPlacementTable({
                                 onSwap(pid, a.championId, next);
                               }
                             }}
-                            className="w-full text-sm border border-[var(--color-rule)] rounded px-2 py-1.5 bg-[var(--color-paper)] focus:outline-none focus:border-[var(--color-marvel-impact)]"
-                            title="Swap this slot for another champion in this player’s roster"
+                            className="block w-full text-sm border border-[var(--color-rule)] rounded px-2 py-1.5 bg-[var(--color-paper)] focus:outline-none focus:border-[var(--color-marvel-impact)] truncate"
+                            title={closedLabel}
                           >
-                            <option value={a.championId}>
-                              {champName} — R{a.rank} {a.ascension}
-                              {a.sig > 0 ? ` · sig ${a.sig}` : ''}
-                            </option>
+                            <option value={a.championId}>{closedLabel}</option>
                             {eligible.map((state) => {
                               const oc = championLookup.get(state.championId);
                               const oname = oc?.name ?? state.championId;
@@ -241,8 +239,7 @@ export function WarPlacementTable({
                                   key={state.championId}
                                   value={state.championId}
                                 >
-                                  {oname} — R{state.rank} {state.ascension}
-                                  {state.sig > 0 ? ` · sig ${state.sig}` : ''}
+                                  {oname} · R{state.rank}{state.ascension}
                                 </option>
                               );
                             })}
