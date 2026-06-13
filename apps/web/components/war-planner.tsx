@@ -27,6 +27,7 @@ import {
 } from '../lib/war-storage';
 import { fetchShare } from '../lib/share-client';
 import { fetchSharedPool, type SharedPoolPayload } from '../lib/share-pool-client';
+import { createSharedBg, fetchSharedBg } from '../lib/share-bg-client';
 import { WarPoolTickbox } from './war-pool-tickbox';
 import {
   WarShareInput,
@@ -165,12 +166,26 @@ export function WarPlanner({ champions }: { champions: Champion[] }) {
       );
   }, []);
 
-  // ?bg=<encoded> → decode and offer import into the active tab.
+  // ?bg=<id-or-encoded> → decode and offer import into the active tab.
+  // Short 8-char alphanumeric tokens are server-side share IDs; anything
+  // else is treated as a legacy inline base64 payload for backwards-compat
+  // with shares created before the KV-backed endpoint shipped.
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const params = new URLSearchParams(window.location.search);
     const bg = params.get('bg');
     if (!bg) return;
+    if (/^[A-Za-z0-9]{8}$/.test(bg)) {
+      fetchSharedBg(bg)
+        .then((payload) => {
+          if (payload.rows.length > 0) setInboundBg(payload.rows);
+        })
+        .catch(() => {
+          // Silent — there's no surface for a BG-load error and the user
+          // can still paste rows manually.
+        });
+      return;
+    }
     const rows = decodeBgShare(bg);
     if (rows && rows.length > 0) setInboundBg(rows);
   }, []);
@@ -375,8 +390,18 @@ export function WarPlanner({ champions }: { champions: Champion[] }) {
       setTimeout(() => setBgShareToast(null), 3500);
       return;
     }
-    const encoded = encodeBgShare(rows);
-    const url = `${window.location.origin}/war/?bg=${encoded}`;
+
+    // Try the short server-side share first. Falls back to the inline
+    // base64 URL if the API isn't reachable (local dev, KV outage, etc).
+    let url: string;
+    try {
+      const { id } = await createSharedBg(rows, BG_LABELS[bg]);
+      url = `${window.location.origin}/war/?bg=${id}`;
+    } catch {
+      const encoded = encodeBgShare(rows);
+      url = `${window.location.origin}/war/?bg=${encoded}`;
+    }
+
     try {
       await navigator.clipboard.writeText(url);
       setBgShareToast(`${BG_LABELS[bg]} share link copied (${rows.length} players)`);
