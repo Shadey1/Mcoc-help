@@ -1,10 +1,14 @@
 'use client';
 
-import type { WarPlayerInput } from './war-storage';
+import type { Ascension, Rank } from '@prestige-tools/engine';
+import type { WarPlayerInput, WarPool } from './war-storage';
 
 export type SharedBgPayload = {
   label: string | null;
   rows: WarPlayerInput[];
+  /** Optional — present when the share bundles the defender pool. */
+  pool?: WarPool;
+  floor?: { rank: Rank; ascension: Ascension };
   createdAt: string;
   expiresAt: string;
 };
@@ -20,22 +24,38 @@ export type CreateBgResponse = {
  * short 8-char id and a delete token. The id round-trips into the URL
  * as /war/?bg=<id>, which is dramatically shorter than the inline
  * base64 payload it replaces.
+ *
+ * Pool + floor are bundled into the same blob so the recipient gets
+ * a complete war snapshot, not just BG roster URLs. Both must be
+ * provided together — passing only one is a server-side error.
  */
 export async function createSharedBg(
   rows: WarPlayerInput[],
-  label?: string,
+  options?: {
+    label?: string;
+    pool?: WarPool;
+    floor?: { rank: Rank; ascension: Ascension };
+  },
 ): Promise<CreateBgResponse> {
   const trimmed = rows.filter((r) => r.url.trim().length > 0);
   if (trimmed.length === 0) {
     throw new Error('No rows to share — add at least one share URL.');
   }
 
+  const poolTotal = options?.pool
+    ? options.pool.strong.length +
+      options.pool.mid.length +
+      options.pool.base.length
+    : 0;
+  const includePool = poolTotal > 0 && !!options?.floor;
+
   const res = await fetch('/api/share-bg', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({
       rows: trimmed,
-      ...(label ? { label } : {}),
+      ...(options?.label ? { label: options.label } : {}),
+      ...(includePool ? { pool: options!.pool, floor: options!.floor } : {}),
       website: '',
     }),
   });

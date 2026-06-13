@@ -179,6 +179,19 @@ export function WarPlanner({ champions }: { champions: Champion[] }) {
       fetchSharedBg(bg)
         .then((payload) => {
           if (payload.rows.length > 0) setInboundBg(payload.rows);
+          // BG shares bundle pool+floor when the sharer had them set.
+          // Surface the same banner used by /war/?pool=<id> so the
+          // recipient can adopt the alliance defender list in one click.
+          if (payload.pool && payload.floor) {
+            const synth: SharedPoolPayload = {
+              label: payload.label,
+              pool: payload.pool,
+              floor: payload.floor,
+              createdAt: payload.createdAt,
+              expiresAt: payload.expiresAt,
+            };
+            setInboundPool({ kind: 'ready', payload: synth, id: bg });
+          }
         })
         .catch(() => {
           // Silent — there's no surface for a BG-load error and the user
@@ -391,11 +404,17 @@ export function WarPlanner({ champions }: { champions: Champion[] }) {
       return;
     }
 
-    // Try the short server-side share first. Falls back to the inline
-    // base64 URL if the API isn't reachable (local dev, KV outage, etc).
+    // Try the short server-side share first. Bundles the current pool +
+    // floor so the recipient gets the full snapshot, not just BG roster
+    // URLs. Falls back to inline base64 (rows-only) if the API isn't
+    // reachable — pool can't ride along in the legacy fallback.
     let url: string;
     try {
-      const { id } = await createSharedBg(rows, BG_LABELS[bg]);
+      const { id } = await createSharedBg(rows, {
+        label: BG_LABELS[bg],
+        pool: config.pool,
+        floor: config.floor,
+      });
       url = `${window.location.origin}/war/?bg=${id}`;
     } catch {
       const encoded = encodeBgShare(rows);

@@ -28,17 +28,30 @@ const DELETE_TOKEN_LENGTH = 16;
 const RATE_LIMIT_HOUR = 20;
 const RATE_LIMIT_DAY = 200;
 
+const VALID_RANKS = new Set([3, 4, 5, 6]);
+const VALID_ASCENSIONS = new Set(['A0', 'A1', 'A2']);
+const MAX_CHAMPION_ID_LEN = 200;
+const MAX_POOL_SIZE = 500;
+
+type FloorRank = 3 | 4 | 5 | 6;
+type FloorAsc = 'A0' | 'A1' | 'A2';
 type BgRow = { url: string; name: string };
+type TieredPool = { strong: string[]; mid: string[]; base: string[] };
 
 type BgPayload = {
   label?: string;
   rows: BgRow[];
+  /** Optional — when present, the recipient also gets a pool import offer. */
+  pool?: TieredPool;
+  floor?: { rank: FloorRank; ascension: FloorAsc };
   website?: string;
 };
 
 type StoredBg = {
   label: string | null;
   rows: BgRow[];
+  pool?: TieredPool;
+  floor?: { rank: FloorRank; ascension: FloorAsc };
   createdAt: string;
   expiresAt: string;
   deleteToken: string;
@@ -106,9 +119,66 @@ function validatePayload(raw: unknown): BgPayload | { error: string } {
     cleanRows.push({ url: row.url, name: row.name });
   }
 
+  // Optional pool — same shape as /api/share-pool. Both pool and floor
+  // must be provided together (a pool without a floor is useless).
+  let tieredPool: TieredPool | undefined;
+  if (obj.pool !== undefined) {
+    if (!obj.pool || typeof obj.pool !== 'object' || Array.isArray(obj.pool)) {
+      return { error: 'pool must be an object with strong/mid/base arrays' };
+    }
+    const poolObj = obj.pool as Record<string, unknown>;
+    tieredPool = { strong: [], mid: [], base: [] };
+    for (const tier of ['strong', 'mid', 'base'] as const) {
+      const raw = poolObj[tier];
+      if (raw === undefined) continue;
+      if (!Array.isArray(raw)) {
+        return { error: `pool.${tier} must be an array of champion ids` };
+      }
+      for (let i = 0; i < raw.length; i++) {
+        const c = raw[i];
+        if (typeof c !== 'string' || c.length === 0) {
+          return { error: `pool.${tier}[${i}] must be a non-empty string` };
+        }
+        if (c.length > MAX_CHAMPION_ID_LEN) {
+          return { error: `pool.${tier}[${i}] too long` };
+        }
+        tieredPool[tier].push(c);
+      }
+    }
+    const total =
+      tieredPool.strong.length + tieredPool.mid.length + tieredPool.base.length;
+    if (total > MAX_POOL_SIZE) {
+      return { error: `pool too large (max ${MAX_POOL_SIZE})` };
+    }
+    // Empty pool is fine here — we'll just drop it on storage so the
+    // recipient doesn't get an empty-pool import offer.
+    if (total === 0) tieredPool = undefined;
+  }
+
+  let floor: { rank: FloorRank; ascension: FloorAsc } | undefined;
+  if (obj.floor !== undefined) {
+    const f = obj.floor as Record<string, unknown> | null;
+    if (!f || typeof f !== 'object') {
+      return { error: 'floor must be an object' };
+    }
+    if (typeof f.rank !== 'number' || !VALID_RANKS.has(f.rank)) {
+      return { error: 'floor.rank must be 3, 4, 5, or 6' };
+    }
+    if (typeof f.ascension !== 'string' || !VALID_ASCENSIONS.has(f.ascension)) {
+      return { error: 'floor.ascension must be A0, A1, or A2' };
+    }
+    floor = { rank: f.rank as FloorRank, ascension: f.ascension as FloorAsc };
+  }
+
+  if ((tieredPool && !floor) || (!tieredPool && floor)) {
+    return { error: 'pool and floor must be provided together' };
+  }
+
   return {
     label: typeof obj.label === 'string' ? obj.label : undefined,
     rows: cleanRows,
+    pool: tieredPool,
+    floor,
   };
 }
 
@@ -178,6 +248,8 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   const stored: StoredBg = {
     label: result.label ?? null,
     rows: result.rows,
+    pool: result.pool,
+    floor: result.floor,
     createdAt: now.toISOString(),
     expiresAt: expiresAt.toISOString(),
     deleteToken,
