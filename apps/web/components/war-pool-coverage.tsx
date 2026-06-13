@@ -47,6 +47,8 @@ type WarPoolCoverageProps = {
 
 const MAX_SUGGESTIONS_VISIBLE = 20;
 
+type SuggestionSort = 'most' | 'least';
+
 export function WarPoolCoverage({
   champions,
   pool,
@@ -55,6 +57,7 @@ export function WarPoolCoverage({
   onAddToPool,
 }: WarPoolCoverageProps) {
   const [expandAll, setExpandAll] = useState(false);
+  const [sortBy, setSortBy] = useState<SuggestionSort>('most');
 
   const floorTier = effectiveRank(floor.rank, floor.ascension);
   const championLookup = useMemo(
@@ -108,14 +111,23 @@ export function WarPoolCoverage({
       if (poolIds.has(championId)) continue;
       list.push({ championId, ownerCount: count });
     }
+    // 'most' surfaces high-coverage candidates first (the obvious adds).
+    // 'least' surfaces rare champs first — the case where one player has
+    // a niche meta defender (Punisher, etc.) that gets buried under the
+    // 20-tile cap when sorted by ownership desc.
+    const ownerOrder =
+      sortBy === 'most'
+        ? (a: number, b: number) => b - a
+        : (a: number, b: number) => a - b;
     list.sort((a, b) => {
-      if (a.ownerCount !== b.ownerCount) return b.ownerCount - a.ownerCount;
+      if (a.ownerCount !== b.ownerCount)
+        return ownerOrder(a.ownerCount, b.ownerCount);
       const an = championLookup.get(a.championId)?.name ?? a.championId;
       const bn = championLookup.get(b.championId)?.name ?? b.championId;
       return an.localeCompare(bn);
     });
     return list;
-  }, [ownerCount, poolIds, championLookup]);
+  }, [ownerCount, poolIds, championLookup, sortBy]);
 
   if (rosters.length === 0) return null;
 
@@ -163,17 +175,37 @@ export function WarPoolCoverage({
                 BG but not in your pool)
               </span>
             </div>
-            {suggestions.length > MAX_SUGGESTIONS_VISIBLE && (
-              <button
-                type="button"
-                onClick={() => setExpandAll((v) => !v)}
-                className="text-xs text-[var(--color-ink-soft)] underline hover:text-[var(--color-marvel-impact)]"
+            <div className="flex items-center gap-3 text-xs">
+              <div
+                role="tablist"
+                aria-label="Sort suggestions"
+                className="inline-flex border border-[var(--color-rule)] rounded overflow-hidden"
               >
-                {expandAll
-                  ? `Show top ${MAX_SUGGESTIONS_VISIBLE}`
-                  : `Show all ${suggestions.length}`}
-              </button>
-            )}
+                <SortToggle
+                  active={sortBy === 'most'}
+                  onClick={() => setSortBy('most')}
+                  label="Most owned"
+                  title="Surface widely-owned champs first — the obvious adds"
+                />
+                <SortToggle
+                  active={sortBy === 'least'}
+                  onClick={() => setSortBy('least')}
+                  label="Rarest first"
+                  title="Surface niche picks first — the 1-owner meta defenders that get buried"
+                />
+              </div>
+              {suggestions.length > MAX_SUGGESTIONS_VISIBLE && (
+                <button
+                  type="button"
+                  onClick={() => setExpandAll((v) => !v)}
+                  className="text-[var(--color-ink-soft)] underline hover:text-[var(--color-marvel-impact)]"
+                >
+                  {expandAll
+                    ? `Show top ${MAX_SUGGESTIONS_VISIBLE}`
+                    : `Show all ${suggestions.length}`}
+                </button>
+              )}
+            </div>
           </div>
           <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-3">
             {visible.map((s) => {
@@ -221,6 +253,35 @@ export function WarPoolCoverage({
         </div>
       )}
     </section>
+  );
+}
+
+function SortToggle({
+  active,
+  onClick,
+  label,
+  title,
+}: {
+  active: boolean;
+  onClick: () => void;
+  label: string;
+  title: string;
+}) {
+  return (
+    <button
+      type="button"
+      role="tab"
+      aria-selected={active}
+      onClick={onClick}
+      title={title}
+      className={`px-2 py-1 transition-colors ${
+        active
+          ? 'bg-[var(--color-ink)] text-[var(--color-paper)]'
+          : 'text-[var(--color-ink-soft)] hover:text-[var(--color-ink)] hover:bg-[var(--color-paper-soft)]'
+      }`}
+    >
+      {label}
+    </button>
   );
 }
 
