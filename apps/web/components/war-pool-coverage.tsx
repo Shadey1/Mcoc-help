@@ -7,6 +7,7 @@ import {
   type Champion,
   type ChampionState,
   type Rank,
+  type WarTier,
 } from '@prestige-tools/engine';
 import { ChampionPortrait } from './champion-portrait';
 import { poolIdSet, poolSize, type WarPool } from '../lib/war-storage';
@@ -40,7 +41,8 @@ type WarPoolCoverageProps = {
   floor: { rank: Rank; ascension: Ascension };
   /** Rosters for every player loaded into the active BG. */
   rosters: Roster[];
-  onAddToPool: (championId: string) => void;
+  /** Add a champion to the pool at the chosen tier. */
+  onAddToPool: (championId: string, tier: WarTier) => void;
 };
 
 const MAX_SUGGESTIONS_VISIBLE = 20;
@@ -198,14 +200,20 @@ export function WarPoolCoverage({
                       {s.ownerCount} owner{s.ownerCount === 1 ? '' : 's'} at floor
                     </div>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => onAddToPool(s.championId)}
-                    className="text-xs px-3 py-1.5 border border-[var(--color-rule)] rounded hover:bg-[var(--color-paper-soft)] hover:border-[var(--color-marvel-editorial)] transition-colors whitespace-nowrap"
-                    title="Add to defender pool"
-                  >
-                    + Add
-                  </button>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <AddTierButton
+                      tier="strong"
+                      onClick={() => onAddToPool(s.championId, 'strong')}
+                    />
+                    <AddTierButton
+                      tier="mid"
+                      onClick={() => onAddToPool(s.championId, 'mid')}
+                    />
+                    <AddTierButton
+                      tier="base"
+                      onClick={() => onAddToPool(s.championId, 'base')}
+                    />
+                  </div>
                 </li>
               );
             })}
@@ -213,6 +221,48 @@ export function WarPoolCoverage({
         </div>
       )}
     </section>
+  );
+}
+
+/**
+ * One-letter add button. Clicking promotes a suggestion straight to its
+ * intended tier — saves the officer a trip back to the tickbox grid to
+ * re-tier every newly-added champ.
+ */
+const ADD_TIER_LABEL: Record<WarTier, string> = {
+  strong: 'S',
+  mid: 'M',
+  base: 'B',
+};
+const ADD_TIER_TITLE: Record<WarTier, string> = {
+  strong: 'Add as Strong — must-place meta defender',
+  mid: 'Add as Mid — preferred fill',
+  base: 'Add as Base — diversity gap-filler',
+};
+const ADD_TIER_CLASS: Record<WarTier, string> = {
+  strong:
+    'border-[var(--color-marvel-impact)]/40 text-[var(--color-marvel-impact)] hover:bg-[var(--color-marvel-impact)] hover:text-white',
+  mid: 'border-[var(--color-rule)] text-[var(--color-ink)] hover:bg-[var(--color-ink)] hover:text-[var(--color-paper)]',
+  base: 'border-[var(--color-rule)] text-[var(--color-ink-soft)] hover:bg-[var(--color-ink-soft)] hover:text-[var(--color-paper)]',
+};
+
+function AddTierButton({
+  tier,
+  onClick,
+}: {
+  tier: WarTier;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={ADD_TIER_TITLE[tier]}
+      aria-label={ADD_TIER_TITLE[tier]}
+      className={`w-7 h-7 text-xs font-medium border rounded transition-colors ${ADD_TIER_CLASS[tier]}`}
+    >
+      {ADD_TIER_LABEL[tier]}
+    </button>
   );
 }
 

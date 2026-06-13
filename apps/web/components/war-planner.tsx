@@ -623,14 +623,11 @@ export function WarPlanner({ champions }: { champions: Champion[] }) {
             pool={config.pool}
             floor={config.floor}
             rosters={[...activeRun.rosters.values()]}
-            onAddToPool={(championId) => {
+            onAddToPool={(championId, tier) => {
               if (poolIds.has(championId)) return;
-              // Default tier when added from the coverage panel: Mid.
-              // Officer can re-tier from the tickbox grid if it's actually
-              // a meta defender or a diversity-only pick.
               updateConfig({
                 ...config,
-                pool: setPoolTier(config.pool, championId, 'mid'),
+                pool: setPoolTier(config.pool, championId, tier),
               });
             }}
           />

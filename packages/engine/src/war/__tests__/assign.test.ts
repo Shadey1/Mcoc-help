@@ -706,6 +706,129 @@ describe('assignWar — power-first greedy placement', () => {
     expect(placed.has('hercules')).toBe(true);
   });
 
+  it('realistic 10-player war: 8 strong + 30 mid + 20 base, 50 slots', () => {
+    // Models a realistic alliance: 8 meta defenders that everyone has
+    // at high state, 30 mid champs spread across rosters with partial
+    // overlap, 20 base diversity champs spread thinner. 10 players × 5
+    // slots = 50 placements. Expectations the user cares about:
+    //   - Every Strong defender is placed (8 total — no more, no fewer).
+    //   - The remaining 42 slots fill from Mid first, then Base only if
+    //     Mid runs out for a given player.
+    //   - No champion appears twice.
+    const tiered = new Map<string, 'strong' | 'mid' | 'base'>();
+    const strongIds: string[] = [];
+    for (let i = 0; i < 8; i++) {
+      const id = `strong-${i}`;
+      strongIds.push(id);
+      tiered.set(id, 'strong');
+    }
+    const midIds: string[] = [];
+    for (let i = 0; i < 30; i++) {
+      const id = `mid-${i}`;
+      midIds.push(id);
+      tiered.set(id, 'mid');
+    }
+    const baseIds: string[] = [];
+    for (let i = 0; i < 20; i++) {
+      const id = `base-${i}`;
+      baseIds.push(id);
+      tiered.set(id, 'base');
+    }
+
+    const players: WarPlayer[] = [];
+    for (let p = 0; p < 10; p++) {
+      const roster: ChampionState[] = [];
+      // Everyone owns every Strong at R5 A2 (meta defenders are universal).
+      for (const id of strongIds) roster.push(state(id, 5, 'A2'));
+      // Mid coverage: each player owns half the mids in a rolling window,
+      // so neighbors share half. Across 10 players this gives each mid
+      // 5 owners on average — plenty of redundancy.
+      for (let i = 0; i < 15; i++) {
+        const id = midIds[(p * 3 + i) % 30]!;
+        roster.push(state(id, 5, 'A1'));
+      }
+      // Base coverage: each player owns 5 bases at R4 A0 (floor) in a
+      // narrower rolling window. Average 2.5 owners per base across the
+      // alliance — sparse, which is the point of the Base tier.
+      for (let i = 0; i < 5; i++) {
+        const id = baseIds[(p * 2 + i) % 20]!;
+        roster.push(state(id, 4, 'A0'));
+      }
+      players.push(player(`p${p}`, `player${p}`, roster));
+    }
+
+    const result = assignWar({
+      defenderPool: tiered,
+      floor: { rank: 4, ascension: 'A0' },
+      players,
+      slotsPerPlayer: 5,
+    });
+
+    // 50 placements, all unique.
+    expect(result.totalPlaced).toBe(50);
+    const placedIds = new Set(result.assignments.map((a) => a.championId));
+    expect(placedIds.size).toBe(50);
+
+    // EVERY Strong defender placed. Mandatory tier behavior.
+    for (const id of strongIds) {
+      expect(placedIds.has(id)).toBe(true);
+    }
+
+    // Tier mix: 8 Strong, then Mid fills, then Base fills any gap.
+    const byTier = { strong: 0, mid: 0, base: 0 };
+    for (const a of result.assignments) byTier[a.tier]++;
+    expect(byTier.strong).toBe(8);
+    // Mid placements should dominate the remainder; Base should be the
+    // smallest slice — this is the diversity-filler tier's whole point.
+    expect(byTier.mid).toBeGreaterThan(byTier.base);
+    expect(byTier.strong + byTier.mid + byTier.base).toBe(50);
+  });
+
+  it('over-tagged Strong: 60 Strong champs into 50 slots drops 10', () => {
+    // If the officer over-tags Strong (more Strong champs than slots in
+    // the BG), Kuhn's still maxes out the matching at 50. The 10 Strong
+    // that get dropped are whatever lost the augmenting-path race. The
+    // important property: total stays at 50 and every placement is Strong
+    // (no Mid sneaks in while a Strong sits on the bench).
+    const tiered = new Map<string, 'strong' | 'mid' | 'base'>();
+    const strongIds: string[] = [];
+    for (let i = 0; i < 60; i++) {
+      const id = `s${i.toString().padStart(2, '0')}`;
+      strongIds.push(id);
+      tiered.set(id, 'strong');
+    }
+    tiered.set('mid-distraction', 'mid');
+
+    const players: WarPlayer[] = [];
+    for (let p = 0; p < 10; p++) {
+      const roster: ChampionState[] = [];
+      // Each player owns 12 strong champs in a rolling window so coverage
+      // is dense enough for Kuhn's to find 50 placements.
+      for (let i = 0; i < 12; i++) {
+        const id = strongIds[(p * 6 + i) % 60]!;
+        roster.push(state(id, 5, 'A2'));
+      }
+      // Every player owns the distraction Mid champ — would normally place
+      // easily, but Strong tier dominates so it can't sneak in.
+      roster.push(state('mid-distraction', 5, 'A2'));
+      players.push(player(`p${p}`, `player${p}`, roster));
+    }
+
+    const result = assignWar({
+      defenderPool: tiered,
+      floor: { rank: 4, ascension: 'A0' },
+      players,
+      slotsPerPlayer: 5,
+    });
+
+    expect(result.totalPlaced).toBe(50);
+    // Every single placement is Strong — Mid is locked out.
+    for (const a of result.assignments) expect(a.tier).toBe('strong');
+    // mid-distraction is in the pool but didn't make it in.
+    const placedIds = new Set(result.assignments.map((a) => a.championId));
+    expect(placedIds.has('mid-distraction')).toBe(false);
+  });
+
   it('deterministic: same inputs produce same outputs across runs', () => {
     const input = {
       defenderPool: pool(['a', 'b', 'c', 'd']),
