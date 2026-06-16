@@ -25,9 +25,15 @@ import {
   type WarPlayerInput,
   type WarPool,
 } from '../lib/war-storage';
-import { fetchShare } from '../lib/share-client';
+import {
+  fetchShare,
+  loadLocalShares,
+  touchLocalShareSync,
+  updateShare,
+} from '../lib/share-client';
 import { fetchSharedPool, type SharedPoolPayload } from '../lib/share-pool-client';
 import { createSharedBg, fetchSharedBg } from '../lib/share-bg-client';
+import { loadRoster } from '../lib/roster-storage';
 import { WarPoolTickbox } from './war-pool-tickbox';
 import {
   WarShareInput,
@@ -147,6 +153,45 @@ export function WarPlanner({ champions }: { champions: Champion[] }) {
     const loaded = loadWarConfig();
     setConfig(loaded);
     setPoolExpanded(poolSize(loaded.pool) === 0);
+  }, []);
+
+  // Self-heal: any BG row pointing at a share the user owns locally gets
+  // an immediate PUT with the current roster. Catches the case where a
+  // pending debounce in useLiveShareSync was dropped on /roster unmount
+  // (browser closed, tab switched too fast, etc) and the server is now
+  // stale — without this, /war would happily show a "synced 11d ago"
+  // badge on the owner's own roster.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const config = loadWarConfig();
+    const localShares = loadLocalShares();
+    if (localShares.length === 0) return;
+    const ownTokens = new Map(
+      localShares
+        .filter((e) => e.mode === 'live')
+        .map((e) => [e.id, e.deleteToken] as const),
+    );
+    if (ownTokens.size === 0) return;
+    const roster = loadRoster();
+    if (roster.champions.length === 0) return;
+
+    const ownedIdsInBgs = new Set<string>();
+    for (const bgRows of config.bgs) {
+      for (const row of bgRows) {
+        const id = extractShareId(row.url);
+        if (id && ownTokens.has(id)) ownedIdsInBgs.add(id);
+      }
+    }
+    if (ownedIdsInBgs.size === 0) return;
+
+    for (const id of ownedIdsInBgs) {
+      const token = ownTokens.get(id)!;
+      updateShare(id, token, { champions: roster.champions })
+        .then((res) => touchLocalShareSync(id, res.lastSyncedAt))
+        .catch(() => {
+          // Best-effort — the next /roster edit will retry.
+        });
+    }
   }, []);
 
   // ?pool=<id> → fetch shared pool, banner offers import.
