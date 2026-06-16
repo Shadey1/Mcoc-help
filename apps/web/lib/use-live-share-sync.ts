@@ -53,14 +53,27 @@ export function useLiveShareSync(roster: Roster, hydrated: boolean): void {
       timerRef.current = null;
       void syncAllLiveShares(latestRosterRef.current.champions);
     }, DEBOUNCE_MS);
+    // No cleanup here — re-renders due to roster changes overwrite
+    // timerRef explicitly above. We deliberately don't tear the timer
+    // down on every effect run because the unmount-flush effect below
+    // needs it to survive long enough to fire.
+  }, [roster, hydrated]);
 
+  // Unmount-only flush. If the user edits their roster and navigates
+  // away (e.g. to /war) before the debounce window expires, fire the
+  // pending PUT synchronously instead of dropping it — otherwise the
+  // server stays stale and recipients see "synced N days ago" even
+  // though the owner just saved. Empty deps so this only runs on
+  // mount/unmount, not on each roster change.
+  useEffect(() => {
     return () => {
       if (timerRef.current !== null) {
         window.clearTimeout(timerRef.current);
         timerRef.current = null;
+        void syncAllLiveShares(latestRosterRef.current.champions);
       }
     };
-  }, [roster, hydrated]);
+  }, []);
 }
 
 async function syncAllLiveShares(
