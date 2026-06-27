@@ -26,6 +26,25 @@ export function calculateChampionPrestige(
 }
 
 /**
+ * Sum of the top-30 BHRs — unrounded. The user-facing prestige is the
+ * rounded average of this sum, but the optimiser needs the precise sum
+ * so it can score moves without losing sub-integer differences in the
+ * round trip. Without this, two moves whose precise top30Δ differ by
+ * <0.5 BHR collapse to the same integer score and the alphabetical
+ * tiebreak silently flips them (Attuma 239.33 ties Kindred 240.00 →
+ * Attuma sorts first by name).
+ */
+export function top30Sum(
+  roster: ChampionState[],
+  championLookup: Map<string, Champion>,
+  overrides?: BHROverrideMap,
+): number {
+  const bhrs = computeAllBHRs(roster, championLookup, overrides);
+  const top30 = bhrs.sort((a, b) => b - a).slice(0, 30);
+  return top30.reduce((acc, n) => acc + n, 0);
+}
+
+/**
  * Return the BHR cutoff for the top-30 — i.e. the BHR of the lowest-ranked
  * champion currently in the top-30. Used for "what could displace it?" reasoning.
  *

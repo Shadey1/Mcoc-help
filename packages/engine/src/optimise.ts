@@ -6,7 +6,7 @@ import type {
   ScoredMove,
 } from './types.js';
 import { calculateBHR, RANK_MULT, type BHROverrideMap } from './bhr.js';
-import { calculateChampionPrestige } from './prestige.js';
+import { top30Sum } from './prestige.js';
 import { costGatesFor, statePersistenceNoteFor } from './costs.js';
 
 /**
@@ -143,7 +143,10 @@ export function optimise(
   topN = 10,
   overrides?: BHROverrideMap,
 ): ScoredMove[] {
-  const currentPrestige = calculateChampionPrestige(roster, championLookup, overrides);
+  // Precise top-30 sum (not rounded prestige) so move scores don't lose
+  // sub-integer differences in the round trip. See top30Sum() for the bug
+  // this avoids.
+  const currentSum = top30Sum(roster, championLookup, overrides);
   const moves = enumerateMoves(roster, championLookup);
 
   const scored: ScoredMove[] = moves.map((move) => {
@@ -163,8 +166,8 @@ export function optimise(
     // ceiling for this champ — the rank-up move should reflect that).
     const afterBHR = calculateBHR(champion, stateAfter, overrides);
 
-    const newPrestige = calculateChampionPrestige(newRoster, championLookup, overrides);
-    const top30Delta = newPrestige - currentPrestige;
+    const newSum = top30Sum(newRoster, championLookup, overrides);
+    const top30Delta = (newSum - currentSum) / 30;
 
     return {
       move,
