@@ -58,6 +58,7 @@ export function RosterManager({ champions }: RosterManagerProps) {
   const [sortColumn, setSortColumn] = useState<SortColumn>('currentBHR');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const [unconfirmedOnly, setUnconfirmedOnly] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const [editingChampionId, setEditingChampionId] = useState<string | null>(null);
   const rosterSectionRef = useRef<HTMLElement | null>(null);
   const { overrides } = useBHROverrides();
@@ -230,11 +231,19 @@ export function RosterManager({ champions }: RosterManagerProps) {
     (s) => s.stateConfirmed === false,
   ).length;
 
-  const displayedCeilings = unconfirmedOnly
-    ? sortedCeilings.filter(
-        (e) => stateByChampion.get(e.championId)?.stateConfirmed === false,
-      )
-    : sortedCeilings;
+  const trimmedQuery = searchQuery.trim().toLowerCase();
+  const displayedCeilings = sortedCeilings.filter((e) => {
+    if (
+      unconfirmedOnly &&
+      stateByChampion.get(e.championId)?.stateConfirmed !== false
+    ) {
+      return false;
+    }
+    if (trimmedQuery && !e.championName.toLowerCase().includes(trimmedQuery)) {
+      return false;
+    }
+    return true;
+  });
 
   return (
     <div className="space-y-8">
@@ -382,6 +391,22 @@ export function RosterManager({ champions }: RosterManagerProps) {
             </section>
           )}
 
+          <section className="flex items-center gap-3 flex-wrap">
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search roster…"
+              aria-label="Search your roster by champion name"
+              className="flex-1 min-w-[200px] max-w-md px-3 py-1.5 text-sm border border-[var(--color-rule)] rounded bg-[var(--color-paper)] focus:outline-none focus:border-[var(--color-marvel-impact)]"
+            />
+            {trimmedQuery && (
+              <span className="text-xs text-[var(--color-ink-soft)] numeric">
+                {displayedCeilings.length} of {validRoster.champions.length} match
+              </span>
+            )}
+          </section>
+
           <section className="overflow-x-auto border border-[var(--color-rule)] rounded">
             <table className="w-full text-sm">
               <thead className="bg-[var(--color-paper-soft)] border-b border-[var(--color-rule)]">
@@ -447,6 +472,17 @@ export function RosterManager({ champions }: RosterManagerProps) {
                 </tr>
               </thead>
               <tbody>
+                {displayedCeilings.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan={9}
+                      className="p-6 text-center text-sm text-[var(--color-ink-soft)]"
+                    >
+                      No champions match
+                      {trimmedQuery ? ` "${searchQuery.trim()}"` : ''}.
+                    </td>
+                  </tr>
+                )}
                 {displayedCeilings.map((entry) => {
                   const state = stateByChampion.get(entry.championId);
                   if (!state) return null;

@@ -505,14 +505,43 @@
       "name": "Archangel",
       "class": "Mutant",
       "ascendable": false,
+      "prestige": {
+        "rank5": {
+          "0": 28200,
+          "20": 31260,
+          "40": 32450,
+          "60": 33430,
+          "80": 34310,
+          "100": 35120,
+          "120": 35870,
+          "140": 36580,
+          "160": 37260,
+          "180": 37910,
+          "200": 38540
+        },
+        "rank4": {
+          "0": 23790,
+          "20": 26380,
+          "40": 27380,
+          "60": 28210,
+          "80": 28950,
+          "100": 29630,
+          "120": 30270,
+          "140": 30870,
+          "160": 31440,
+          "180": 31990,
+          "200": 32510
+        }
+      },
       "sigCurve": null,
       "tags": [],
       "_meta": {
-        "bhrSource": "partner-only stub — not yet released at 7★",
-        "lastVerified": "2026-06-10"
+        "bhrSource": "mcoc.gg per-rank curves (R4 + R5 11-anchor, refreshed 2026-06-27)",
+        "ascendableSource": "default non-ascendable; flip when confirmed",
+        "lastVerified": "2026-06-27"
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/6/6d/Archangel_portrait.png/revision/latest/scale-to-width-down/200?cb=20250411023139",
-      "sevenStarReleased": false
+      "sevenStarReleased": true
     },
     {
       "id": "arnim-zola",
@@ -9302,7 +9331,7 @@
       "id": "spider-ham",
       "name": "Spider-Ham",
       "class": "Science",
-      "ascendable": false,
+      "ascendable": true,
       "prestige": {
         "rank5": {
           "0": 29280,
@@ -9335,8 +9364,8 @@
       "tags": [],
       "_meta": {
         "bhrSource": "mcoc.gg per-rank curves (R4 + R5 11-anchor, refreshed 2026-06-03)",
-        "ascendableSource": "non-ascendable per mcoc.gg",
-        "lastVerified": "2026-06-03"
+        "ascendableSource": "ascendable unlocked via 2026-06 sale",
+        "lastVerified": "2026-06-27"
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/5/54/Spider-Ham_portrait.png/revision/latest/scale-to-width-down/200?cb=20230824215544",
       "sevenStarReleased": true
