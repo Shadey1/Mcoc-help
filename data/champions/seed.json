@@ -8458,7 +8458,7 @@
       "id": "scarlet-witch-sigil",
       "name": "Scarlet Witch (Sigil)",
       "class": "Mystic",
-      "ascendable": false,
+      "ascendable": true,
       "prestige": {
         "rank5": {
           "0": 28860,
@@ -8491,8 +8491,8 @@
       "tags": [],
       "_meta": {
         "bhrSource": "mcoc.gg per-rank curves (R4 + R5 11-anchor, refreshed 2026-06-03)",
-        "ascendableSource": "non-ascendable per mcoc.gg",
-        "lastVerified": "2026-06-03"
+        "ascendableSource": "ascendable per ground-truth roster fixture",
+        "lastVerified": "2026-06-29"
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/0/00/Scarlet_Witch_portrait.png/revision/latest/scale-to-width-down/200?cb=20201222212449",
       "sevenStarReleased": true
@@ -11621,7 +11621,7 @@
       "id": "wave",
       "name": "Wave",
       "class": "Science",
-      "ascendable": false,
+      "ascendable": true,
       "prestige": {
         "rank5": {
           "0": 29750,
@@ -11654,7 +11654,8 @@
       "tags": [],
       "_meta": {
         "bhrSource": "mcoc.gg per-rank curves (R4 + R5 11-anchor, refreshed 2026-06-03)",
-        "lastVerified": "2026-06-03"
+        "ascendableSource": "ascendable per ground-truth roster fixture",
+        "lastVerified": "2026-06-29"
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/9/91/Wave_portrait.png/revision/latest/scale-to-width-down/200?cb=20260504222648",
       "sevenStarReleased": true
