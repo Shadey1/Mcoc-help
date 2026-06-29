@@ -1,74 +1,178 @@
 {
-  "generatedAt": "2026-06-02T09:35:05.275Z",
+  "generatedAt": "2026-06-29T07:39:22.916Z",
   "corrections": [],
-  "additions": [
-    {
-      "id": "shatterstar",
-      "name": "Shatterstar",
-      "proposedClass": "Mutant",
-      "sourceTitle": "Shatterstar",
-      "portraitUrl": null
-    },
-    {
-      "id": "phyla-vell",
-      "name": "Phyla-Vell",
-      "proposedClass": "Cosmic",
-      "sourceTitle": "Phyla-Vell",
-      "portraitUrl": null
-    },
-    {
-      "id": "wave",
-      "name": "Wave",
-      "proposedClass": "Science",
-      "sourceTitle": "Wave",
-      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/9/91/Wave_portrait.png/revision/latest/scale-to-width-down/200?cb=20260504222648"
-    }
-  ],
+  "additions": [],
   "issues": [
     {
-      "name": "Black Widow (disambiguation)",
+      "name": "Aegon",
+      "result": {
+        "kind": "no-infobox-class",
+        "sourceTitle": "Aegon"
+      }
+    },
+    {
+      "name": "Rubble",
       "result": {
         "kind": "discovery-skipped",
         "reason": "no class extractable from infobox"
       }
     },
     {
-      "name": "In Print, It's Libel",
+      "name": "Combo Interruption",
       "result": {
         "kind": "discovery-skipped",
         "reason": "no class extractable from infobox"
       }
     },
     {
-      "name": "Make Him Infamous",
+      "name": "Banished",
       "result": {
         "kind": "discovery-skipped",
         "reason": "no class extractable from infobox"
       }
     },
     {
-      "name": "Good, But It's Taken",
+      "name": "Special Resistance",
       "result": {
         "kind": "discovery-skipped",
         "reason": "no class extractable from infobox"
       }
     },
     {
-      "name": "Get Me A Violin",
+      "name": "Special Echo",
       "result": {
         "kind": "discovery-skipped",
         "reason": "no class extractable from infobox"
       }
     },
     {
-      "name": "I Trust My Barber",
+      "name": "Combo Wave",
       "result": {
         "kind": "discovery-skipped",
         "reason": "no class extractable from infobox"
       }
     },
     {
-      "name": "A Page One Problem",
+      "name": "Kinetic Discharge",
+      "result": {
+        "kind": "discovery-skipped",
+        "reason": "no class extractable from infobox"
+      }
+    },
+    {
+      "name": "Striker Opening",
+      "result": {
+        "kind": "discovery-skipped",
+        "reason": "no class extractable from infobox"
+      }
+    },
+    {
+      "name": "Striker Lock",
+      "result": {
+        "kind": "discovery-skipped",
+        "reason": "no class extractable from infobox"
+      }
+    },
+    {
+      "name": "Exacerbate",
+      "result": {
+        "kind": "discovery-skipped",
+        "reason": "no class extractable from infobox"
+      }
+    },
+    {
+      "name": "Carina (Chronoserpent)",
+      "result": {
+        "kind": "discovery-skipped",
+        "reason": "no class extractable from infobox"
+      }
+    },
+    {
+      "name": "Energy Vulnerabongity",
+      "result": {
+        "kind": "discovery-skipped",
+        "reason": "no class extractable from infobox"
+      }
+    },
+    {
+      "name": "Armor Bong",
+      "result": {
+        "kind": "discovery-skipped",
+        "reason": "no class extractable from infobox"
+      }
+    },
+    {
+      "name": "Unstoppabong",
+      "result": {
+        "kind": "discovery-skipped",
+        "reason": "no class extractable from infobox"
+      }
+    },
+    {
+      "name": "Power Sting Immunity",
+      "result": {
+        "kind": "discovery-skipped",
+        "reason": "no class extractable from infobox"
+      }
+    },
+    {
+      "name": "Breach",
+      "result": {
+        "kind": "discovery-skipped",
+        "reason": "no class extractable from infobox"
+      }
+    },
+    {
+      "name": "Placebo",
+      "result": {
+        "kind": "discovery-skipped",
+        "reason": "no class extractable from infobox"
+      }
+    },
+    {
+      "name": "Genesis",
+      "result": {
+        "kind": "discovery-skipped",
+        "reason": "no class extractable from infobox"
+      }
+    },
+    {
+      "name": "Austere Buff",
+      "result": {
+        "kind": "discovery-skipped",
+        "reason": "no class extractable from infobox"
+      }
+    },
+    {
+      "name": "Light Proficiency",
+      "result": {
+        "kind": "discovery-skipped",
+        "reason": "no class extractable from infobox"
+      }
+    },
+    {
+      "name": "Reckless",
+      "result": {
+        "kind": "discovery-skipped",
+        "reason": "no class extractable from infobox"
+      }
+    },
+    {
+      "name": "Battered",
+      "result": {
+        "kind": "discovery-skipped",
+        "reason": "no class extractable from infobox"
+      }
+    },
+    {
+      "name": "Obfuscate",
+      "result": {
+        "kind": "discovery-skipped",
+        "reason": "no class extractable from infobox"
+      }
+    },
+    {
+      "name": "Provoke",
       "result": {
         "kind": "discovery-skipped",
         "reason": "no class extractable from infobox"
