@@ -11564,7 +11564,7 @@
       "id": "warlock",
       "name": "Warlock",
       "class": "Tech",
-      "ascendable": false,
+      "ascendable": true,
       "prestige": {
         "rank5": {
           "0": 28890,
@@ -11597,8 +11597,8 @@
       "tags": [],
       "_meta": {
         "bhrSource": "mcoc.gg per-rank curves (R4 + R5 11-anchor, refreshed 2026-06-03)",
-        "ascendableSource": "non-ascendable per mcoc.gg",
-        "lastVerified": "2026-06-03"
+        "ascendableSource": "ascendable unlocked 2026-06",
+        "lastVerified": "2026-06-29"
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/b/b5/Warlock_portrait.png/revision/latest/scale-to-width-down/200?cb=20190807141643",
       "sevenStarReleased": true
