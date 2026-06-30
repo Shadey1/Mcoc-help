@@ -28,6 +28,10 @@ type SharedRosterViewProps = {
   mode?: ShareMode;
   /** ISO timestamp of the last owner-side update (or createdAt for snapshots). */
   lastSyncedAt?: string;
+  /** When true, the page detected a write-token in the URL — render the
+   *  import CTA as "Import & sync" so the user knows this device will be
+   *  registered as a writer on the share. */
+  syncMode?: boolean;
   onImport: () => void;
 };
 
@@ -44,6 +48,7 @@ export function SharedRosterView({
   expiresAt,
   mode,
   lastSyncedAt,
+  syncMode,
   onImport,
 }: SharedRosterViewProps) {
   const [sortMode, setSortMode] = useState<SortMode>('bhr');
@@ -196,7 +201,7 @@ export function SharedRosterView({
           onClick={onImport}
           className="px-3 py-1.5 text-sm border border-[var(--color-rule)] rounded hover:bg-[var(--color-paper-soft)] transition-colors"
         >
-          Import this roster →
+          {syncMode ? 'Import & sync this device →' : 'Import this roster →'}
         </button>
       </section>
 

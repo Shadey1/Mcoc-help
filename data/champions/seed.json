@@ -508,16 +508,16 @@
       "prestige": {
         "rank5": {
           "0": 28200,
-          "20": 31260,
-          "40": 32450,
-          "60": 33430,
-          "80": 34310,
-          "100": 35120,
-          "120": 35870,
-          "140": 36580,
-          "160": 37260,
-          "180": 37910,
-          "200": 38540
+          "20": null,
+          "40": null,
+          "60": null,
+          "80": null,
+          "100": null,
+          "120": null,
+          "140": null,
+          "160": null,
+          "180": null,
+          "200": 37500
         },
         "rank4": {
           "0": 23790,
@@ -536,9 +536,9 @@
       "sigCurve": null,
       "tags": [],
       "_meta": {
-        "bhrSource": "mcoc.gg per-rank curves (R4 + R5 11-anchor, refreshed 2026-06-27)",
+        "bhrSource": "R5 sig200=37500 verified in-game 2026-06-30 (mu3rto); intermediate R5 anchors nulled pending rescan, sig0 carried over from mcoc.gg as fallback. R4 still from mcoc.gg refreshed 2026-06-27.",
         "ascendableSource": "default non-ascendable; flip when confirmed",
-        "lastVerified": "2026-06-27"
+        "lastVerified": "2026-06-30"
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/6/6d/Archangel_portrait.png/revision/latest/scale-to-width-down/200?cb=20250411023139",
       "sevenStarReleased": true

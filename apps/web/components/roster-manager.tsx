@@ -13,6 +13,7 @@ import { formatBHR, formatDelta } from '../lib/format';
 import { useBHROverrides } from '../lib/bhr-overrides-context';
 import { trackEvent } from '../lib/analytics';
 import { useLiveShareSync } from '../lib/use-live-share-sync';
+import { useInboundShareSync } from '../lib/use-inbound-share-sync';
 import { RosterPicker } from './roster-picker';
 import { BulkImport } from './bulk-import';
 import { ChampionTickboxGrid } from './champion-tickbox-grid';
@@ -102,6 +103,12 @@ export function RosterManager({ champions }: RosterManagerProps) {
   // Debounced auto-PUT to any live shares the owner has created. Silent —
   // recipient sees the freshness via "synced X min ago" on the share page.
   useLiveShareSync(roster, hydrated);
+
+  // Inbound counterpart: when this device is also a writer (e.g. the user
+  // opened their personal sync URL on a second device and chose "Import &
+  // sync"), pull on focus so edits from the other device land here without
+  // a manual reload.
+  useInboundShareSync(setRoster, hydrated);
 
   const championLookup = new Map(champions.map((c) => [c.id, c]));
   const ownedIds = new Set(roster.champions.map((s) => s.championId));

@@ -14,7 +14,14 @@ type ShareModalProps = {
 type ModalState =
   | { phase: 'form' }
   | { phase: 'generating' }
-  | { phase: 'done'; url: string; deleteToken: string; expiresAt: string }
+  | {
+      phase: 'done';
+      url: string;
+      syncUrl: string;
+      deleteToken: string;
+      expiresAt: string;
+      mode: 'live' | 'snapshot';
+    }
   | { phase: 'error'; message: string };
 
 /**
@@ -34,7 +41,7 @@ export function ShareModal({ open, onClose, roster }: ShareModalProps) {
   // (e.g. "AW week 12 freeze").
   const [keepLive, setKeepLive] = useState(true);
   const [state, setState] = useState<ModalState>({ phase: 'form' });
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = useState<null | 'view' | 'sync'>(null);
 
   if (!open) return null;
 
@@ -44,6 +51,7 @@ export function ShareModal({ open, onClose, roster }: ShareModalProps) {
       const mode = keepLive ? 'live' : 'snapshot';
       const result = await createShare(roster, label.trim() || null, mode);
       const url = `${window.location.origin}/r/?id=${result.id}`;
+      const syncUrl = `${window.location.origin}/r/?id=${result.id}&token=${result.deleteToken}`;
       const createdAt = new Date().toISOString();
 
       recordLocalShare({
@@ -56,7 +64,14 @@ export function ShareModal({ open, onClose, roster }: ShareModalProps) {
         expiresAt: result.expiresAt,
       });
 
-      setState({ phase: 'done', url, deleteToken: result.deleteToken, expiresAt: result.expiresAt });
+      setState({
+        phase: 'done',
+        url,
+        syncUrl,
+        deleteToken: result.deleteToken,
+        expiresAt: result.expiresAt,
+        mode,
+      });
     } catch (err) {
       setState({ phase: 'error', message: (err as Error).message });
     }
@@ -65,25 +80,26 @@ export function ShareModal({ open, onClose, roster }: ShareModalProps) {
   function handleClose() {
     setLabel('');
     setState({ phase: 'form' });
-    setCopied(false);
+    setCopied(null);
     onClose();
   }
 
-  async function copyUrl(url: string) {
+  async function copyUrl(url: string, which: 'view' | 'sync') {
     try {
       await navigator.clipboard.writeText(url);
-      setCopied(true);
+      setCopied(which);
       trackEvent('share_clicked');
-      setTimeout(() => setCopied(false), 2000);
+      setTimeout(() => setCopied(null), 2000);
     } catch {
       // Clipboard API can fail in some browsers / contexts — fall back to selecting
-      const input = document.getElementById('share-url-input') as HTMLInputElement | null;
+      const inputId = which === 'view' ? 'share-url-input' : 'share-sync-url-input';
+      const input = document.getElementById(inputId) as HTMLInputElement | null;
       if (input) {
         input.select();
         document.execCommand('copy');
-        setCopied(true);
+        setCopied(which);
         trackEvent('share_clicked');
-        setTimeout(() => setCopied(false), 2000);
+        setTimeout(() => setCopied(null), 2000);
       }
     }
   }
@@ -195,12 +211,46 @@ export function ShareModal({ open, onClose, roster }: ShareModalProps) {
               />
               <button
                 type="button"
-                onClick={() => copyUrl(state.url)}
+                onClick={() => copyUrl(state.url, 'view')}
                 className="px-4 py-2 bg-[var(--color-marvel-impact)] text-[var(--color-paper)] font-medium rounded hover:bg-[var(--color-marvel-editorial)] transition-colors min-w-[80px]"
               >
-                {copied ? 'Copied!' : 'Copy'}
+                {copied === 'view' ? 'Copied!' : 'Copy'}
               </button>
             </div>
+
+            {state.mode === 'live' && (
+              <details className="text-sm border-t border-[var(--color-rule)] pt-3">
+                <summary className="cursor-pointer font-medium hover:text-[var(--color-marvel-impact)]">
+                  Sync to your other devices
+                </summary>
+                <div className="mt-2 space-y-2">
+                  <p className="text-xs text-[var(--color-ink-soft)]">
+                    Open this private URL on your phone (or another browser) and
+                    tap <strong>Import &amp; sync</strong>. Edits on either device
+                    will then sync to the other through this share. Don&apos;t share
+                    this URL — anyone with it can write to your roster. Last
+                    writer wins if you edit on both devices at the same time.
+                  </p>
+                  <div className="flex gap-2">
+                    <input
+                      id="share-sync-url-input"
+                      type="text"
+                      value={state.syncUrl}
+                      readOnly
+                      onFocus={(e) => e.target.select()}
+                      className="flex-1 px-3 py-2 border border-[var(--color-rule)] rounded bg-[var(--color-paper-soft)] numeric text-xs"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => copyUrl(state.syncUrl, 'sync')}
+                      className="px-3 py-2 border border-[var(--color-rule)] rounded hover:bg-[var(--color-paper-soft)] transition-colors min-w-[80px] text-sm"
+                    >
+                      {copied === 'sync' ? 'Copied!' : 'Copy'}
+                    </button>
+                  </div>
+                </div>
+              </details>
+            )}
 
             <details className="text-xs text-[var(--color-ink-soft)]">
               <summary className="cursor-pointer hover:text-[var(--color-ink)]">

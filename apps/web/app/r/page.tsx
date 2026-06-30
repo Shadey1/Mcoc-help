@@ -4,7 +4,11 @@ import { useEffect, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 import type { Champion, ChampionState } from '@prestige-tools/engine';
-import { fetchShare, type SharedRosterPayload } from '../../lib/share-client';
+import {
+  fetchShare,
+  recordLocalShare,
+  type SharedRosterPayload,
+} from '../../lib/share-client';
 import { loadActiveChampions } from '../../lib/data-loader';
 import { saveRoster } from '../../lib/roster-storage';
 import { trackEvent } from '../../lib/analytics';
@@ -77,6 +81,12 @@ function SharedRosterPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const id = searchParams?.get('id');
+  // Personal sync URL: when the owner generates a "sync to your other
+  // devices" link, the deleteToken comes through as ?token=... so this
+  // device can register itself as a writer on import. Untrusted senders
+  // shouldn't be given this token — owner copies it for their own devices
+  // only. The token is private; treat it like a password.
+  const token = searchParams?.get('token');
   const isDemo = searchParams?.get('demo') === '1';
 
   const [state, setState] = useState<
@@ -161,8 +171,14 @@ function SharedRosterPageInner() {
       );
       return;
     }
+    // If the URL carries a write token AND the share is live, this is the
+    // owner's personal sync URL — set the device up as a writer so edits
+    // here propagate back to the original device through the share.
+    const wantsSync = Boolean(token) && id !== null && state.payload.mode === 'live';
     const confirmed = window.confirm(
-      'Importing this roster will replace your current roster. Your existing roster will be lost. Continue?',
+      wantsSync
+        ? `Import this roster AND keep this device in sync? Edits on either device will sync to the other through the shared link. Your current roster on this device will be replaced.`
+        : 'Importing this roster will replace your current roster. Your existing roster will be lost. Continue?',
     );
     if (!confirmed) return;
     // Filter out any champions not in our current seed
@@ -171,7 +187,22 @@ function SharedRosterPageInner() {
       knownIds.has(s.championId),
     );
     saveRoster({ champions: validStates });
-    if (validStates.length > 0) trackEvent('roster_built', { method: 'url' });
+    if (wantsSync && id && token) {
+      // Register this device as a writer; useLiveShareSync on /roster will
+      // pick it up automatically.
+      recordLocalShare({
+        id,
+        deleteToken: token,
+        label: state.payload.label,
+        mode: 'live',
+        createdAt: state.payload.createdAt,
+        lastSyncedAt: state.payload.lastSyncedAt,
+        expiresAt: state.payload.expiresAt,
+      });
+    }
+    if (validStates.length > 0) {
+      trackEvent('roster_built', { method: wantsSync ? 'sync-url' : 'url' });
+    }
     router.push('/roster/');
   }
 
@@ -215,6 +246,7 @@ function SharedRosterPageInner() {
         mode={state.payload.mode}
         lastSyncedAt={state.payload.lastSyncedAt}
         expiresAt={state.payload.expiresAt}
+        syncMode={Boolean(token) && state.payload.mode === 'live' && !state.demo}
         onImport={handleImport}
       />
     </>

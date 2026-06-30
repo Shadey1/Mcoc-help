@@ -134,6 +134,36 @@ export async function deleteShare(id: string, token: string): Promise<void> {
  */
 const LOCAL_SHARES_KEY = 'prestige-tools:my-shares';
 
+/**
+ * Per-device timestamp of the most recent local roster edit. Used by
+ * useInboundShareSync to decide whether a pull-on-focus is safe: if the
+ * user has edited since the last successful PUT, the inbound hook skips
+ * the pull (otherwise the in-flight local edit would be silently
+ * overwritten by stale server state from the other device).
+ *
+ * Bumped from useLiveShareSync whenever the roster changes post-hydration.
+ */
+const LAST_LOCAL_EDIT_KEY = 'prestige-tools:last-local-edit';
+
+export function markLocalEdit(timestamp: string = new Date().toISOString()): void {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.setItem(LAST_LOCAL_EDIT_KEY, timestamp);
+  } catch {
+    // localStorage can throw on quota / private-mode; pull-on-focus
+    // degrades gracefully (it'll just be more aggressive about pulling).
+  }
+}
+
+export function getLocalEditAt(): string {
+  if (typeof window === 'undefined') return '1970-01-01T00:00:00Z';
+  try {
+    return window.localStorage.getItem(LAST_LOCAL_EDIT_KEY) ?? '1970-01-01T00:00:00Z';
+  } catch {
+    return '1970-01-01T00:00:00Z';
+  }
+}
+
 export type LocalShareEntry = {
   id: string;
   deleteToken: string;

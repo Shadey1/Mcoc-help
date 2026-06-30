@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 import type { Roster } from '@prestige-tools/engine';
 import {
   loadLiveLocalShares,
+  markLocalEdit,
   touchLocalShareSync,
   updateShare,
 } from './share-client';
@@ -34,6 +35,11 @@ export function useLiveShareSync(roster: Roster, hydrated: boolean): void {
   // Track the roster snapshot we'll PUT — captured at the time the timer
   // fires, not at scheduling time, so the latest state wins.
   const latestRosterRef = useRef<Roster>(roster);
+  // JSON of the last roster we successfully PUT. Used to skip no-op PUTs
+  // when an inbound pull (useInboundShareSync) sets local roster to what
+  // the server already has — without this, the resulting React re-render
+  // would schedule a redundant PUT and the two devices would ping-pong.
+  const lastPushedJSONRef = useRef<string | null>(null);
 
   useEffect(() => {
     latestRosterRef.current = roster;
@@ -43,6 +49,12 @@ export function useLiveShareSync(roster: Roster, hydrated: boolean): void {
     if (!hydrated) return;
     if (typeof window === 'undefined') return;
 
+    // Stamp this device's "last local edit" so the inbound-sync hook on
+    // any sibling device knows whether a pull-on-focus is safe. Stamped
+    // even if no live share exists yet — the user may create one later
+    // and we want the timestamp accurate from the first edit forward.
+    markLocalEdit();
+
     // Quick exit if the user hasn't recorded any live shares — most users.
     if (loadLiveLocalShares().length === 0) return;
 
@@ -51,7 +63,7 @@ export function useLiveShareSync(roster: Roster, hydrated: boolean): void {
     }
     timerRef.current = window.setTimeout(() => {
       timerRef.current = null;
-      void syncAllLiveShares(latestRosterRef.current.champions);
+      void syncAllLiveShares(latestRosterRef.current.champions, lastPushedJSONRef);
     }, DEBOUNCE_MS);
     // No cleanup here — re-renders due to roster changes overwrite
     // timerRef explicitly above. We deliberately don't tear the timer
@@ -70,7 +82,7 @@ export function useLiveShareSync(roster: Roster, hydrated: boolean): void {
       if (timerRef.current !== null) {
         window.clearTimeout(timerRef.current);
         timerRef.current = null;
-        void syncAllLiveShares(latestRosterRef.current.champions);
+        void syncAllLiveShares(latestRosterRef.current.champions, lastPushedJSONRef);
       }
     };
   }, []);
@@ -78,9 +90,16 @@ export function useLiveShareSync(roster: Roster, hydrated: boolean): void {
 
 async function syncAllLiveShares(
   champions: Roster['champions'],
+  lastPushedJSONRef: { current: string | null },
 ): Promise<void> {
+  const json = JSON.stringify(champions);
+  // Skip the PUT entirely if nothing changed since our last successful
+  // sync — typical after an inbound pull echoed the server state back
+  // through React state.
+  if (json === lastPushedJSONRef.current) return;
   // Re-read on fire so a share deleted mid-debounce isn't PUT.
   const live = loadLiveLocalShares();
+  if (live.length === 0) return;
   await Promise.allSettled(
     live.map(async (entry) => {
       try {
@@ -88,6 +107,7 @@ async function syncAllLiveShares(
           champions,
         });
         touchLocalShareSync(entry.id, result.lastSyncedAt);
+        lastPushedJSONRef.current = json;
       } catch (err) {
         // Best-effort — next edit will retry. Log so it's visible during
         // dev but don't surface to the user.
