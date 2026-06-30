@@ -13,6 +13,7 @@
     "refresh-bhr": "tsx scripts/refresh-bhr-from-mcochub.ts",
     "refresh-bhr-r4": "tsx scripts/refresh-bhr-from-mcocgg.ts",
     "refresh-synergies": "tsx scripts/refresh-synergies-from-mcocgg.ts",
+    "refresh-abilities": "tsx scripts/refresh-abilities-from-mcochub.ts",
     "lint": "pnpm -F web lint"
   },
   "devDependencies": {
