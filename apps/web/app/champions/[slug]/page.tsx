@@ -6,10 +6,12 @@ import {
   findChampionById,
 } from '../../../lib/data-loader';
 import { loadSynergiesForChampion } from '../../../lib/synergies-loader';
+import { loadAbilitiesFor } from '../../../lib/abilities-loader';
 import { ChampionPortrait } from '../../../components/champion-portrait';
 import { ScalingChart } from '../../../components/scaling-chart';
 import { BhrReferenceTable } from '../../../components/bhr-reference-table';
 import { SynergiesSection } from '../../../components/synergies-section';
+import { ChampionAbilitiesSection } from '../../../components/champion-abilities-section';
 import { displayRarity } from '../../../lib/champion-rarity';
 
 // Required for Next.js static export
@@ -27,6 +29,7 @@ export default async function ChampionDetailPage({
   if (!champion) notFound();
 
   const synergies = loadSynergiesForChampion(slug);
+  const abilities = loadAbilitiesFor(slug);
   const championLookup = loadChampionLookup();
   const hasPrestige = champion.prestige !== undefined;
   const unreleased = champion.sevenStarReleased === false;
@@ -111,6 +114,8 @@ export default async function ChampionDetailPage({
           </section>
         </>
       )}
+
+      {abilities && <ChampionAbilitiesSection abilities={abilities} />}
 
       <SynergiesSection synergies={synergies} championLookup={championLookup} />
 
