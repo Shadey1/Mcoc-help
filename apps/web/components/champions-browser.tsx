@@ -9,6 +9,8 @@ import { displayRarity, rarityLabel } from '../lib/champion-rarity';
 
 type ChampionsBrowserProps = {
   champions: Champion[];
+  /** seedId → array of MCOCHUB tags. Champs not in the map have no tags. */
+  championTags: Record<string, string[]>;
 };
 
 const ALL_CLASSES: ChampionClass[] = [
@@ -35,12 +37,37 @@ const RARITY_OPTIONS: ReadonlyArray<{ value: RarityFilter; label: string }> = [
  * a ★-rating filter that mirrors the portrait-frame rarity.
  * Sorts alphabetically by default.
  */
-export function ChampionsBrowser({ champions }: ChampionsBrowserProps) {
+export function ChampionsBrowser({
+  champions,
+  championTags,
+}: ChampionsBrowserProps) {
   const [activeClasses, setActiveClasses] = useState<Set<ChampionClass>>(
     new Set(ALL_CLASSES),
   );
   const [ascendableFilter, setAscendableFilter] = useState<AscendableFilter>('all');
   const [rarityFilter, setRarityFilter] = useState<RarityFilter>('all');
+  const [activeTags, setActiveTags] = useState<Set<string>>(new Set());
+  const [tagSearch, setTagSearch] = useState('');
+  const [tagsExpanded, setTagsExpanded] = useState(false);
+
+  // Tag options: each unique tag with the count of champs carrying it.
+  // Sorted by frequency descending so popular filters surface first; ties
+  // alpha by name so the order is deterministic across renders.
+  const tagOptions = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const tags of Object.values(championTags)) {
+      for (const t of tags) counts.set(t, (counts.get(t) ?? 0) + 1);
+    }
+    return [...counts.entries()]
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+      .map(([name, count]) => ({ name, count }));
+  }, [championTags]);
+
+  const visibleTagOptions = useMemo(() => {
+    const q = tagSearch.trim().toLowerCase();
+    if (!q) return tagOptions;
+    return tagOptions.filter((t) => t.name.toLowerCase().includes(q));
+  }, [tagOptions, tagSearch]);
 
   const filtered = useMemo(() => {
     return champions
@@ -60,8 +87,28 @@ export function ChampionsBrowser({ champions }: ChampionsBrowserProps) {
         if (rarityFilter === '5-star') return r === '5-star';
         return true;
       })
+      .filter((c) => {
+        if (activeTags.size === 0) return true;
+        // OR semantics: champion shown if it carries at least one active tag.
+        // Picking multiple tags broadens the result set rather than narrowing
+        // it — matches how "show me AW: Decay or AW: Sugar Pill defenders"
+        // reads naturally for a war planner.
+        const tags = championTags[c.id];
+        if (!tags) return false;
+        for (const t of tags) if (activeTags.has(t)) return true;
+        return false;
+      })
       .sort((a, b) => a.name.localeCompare(b.name));
-  }, [champions, activeClasses, ascendableFilter, rarityFilter]);
+  }, [champions, activeClasses, ascendableFilter, rarityFilter, activeTags, championTags]);
+
+  function toggleTag(tag: string) {
+    setActiveTags((prev) => {
+      const next = new Set(prev);
+      if (next.has(tag)) next.delete(tag);
+      else next.add(tag);
+      return next;
+    });
+  }
 
   function toggleClass(klass: ChampionClass) {
     setActiveClasses((prev) => {
@@ -159,6 +206,93 @@ export function ChampionsBrowser({ champions }: ChampionsBrowserProps) {
             </button>
           ))}
         </div>
+
+        {tagOptions.length > 0 && (
+          <div className="space-y-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setTagsExpanded((v) => !v)}
+                className="flex items-center gap-1 text-xs uppercase tracking-wide text-[var(--color-ink-soft)] hover:text-[var(--color-ink)]"
+                aria-expanded={tagsExpanded}
+              >
+                Tags
+                <span className={`transition-transform ${tagsExpanded ? 'rotate-180' : ''}`}>
+                  ▾
+                </span>
+              </button>
+              {activeTags.size > 0 && (
+                <>
+                  <span className="text-xs text-[var(--color-ink-soft)]">·</span>
+                  <span className="text-xs text-[var(--color-marvel-impact)] font-medium">
+                    {activeTags.size} selected
+                  </span>
+                </>
+              )}
+              {/* Selected tag chips stay visible even when the panel is
+                  collapsed so the user can see what's filtering and clear
+                  one without re-opening the picker. */}
+              {[...activeTags].sort().map((tag) => (
+                <button
+                  key={`active-${tag}`}
+                  type="button"
+                  onClick={() => toggleTag(tag)}
+                  className="inline-flex items-center gap-1 rounded-full bg-indigo-50 border border-indigo-300 px-2 py-0.5 text-[11px] text-indigo-800 hover:bg-indigo-100"
+                >
+                  #{tag} <span className="text-indigo-500">×</span>
+                </button>
+              ))}
+              {activeTags.size > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setActiveTags(new Set())}
+                  className="ml-1 text-xs text-[var(--color-ink-soft)] underline hover:text-[var(--color-marvel-impact)]"
+                >
+                  Clear tags
+                </button>
+              )}
+            </div>
+
+            {tagsExpanded && (
+              <div className="space-y-2 border border-[var(--color-rule)] rounded-md p-3 bg-[var(--color-paper-soft)]">
+                <input
+                  type="text"
+                  value={tagSearch}
+                  onChange={(e) => setTagSearch(e.target.value)}
+                  placeholder={`Search ${tagOptions.length} tags…`}
+                  className="w-full px-2 py-1.5 text-sm border border-[var(--color-rule)] rounded bg-[var(--color-paper)] focus:outline-none focus:border-[var(--color-marvel-impact)]"
+                />
+                <div className="flex flex-wrap gap-1 max-h-56 overflow-y-auto">
+                  {visibleTagOptions.map(({ name, count }) => {
+                    const active = activeTags.has(name);
+                    return (
+                      <button
+                        key={name}
+                        type="button"
+                        onClick={() => toggleTag(name)}
+                        className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] transition-colors ${
+                          active
+                            ? 'bg-indigo-100 border-indigo-400 text-indigo-900'
+                            : 'bg-[var(--color-paper)] border-[var(--color-rule)] text-[var(--color-ink-soft)] hover:border-[var(--color-ink)] hover:text-[var(--color-ink)]'
+                        }`}
+                      >
+                        #{name}
+                        <span className="text-[10px] opacity-70 numeric">
+                          {count}
+                        </span>
+                      </button>
+                    );
+                  })}
+                  {visibleTagOptions.length === 0 && (
+                    <span className="text-xs text-[var(--color-ink-soft)] italic">
+                      No tags match &ldquo;{tagSearch}&rdquo;.
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="text-sm text-[var(--color-ink-soft)]">

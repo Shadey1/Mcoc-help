@@ -62,3 +62,32 @@ export function abilitiesMeta() {
     championCount: Object.keys(data.champions).length,
   };
 }
+
+/**
+ * Synergy partner slugs come from MCOCHUB image filenames and use that
+ * site's slug convention (lowercase-no-separators, occasionally with
+ * exceptions like "Baron_Zemo" or "stormpyramidx"). We resolve them
+ * back to our seed ids via the source.slug recorded for every imported
+ * champion, normalising both sides so capitalisation and underscores
+ * don't matter.
+ */
+function canonicaliseMcochubSlug(s: string): string {
+  return s.toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
+const partnerLookup: Map<string, string> = (() => {
+  const m = new Map<string, string>();
+  for (const [seedId, ch] of Object.entries(data.champions)) {
+    m.set(canonicaliseMcochubSlug(ch.source.slug), seedId);
+  }
+  return m;
+})();
+
+/**
+ * Resolve a MCOCHUB partner slug to our seed id, or null when the
+ * partner is not in our imported set (typically non-released stubs or
+ * legacy 6-star-only champs that never reached the 7★ pool).
+ */
+export function resolvePartnerSlug(mcochubSlug: string): string | null {
+  return partnerLookup.get(canonicaliseMcochubSlug(mcochubSlug)) ?? null;
+}

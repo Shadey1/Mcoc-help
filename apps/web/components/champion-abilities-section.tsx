@@ -1,4 +1,7 @@
+import Link from 'next/link';
 import type { ChampionAbilities, AbilityPill } from '../lib/abilities-loader';
+import { resolvePartnerSlug } from '../lib/abilities-loader';
+import { findChampionById } from '../lib/data-loader';
 
 type ChampionAbilitiesSectionProps = {
   abilities: ChampionAbilities;
@@ -95,10 +98,12 @@ type PillRowProps = {
 };
 
 function PillRow({ label, labelTone, pills }: PillRowProps) {
-  // Innate pills use the section's accent colour; synergy-granted pills
-  // share a common "cyan" treatment to match MCOCHUB's convention. The
-  // condition text lives in the title attribute so a hover surfaces it
-  // without the layout cost of always-visible expanded blocks.
+  // Innate pills use the section's accent colour. Synergy-granted pills
+  // are <details> elements: the summary IS the pill (so it's visibly
+  // interactive), clicking expands a small panel below the row showing
+  // the partner list (linked when in our seed) and the condition text.
+  // Native <details> works on touch, doesn't need React state, and
+  // doesn't need this to be a client component.
   const labelClass =
     labelTone === 'emerald'
       ? 'text-emerald-700'
@@ -116,8 +121,7 @@ function PillRow({ label, labelTone, pills }: PillRowProps) {
       </div>
       <div className="flex flex-wrap gap-1.5">
         {pills.map((p, i) => {
-          const synergy = p.synergy;
-          if (!synergy) {
+          if (!p.synergy) {
             return (
               <span
                 key={`${p.name}-${i}`}
@@ -127,26 +131,60 @@ function PillRow({ label, labelTone, pills }: PillRowProps) {
               </span>
             );
           }
-          const partnerList = synergy.partners.length
-            ? synergy.partners.join(', ')
-            : '';
-          const tooltip =
-            (partnerList ? `Granted via synergy with ${partnerList}\n` : '') +
-            synergy.note;
-          return (
-            <span
-              key={`${p.name}-${i}`}
-              title={tooltip}
-              className="inline-flex items-center gap-1 rounded-full border border-cyan-200 bg-cyan-50 px-2.5 py-1 text-[11px] font-medium leading-none text-cyan-900 cursor-help"
-            >
-              {p.name}
-              <SynergyGlyph />
-            </span>
-          );
+          return <SynergyPill key={`${p.name}-${i}`} pill={p} />;
         })}
       </div>
     </div>
   );
+}
+
+function SynergyPill({ pill }: { pill: AbilityPill }) {
+  const synergy = pill.synergy!;
+  // Resolve each MCOCHUB partner slug back to a seed champion so we can
+  // show the real display name and link through to their detail page.
+  // Unresolved partners (e.g. legacy 6-star-only) fall back to a
+  // best-effort prettified slug as plain text.
+  const partners = synergy.partners.map((slug) => {
+    const seedId = resolvePartnerSlug(slug);
+    if (!seedId) {
+      return { label: prettifySlug(slug), seedId: null };
+    }
+    const champ = findChampionById(seedId);
+    return { label: champ?.name ?? prettifySlug(slug), seedId };
+  });
+  return (
+    <details className="group inline-block align-middle">
+      <summary className="inline-flex items-center gap-1 rounded-full border border-cyan-200 bg-cyan-50 px-2.5 py-1 text-[11px] font-medium leading-none text-cyan-900 cursor-pointer hover:bg-cyan-100 list-none [&::-webkit-details-marker]:hidden">
+        {pill.name}
+        <SynergyGlyph />
+      </summary>
+      <div className="mt-1.5 ml-1 max-w-sm rounded-md border border-cyan-200 bg-cyan-50/70 px-3 py-2 text-xs leading-relaxed text-cyan-950">
+        <div className="text-[10px] font-semibold uppercase tracking-wider text-cyan-700 mb-1">
+          Granted via synergy
+        </div>
+        <div className="flex flex-wrap gap-x-2 gap-y-0.5 mb-1.5">
+          {partners.map((p, j) =>
+            p.seedId ? (
+              <Link
+                key={`${p.label}-${j}`}
+                href={`/champions/${p.seedId}/`}
+                className="underline decoration-cyan-400/60 hover:text-cyan-700"
+              >
+                {p.label}
+              </Link>
+            ) : (
+              <span key={`${p.label}-${j}`}>{p.label}</span>
+            ),
+          )}
+        </div>
+        <div>{synergy.note}</div>
+      </div>
+    </details>
+  );
+}
+
+function prettifySlug(slug: string): string {
+  return slug.replace(/[_-]+/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 function SynergyGlyph() {
