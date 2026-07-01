@@ -25,10 +25,11 @@ export default function ImmunitiesPage() {
           Preview — {dataMeta.championCount} of {champions.length} champions covered.
         </strong>{' '}
         <span className="text-[var(--color-ink-soft)]">
-          Backfilled from MCOCHUB (immune + synergy bands, {dataMeta.backfillChampions ?? 0} champions)
-          + hand-curated four-signal fixture ({dataMeta.fixtureChampions ?? 0} champions with resistance %
-          and mechanic marks). The resist % and mechanic Purify/Duration bands are still being transcribed
-          from GuiaMTC for the rest; nav entry lands once coverage is closer to full.
+          Sources merged per effect: MCOCHUB immunity pills ({dataMeta.backfillChampions ?? 0}), champion kit text
+          parsed for &ldquo;Immune to X&rdquo; and &ldquo;N% X Resistance&rdquo; ({dataMeta.kitChampions ?? 0}),
+          and the hand-curated four-signal fixture ({dataMeta.fixtureChampions ?? 0}). The mechanic
+          Purify/Duration band still needs the GuiaMTC transcription; nav entry lands once
+          coverage is closer to full.
         </span>
       </div>
       <ImmunitiesView

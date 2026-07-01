@@ -31,6 +31,7 @@ type ImmunitiesViewProps = {
     championCount: number;
     fixtureChampions?: number;
     backfillChampions?: number;
+    kitChampions?: number;
   };
 };
 

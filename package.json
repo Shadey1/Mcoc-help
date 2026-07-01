@@ -15,6 +15,7 @@
     "refresh-synergies": "tsx scripts/refresh-synergies-from-mcocgg.ts",
     "refresh-abilities": "tsx scripts/refresh-abilities-from-mcochub.ts",
     "backfill-immunities": "tsx scripts/backfill-immunities-from-mcochub.ts",
+    "parse-immunity-kits": "tsx scripts/parse-immunities-from-abilities.ts",
     "lint": "pnpm -F web lint"
   },
   "devDependencies": {
