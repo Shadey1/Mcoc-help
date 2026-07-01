@@ -6,6 +6,7 @@ import './globals.css';
 import { BHROverridesProvider } from '../lib/bhr-overrides-context';
 import { RelicOverridesProvider } from '../lib/relic-overrides-context';
 import { ThemeToggle } from '../components/theme-toggle';
+import { BackToTop } from '../components/back-to-top';
 
 // FOUC-prevention script: runs synchronously in <head> before paint so the
 // warm-black bg is applied before the first frame renders. localStorage
@@ -184,6 +185,7 @@ export default function RootLayout({
         </footer>
         </RelicOverridesProvider>
         </BHROverridesProvider>
+        <BackToTop />
         {/* Umami: cookieless analytics. No PII; no consent banner needed.
             Self-traffic excluded via localStorage["umami.disabled"]="1". */}
         <Script

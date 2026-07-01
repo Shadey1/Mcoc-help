@@ -214,9 +214,11 @@ function KitCardBlock({ card, signature }: KitCardBlockProps) {
     ? `${card.title} — ${card.trigger}`
     : card.title;
   // Signature is always expanded; the rest are <details> the user opens.
+  // Card body sits on --color-paper-card so it lifts off the page bg in
+  // both modes (matches the rest of the site's panelled sections).
   if (signature) {
     return (
-      <div className="border border-[var(--color-rule)] rounded-lg overflow-hidden">
+      <div className="border border-[var(--color-rule)] rounded-lg overflow-hidden bg-[var(--color-paper-card)]">
         <div className="px-4 py-2 bg-[var(--color-marvel-editorial)]/10 border-b border-[var(--color-rule)] font-semibold text-sm">
           {heading}
         </div>
@@ -231,7 +233,7 @@ function KitCardBlock({ card, signature }: KitCardBlockProps) {
     );
   }
   return (
-    <details className="border border-[var(--color-rule)] rounded-lg overflow-hidden group">
+    <details className="border border-[var(--color-rule)] rounded-lg overflow-hidden group bg-[var(--color-paper-card)]">
       <summary className="px-4 py-2 cursor-pointer font-medium text-sm flex items-center justify-between gap-2 hover:bg-[var(--color-paper-soft)]">
         <span>{heading}</span>
         <span className="text-[var(--color-ink-soft)] text-xs group-open:rotate-180 transition-transform">
