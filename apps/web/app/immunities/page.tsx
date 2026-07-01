@@ -20,6 +20,18 @@ export default function ImmunitiesPage() {
           with a synergy partner — and can just take the fight.
         </p>
       </section>
+      <div className="border border-[var(--color-marvel-editorial)]/40 bg-[var(--color-marvel-editorial)]/5 rounded-md px-4 py-3 text-sm">
+        <strong className="text-[var(--color-marvel-editorial)] font-semibold">
+          Preview — fixture data only ({dataMeta.championCount} champions).
+        </strong>{' '}
+        <span className="text-[var(--color-ink-soft)]">
+          The engine and view are complete, but the full-roster immunity
+          data is still being transcribed from GuiaMTC. Once every champ
+          is covered, this page goes into the main nav. For now: your
+          roster mostly looks empty because we haven&apos;t filled in
+          their data yet, not because they lack coverage.
+        </span>
+      </div>
       <ImmunitiesView
         dataset={dataset}
         champions={champions}
