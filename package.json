@@ -17,6 +17,7 @@
     "backfill-immunities": "tsx scripts/backfill-immunities-from-mcochub.ts",
     "parse-immunity-kits": "tsx scripts/parse-immunities-from-abilities.ts",
     "backfill-released": "tsx scripts/backfill-released-dates.ts",
+    "reconcile-immunities": "tsx scripts/reconcile-immunities.ts",
     "lint": "pnpm -F web lint"
   },
   "devDependencies": {

@@ -1,0 +1,48 @@
+{
+  "generated": "2026-07-01",
+  "chartDated": "2026-06",
+  "champions": {
+    "lizard": {
+      "Poison": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
+    "maestro": {
+      "Poison": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      },
+      "Shock": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
+    "the-maker": {
+      "Neuroshock": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
+    "onslaught": {
+      "Bleed": {
+        "band": "resist",
+        "confidence": "lock-2src",
+        "value": 150,
+        "_review": true
+      },
+      "Incinerate": {
+        "band": "resist",
+        "confidence": "lock-2src",
+        "value": 150,
+        "_review": true
+      },
+      "Shock": {
+        "band": "resist",
+        "confidence": "lock-2src",
+        "value": 150,
+        "_review": true
+      }
+    }
+  }
+}

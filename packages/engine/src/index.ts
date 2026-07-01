@@ -198,3 +198,21 @@ export type {
   ParsedBand,
   ParsedChampionImmunities,
 } from './immunity-text-parser.js';
+
+// Immunity reconciliation (source votes → verdict + confidence tier)
+export {
+  reconcile,
+  votesAgree,
+  DEFAULT_FRESHNESS,
+  DEFAULT_RESIST_TOLERANCE,
+} from './immunity-reconciliation.js';
+
+export type {
+  SourceName,
+  SourceFreshness,
+  Vote,
+  Confidence,
+  Verdict,
+  Reconciled,
+  ReconcileOptions,
+} from './immunity-reconciliation.js';
