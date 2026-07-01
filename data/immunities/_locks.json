@@ -1,6 +1,16 @@
 {
   "generated": "2026-07-01",
   "chartDated": "2026-06",
+  "_meta": {
+    "cellsTotal": 298,
+    "cellsLocked": 7,
+    "cellsInReviewQueue": 291,
+    "conflicts": 3,
+    "singleSource": 288,
+    "staleOnly": 0,
+    "uniqueChampsLocked": 4,
+    "uniqueChampsProvisional": 151
+  },
   "champions": {
     "lizard": {
       "Poison": {

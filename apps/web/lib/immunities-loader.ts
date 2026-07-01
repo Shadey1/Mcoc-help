@@ -1,6 +1,7 @@
 import fixtureJson from '../../../data/champions/immunities-fixture.json' with { type: 'json' };
 import backfillJson from '../../../data/champions/immunities-backfill.json' with { type: 'json' };
 import kitJson from '../../../data/champions/immunities-kit-derived.json' with { type: 'json' };
+import locksJson from '../../../data/immunities/_locks.json' with { type: 'json' };
 import type {
   ChampionImmunities,
   ImmunityBand,
@@ -82,6 +83,7 @@ export function immunitiesMeta(): {
   fixtureChampions: number;
   backfillChampions: number;
   kitChampions: number;
+  reconciliation: LocksMeta;
 } {
   const merged = loadImmunityDataset();
   return {
@@ -92,5 +94,67 @@ export function immunitiesMeta(): {
     fixtureChampions: Object.keys(fixture.champions).length,
     backfillChampions: Object.keys(backfill.champions).length,
     kitChampions: Object.keys(kit.champions).length,
+    reconciliation: locksMeta(),
   };
+}
+
+// ─── Reconciliation locks ──────────────────────────────────────────────
+
+/**
+ * Structure produced by scripts/reconcile-immunities.ts and consumed by
+ * the /immunities view to signal which values have crossed the
+ * consensus bar (locked) vs the provisional single-source shape the
+ * loader emits above.
+ */
+type LocksMeta = {
+  generated: string;
+  chartDated: string;
+  cellsTotal: number;
+  cellsLocked: number;
+  cellsInReviewQueue: number;
+  conflicts: number;
+  singleSource: number;
+  staleOnly: number;
+  uniqueChampsLocked: number;
+  uniqueChampsProvisional: number;
+};
+
+type LocksFile = {
+  generated: string;
+  chartDated: string;
+  _meta: LocksMeta;
+  champions: Record<
+    string,
+    Record<
+      string,
+      {
+        band: string;
+        value?: number;
+        qual?: string;
+        partner?: string;
+        confidence: string;
+        _review?: true;
+      }
+    >
+  >;
+};
+
+const locks = locksJson as unknown as LocksFile;
+
+export function locksMeta(): LocksMeta {
+  return {
+    ...locks._meta,
+    generated: locks.generated,
+    chartDated: locks.chartDated,
+  };
+}
+
+/**
+ * True when the reconciliation pipeline has locked this specific
+ * (champion, effect) cell at lock-2src or better. The view uses this
+ * to badge verified entries so the player can tell curated data from
+ * single-source auto-derived data.
+ */
+export function isCellLocked(championId: string, effect: string): boolean {
+  return locks.champions[championId]?.[effect] !== undefined;
 }

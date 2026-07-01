@@ -169,6 +169,17 @@ function reconcileAll(
 type LocksOutput = {
   generated: string;
   chartDated: string;
+  /** Reconciliation-level counts. Consumed by the web preview banner. */
+  _meta: {
+    cellsTotal: number;
+    cellsLocked: number;
+    cellsInReviewQueue: number;
+    conflicts: number;
+    singleSource: number;
+    staleOnly: number;
+    uniqueChampsLocked: number;
+    uniqueChampsProvisional: number;
+  };
   champions: Record<
     string,
     Record<
@@ -208,9 +219,35 @@ function writeLocks(cells: CellReconciled[]) {
   for (const c of locks) {
     (grouped[c.champion] = grouped[c.champion] ?? {})[c.effect] = toLockRow(c);
   }
+  const buckets = {
+    conflicts: 0,
+    singleSource: 0,
+    staleOnly: 0,
+  };
+  for (const c of cells) {
+    if (c.confidence === 'flag-conflict') buckets.conflicts++;
+    else if (c.confidence === 'flag-single') buckets.singleSource++;
+    else if (c.confidence === 'flag-stale-only') buckets.staleOnly++;
+  }
+  const uniqueLocked = new Set(locks.map((c) => c.champion));
+  const uniqueProvisional = new Set(
+    cells
+      .filter((c) => c.confidence.startsWith('flag-'))
+      .map((c) => c.champion),
+  );
   const payload: LocksOutput = {
     generated: new Date().toISOString().slice(0, 10),
     chartDated: '2026-06',
+    _meta: {
+      cellsTotal: cells.length,
+      cellsLocked: locks.length,
+      cellsInReviewQueue: cells.length - locks.length,
+      conflicts: buckets.conflicts,
+      singleSource: buckets.singleSource,
+      staleOnly: buckets.staleOnly,
+      uniqueChampsLocked: uniqueLocked.size,
+      uniqueChampsProvisional: uniqueProvisional.size,
+    },
     champions: grouped,
   };
   ensureDir(LOCKS_PATH);

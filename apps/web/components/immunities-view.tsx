@@ -32,6 +32,14 @@ type ImmunitiesViewProps = {
     fixtureChampions?: number;
     backfillChampions?: number;
     kitChampions?: number;
+    reconciliation: {
+      cellsTotal: number;
+      cellsLocked: number;
+      uniqueChampsLocked: number;
+      conflicts: number;
+      singleSource: number;
+      staleOnly: number;
+    };
   };
 };
 
