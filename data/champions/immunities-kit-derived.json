@@ -1,10 +1,10 @@
 {
   "_meta": {
-    "note": "Auto-parsed from champion kit text in data/champions/abilities.json. Covers the immune band (from \"Immune to X\" / \"X Immunity\" declarations) and the resist band (from \"N% X Resistance\" declarations, N > 0). The mechanic Purify/Duration band and the synergy band come from other sources (fixture + pill backfill respectively). Loader precedence: pill backfill < this file < hand-curated fixture.",
+    "note": "Auto-parsed from champion kit text in data/champions/abilities.json via @prestige-tools/engine parseImmunitiesFromLines(). Covers the immune band (from \"Immune to X\" / \"X Immunity\" declarations, guarded against negation + inflict false-positives) and the resist band (from \"N% X Resistance\" and \"takes N% damage from\" declarations). The mechanic Purify/Duration band and the synergy band come from other sources.",
     "source": "MCOCHUB champion kit text (via abilities.json)",
     "generatedAt": "2026-07-01",
-    "championCount": 106,
-    "signalCount": 147
+    "championCount": 101,
+    "signalCount": 140
   },
   "champions": {
     "absorbing-man": {
@@ -55,14 +55,6 @@
         "band": "immune"
       }
     },
-    "attuma": {
-      "Incinerate": {
-        "band": "immune"
-      },
-      "Shock": {
-        "band": "immune"
-      }
-    },
     "bastion": {
       "Bleed": {
         "band": "resist",
@@ -75,11 +67,6 @@
     },
     "beta-ray-bill": {
       "Shock": {
-        "band": "immune"
-      }
-    },
-    "bishop": {
-      "Stun": {
         "band": "immune"
       }
     },
@@ -98,11 +85,6 @@
         "band": "immune"
       },
       "Shock": {
-        "band": "immune"
-      }
-    },
-    "cheeilth": {
-      "Bleed": {
         "band": "immune"
       }
     },
@@ -153,16 +135,8 @@
         "band": "immune"
       }
     },
-    "elsa-bloodstone": {
-      "Incinerate": {
-        "band": "immune"
-      }
-    },
     "emma-frost": {
       "Stun": {
-        "band": "immune"
-      },
-      "Bleed": {
         "band": "immune"
       }
     },
@@ -233,11 +207,6 @@
       "Degeneration": {
         "band": "resist",
         "qual": "90%"
-      }
-    },
-    "hulk-immortal": {
-      "Stun": {
-        "band": "immune"
       }
     },
     "iceman": {

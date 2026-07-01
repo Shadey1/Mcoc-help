@@ -181,3 +181,20 @@ export type {
   QueryMode,
   ImmunityHit,
 } from './immunities.js';
+
+// Immunity text parser (used by the reconciliation pipeline)
+export {
+  parseImmunitiesFromLines,
+  parseKitLine,
+  guardsPass,
+  inflictGuardFires,
+  enclosingSentence,
+  normaliseEffect,
+  parseSignedPercent,
+  NEGATION_PATTERNS,
+} from './immunity-text-parser.js';
+
+export type {
+  ParsedBand,
+  ParsedChampionImmunities,
+} from './immunity-text-parser.js';
