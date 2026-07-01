@@ -40,6 +40,16 @@ export function useLiveShareSync(roster: Roster, hydrated: boolean): void {
   // the server already has — without this, the resulting React re-render
   // would schedule a redundant PUT and the two devices would ping-pong.
   const lastPushedJSONRef = useRef<string | null>(null);
+  // Set the FIRST time the [roster, hydrated] effect runs with
+  // hydrated=true. That first run is the mount-time localStorage load
+  // completing — NOT a user edit — so we must not markLocalEdit or
+  // schedule a PUT on it. Doing so was the bug behind "phone edits
+  // don't carry over to desktop": marking bumps this device's
+  // localEditAt past the server's lastSyncedAt, which makes
+  // useInboundShareSync's guard skip the initial pull; ten seconds
+  // later the debounced PUT fires with this device's stale localStorage
+  // state and overwrites the sibling device's genuinely-newer edits.
+  const initialHydrationDoneRef = useRef(false);
 
   useEffect(() => {
     latestRosterRef.current = roster;
@@ -48,6 +58,17 @@ export function useLiveShareSync(roster: Roster, hydrated: boolean): void {
   useEffect(() => {
     if (!hydrated) return;
     if (typeof window === 'undefined') return;
+
+    // Skip the first fire post-hydration. useInboundShareSync's mount
+    // pull fires on the same hydration edge, and needs to see the
+    // truthful localEditAt (from the LAST real edit on this device) —
+    // not "now" — to decide whether the server has newer data worth
+    // pulling. Subsequent effect fires (from actual roster changes)
+    // are genuine user edits and follow the normal mark + debounce path.
+    if (!initialHydrationDoneRef.current) {
+      initialHydrationDoneRef.current = true;
+      return;
+    }
 
     // Stamp this device's "last local edit" so the inbound-sync hook on
     // any sibling device knows whether a pull-on-focus is safe. Stamped
