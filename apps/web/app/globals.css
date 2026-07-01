@@ -2,30 +2,55 @@
 
 /* ──────────────────────────────────────────────────────────────────
    Variant D — Hybrid: editorial almanack with comic-burst moments
+   plus a warm-dark counterpart
 
-   Theme tokens following Tailwind v4 CSS-first config. Used throughout
-   the app via Tailwind utilities and ad-hoc style declarations.
+   Two-layer token system:
+   • Brand palette (--brand-*) — mode-stable raw hexes. Never consumed by
+     components; only referenced by the semantic layer.
+   • Semantic tokens (--color-*) — what components read. Values swap
+     between light and dark modes via [data-mode] on <html>. First-visit
+     honours OS via prefers-color-scheme; explicit choice is stored in
+     localStorage.mcoc-theme and wins over OS preference.
+
+   Dark background is a WARM near-black (#14110d), not cold slate — it
+   reads as a relative of the cream, same designer. The cream becomes
+   the text colour in dark. The Marvel burst (#ED1D24) stays constant
+   because a starburst reads on both cream and warm-black; only the
+   editorial-red text shifts to the softer #ff5a60 in dark for legibility.
    ────────────────────────────────────────────────────────────────── */
 
 @theme {
-  /* Marvel red, two intensities */
-  --color-marvel-impact: #ED1D24;
-  --color-marvel-editorial: #C8202C;
+  /* Layer 1 — raw brand palette (mode-stable references) */
+  --brand-cream: #f1e8d6;
+  --brand-cream-card: #f4ecdb;
+  --brand-cream-soft: #fcf8ec;
+  --brand-cream-line: #d4c5ab;
+  --brand-ink: #1a1714;
+  --brand-ink-soft: #4a3f33;
 
-  /* Cream paper — three steps from darkest (page bg) to lightest (hover lift).
-     paper-soft is intentionally near-white with a cream tint — the contrast
-     against paper-card needs to register as a clear "this is selected" state. */
-  --color-paper: #f1e8d6;
-  --color-paper-card: #f4ecdb;
-  --color-paper-soft: #fcf8ec;
+  --brand-warm-black: #14110d;
+  --brand-panel: #1e1a14;
+  --brand-panel-2: #262019;
+  --brand-line: #362f24;
+  --brand-line-soft: #2a241c;
+  --brand-text-dim-dark: #b8ac95;
+  --brand-text-faint-dark: #7d7360;
 
-  /* Burst-only accents */
-  --color-burst-yellow: #FFD400;
+  --brand-marvel-impact: #ED1D24;
+  --brand-marvel-editorial: #C8202C;
+  --brand-marvel-soft: #ff5a60;
+  --brand-burst-yellow: #FFD400;
 
-  /* Editorial palette */
-  --color-ink: #1a1714;
-  --color-ink-soft: #4a3f33;
-  --color-rule: #d4c5ab;
+  /* Layer 2 — semantic tokens (light default). Components read these. */
+  --color-marvel-impact: var(--brand-marvel-impact);
+  --color-marvel-editorial: var(--brand-marvel-editorial);
+  --color-paper: var(--brand-cream);
+  --color-paper-card: var(--brand-cream-card);
+  --color-paper-soft: var(--brand-cream-soft);
+  --color-burst-yellow: var(--brand-burst-yellow);
+  --color-ink: var(--brand-ink);
+  --color-ink-soft: var(--brand-ink-soft);
+  --color-rule: var(--brand-cream-line);
 
   /* Typography — next/font injects --font-* CSS variables; we point our
      semantic names at them. Generic fallback chain in case fonts fail to load. */
@@ -33,6 +58,49 @@
   --font-body: var(--font-libre-franklin), "Libre Franklin", "Inter", system-ui, sans-serif;
   --font-mono: var(--font-jetbrains-mono), "JetBrains Mono", "SF Mono", "Consolas", monospace;
   --font-burst: var(--font-bungee), "Bungee", "Impact", sans-serif;
+}
+
+/* ─── Dark mode ──────────────────────────────────────────────────
+   Applied when data-mode="dark" is set on <html> (explicit user
+   choice) OR when the OS prefers dark AND the user hasn't picked
+   light explicitly. The :not selector in the media query lets an
+   explicit light choice override an OS dark preference. */
+
+:root[data-mode="dark"] {
+  --color-paper: var(--brand-warm-black);
+  --color-paper-card: var(--brand-panel);
+  --color-paper-soft: var(--brand-panel-2);
+  --color-ink: var(--brand-cream);
+  --color-ink-soft: var(--brand-text-dim-dark);
+  --color-rule: var(--brand-line);
+  /* Editorial red drops in for softer legibility on warm-black; the
+     impact starburst red stays canonical. */
+  --color-marvel-editorial: var(--brand-marvel-soft);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-mode="light"]) {
+    --color-paper: var(--brand-warm-black);
+    --color-paper-card: var(--brand-panel);
+    --color-paper-soft: var(--brand-panel-2);
+    --color-ink: var(--brand-cream);
+    --color-ink-soft: var(--brand-text-dim-dark);
+    --color-rule: var(--brand-line);
+    --color-marvel-editorial: var(--brand-marvel-soft);
+  }
+}
+
+/* Colour transitions on the mode flip. Kept fast so the toggle feels
+   snappy. Applied only to properties that actually change so we don't
+   pay for transitions on unrelated repaints. */
+html, body, header, footer, main, section, article, aside, nav {
+  transition: background-color 150ms ease-out, color 150ms ease-out,
+              border-color 150ms ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  html, body, header, footer, main, section, article, aside, nav {
+    transition: none;
+  }
 }
 
 /* Base styles */
@@ -70,7 +138,7 @@ html, body {
   color: var(--color-marvel-impact);
   line-height: 1;
   isolation: isolate;
-  filter: drop-shadow(0 1px 1px rgba(26, 23, 20, 0.25));
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.35));
 }
 .burst-badge::before {
   content: "";

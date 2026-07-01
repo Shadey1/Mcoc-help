@@ -5,6 +5,13 @@ import { Fraunces, Libre_Franklin, JetBrains_Mono, Bungee } from 'next/font/goog
 import './globals.css';
 import { BHROverridesProvider } from '../lib/bhr-overrides-context';
 import { RelicOverridesProvider } from '../lib/relic-overrides-context';
+import { ThemeToggle } from '../components/theme-toggle';
+
+// FOUC-prevention script: runs synchronously in <head> before paint so the
+// warm-black bg is applied before the first frame renders. localStorage
+// wins over prefers-color-scheme; empty storage falls back to the OS.
+// Inline (not a module) is deliberate — a React effect would flash first.
+const themeInit = `(function(){try{var t=localStorage.getItem('mcoc-theme');if(t==='dark'||t==='light')document.documentElement.dataset.mode=t;else if(matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.dataset.mode='dark';}catch(e){}})();`;
 
 // Editorial almanack typography per architecture-v5 §10.
 // Fraunces for display, Libre Franklin for body, JetBrains Mono for numerics,
@@ -57,7 +64,12 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${fraunces.variable} ${libreFranklin.variable} ${jetbrainsMono.variable} ${bungee.variable}`}
+      suppressHydrationWarning
     >
+      <head>
+        {/* eslint-disable-next-line @next/next/no-sync-scripts */}
+        <script dangerouslySetInnerHTML={{ __html: themeInit }} />
+      </head>
       <body className="min-h-screen flex flex-col">
         <BHROverridesProvider>
         <RelicOverridesProvider>
@@ -75,7 +87,7 @@ export default function RootLayout({
                 beta
               </span>
             </Link>
-            <ul className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-sm font-medium sm:flex-nowrap sm:justify-end sm:gap-x-6">
+            <ul className="flex flex-wrap justify-center items-center gap-x-4 gap-y-1 text-sm font-medium sm:flex-nowrap sm:justify-end sm:gap-x-6">
               <li>
                 <Link
                   href="/"
@@ -123,6 +135,9 @@ export default function RootLayout({
                 >
                   About
                 </Link>
+              </li>
+              <li className="ml-1 sm:ml-2">
+                <ThemeToggle />
               </li>
             </ul>
           </nav>
