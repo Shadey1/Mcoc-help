@@ -3,8 +3,8 @@
     "note": "Auto-parsed from champion kit text in data/champions/abilities.json. Covers the immune band (from \"Immune to X\" / \"X Immunity\" declarations) and the resist band (from \"N% X Resistance\" declarations, N > 0). The mechanic Purify/Duration band and the synergy band come from other sources (fixture + pill backfill respectively). Loader precedence: pill backfill < this file < hand-curated fixture.",
     "source": "MCOCHUB champion kit text (via abilities.json)",
     "generatedAt": "2026-07-01",
-    "championCount": 102,
-    "signalCount": 139
+    "championCount": 106,
+    "signalCount": 147
   },
   "champions": {
     "absorbing-man": {
@@ -61,6 +61,16 @@
       },
       "Shock": {
         "band": "immune"
+      }
+    },
+    "bastion": {
+      "Bleed": {
+        "band": "resist",
+        "qual": "100%"
+      },
+      "Poison": {
+        "band": "resist",
+        "qual": "100%"
       }
     },
     "beta-ray-bill": {
@@ -201,6 +211,16 @@
         "qual": "25%"
       }
     },
+    "heimdall": {
+      "Poison": {
+        "band": "resist",
+        "qual": "0%"
+      },
+      "Incinerate": {
+        "band": "resist",
+        "qual": "0%"
+      }
+    },
     "howard-the-duck": {
       "Bleed": {
         "band": "immune"
@@ -259,6 +279,12 @@
     "jack-olantern": {
       "Incinerate": {
         "band": "immune"
+      }
+    },
+    "karolina-dean": {
+      "Incinerate": {
+        "band": "resist",
+        "qual": "100%"
       }
     },
     "kindred": {
@@ -400,6 +426,9 @@
       },
       "Incinerate": {
         "band": "immune"
+      },
+      "Stun": {
+        "band": "immune"
       }
     },
     "phoenix": {
@@ -477,6 +506,12 @@
     "shuri": {
       "Shock": {
         "band": "immune"
+      }
+    },
+    "silver-samurai": {
+      "Bleed": {
+        "band": "resist",
+        "qual": "0%"
       }
     },
     "silver-surfer": {
@@ -570,6 +605,9 @@
     },
     "the-serpent": {
       "Stun": {
+        "band": "immune"
+      },
+      "Stagger": {
         "band": "immune"
       }
     },

@@ -194,6 +194,39 @@ function parseKitLine(
       }
     }
   }
+  // "N% Resistance against|to X" — inverse word order from "X
+  // Resistance". Bastion: "100% Resistance against Bleed and Poison
+  // effects". Also handles the multi-effect list.
+  {
+    const re =
+      /(?<!-)(\d+(?:\.\d+)?)%\s+Resistance\s+(?:against|to)\s+([^.,]*?(?:,\s*(?:and\s+)?[^.,]*)*?)(?=\.\s*|\s+effects?\b|\s+debuffs?\b|,\s*(?!and\s)|$)/gi;
+    let m: RegExpExecArray | null;
+    while ((m = re.exec(line)) !== null) {
+      const pct = parseSignedPercent(m[1]!);
+      if (pct === null) continue;
+      const effects = extractImmuneClause(m[2]!);
+      for (const eff of effects) {
+        assignBand(target, eff, { band: 'resist', qual: `${pct}%` });
+      }
+    }
+  }
+  // Verb-form immunity: "cannot be Bled" → Bleed immune.
+  {
+    const map: Record<string, Effect> = {
+      Bled: 'Bleed',
+      Poisoned: 'Poison',
+      Stunned: 'Stun',
+      Shocked: 'Shock',
+      Staggered: 'Stagger',
+      Incinerated: 'Incinerate',
+    };
+    const re = /cannot be (Bled|Poisoned|Stunned|Shocked|Staggered|Incinerated)/g;
+    let m: RegExpExecArray | null;
+    while ((m = re.exec(line)) !== null) {
+      const eff = map[m[1]!];
+      if (eff) assignBand(target, eff, { band: 'immune' });
+    }
+  }
 }
 
 /**
