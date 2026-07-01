@@ -30,9 +30,9 @@
       "Incinerate": { "band": "resist", "qual": "100%" }
     },
     "silver-surfer": {
-      "Coldsnap": { "band": "immune" },
-      "Incinerate": { "band": "immune" },
-      "Shock": { "band": "immune" }
+      "Coldsnap": { "band": "resist", "qual": "100%" },
+      "Incinerate": { "band": "resist", "qual": "100%" },
+      "Shock": { "band": "resist", "qual": "100%" }
     },
     "maestro": {
       "Poison": { "band": "immune" },

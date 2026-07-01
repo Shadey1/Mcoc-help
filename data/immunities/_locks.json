@@ -3,13 +3,13 @@
   "chartDated": "2026-06",
   "_meta": {
     "cellsTotal": 298,
-    "cellsLocked": 7,
-    "cellsInReviewQueue": 291,
-    "conflicts": 3,
+    "cellsLocked": 10,
+    "cellsInReviewQueue": 288,
+    "conflicts": 0,
     "singleSource": 288,
     "staleOnly": 0,
-    "uniqueChampsLocked": 4,
-    "uniqueChampsProvisional": 151
+    "uniqueChampsLocked": 5,
+    "uniqueChampsProvisional": 150
   },
   "champions": {
     "lizard": {
@@ -51,6 +51,26 @@
         "band": "resist",
         "confidence": "lock-2src",
         "value": 150,
+        "_review": true
+      }
+    },
+    "silver-surfer": {
+      "Coldsnap": {
+        "band": "resist",
+        "confidence": "lock-2src",
+        "value": 100,
+        "_review": true
+      },
+      "Incinerate": {
+        "band": "resist",
+        "confidence": "lock-2src",
+        "value": 100,
+        "_review": true
+      },
+      "Shock": {
+        "band": "resist",
+        "confidence": "lock-2src",
+        "value": 100,
         "_review": true
       }
     }
