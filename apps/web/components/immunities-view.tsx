@@ -25,7 +25,13 @@ import { displayRarity } from '../lib/champion-rarity';
 type ImmunitiesViewProps = {
   dataset: ImmunityDataset;
   champions: Champion[];
-  dataMeta: { source: string; capturedAt: string; championCount: number };
+  dataMeta: {
+    source: string;
+    capturedAt: string;
+    championCount: number;
+    fixtureChampions?: number;
+    backfillChampions?: number;
+  };
 };
 
 type Scope = 'roster' | 'all';

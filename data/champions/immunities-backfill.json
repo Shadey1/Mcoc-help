@@ -1,0 +1,938 @@
+{
+  "_meta": {
+    "note": "Auto-backfilled from data/champions/abilities.json (MCOCHUB pills.immunities). Covers only the immune + synergy bands — the resist % and mechanic Purify/Duration bands come from a separate GuiaMTC transcription pass (task #80) and override this file per-champion via the smoke fixture.",
+    "source": "MCOCHUB pills.immunities (via abilities.json)",
+    "generatedAt": "2026-07-01",
+    "championCount": 123,
+    "skippedPills": 125
+  },
+  "champions": {
+    "absorbing-man": {
+      "Armor Break": {
+        "band": "immune"
+      },
+      "Bleed": {
+        "band": "immune"
+      },
+      "Coldsnap": {
+        "band": "immune"
+      },
+      "Incinerate": {
+        "band": "immune"
+      },
+      "Shock": {
+        "band": "immune"
+      },
+      "Poison": {
+        "band": "synergy",
+        "partner": "Immortalabomination · Hulk (Immortal)"
+      }
+    },
+    "ant-man": {
+      "Poison": {
+        "band": "immune"
+      },
+      "Shock": {
+        "band": "immune"
+      }
+    },
+    "anti-venom": {
+      "Incinerate": {
+        "band": "immune"
+      },
+      "Poison": {
+        "band": "immune"
+      }
+    },
+    "apocalypse": {
+      "Bleed": {
+        "band": "immune"
+      },
+      "Incinerate": {
+        "band": "immune"
+      }
+    },
+    "arnim-zola": {
+      "Bleed": {
+        "band": "immune"
+      },
+      "Poison": {
+        "band": "immune"
+      }
+    },
+    "attuma": {
+      "Incinerate": {
+        "band": "immune"
+      }
+    },
+    "beta-ray-bill": {
+      "Shock": {
+        "band": "immune"
+      }
+    },
+    "black-widow-claire-voyant": {
+      "Bleed": {
+        "band": "immune"
+      },
+      "Incinerate": {
+        "band": "immune"
+      },
+      "Poison": {
+        "band": "immune"
+      }
+    },
+    "blue-marvel": {
+      "Bleed": {
+        "band": "immune"
+      }
+    },
+    "captain-marvel": {
+      "Poison": {
+        "band": "immune"
+      }
+    },
+    "cassie-lang": {
+      "Poison": {
+        "band": "immune"
+      },
+      "Shock": {
+        "band": "immune"
+      }
+    },
+    "civil-warrior": {
+      "Nullify": {
+        "band": "immune"
+      },
+      "Stagger": {
+        "band": "immune"
+      }
+    },
+    "colossus": {
+      "Bleed": {
+        "band": "immune"
+      },
+      "Coldsnap": {
+        "band": "immune"
+      },
+      "Incinerate": {
+        "band": "immune"
+      }
+    },
+    "count-nefaria": {
+      "Bleed": {
+        "band": "immune"
+      }
+    },
+    "crossbones": {
+      "Nullify": {
+        "band": "synergy",
+        "partner": "Punisher 2099 · Red Skull"
+      },
+      "Stagger": {
+        "band": "synergy",
+        "partner": "Punisher 2099 · Red Skull"
+      }
+    },
+    "dark-phoenix": {
+      "Incinerate": {
+        "band": "immune"
+      }
+    },
+    "dazzler": {
+      "Nullify": {
+        "band": "immune"
+      },
+      "Incinerate": {
+        "band": "synergy",
+        "partner": "Kitty Pryde"
+      }
+    },
+    "diablo": {
+      "Armor Break": {
+        "band": "immune"
+      },
+      "Stun": {
+        "band": "immune"
+      }
+    },
+    "doctor-bong": {
+      "Nullify": {
+        "band": "immune"
+      }
+    },
+    "doctor-strange": {
+      "Coldsnap": {
+        "band": "synergy",
+        "partner": "Dormammu"
+      }
+    },
+    "dracula": {
+      "Heal Block": {
+        "band": "immune"
+      }
+    },
+    "dragon-man": {
+      "Bleed": {
+        "band": "immune"
+      },
+      "Poison": {
+        "band": "immune"
+      }
+    },
+    "dust": {
+      "Bleed": {
+        "band": "immune"
+      },
+      "Poison": {
+        "band": "immune"
+      },
+      "Shock": {
+        "band": "immune"
+      }
+    },
+    "emma-frost": {
+      "Bleed": {
+        "band": "immune"
+      },
+      "Coldsnap": {
+        "band": "immune"
+      },
+      "Incinerate": {
+        "band": "immune"
+      },
+      "Poison": {
+        "band": "immune"
+      },
+      "Shock": {
+        "band": "immune"
+      },
+      "Stun": {
+        "band": "immune"
+      }
+    },
+    "franken-castle": {
+      "Poison": {
+        "band": "immune"
+      }
+    },
+    "galan": {
+      "Nullify": {
+        "band": "immune"
+      },
+      "Power Burn": {
+        "band": "immune"
+      }
+    },
+    "gentle": {
+      "Bleed": {
+        "band": "immune"
+      }
+    },
+    "ghost-rider": {
+      "Bleed": {
+        "band": "immune"
+      },
+      "Incinerate": {
+        "band": "immune"
+      }
+    },
+    "gladiator": {
+      "Power Burn": {
+        "band": "immune"
+      }
+    },
+    "gorr": {
+      "Heal Block": {
+        "band": "immune"
+      }
+    },
+    "guillotine-2099": {
+      "Bleed": {
+        "band": "immune"
+      },
+      "Poison": {
+        "band": "immune"
+      }
+    },
+    "havok": {
+      "Incinerate": {
+        "band": "immune"
+      }
+    },
+    "hawkeye": {
+      "Poison": {
+        "band": "synergy",
+        "partner": "Black Widow · Blackwidowwhite · Nick Fury · Quake"
+      }
+    },
+    "howard-the-duck": {
+      "Bleed": {
+        "band": "immune"
+      }
+    },
+    "hulk": {
+      "Poison": {
+        "band": "immune"
+      },
+      "Nullify": {
+        "band": "synergy",
+        "partner": "Hulkbuster"
+      },
+      "Stagger": {
+        "band": "synergy",
+        "partner": "Hulkbuster"
+      }
+    },
+    "hulk-immortal": {
+      "Poison": {
+        "band": "immune"
+      }
+    },
+    "hulkling": {
+      "Poison": {
+        "band": "immune"
+      },
+      "Power Burn": {
+        "band": "immune"
+      },
+      "Shock": {
+        "band": "immune"
+      },
+      "Stun": {
+        "band": "synergy",
+        "partner": "Wiccan"
+      }
+    },
+    "human-torch": {
+      "Coldsnap": {
+        "band": "immune"
+      },
+      "Incinerate": {
+        "band": "immune"
+      }
+    },
+    "hyperion": {
+      "Poison": {
+        "band": "immune"
+      }
+    },
+    "iceman": {
+      "Bleed": {
+        "band": "immune"
+      },
+      "Coldsnap": {
+        "band": "immune"
+      },
+      "Incinerate": {
+        "band": "immune"
+      },
+      "Poison": {
+        "band": "immune"
+      }
+    },
+    "imperiosa": {
+      "Bleed": {
+        "band": "immune"
+      }
+    },
+    "iron-man-infamous": {
+      "Incinerate": {
+        "band": "immune"
+      },
+      "Shock": {
+        "band": "immune"
+      }
+    },
+    "iron-man-infinity-war": {
+      "Bleed": {
+        "band": "immune"
+      },
+      "Coldsnap": {
+        "band": "immune"
+      }
+    },
+    "isophyne": {
+      "Bleed": {
+        "band": "immune"
+      },
+      "Coldsnap": {
+        "band": "immune"
+      }
+    },
+    "jack-olantern": {
+      "Incinerate": {
+        "band": "immune"
+      }
+    },
+    "joe-fixit": {
+      "Poison": {
+        "band": "immune"
+      }
+    },
+    "karolina-dean": {
+      "Coldsnap": {
+        "band": "immune"
+      }
+    },
+    "kindred": {
+      "Heal Block": {
+        "band": "immune"
+      },
+      "Incinerate": {
+        "band": "immune"
+      },
+      "Poison": {
+        "band": "immune"
+      }
+    },
+    "king-groot-deathless": {
+      "Bleed": {
+        "band": "immune"
+      },
+      "Power Burn": {
+        "band": "immune"
+      }
+    },
+    "kitty-pryde": {
+      "Incinerate": {
+        "band": "immune"
+      },
+      "Stun": {
+        "band": "immune"
+      }
+    },
+    "korg": {
+      "Bleed": {
+        "band": "immune"
+      },
+      "Shock": {
+        "band": "immune"
+      }
+    },
+    "kraven": {
+      "Bleed": {
+        "band": "synergy",
+        "partner": "Arcade"
+      }
+    },
+    "kushala": {
+      "Bleed": {
+        "band": "immune"
+      },
+      "Incinerate": {
+        "band": "immune"
+      }
+    },
+    "lizard": {
+      "Poison": {
+        "band": "immune"
+      }
+    },
+    "luke-cage": {
+      "Bleed": {
+        "band": "immune"
+      }
+    },
+    "lumatrix": {
+      "Bleed": {
+        "band": "immune"
+      }
+    },
+    "maestro": {
+      "Incinerate": {
+        "band": "immune"
+      },
+      "Poison": {
+        "band": "immune"
+      },
+      "Shock": {
+        "band": "immune"
+      }
+    },
+    "magik": {
+      "Bleed": {
+        "band": "synergy",
+        "partner": "Purgatory"
+      }
+    },
+    "magneto-house-of-x": {
+      "Bleed": {
+        "band": "immune"
+      }
+    },
+    "man-thing": {
+      "Armor Break": {
+        "band": "immune"
+      },
+      "Bleed": {
+        "band": "immune"
+      }
+    },
+    "mangog": {
+      "Armor Break": {
+        "band": "immune"
+      },
+      "Bleed": {
+        "band": "immune"
+      },
+      "Nullify": {
+        "band": "synergy",
+        "partner": "Odin"
+      }
+    },
+    "medusa": {
+      "Poison": {
+        "band": "immune"
+      }
+    },
+    "mister-negative": {
+      "Nullify": {
+        "band": "immune"
+      },
+      "Stagger": {
+        "band": "immune"
+      }
+    },
+    "mole-man": {
+      "Shock": {
+        "band": "immune"
+      }
+    },
+    "mordo": {
+      "Nullify": {
+        "band": "synergy",
+        "partner": "Doctor Voodoo · Sorcerer Supreme · Wiccan · Wong"
+      }
+    },
+    "nick-fury": {
+      "Stun": {
+        "band": "immune"
+      }
+    },
+    "night-thrasher": {
+      "Incinerate": {
+        "band": "immune"
+      }
+    },
+    "nimrod": {
+      "Bleed": {
+        "band": "immune"
+      },
+      "Poison": {
+        "band": "immune"
+      }
+    },
+    "omega-red": {
+      "Poison": {
+        "band": "immune"
+      }
+    },
+    "omega-sentinel": {
+      "Nullify": {
+        "band": "immune"
+      },
+      "Stagger": {
+        "band": "immune"
+      }
+    },
+    "peni-parker": {
+      "Incinerate": {
+        "band": "immune"
+      },
+      "Poison": {
+        "band": "immune"
+      },
+      "Stun": {
+        "band": "synergy",
+        "partner": "Air-Walker · Falcon"
+      }
+    },
+    "phoenix": {
+      "Heal Block": {
+        "band": "immune"
+      },
+      "Incinerate": {
+        "band": "immune"
+      },
+      "Power Burn": {
+        "band": "immune"
+      }
+    },
+    "photon": {
+      "Bleed": {
+        "band": "immune"
+      }
+    },
+    "phyla-vell": {
+      "Poison": {
+        "band": "immune"
+      }
+    },
+    "prowler": {
+      "Bleed": {
+        "band": "immune"
+      },
+      "Incinerate": {
+        "band": "immune"
+      }
+    },
+    "purgatory": {
+      "Incinerate": {
+        "band": "immune"
+      },
+      "Bleed": {
+        "band": "synergy",
+        "partner": "Dormammu · Magik · Mephisto · The Hood"
+      }
+    },
+    "red-goblin": {
+      "Incinerate": {
+        "band": "immune"
+      },
+      "Power Burn": {
+        "band": "immune"
+      }
+    },
+    "red-hulk": {
+      "Incinerate": {
+        "band": "immune"
+      },
+      "Poison": {
+        "band": "immune"
+      }
+    },
+    "red-skull": {
+      "Nullify": {
+        "band": "immune"
+      },
+      "Stagger": {
+        "band": "immune"
+      }
+    },
+    "rintrah": {
+      "Stun": {
+        "band": "immune"
+      }
+    },
+    "sabretooth": {
+      "Coldsnap": {
+        "band": "immune"
+      }
+    },
+    "sandman": {
+      "Bleed": {
+        "band": "immune"
+      },
+      "Poison": {
+        "band": "immune"
+      },
+      "Shock": {
+        "band": "immune"
+      }
+    },
+    "sasquatch": {
+      "Armor Break": {
+        "band": "immune"
+      }
+    },
+    "sauron": {
+      "Poison": {
+        "band": "immune"
+      }
+    },
+    "scorpion": {
+      "Poison": {
+        "band": "immune"
+      },
+      "Shock": {
+        "band": "immune"
+      }
+    },
+    "sentinel": {
+      "Armor Break": {
+        "band": "immune"
+      },
+      "Bleed": {
+        "band": "immune"
+      },
+      "Coldsnap": {
+        "band": "immune"
+      },
+      "Poison": {
+        "band": "immune"
+      }
+    },
+    "sentry": {
+      "Incinerate": {
+        "band": "immune"
+      },
+      "Nullify": {
+        "band": "immune"
+      }
+    },
+    "she-hulk": {
+      "Poison": {
+        "band": "immune"
+      }
+    },
+    "she-hulk-deathless": {
+      "Poison": {
+        "band": "immune"
+      }
+    },
+    "shocker": {
+      "Shock": {
+        "band": "immune"
+      }
+    },
+    "shuri": {
+      "Shock": {
+        "band": "immune"
+      }
+    },
+    "solvarch": {
+      "Bleed": {
+        "band": "immune"
+      },
+      "Poison": {
+        "band": "immune"
+      }
+    },
+    "spider-slayer-j-jonah-jameson": {
+      "Bleed": {
+        "band": "immune"
+      },
+      "Poison": {
+        "band": "immune"
+      }
+    },
+    "spider-woman": {
+      "Poison": {
+        "band": "immune"
+      }
+    },
+    "spot": {
+      "Stun": {
+        "band": "immune"
+      }
+    },
+    "storm": {
+      "Shock": {
+        "band": "immune"
+      },
+      "Coldsnap": {
+        "band": "synergy",
+        "partner": "Storm (Pyramid X)"
+      },
+      "Incinerate": {
+        "band": "synergy",
+        "partner": "Storm (Pyramid X)"
+      }
+    },
+    "storm-pyramid-x": {
+      "Coldsnap": {
+        "band": "immune"
+      }
+    },
+    "sunspot": {
+      "Incinerate": {
+        "band": "immune"
+      }
+    },
+    "super-skrull": {
+      "Incinerate": {
+        "band": "immune"
+      },
+      "Shock": {
+        "band": "immune"
+      }
+    },
+    "terrax": {
+      "Bleed": {
+        "band": "immune"
+      },
+      "Shock": {
+        "band": "immune"
+      }
+    },
+    "thanos-deathless": {
+      "Coldsnap": {
+        "band": "immune"
+      },
+      "Poison": {
+        "band": "immune"
+      },
+      "Power Burn": {
+        "band": "synergy",
+        "partner": "Vision (Deathless)"
+      }
+    },
+    "the-destroyer": {
+      "Armor Break": {
+        "band": "immune"
+      },
+      "Bleed": {
+        "band": "immune"
+      },
+      "Poison": {
+        "band": "immune"
+      }
+    },
+    "the-hood": {
+      "Bleed": {
+        "band": "synergy",
+        "partner": "Purgatory"
+      }
+    },
+    "the-leader": {
+      "Poison": {
+        "band": "immune"
+      }
+    },
+    "the-maker": {
+      "Neuroshock": {
+        "band": "immune"
+      }
+    },
+    "the-overseer": {
+      "Nullify": {
+        "band": "immune"
+      },
+      "Poison": {
+        "band": "immune"
+      },
+      "Stagger": {
+        "band": "immune"
+      }
+    },
+    "the-serpent": {
+      "Coldsnap": {
+        "band": "immune"
+      },
+      "Heal Block": {
+        "band": "immune"
+      }
+    },
+    "thing": {
+      "Armor Break": {
+        "band": "immune"
+      },
+      "Bleed": {
+        "band": "immune"
+      },
+      "Nullify": {
+        "band": "immune"
+      },
+      "Shock": {
+        "band": "immune"
+      },
+      "Stagger": {
+        "band": "immune"
+      }
+    },
+    "titania": {
+      "Bleed": {
+        "band": "synergy",
+        "partner": "Absorbing Man"
+      }
+    },
+    "toad": {
+      "Poison": {
+        "band": "immune"
+      }
+    },
+    "ultron": {
+      "Bleed": {
+        "band": "immune"
+      },
+      "Poison": {
+        "band": "immune"
+      }
+    },
+    "ultron-classic": {
+      "Bleed": {
+        "band": "immune"
+      },
+      "Poison": {
+        "band": "immune"
+      }
+    },
+    "venompool": {
+      "Incinerate": {
+        "band": "synergy",
+        "partner": "Human Torch · Red Hulk · Sunspot"
+      }
+    },
+    "vision": {
+      "Bleed": {
+        "band": "immune"
+      },
+      "Poison": {
+        "band": "immune"
+      }
+    },
+    "vision-deathless": {
+      "Bleed": {
+        "band": "immune"
+      },
+      "Coldsnap": {
+        "band": "immune"
+      },
+      "Poison": {
+        "band": "immune"
+      }
+    },
+    "viv-vision": {
+      "Bleed": {
+        "band": "immune"
+      },
+      "Poison": {
+        "band": "immune"
+      }
+    },
+    "void": {
+      "Incinerate": {
+        "band": "immune"
+      }
+    },
+    "vox": {
+      "Poison": {
+        "band": "immune"
+      },
+      "Power Burn": {
+        "band": "immune"
+      }
+    },
+    "warlock": {
+      "Bleed": {
+        "band": "immune"
+      },
+      "Coldsnap": {
+        "band": "immune"
+      },
+      "Poison": {
+        "band": "immune"
+      }
+    },
+    "werewolf-by-night": {
+      "Heal Block": {
+        "band": "immune"
+      }
+    },
+    "white-tiger": {
+      "Nullify": {
+        "band": "immune"
+      }
+    },
+    "wiccan": {
+      "Armor Break": {
+        "band": "immune"
+      }
+    },
+    "yelena-belova": {
+      "Poison": {
+        "band": "immune"
+      }
+    }
+  }
+}

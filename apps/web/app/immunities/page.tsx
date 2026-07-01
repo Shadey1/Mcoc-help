@@ -22,14 +22,13 @@ export default function ImmunitiesPage() {
       </section>
       <div className="border border-[var(--color-marvel-editorial)]/40 bg-[var(--color-marvel-editorial)]/5 rounded-md px-4 py-3 text-sm">
         <strong className="text-[var(--color-marvel-editorial)] font-semibold">
-          Preview — fixture data only ({dataMeta.championCount} champions).
+          Preview — {dataMeta.championCount} of {champions.length} champions covered.
         </strong>{' '}
         <span className="text-[var(--color-ink-soft)]">
-          The engine and view are complete, but the full-roster immunity
-          data is still being transcribed from GuiaMTC. Once every champ
-          is covered, this page goes into the main nav. For now: your
-          roster mostly looks empty because we haven&apos;t filled in
-          their data yet, not because they lack coverage.
+          Backfilled from MCOCHUB (immune + synergy bands, {dataMeta.backfillChampions ?? 0} champions)
+          + hand-curated four-signal fixture ({dataMeta.fixtureChampions ?? 0} champions with resistance %
+          and mechanic marks). The resist % and mechanic Purify/Duration bands are still being transcribed
+          from GuiaMTC for the rest; nav entry lands once coverage is closer to full.
         </span>
       </div>
       <ImmunitiesView
