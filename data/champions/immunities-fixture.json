@@ -1,0 +1,84 @@
+{
+  "_meta": {
+    "note": "15-champion smoke fixture for the four-signal immunity model. Sourced verbatim from the design handover mockup (GuiaMTC June 2026 snapshot). Ships in production so the /immunities view has real data to render; will be replaced/superseded by the full GuiaMTC transcription (task #80). DO NOT delete after the transcription lands — the engine tests use this as a stable regression fixture, especially Onslaught's 150% resist marks.",
+    "source": "GuiaMTC immunity chart (June 2026) via handover mockup",
+    "capturedAt": "2026-07-01"
+  },
+  "champions": {
+    "nova": {
+      "Bleed": { "band": "immune" },
+      "Poison": { "band": "immune" },
+      "Coldsnap": { "band": "immune" },
+      "Incinerate": { "band": "immune" }
+    },
+    "high-evolutionary": {
+      "Poison": { "band": "immune" },
+      "Shock": { "band": "immune" },
+      "Incinerate": { "band": "immune" },
+      "Coldsnap": { "band": "immune" }
+    },
+    "onslaught": {
+      "Stagger": { "band": "immune" },
+      "Poison": { "band": "resist", "qual": "80%" },
+      "Bleed": { "band": "resist", "qual": "150%" },
+      "Incinerate": { "band": "resist", "qual": "150%" },
+      "Shock": { "band": "resist", "qual": "150%" }
+    },
+    "lizard": {
+      "Bleed": { "band": "immune" },
+      "Poison": { "band": "immune" },
+      "Incinerate": { "band": "resist", "qual": "100%" }
+    },
+    "silver-surfer": {
+      "Coldsnap": { "band": "immune" },
+      "Incinerate": { "band": "immune" },
+      "Shock": { "band": "immune" }
+    },
+    "maestro": {
+      "Poison": { "band": "immune" },
+      "Shock": { "band": "immune" },
+      "Degeneration": { "band": "resist", "qual": "90%" }
+    },
+    "blue-marvel": {
+      "Incinerate": { "band": "immune" },
+      "Shock": { "band": "immune" }
+    },
+    "hercules": {
+      "Bleed": { "band": "immune" },
+      "Stun": { "band": "mechanic", "qual": "Duration" }
+    },
+    "patriot": {
+      "Bleed": { "band": "immune" },
+      "Stagger": { "band": "synergy", "partner": "Captain America (WWII)" }
+    },
+    "baron-zemo": {
+      "Bleed": { "band": "immune" },
+      "Armor Break": { "band": "resist", "qual": "50%" }
+    },
+    "spider-man-pavitr-prabhakar": {
+      "Bleed": { "band": "synergy", "partner": "Spider-Man (2099)" },
+      "Poison": { "band": "mechanic", "qual": "Purify" }
+    },
+    "spider-punk": {
+      "Shock": { "band": "immune" },
+      "Stun": { "band": "synergy", "partner": "Spider-Gwen" }
+    },
+    "imperiosa": {
+      "Coldsnap": { "band": "immune" }
+    },
+    "domino": {
+      "Bleed": { "band": "synergy", "partner": "Cable" },
+      "Incinerate": { "band": "resist", "qual": "50%" }
+    },
+    "iron-man": {
+      "Poison": { "band": "immune" },
+      "Bleed": { "band": "immune" },
+      "Shock": { "band": "resist", "qual": "80%" }
+    },
+    "the-maker": {
+      "Neuroshock": { "band": "immune" },
+      "Shock": { "band": "resist", "qual": "60%" },
+      "Incinerate": { "band": "resist", "qual": "100%" }
+    }
+  }
+}

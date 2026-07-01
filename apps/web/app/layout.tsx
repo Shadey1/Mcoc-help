@@ -123,6 +123,14 @@ export default function RootLayout({
               </li>
               <li>
                 <Link
+                  href="/immunities/"
+                  className="hover:text-[var(--color-marvel-impact)] transition-colors"
+                >
+                  Immunities
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/champions/"
                   className="hover:text-[var(--color-marvel-impact)] transition-colors"
                 >

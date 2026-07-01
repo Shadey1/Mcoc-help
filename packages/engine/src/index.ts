@@ -157,3 +157,27 @@ export type {
 } from './war/types.js';
 
 export { assignWar, assignmentStateScore, effectiveRank } from './war/assign.js';
+
+// ─── Immunity query engine ─────────────────────────────────────────────────
+
+export {
+  IMMUNITY_EFFECTS,
+  ALL_BANDS_ON,
+  isEffectivelyImmune,
+  bandScore,
+  hitScore,
+  queryImmunities,
+  coverAllButOne,
+  effectRosterCounts,
+} from './immunities.js';
+
+export type {
+  EffectName,
+  ImmunityBand,
+  BandKind,
+  ChampionImmunities,
+  ImmunityDataset,
+  BandFilter,
+  QueryMode,
+  ImmunityHit,
+} from './immunities.js';
