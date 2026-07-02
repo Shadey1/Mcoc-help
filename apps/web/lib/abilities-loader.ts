@@ -1,4 +1,5 @@
 import abilitiesData from '../../../data/champions/abilities.json' with { type: 'json' };
+import auntmData from '../../../data/champions/immunities-auntm.json' with { type: 'json' };
 
 /**
  * Per-champion ability data scraped from MCOCHUB (see
@@ -90,4 +91,27 @@ const partnerLookup: Map<string, string> = (() => {
  */
 export function resolvePartnerSlug(mcochubSlug: string): string | null {
   return partnerLookup.get(canonicaliseMcochubSlug(mcochubSlug)) ?? null;
+}
+
+// ─── Auntm.ai passives ─────────────────────────────────────────────────
+//
+// The auntm.ai JS bundle carries prose lines like
+// "Ant-Man is Immune to Poison and Shock effects." for legacy champions
+// whose MCOCHUB detail page doesn't render a passive ability card. We
+// extract these during the immunity-source pass (see
+// scripts/extract-immunities-from-auntm.ts) and expose them here so the
+// champion detail page can render a "PASSIVES · via auntm.ai" card next
+// to the MCOCHUB kit. Empty for post-2024 champions (auntm freeze) and
+// for champs whose passives are already covered by MCOCHUB cards.
+
+type AuntmFile = {
+  _meta: Record<string, unknown>;
+  champions: Record<string, unknown>;
+  passives: Record<string, string[]>;
+};
+
+const auntm = auntmData as unknown as AuntmFile;
+
+export function loadAuntmPassivesFor(seedId: string): string[] {
+  return auntm.passives[seedId] ?? [];
 }

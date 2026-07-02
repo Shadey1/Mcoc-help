@@ -6,7 +6,7 @@ import {
   findChampionById,
 } from '../../../lib/data-loader';
 import { loadSynergiesForChampion } from '../../../lib/synergies-loader';
-import { loadAbilitiesFor } from '../../../lib/abilities-loader';
+import { loadAbilitiesFor, loadAuntmPassivesFor } from '../../../lib/abilities-loader';
 import { ChampionPortrait } from '../../../components/champion-portrait';
 import { ScalingChart } from '../../../components/scaling-chart';
 import { BhrReferenceTable } from '../../../components/bhr-reference-table';
@@ -30,6 +30,7 @@ export default async function ChampionDetailPage({
 
   const synergies = loadSynergiesForChampion(slug);
   const abilities = loadAbilitiesFor(slug);
+  const auntmPassives = loadAuntmPassivesFor(slug);
   const championLookup = loadChampionLookup();
   const hasPrestige = champion.prestige !== undefined;
   const unreleased = champion.sevenStarReleased === false;
@@ -115,7 +116,12 @@ export default async function ChampionDetailPage({
         </>
       )}
 
-      {abilities && <ChampionAbilitiesSection abilities={abilities} />}
+      {abilities && (
+        <ChampionAbilitiesSection
+          abilities={abilities}
+          auntmPassives={auntmPassives}
+        />
+      )}
 
       <SynergiesSection synergies={synergies} championLookup={championLookup} />
 

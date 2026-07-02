@@ -5,6 +5,10 @@ import { findChampionById } from '../lib/data-loader';
 
 type ChampionAbilitiesSectionProps = {
   abilities: ChampionAbilities;
+  /** Prose passive lines from auntm.ai — rendered as a supplementary card
+   *  when MCOCHUB's kit doesn't spell out immunities in prose (legacy
+   *  champs). Empty array or absent = no auntm data. */
+  auntmPassives?: string[];
 };
 
 /**
@@ -17,6 +21,7 @@ type ChampionAbilitiesSectionProps = {
  */
 export function ChampionAbilitiesSection({
   abilities,
+  auntmPassives = [],
 }: ChampionAbilitiesSectionProps) {
   const { pills, kit, source } = abilities;
   const hasPills =
@@ -24,8 +29,9 @@ export function ChampionAbilitiesSection({
     pills.immunities.length > 0 ||
     pills.tags.length > 0;
   const hasKit = kit.signature !== null || kit.cards.length > 0;
+  const hasAuntmPassives = auntmPassives.length > 0;
 
-  if (!hasPills && !hasKit) return null;
+  if (!hasPills && !hasKit && !hasAuntmPassives) return null;
 
   return (
     <section className="space-y-5 border-t border-[var(--color-rule)] pt-6">
@@ -77,10 +83,13 @@ export function ChampionAbilitiesSection({
         </div>
       )}
 
-      {hasKit && (
+      {(hasKit || hasAuntmPassives) && (
         <div className="space-y-3">
           {kit.signature && (
             <KitCardBlock card={kit.signature} signature />
+          )}
+          {hasAuntmPassives && (
+            <AuntmPassivesCard passives={auntmPassives} />
           )}
           {kit.cards.map((card, i) => (
             <KitCardBlock key={`${card.title}-${i}`} card={card} />
@@ -88,6 +97,32 @@ export function ChampionAbilitiesSection({
         </div>
       )}
     </section>
+  );
+}
+
+/**
+ * Renders auntm.ai's prose passive lines as an ability card. Rendered
+ * always-open (no <details>) because these are the plain-English
+ * immunity descriptions the source-comparison story hinges on for
+ * legacy champs whose MCOCHUB cards don't spell them out.
+ */
+function AuntmPassivesCard({ passives }: { passives: string[] }) {
+  return (
+    <div className="border border-[var(--color-rule)] rounded-lg overflow-hidden bg-[var(--color-paper-card)]">
+      <div className="px-4 py-2 bg-[var(--color-marvel-editorial)]/10 border-b border-[var(--color-rule)] font-semibold text-sm flex items-baseline justify-between gap-2 flex-wrap">
+        <span>PASSIVES — via auntm.ai</span>
+        <span className="text-[10px] font-normal uppercase tracking-wider text-[var(--color-ink-soft)]">
+          in-game text · frozen 2024
+        </span>
+      </div>
+      <ul className="divide-y divide-[var(--color-rule)]/60">
+        {passives.map((line, i) => (
+          <li key={i} className="px-4 py-2 text-sm leading-relaxed">
+            {line}
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 
