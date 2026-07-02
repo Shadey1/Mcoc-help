@@ -1,17 +1,247 @@
 {
-  "generated": "2026-07-01",
+  "generated": "2026-07-02",
   "chartDated": "2026-06",
   "_meta": {
-    "cellsTotal": 298,
-    "cellsLocked": 10,
-    "cellsInReviewQueue": 288,
-    "conflicts": 0,
-    "singleSource": 288,
+    "cellsTotal": 324,
+    "cellsLocked": 93,
+    "cellsInReviewQueue": 231,
+    "conflicts": 3,
+    "singleSource": 228,
     "staleOnly": 0,
-    "uniqueChampsLocked": 5,
-    "uniqueChampsProvisional": 150
+    "uniqueChampsLocked": 55,
+    "uniqueChampsProvisional": 135
   },
   "champions": {
+    "ant-man": {
+      "Poison": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      },
+      "Shock": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
+    "anti-venom": {
+      "Incinerate": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      },
+      "Poison": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
+    "captain-marvel": {
+      "Poison": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
+    "cassie-lang": {
+      "Poison": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      },
+      "Shock": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
+    "colossus": {
+      "Bleed": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      },
+      "Coldsnap": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      },
+      "Incinerate": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
+    "dragon-man": {
+      "Bleed": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      },
+      "Poison": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
+    "dust": {
+      "Bleed": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      },
+      "Poison": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      },
+      "Shock": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
+    "emma-frost": {
+      "Bleed": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      },
+      "Coldsnap": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      },
+      "Incinerate": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      },
+      "Poison": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      },
+      "Shock": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      },
+      "Stun": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
+    "galan": {
+      "Nullify": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
+    "ghost-rider": {
+      "Bleed": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      },
+      "Incinerate": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
+    "gorr": {
+      "Heal Block": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
+    "havok": {
+      "Incinerate": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
+    "howard-the-duck": {
+      "Bleed": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
+    "hulk": {
+      "Poison": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
+    "hulkling": {
+      "Poison": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      },
+      "Shock": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
+    "human-torch": {
+      "Coldsnap": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      },
+      "Incinerate": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
+    "hyperion": {
+      "Poison": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
+    "iceman": {
+      "Bleed": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      },
+      "Coldsnap": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      },
+      "Incinerate": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      },
+      "Poison": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
+    "joe-fixit": {
+      "Poison": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
+    "kindred": {
+      "Heal Block": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      },
+      "Incinerate": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      },
+      "Poison": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
+    "kitty-pryde": {
+      "Incinerate": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
+    "korg": {
+      "Bleed": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      },
+      "Shock": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
+    "kushala": {
+      "Bleed": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      },
+      "Incinerate": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
     "lizard": {
       "Poison": {
         "band": "immune",
@@ -28,8 +258,210 @@
         "confidence": "lock-2src"
       }
     },
+    "man-thing": {
+      "Bleed": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
+    "medusa": {
+      "Poison": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
+    "mister-negative": {
+      "Nullify": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      },
+      "Stagger": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
+    "nimrod": {
+      "Bleed": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      },
+      "Poison": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
+    "omega-sentinel": {
+      "Nullify": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      },
+      "Stagger": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
+    "peni-parker": {
+      "Incinerate": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      },
+      "Poison": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
+    "photon": {
+      "Bleed": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
+    "red-skull": {
+      "Nullify": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      },
+      "Stagger": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
+    "rintrah": {
+      "Stun": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
+    "sabretooth": {
+      "Coldsnap": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
+    "sandman": {
+      "Bleed": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      },
+      "Poison": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      },
+      "Shock": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
+    "sauron": {
+      "Poison": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
+    "sentinel": {
+      "Bleed": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
+    "she-hulk": {
+      "Poison": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
+    "storm": {
+      "Shock": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
+    "terrax": {
+      "Shock": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
+    "the-destroyer": {
+      "Bleed": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      },
+      "Poison": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
     "the-maker": {
       "Neuroshock": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
+    "the-serpent": {
+      "Stun": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
+    "thing": {
+      "Bleed": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
+    "toad": {
+      "Poison": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
+    "ultron": {
+      "Poison": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
+    "vision": {
+      "Bleed": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
+    "viv-vision": {
+      "Bleed": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      },
+      "Poison": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
+    "void": {
+      "Incinerate": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
+    "vox": {
+      "Poison": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
+    "warlock": {
+      "Bleed": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      },
+      "Poison": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
+    "white-tiger": {
+      "Nullify": {
         "band": "immune",
         "confidence": "lock-2src"
       }
@@ -37,41 +469,35 @@
     "onslaught": {
       "Bleed": {
         "band": "resist",
-        "confidence": "lock-2src",
-        "value": 150,
-        "_review": true
+        "confidence": "lock-3src",
+        "value": 150
       },
       "Incinerate": {
         "band": "resist",
-        "confidence": "lock-2src",
-        "value": 150,
-        "_review": true
+        "confidence": "lock-3src",
+        "value": 150
       },
       "Shock": {
         "band": "resist",
-        "confidence": "lock-2src",
-        "value": 150,
-        "_review": true
+        "confidence": "lock-3src",
+        "value": 150
       }
     },
     "silver-surfer": {
       "Coldsnap": {
         "band": "resist",
-        "confidence": "lock-2src",
-        "value": 100,
-        "_review": true
+        "confidence": "lock-3src",
+        "value": 100
       },
       "Incinerate": {
         "band": "resist",
-        "confidence": "lock-2src",
-        "value": 100,
-        "_review": true
+        "confidence": "lock-3src",
+        "value": 100
       },
       "Shock": {
         "band": "resist",
-        "confidence": "lock-2src",
-        "value": 100,
-        "_review": true
+        "confidence": "lock-3src",
+        "value": 100
       }
     }
   }

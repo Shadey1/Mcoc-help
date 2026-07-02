@@ -1,0 +1,762 @@
+{
+  "_meta": {
+    "note": "Extracted from auntm.ai's public JS bundle (SPA client-side data). Immunity bands: Immunity type=... → immune; Mod Percent type=... → resist |modifier*100|%; Purify type=... → mechanic Purify. Champions released after 2024 are skipped because the bundle is frozen mid-2024 (matches DEFAULT_FRESHNESS.auntm.staleAfter). The passives object carries prose ability lines for the detail-page renderer to synthesise a PASSIVE card when MCOCHUB's kit doesn't already have one.",
+    "source": "auntm.ai (main.js bundle)",
+    "generatedAt": "2026-07-02",
+    "matched": 212,
+    "skipped": 112
+  },
+  "champions": {
+    "abomination": {
+      "Poison": {
+        "band": "immune"
+      }
+    },
+    "annihilus": {
+      "Stun": {
+        "band": "mechanic",
+        "qual": "Purify"
+      }
+    },
+    "ant-man": {
+      "Poison": {
+        "band": "immune"
+      },
+      "Shock": {
+        "band": "immune"
+      }
+    },
+    "anti-venom": {
+      "Poison": {
+        "band": "immune"
+      },
+      "Incinerate": {
+        "band": "immune"
+      }
+    },
+    "apocalypse": {
+      "Stun": {
+        "band": "mechanic",
+        "qual": "Purify"
+      }
+    },
+    "bishop": {
+      "Bleed": {
+        "band": "mechanic",
+        "qual": "Purify"
+      }
+    },
+    "black-bolt": {
+      "Poison": {
+        "band": "immune"
+      }
+    },
+    "black-panther": {
+      "Stun": {
+        "band": "mechanic",
+        "qual": "Purify"
+      }
+    },
+    "captain-marvel": {
+      "Poison": {
+        "band": "immune"
+      }
+    },
+    "cassie-lang": {
+      "Poison": {
+        "band": "immune"
+      },
+      "Shock": {
+        "band": "immune"
+      }
+    },
+    "colossus": {
+      "Bleed": {
+        "band": "immune"
+      },
+      "Incinerate": {
+        "band": "immune"
+      },
+      "Coldsnap": {
+        "band": "immune"
+      }
+    },
+    "darkhawk": {
+      "Poison": {
+        "band": "immune"
+      },
+      "Bleed": {
+        "band": "immune"
+      }
+    },
+    "diablo": {
+      "Poison": {
+        "band": "resist",
+        "qual": "100%"
+      }
+    },
+    "doctor-doom": {
+      "Shock": {
+        "band": "immune"
+      }
+    },
+    "dormammu": {
+      "Poison": {
+        "band": "immune"
+      },
+      "Bleed": {
+        "band": "immune"
+      }
+    },
+    "dragon-man": {
+      "Bleed": {
+        "band": "immune"
+      },
+      "Poison": {
+        "band": "immune"
+      }
+    },
+    "dust": {
+      "Bleed": {
+        "band": "immune"
+      },
+      "Poison": {
+        "band": "immune"
+      },
+      "Shock": {
+        "band": "immune"
+      }
+    },
+    "emma-frost": {
+      "Coldsnap": {
+        "band": "immune"
+      },
+      "Bleed": {
+        "band": "immune"
+      },
+      "Poison": {
+        "band": "immune"
+      },
+      "Incinerate": {
+        "band": "immune"
+      },
+      "Shock": {
+        "band": "immune"
+      },
+      "Stun": {
+        "band": "immune"
+      }
+    },
+    "galan": {
+      "Nullify": {
+        "band": "immune"
+      }
+    },
+    "gambit": {
+      "Degeneration": {
+        "band": "resist",
+        "qual": "100%"
+      }
+    },
+    "ghost-rider": {
+      "Bleed": {
+        "band": "immune"
+      },
+      "Incinerate": {
+        "band": "immune"
+      }
+    },
+    "gorr": {
+      "Heal Block": {
+        "band": "immune"
+      }
+    },
+    "groot": {
+      "Bleed": {
+        "band": "immune"
+      }
+    },
+    "havok": {
+      "Incinerate": {
+        "band": "immune"
+      }
+    },
+    "howard-the-duck": {
+      "Bleed": {
+        "band": "immune"
+      }
+    },
+    "hulk": {
+      "Poison": {
+        "band": "immune"
+      }
+    },
+    "hulkling": {
+      "Poison": {
+        "band": "immune"
+      },
+      "Shock": {
+        "band": "immune"
+      }
+    },
+    "human-torch": {
+      "Coldsnap": {
+        "band": "immune"
+      },
+      "Incinerate": {
+        "band": "immune"
+      }
+    },
+    "hyperion": {
+      "Poison": {
+        "band": "immune"
+      }
+    },
+    "iceman": {
+      "Incinerate": {
+        "band": "immune"
+      },
+      "Bleed": {
+        "band": "immune"
+      },
+      "Poison": {
+        "band": "immune"
+      },
+      "Coldsnap": {
+        "band": "immune"
+      },
+      "Stun": {
+        "band": "mechanic",
+        "qual": "Purify"
+      }
+    },
+    "ikaris": {
+      "Incinerate": {
+        "band": "immune"
+      },
+      "Shock": {
+        "band": "immune"
+      }
+    },
+    "joe-fixit": {
+      "Poison": {
+        "band": "immune"
+      }
+    },
+    "juggernaut": {
+      "Stun": {
+        "band": "immune"
+      }
+    },
+    "kindred": {
+      "Poison": {
+        "band": "immune"
+      },
+      "Incinerate": {
+        "band": "immune"
+      },
+      "Heal Block": {
+        "band": "immune"
+      }
+    },
+    "kitty-pryde": {
+      "Incinerate": {
+        "band": "immune"
+      }
+    },
+    "korg": {
+      "Bleed": {
+        "band": "immune"
+      },
+      "Shock": {
+        "band": "immune"
+      }
+    },
+    "kushala": {
+      "Bleed": {
+        "band": "immune"
+      },
+      "Incinerate": {
+        "band": "immune"
+      }
+    },
+    "man-thing": {
+      "Bleed": {
+        "band": "immune"
+      }
+    },
+    "medusa": {
+      "Poison": {
+        "band": "immune"
+      }
+    },
+    "mephisto": {
+      "Poison": {
+        "band": "immune"
+      }
+    },
+    "mister-negative": {
+      "Nullify": {
+        "band": "immune"
+      },
+      "Stagger": {
+        "band": "immune"
+      }
+    },
+    "mister-sinister": {
+      "Bleed": {
+        "band": "resist",
+        "qual": "100%"
+      }
+    },
+    "morningstar": {
+      "Bleed": {
+        "band": "immune"
+      }
+    },
+    "nebula": {
+      "Shock": {
+        "band": "immune"
+      },
+      "Poison": {
+        "band": "immune"
+      },
+      "Bleed": {
+        "band": "immune"
+      }
+    },
+    "nimrod": {
+      "Bleed": {
+        "band": "immune"
+      },
+      "Poison": {
+        "band": "immune"
+      }
+    },
+    "omega-red": {
+      "Degeneration": {
+        "band": "resist",
+        "qual": "100%"
+      }
+    },
+    "omega-sentinel": {
+      "Nullify": {
+        "band": "immune"
+      },
+      "Stagger": {
+        "band": "immune"
+      }
+    },
+    "onslaught": {
+      "Incinerate": {
+        "band": "resist",
+        "qual": "150%"
+      },
+      "Shock": {
+        "band": "resist",
+        "qual": "150%"
+      },
+      "Bleed": {
+        "band": "resist",
+        "qual": "150%"
+      }
+    },
+    "peni-parker": {
+      "Incinerate": {
+        "band": "immune"
+      },
+      "Poison": {
+        "band": "immune"
+      },
+      "Stun": {
+        "band": "mechanic",
+        "qual": "Purify"
+      }
+    },
+    "photon": {
+      "Bleed": {
+        "band": "immune"
+      }
+    },
+    "red-skull": {
+      "Nullify": {
+        "band": "immune"
+      },
+      "Stagger": {
+        "band": "immune"
+      }
+    },
+    "rintrah": {
+      "Stun": {
+        "band": "immune"
+      }
+    },
+    "ronan": {
+      "Poison": {
+        "band": "immune"
+      }
+    },
+    "sabretooth": {
+      "Coldsnap": {
+        "band": "immune"
+      }
+    },
+    "sandman": {
+      "Shock": {
+        "band": "immune"
+      },
+      "Poison": {
+        "band": "immune"
+      },
+      "Bleed": {
+        "band": "immune"
+      }
+    },
+    "sasquatch": {
+      "Stun": {
+        "band": "immune"
+      }
+    },
+    "sauron": {
+      "Poison": {
+        "band": "immune"
+      }
+    },
+    "sentinel": {
+      "Bleed": {
+        "band": "immune"
+      }
+    },
+    "she-hulk": {
+      "Poison": {
+        "band": "immune"
+      }
+    },
+    "silver-surfer": {
+      "Shock": {
+        "band": "resist",
+        "qual": "100%"
+      },
+      "Incinerate": {
+        "band": "resist",
+        "qual": "100%"
+      },
+      "Coldsnap": {
+        "band": "resist",
+        "qual": "100%"
+      }
+    },
+    "storm": {
+      "Shock": {
+        "band": "immune"
+      }
+    },
+    "sunspot": {
+      "Incinerate": {
+        "band": "mechanic",
+        "qual": "Purify"
+      }
+    },
+    "terrax": {
+      "Shock": {
+        "band": "immune"
+      }
+    },
+    "the-destroyer": {
+      "Poison": {
+        "band": "immune"
+      },
+      "Bleed": {
+        "band": "immune"
+      }
+    },
+    "the-serpent": {
+      "Stun": {
+        "band": "immune"
+      }
+    },
+    "thing": {
+      "Bleed": {
+        "band": "immune"
+      }
+    },
+    "toad": {
+      "Poison": {
+        "band": "immune"
+      }
+    },
+    "ultron": {
+      "Poison": {
+        "band": "immune"
+      }
+    },
+    "vision": {
+      "Bleed": {
+        "band": "immune"
+      }
+    },
+    "viv-vision": {
+      "Poison": {
+        "band": "immune"
+      },
+      "Bleed": {
+        "band": "immune"
+      }
+    },
+    "void": {
+      "Incinerate": {
+        "band": "immune"
+      }
+    },
+    "vox": {
+      "Poison": {
+        "band": "immune"
+      }
+    },
+    "warlock": {
+      "Bleed": {
+        "band": "immune"
+      },
+      "Poison": {
+        "band": "immune"
+      }
+    },
+    "white-tiger": {
+      "Nullify": {
+        "band": "immune"
+      }
+    }
+  },
+  "passives": {
+    "abomination": [
+      "An enhanced immune system provides full Immunity to Poison."
+    ],
+    "annihilus": [
+      "Annihilus Purifies incoming Stun Debuffs while launching Obliterating Strikes."
+    ],
+    "ant-man": [
+      "Ant-Man is Immune to Poison and Shock effects."
+    ],
+    "anti-venom": [
+      "Immunity to Incinerate and Poison."
+    ],
+    "apocalypse": [
+      "At [37bfff]3+ Genetic Code[-], become Stun Immune while striking."
+    ],
+    "bishop": [
+      "Each Prowess converted also has an 100% chance to Purify a Bleed Debuff."
+    ],
+    "black-bolt": [
+      "An enhanced immune system provides full Immunity to Poison."
+    ],
+    "black-panther": [
+      "When striking into an Auto-Block, Panther is Immune to Stun."
+    ],
+    "captain-marvel": [
+      "Advanced Kree physiology provides full immunity to the Poisons of the Battlerealm."
+    ],
+    "cassie-lang": [
+      "Cassie\\u2019s highly advanced Pym Suit provides her with Buff Immunity, as well as Immunity to Poison and Shock effects."
+    ],
+    "colossus": [
+      "Impenetrable armor provides full immunity to Bleeding.",
+      "Colossus is Immune to all Bleed, Incinerate, [k=glossary/coldsnap]Coldsnap[/k] & Frostbite effects. Additionally, if he\\u2019s not fighting a Tech Champion, he\\u2019s also immune to Armor Break and Armor Shattered Debuffs."
+    ],
+    "darkhawk": [
+      "Advanced robotics provides full immunity to Poison and Bleed effects."
+    ],
+    "diablo": [
+      "Incoming Poison effects suffer -100% Potency."
+    ],
+    "doctor-doom": [
+      "Doom\\u2019s resilient armor protects him, granting immunity to Armor Break, Armor Shatter and Shock effects."
+    ],
+    "dormammu": [
+      "As a being of pure mystical energy, Dormammu, is immune to all known poisons of the Battlerealm.",
+      "Dormammu, lacks blood and is therefore immune to Bleed effects."
+    ],
+    "dragon-man": [
+      "Dragon Man\\u2019s thick Armor and Advanced Robotics grants full immunity to Bleed, Poison, and Armor Shattered."
+    ],
+    "dust": [
+      "Dust is Immune to Bleed, [k=glossary/poison]Poison[/k], and [k=glossary/shock]Shock[/k] effects."
+    ],
+    "emma-frost": [
+      "Emma\\u2019s organic diamond is immune to all Stun, Bleed, Poison, Incinerate, Shock, Frostbite, [k=glossary/coldsnap]Coldsnap[/k], Fatigue, Concussion, and Exhaustion effects."
+    ],
+    "galan": [
+      "Galan\\u2019s otherworldly nature provides immunity to Fate Seals and Nullify effects. "
+    ],
+    "gambit": [
+      "These attacks utilize a burst of kinetic energy. Striking with them reduces the damage of the Opponent's Passive Degeneration and Direct Damage effects by 100% for 0.20 second(s)."
+    ],
+    "ghost-rider": [
+      "A lack of blood provides full immunity to Bleeding.",
+      "Being wreathed in Hellfire provides full Immunity to Incinerate"
+    ],
+    "gorr": [
+      "Immune to Heal Block."
+    ],
+    "groot": [
+      "A lack of blood provides full immunity to Bleeding."
+    ],
+    "havok": [
+      "Havok is Immune to all forms of Incinerate."
+    ],
+    "howard-the-duck": [
+      "The bulky ISO-Loader suit provides Immunity to Bleed effects."
+    ],
+    "hulk": [
+      "An enhanced immune system provides full Immunity to Poison."
+    ],
+    "hulkling": [
+      "Advanced Kree-Skrull physiology provides full immunity to the Poisons and Shocks of the Battlerealm."
+    ],
+    "human-torch": [
+      "Immune to Incinerate, [k=glossary/coldsnap]Coldsnap[/k] and Frostbite.",
+      "Whenever Human Torch would be Incinerated, he places a Smoulder Passive on himself. Smoulder Passives deal 0 damage and last indefinitely.",
+      "Immune to Incinerate, Coldsnap and Frostbite."
+    ],
+    "hyperion": [
+      "Eternal physiology grants immunity to all known poisons within the Battlerealm."
+    ],
+    "iceman": [
+      "Iceman\\u2019s organic ice form grants him full Immunity to all Incinerate, Nova Flame, Bleed, Poison, Coldsnap, and Frostbite effects.",
+      "If Iceman would become Stunned while his Ice Armor is active, the Ice Armor negates the effect, then shatters."
+    ],
+    "ikaris": [
+      "All basic attacks are Energy Damage."
+    ],
+    "joe-fixit": [
+      "An enhanced immune system provides full immunity to the Poisons of the Battlerealm."
+    ],
+    "juggernaut": [
+      "Juggernaut is immune to Stun Debuffs and if the opponent attempts to Stun him, he will instead apply his Heavy Attack [k=glossary/stagger]Stagger[/k] to them."
+    ],
+    "kindred": [
+      "Kindred is a being forged in the flames of hell and feels nothing but contempt. They are Immune to Poison, Incinerate, Heal Block, Infuriate, and Intimidate effects."
+    ],
+    "kitty-pryde": [
+      "Immune to Incinerate, thanks to Lockheed\\u2019s assistance."
+    ],
+    "korg": [
+      "Rock anatomy provides Korg immunity to Bleed, Shock and additional Critical Resistance but decreases his [k=glossary/energy_res]Energy Resistance[/k] by 20%."
+    ],
+    "kushala": [
+      "Kushala's connection to her Spirit of Vengeance grants her immunity to all Bleed and Incinerate effects."
+    ],
+    "man-thing": [
+      "Man-Thing\\u2019s lack of blood also makes it Immune to Bleed effects."
+    ],
+    "medusa": [
+      "An enhanced immune system provides full Immunity to Poison."
+    ],
+    "mephisto": [
+      "Immune to all known poisons of the Battlerealm."
+    ],
+    "mister-negative": [
+      "Mister Negative is immune to all Nullify, [k=glossary/stagger]Stagger[/k] and Fateseal effects."
+    ],
+    "mister-sinister": [
+      "Mister Sinister reduces the potency of incoming Bleed effects by 100%."
+    ],
+    "morningstar": [
+      "A lack of blood provides full immunity to Bleeding."
+    ],
+    "nebula": [
+      "Advanced Robotics provides full Immunity to Bleed, Poison and Shock effects."
+    ],
+    "nimrod": [
+      "Advanced Robotics provides Immunity to Bleed & Poison effects."
+    ],
+    "omega-red": [
+      "When striking with Tentacle Hits, reduce the damage of the Opponent's Passive Degeneration and Direct Damage effects by 100% for 0.20 second(s)."
+    ],
+    "omega-sentinel": [
+      "Omega Sentinel\\u2019s Adaptive Body grants her Immunity to Nullify, Stagger and Fateseal effects. Against Mutants, her Ability Accuracy cannot be modified."
+    ],
+    "onslaught": [
+      "Incoming Bleed, Incinerate, and Shock potency is reduced by 150%."
+    ],
+    "peni-parker": [
+      "Immune to Poison and Incinerate Effects due to Oscorp\\u2019s cutting-edge SP//dr Suit technology.",
+      "When Blocking or Auto-Blocking a Hit, Peni cannot be Stunned and Locks the Opponent\\u2019s Power."
+    ],
+    "photon": [
+      "Photon's altered body composition grants her Immunity to all Bleed and Power Steal effects."
+    ],
+    "red-skull": [
+      "Red Skull is Immune to Nullify, Fate Seal, and Stagger effects from Champions."
+    ],
+    "rintrah": [
+      "15+ Charges: Rintrah is Stun Immune."
+    ],
+    "ronan": [
+      "Advanced Kree physiology provides full immunity to the Poisons of the Battlerealm."
+    ],
+    "sabretooth": [
+      "Sabretooth can withstand incredibly cold temperatures, providing him Immunity to Cold Damage like [k=glossary/coldsnap]Coldsnap[/k] and Frostbite."
+    ],
+    "sandman": [
+      "Sandman is Immune to Bleed, Poison, and Shock effects."
+    ],
+    "sasquatch": [
+      "During [ffb03e]Wrath of Tanaraq[-] Sasquatch is Stun Immune."
+    ],
+    "sauron": [
+      "Immune to all Power Steal, Poison, and Sauron's Regeneration Rate cannot be decreased or increased by outside sources."
+    ],
+    "sentinel": [
+      "Advanced robotics provides full immunity to Poison and Bleed effects."
+    ],
+    "she-hulk": [
+      "An enhanced immune system provides full Immunity to Poison."
+    ],
+    "silver-surfer": [
+      "Silver Surfer takes -100% damage from [k=glossary/coldsnap]Coldsnap[/k], Incinerate, and Shock Debuffs. Each stack of these Debuffs count as a Unique Buff for any of Silver Surfer's abilities."
+    ],
+    "storm": [
+      "Storm\\u2019s control of the elements grants her Immunity to Shock effects."
+    ],
+    "sunspot": [
+      "When Sunspot performs a Perfect Block he Purifies 1 Incinerate Debuff on his Opponent.",
+      "While Charging a Heavy Attack, Sunspot Purifies 1 Incinerate Debuff on his Opponent every 0.18 seconds."
+    ],
+    "terrax": [
+      "Terrax is immune to Shock and Bleed effects due to his rocky body."
+    ],
+    "the-destroyer": [
+      "The Destroyer is a magical non-magnetic construct Immune to Slow, Armor Break, Poison, and Bleed. Additionally, the Salve and Willpower Masteries are disabled."
+    ],
+    "the-serpent": [
+      "The Serpent gains Immunity to Stun effects during the Opponent\\u2019s Special Attacks."
+    ],
+    "thing": [
+      "Immune to Bleed, Shock, Armor Break, Armor Shattered, Nullify, [k=glossary/stagger]Stagger[/k], and Fate Seal effects."
+    ],
+    "toad": [
+      "Toad is immune to Poison and his regeneration rate cannot be decreased or increased by outside sources."
+    ],
+    "ultron": [
+      "Advanced robotics provides full immunity to Poison and Bleed effects."
+    ],
+    "vision": [
+      "Advanced robotics provides full immunity to Poison and Bleed effects."
+    ],
+    "viv-vision": [
+      "Advanced robotics provide full Immunity to Poison and Bleed, and all Abilites gain 25% Ability Accuracy. Additionally, while she has an Armor Up effect, Viv is Immune to Nullify and Fateseal."
+    ],
+    "void": [
+      "A suffocating, choking, and all-consuming Void provides full immunity to Incinerate effects."
+    ],
+    "vox": [
+      "Vox\\u2019s super-Inhuman physiology grants them Immunity to [k=glossary/poison]Poison[/k], [k=glossary/power_burn]Power Burn[/k], [k=glossary/power_drain]Power Drain[/k], [k=glossary/power_lock]Power Lock[/k] and [k=glossary/special_lock]Special Lock[/k]."
+    ],
+    "warlock": [
+      "Immune to Bleed, Poison, [k=glossary/coldsnap]Coldsnap[/k], and Frostbite."
+    ],
+    "white-tiger": [
+      "The might of the Tiger God grants White Tiger Immunity to Nullify."
+    ]
+  }
+}

@@ -18,6 +18,7 @@
     "parse-immunity-kits": "tsx scripts/parse-immunities-from-abilities.ts",
     "backfill-released": "tsx scripts/backfill-released-dates.ts",
     "reconcile-immunities": "tsx scripts/reconcile-immunities.ts",
+    "extract-auntm-immunities": "tsx scripts/extract-immunities-from-auntm.ts",
     "lint": "pnpm -F web lint"
   },
   "devDependencies": {
