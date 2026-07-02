@@ -1,0 +1,10 @@
+{
+  "_meta": {
+    "source": "GuiaMTC immunity chart (guiamtc.com/immunities)",
+    "chartDated": "2026-06",
+    "capturedAt": "2026-07-01",
+    "note": "Manual transcription pass. Only labelled cells from the chart go here — plain unmarked portraits (implicit-immune) are already covered by MCOCHUB kit text via the abilityText source. Chart is used only as an INDEPENDENT second source to promote abilityText-only single-source flags into lock-2src. Freshness: chart is stale-suspect for champs released after June 2026 (task #80 tracks this).",
+    "format": "champions[seedId][EffectName] = { band, qual?, partner? }. Bands: immune | resist (qual = 'N%') | mechanic (qual = 'Purify' | 'Duration') | synergy (partner = 'Display Name'). See data/champions/immunities-fixture.json for shape examples."
+  },
+  "champions": {}
+}

@@ -18,6 +18,8 @@
     "parse-immunity-kits": "tsx scripts/parse-immunities-from-abilities.ts",
     "backfill-released": "tsx scripts/backfill-released-dates.ts",
     "reconcile-immunities": "tsx scripts/reconcile-immunities.ts",
+    "generate-chart-template": "tsx scripts/generate-chart-template.ts",
+    "ingest-chart-template": "tsx scripts/ingest-chart-template.ts",
     "extract-auntm-immunities": "tsx scripts/extract-immunities-from-auntm.ts",
     "lint": "pnpm -F web lint"
   },
