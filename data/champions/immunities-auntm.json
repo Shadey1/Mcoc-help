@@ -53,8 +53,7 @@
     },
     "black-panther": {
       "Stun": {
-        "band": "mechanic",
-        "qual": "Purify"
+        "band": "immune"
       }
     },
     "captain-marvel": {
@@ -369,8 +368,7 @@
         "band": "immune"
       },
       "Stun": {
-        "band": "mechanic",
-        "qual": "Purify"
+        "band": "immune"
       }
     },
     "photon": {
@@ -449,12 +447,6 @@
     "storm": {
       "Shock": {
         "band": "immune"
-      }
-    },
-    "sunspot": {
-      "Incinerate": {
-        "band": "mechanic",
-        "qual": "Purify"
       }
     },
     "terrax": {
@@ -717,10 +709,6 @@
     ],
     "storm": [
       "Storm\\u2019s control of the elements grants her Immunity to Shock effects."
-    ],
-    "sunspot": [
-      "When Sunspot performs a Perfect Block he Purifies 1 Incinerate Debuff on his Opponent.",
-      "While Charging a Heavy Attack, Sunspot Purifies 1 Incinerate Debuff on his Opponent every 0.18 seconds."
     ],
     "terrax": [
       "Terrax is immune to Shock and Bleed effects due to his rocky body."

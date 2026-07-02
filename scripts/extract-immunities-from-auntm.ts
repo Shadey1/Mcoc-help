@@ -193,9 +193,39 @@ function parseLongString(record: string): string {
  *   - "Purify type=X; ..." / "Purify"  → mechanic Purify per X
  * Effects outside our tracked vocabulary are dropped silently.
  */
+/**
+ * auntm's `type: "Purify"` records are not always defensive-purify —
+ * many are offensive interactions (Sunspot purifies opponent's
+ * Incinerate to gain solar charges) or immunity descriptions
+ * mislabelled as Purify (Black Panther "Immune to Stun" when striking
+ * into auto-block). The type header alone can't distinguish them; the
+ * `longString` describes what actually happens. Rules applied to a
+ * candidate Purify record:
+ *
+ *   - "on … Opponent" / "on their target"  → offensive → skip entirely
+ *   - "Immune to X" / "cannot be X-ed"     → reclassify as immune
+ *   - otherwise                            → defensive purify (keep)
+ *
+ * This lets the extraction match what a war-planner user actually
+ * needs: a reliable signal about defensive immunity, not a misleading
+ * mechanic tag that trips through reconciliation as a conflict.
+ */
+function classifyPurify(longString: string): 'skip' | 'immune' | 'purify' {
+  if (/on\s+(?:his|her|their|the)\s+Opponent\b/i.test(longString) ||
+      /on\s+the\s+target\b/i.test(longString)) {
+    return 'skip';
+  }
+  if (/\bImmune to\b/i.test(longString) ||
+      /\bcannot\s+be\s+(?:Stunned|Bled|Poisoned|Shocked|Incinerated|Staggered|Nullified)\b/i.test(longString)) {
+    return 'immune';
+  }
+  return 'purify';
+}
+
 function typeToMarks(
   typeStr: string,
   modifier: number | null,
+  longString: string,
 ): Array<{ effect: string; band: ParsedBand }> {
   const marks: Array<{ effect: string; band: ParsedBand }> = [];
   const family =
@@ -218,12 +248,20 @@ function typeToMarks(
     .map((s) => s.trim())
     .filter(Boolean);
 
+  // Reclassify Purify records using longString semantics (see helper).
+  let effectiveFamily = family;
+  if (family === 'purify') {
+    const verdict = classifyPurify(longString);
+    if (verdict === 'skip') return marks;
+    if (verdict === 'immune') effectiveFamily = 'immune';
+  }
+
   for (const key of keys) {
     const effect = EFFECT_KEY_MAP[key];
     if (!effect) continue;
-    if (family === 'immune') {
+    if (effectiveFamily === 'immune') {
       marks.push({ effect, band: { band: 'immune' } });
-    } else if (family === 'resist') {
+    } else if (effectiveFamily === 'resist') {
       const pct =
         modifier !== null ? Math.round(Math.abs(modifier) * 100) : 0;
       if (pct <= 0) continue;
@@ -302,7 +340,7 @@ async function main() {
       if (!typeStr) continue;
       const modifier = parseModifier(record);
       const long = parseLongString(record);
-      const marks = typeToMarks(typeStr, modifier);
+      const marks = typeToMarks(typeStr, modifier, long);
       for (const m of marks) assignBest(perEffect, m.effect, m.band);
       // Snapshot the prose passive lines for the detail-page renderer.
       if (

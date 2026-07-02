@@ -34,6 +34,9 @@
       "Incinerate": { "band": "resist", "qual": "100%" },
       "Shock": { "band": "resist", "qual": "100%" }
     },
+    "sunspot": {
+      "Incinerate": { "band": "immune" }
+    },
     "maestro": {
       "Poison": { "band": "immune" },
       "Shock": { "band": "immune" },

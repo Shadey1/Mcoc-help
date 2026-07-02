@@ -3,13 +3,13 @@
   "chartDated": "2026-06",
   "_meta": {
     "cellsTotal": 324,
-    "cellsLocked": 93,
-    "cellsInReviewQueue": 231,
-    "conflicts": 3,
+    "cellsLocked": 96,
+    "cellsInReviewQueue": 228,
+    "conflicts": 0,
     "singleSource": 228,
     "staleOnly": 0,
-    "uniqueChampsLocked": 55,
-    "uniqueChampsProvisional": 135
+    "uniqueChampsLocked": 57,
+    "uniqueChampsProvisional": 132
   },
   "champions": {
     "ant-man": {
@@ -308,6 +308,10 @@
       "Poison": {
         "band": "immune",
         "confidence": "lock-2src"
+      },
+      "Stun": {
+        "band": "immune",
+        "confidence": "lock-2src"
       }
     },
     "photon": {
@@ -372,6 +376,12 @@
     },
     "storm": {
       "Shock": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
+    "sunspot": {
+      "Incinerate": {
         "band": "immune",
         "confidence": "lock-2src"
       }
@@ -462,6 +472,12 @@
     },
     "white-tiger": {
       "Nullify": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
+    "black-panther": {
+      "Stun": {
         "band": "immune",
         "confidence": "lock-2src"
       }
