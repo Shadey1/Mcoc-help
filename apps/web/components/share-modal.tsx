@@ -165,6 +165,14 @@ export function ShareModal({ open, onClose, roster }: ShareModalProps) {
               </span>
             </label>
 
+            {keepLive && (
+              <div className="text-xs text-[var(--color-ink-soft)] pl-6 border-l-2 border-[var(--color-marvel-impact)]/30 py-1">
+                Live shares also get a private <strong className="text-[var(--color-ink)]">sync URL</strong> for
+                your own devices — open it on your phone (or another browser) and edits stay in sync
+                both ways. You&apos;ll see it after generating.
+              </div>
+            )}
+
             <div className="flex gap-2 pt-2">
               <button
                 type="button"
@@ -219,37 +227,35 @@ export function ShareModal({ open, onClose, roster }: ShareModalProps) {
             </div>
 
             {state.mode === 'live' && (
-              <details className="text-sm border-t border-[var(--color-rule)] pt-3">
-                <summary className="cursor-pointer font-medium hover:text-[var(--color-marvel-impact)]">
-                  Sync to your other devices
-                </summary>
-                <div className="mt-2 space-y-2">
-                  <p className="text-xs text-[var(--color-ink-soft)]">
-                    Open this private URL on your phone (or another browser) and
-                    tap <strong>Import &amp; sync</strong>. Edits on either device
-                    will then sync to the other through this share. Don&apos;t share
-                    this URL — anyone with it can write to your roster. Last
-                    writer wins if you edit on both devices at the same time.
-                  </p>
-                  <div className="flex gap-2">
-                    <input
-                      id="share-sync-url-input"
-                      type="text"
-                      value={state.syncUrl}
-                      readOnly
-                      onFocus={(e) => e.target.select()}
-                      className="flex-1 px-3 py-2 border border-[var(--color-rule)] rounded bg-[var(--color-paper-soft)] numeric text-xs"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => copyUrl(state.syncUrl, 'sync')}
-                      className="px-3 py-2 border border-[var(--color-rule)] rounded hover:bg-[var(--color-paper-soft)] transition-colors min-w-[80px] text-sm"
-                    >
-                      {copied === 'sync' ? 'Copied!' : 'Copy'}
-                    </button>
-                  </div>
+              <div className="text-sm border-t border-[var(--color-rule)] pt-3 space-y-2">
+                <div className="font-medium text-[var(--color-marvel-impact)]">
+                  Sync to your other devices — private URL
                 </div>
-              </details>
+                <p className="text-xs text-[var(--color-ink-soft)]">
+                  Open this URL on your phone (or another browser) and tap{' '}
+                  <strong>Import &amp; sync</strong>. Edits on either device then
+                  sync to the other through this share. Don&apos;t share this URL —
+                  anyone with it can write to your roster. Last writer wins if
+                  you edit on both devices at once.
+                </p>
+                <div className="flex gap-2">
+                  <input
+                    id="share-sync-url-input"
+                    type="text"
+                    value={state.syncUrl}
+                    readOnly
+                    onFocus={(e) => e.target.select()}
+                    className="flex-1 px-3 py-2 border border-[var(--color-rule)] rounded bg-[var(--color-paper-soft)] numeric text-xs"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => copyUrl(state.syncUrl, 'sync')}
+                    className="px-3 py-2 border border-[var(--color-rule)] rounded hover:bg-[var(--color-paper-soft)] transition-colors min-w-[80px] text-sm"
+                  >
+                    {copied === 'sync' ? 'Copied!' : 'Copy'}
+                  </button>
+                </div>
+              </div>
             )}
 
             <details className="text-xs text-[var(--color-ink-soft)]">
