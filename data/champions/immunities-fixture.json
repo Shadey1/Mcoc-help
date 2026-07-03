@@ -149,6 +149,18 @@
     "daredevil-hells-kitchen": {
       "Miss": { "band": "immune" }
     },
+    "kitty-pryde": {
+      "Reverse Controls": { "band": "synergy", "partner": "Emma Frost" }
+    },
+    "mysterio": {
+      "Reverse Controls": { "band": "synergy", "partner": "Emma Frost" }
+    },
+    "prowler": {
+      "Reverse Controls": { "band": "synergy", "partner": "Spider-Punk" }
+    },
+    "the-overseer": {
+      "Reverse Controls": { "band": "synergy", "partner": "Hulk (Immortal)" }
+    },
     "maestro": {
       "Poison": { "band": "immune" },
       "Shock": { "band": "immune" },
@@ -171,12 +183,12 @@
       "Armor Break": { "band": "resist", "qual": "50%" }
     },
     "spider-man-pavitr-prabhakar": {
-      "Bleed": { "band": "synergy", "partner": "Spider-Man (2099)" },
       "Poison": { "band": "mechanic", "qual": "Purify" }
     },
     "spider-punk": {
       "Shock": { "band": "immune" },
-      "Stun": { "band": "synergy", "partner": "Spider-Gwen" }
+      "Stun": { "band": "synergy", "partner": "Spider-Gwen" },
+      "Reverse Controls": { "band": "synergy", "partner": "Prowler" }
     },
     "imperiosa": {
       "Coldsnap": { "band": "immune" }

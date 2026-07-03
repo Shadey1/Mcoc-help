@@ -2,14 +2,14 @@
   "generated": "2026-07-03",
   "chartDated": "2026-06",
   "_meta": {
-    "cellsTotal": 483,
-    "cellsLocked": 310,
-    "cellsInReviewQueue": 173,
-    "conflicts": 6,
+    "cellsTotal": 482,
+    "cellsLocked": 314,
+    "cellsInReviewQueue": 168,
+    "conflicts": 1,
     "singleSource": 167,
     "staleOnly": 0,
     "uniqueChampsLocked": 162,
-    "uniqueChampsProvisional": 124
+    "uniqueChampsProvisional": 121
   },
   "champions": {
     "absorbing-man": {
@@ -447,6 +447,12 @@
       "Incinerate": {
         "band": "immune",
         "confidence": "lock-3src"
+      },
+      "Reverse Controls": {
+        "band": "synergy",
+        "confidence": "lock-2src",
+        "partner": "Emma Frost",
+        "_review": true
       }
     },
     "korg": {
@@ -620,6 +626,12 @@
       }
     },
     "mysterio": {
+      "Reverse Controls": {
+        "band": "synergy",
+        "confidence": "lock-2src",
+        "partner": "Emma Frost",
+        "_review": true
+      },
       "Poison": {
         "band": "immune",
         "confidence": "lock-2src"
@@ -711,6 +723,12 @@
       "Incinerate": {
         "band": "immune",
         "confidence": "lock-2src"
+      },
+      "Reverse Controls": {
+        "band": "synergy",
+        "confidence": "lock-2src",
+        "partner": "Spider-Punk",
+        "_review": true
       }
     },
     "purgatory": {
@@ -838,6 +856,12 @@
       }
     },
     "spider-punk": {
+      "Reverse Controls": {
+        "band": "synergy",
+        "confidence": "lock-2src",
+        "partner": "Prowler",
+        "_review": true
+      },
       "Shock": {
         "band": "immune",
         "confidence": "lock-2src",
@@ -958,6 +982,12 @@
       "Nullify": {
         "band": "immune",
         "confidence": "lock-2src"
+      },
+      "Reverse Controls": {
+        "band": "synergy",
+        "confidence": "lock-2src",
+        "partner": "Hulk (Immortal)",
+        "_review": true
       }
     },
     "the-serpent": {
@@ -1714,12 +1744,6 @@
       }
     },
     "spider-man-pavitr-prabhakar": {
-      "Bleed": {
-        "band": "synergy",
-        "confidence": "lock-2src",
-        "partner": "Spider-Man (2099)",
-        "_review": true
-      },
       "Poison": {
         "band": "mechanic",
         "confidence": "lock-2src",
