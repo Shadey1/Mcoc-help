@@ -1,6 +1,10 @@
 import Link from 'next/link';
 import type { Champion, ChampionClass } from '@prestige-tools/engine';
-import type { Synergy, PartnerRef } from '../lib/synergies-loader';
+import type {
+  ReciprocalSynergy,
+  Synergy,
+  PartnerRef,
+} from '../lib/synergies-loader';
 import { ChampionPortrait, type Rarity } from './champion-portrait';
 import { displayRarity } from '../lib/champion-rarity';
 
@@ -14,49 +18,108 @@ type PartnerWithMeta = PartnerRef & {
  * Per-champion synergies. Server-rendered; the 724 KB synergies.json
  * bundle stays out of the client. Each partner portrait is a Link to that
  * partner's detail page when we have them in our seed; otherwise plain text.
+ *
+ * Renders two groups:
+ *   1. "Team synergies" — where this champion is the host / primary
+ *      beneficiary (data.champions[slug] on mcoc.gg's model).
+ *   2. "You enable for other champions" — synergies where this champion
+ *      appears as a partner, not host. This surfaces the "who to bring"
+ *      side of the relationship: with THIS champ on the team, these
+ *      other champions gain the following. Computed via the reverse
+ *      index in synergies-loader.
  */
 export function SynergiesSection({
   synergies,
+  reciprocals,
   championLookup,
 }: {
   synergies: Synergy[];
+  reciprocals?: ReciprocalSynergy[];
   /** Slug → Champion, for resolving partner class/portrait. */
   championLookup: Map<string, Champion>;
 }) {
-  if (synergies.length === 0) return null;
+  const reciprocalList = reciprocals ?? [];
+  if (synergies.length === 0 && reciprocalList.length === 0) return null;
+
+  function partnersWithMeta(s: Synergy): PartnerWithMeta[] {
+    return s.partners.map((p) => {
+      const c = p.slug ? championLookup.get(p.slug) : undefined;
+      return {
+        ...p,
+        klass: c?.class ?? null,
+        portraitUrl: c?.portraitUrl ?? null,
+        rarity: displayRarity(c),
+      };
+    });
+  }
 
   return (
-    <section className="space-y-3">
-      <h2 className="editorial-heading text-xl">
-        Synergies
-        <span className="text-sm font-normal text-[var(--color-ink-soft)] ml-2">
-          ({synergies.length})
-        </span>
-      </h2>
-      <div className="space-y-3">
-        {synergies.map((s) => {
-          const partners: PartnerWithMeta[] = s.partners.map((p) => {
-            const c = p.slug ? championLookup.get(p.slug) : undefined;
-            return {
-              ...p,
-              klass: c?.class ?? null,
-              portraitUrl: c?.portraitUrl ?? null,
-              rarity: displayRarity(c),
-            };
-          });
-          return <SynergyCard key={s.synergyId} synergy={s} partners={partners} />;
-        })}
-      </div>
-    </section>
+    <div className="space-y-6">
+      {synergies.length > 0 && (
+        <section className="space-y-3">
+          <h2 className="editorial-heading text-xl">
+            Team synergies
+            <span className="text-sm font-normal text-[var(--color-ink-soft)] ml-2">
+              ({synergies.length})
+            </span>
+          </h2>
+          <div className="space-y-3">
+            {synergies.map((s) => (
+              <SynergyCard
+                key={s.synergyId}
+                synergy={s}
+                partners={partnersWithMeta(s)}
+              />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {reciprocalList.length > 0 && (
+        <section className="space-y-3">
+          <h2 className="editorial-heading text-xl">
+            You enable for other champions
+            <span className="text-sm font-normal text-[var(--color-ink-soft)] ml-2">
+              ({reciprocalList.length})
+            </span>
+          </h2>
+          <p className="text-xs text-[var(--color-ink-soft)] max-w-xl">
+            Bringing this champion enables the following synergies for
+            other champions in your team. The host&apos;s effect text is
+            shown so you can see what benefit the pairing unlocks.
+          </p>
+          <div className="space-y-3">
+            {reciprocalList.map(({ hostSlug, synergy }) => {
+              const host = championLookup.get(hostSlug);
+              return (
+                <SynergyCard
+                  key={`${hostSlug}-${synergy.synergyId}`}
+                  synergy={synergy}
+                  partners={partnersWithMeta(synergy)}
+                  hostSlug={hostSlug}
+                  hostName={host?.name ?? hostSlug}
+                />
+              );
+            })}
+          </div>
+        </section>
+      )}
+    </div>
   );
 }
 
 function SynergyCard({
   synergy,
   partners,
+  hostSlug,
+  hostName,
 }: {
   synergy: Synergy;
   partners: PartnerWithMeta[];
+  /** Present on reciprocal cards — the champion whose page normally
+   *  hosts this synergy's effect text. Renders as a "From <name>" line. */
+  hostSlug?: string;
+  hostName?: string;
 }) {
   return (
     <article className="border border-[var(--color-rule)] rounded bg-[var(--color-paper)] p-3 space-y-2">
@@ -71,6 +134,18 @@ function SynergyCard({
           </span>
         )}
       </header>
+
+      {hostSlug && hostName && (
+        <div className="text-[11px] font-mono uppercase tracking-wider text-[var(--color-ink-soft)]">
+          Benefit for{' '}
+          <Link
+            href={`/champions/${hostSlug}/`}
+            className="normal-case font-sans font-medium text-[var(--color-marvel-impact)] hover:underline tracking-normal"
+          >
+            {hostName}
+          </Link>
+        </div>
+      )}
 
       <div className="flex flex-wrap gap-2 pb-1">
         {partners.map((p, i) => (

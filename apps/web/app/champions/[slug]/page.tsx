@@ -5,7 +5,10 @@ import {
   loadChampionLookup,
   findChampionById,
 } from '../../../lib/data-loader';
-import { loadSynergiesForChampion } from '../../../lib/synergies-loader';
+import {
+  loadReciprocalSynergiesForChampion,
+  loadSynergiesForChampion,
+} from '../../../lib/synergies-loader';
 import { loadAbilitiesFor, loadAuntmPassivesFor } from '../../../lib/abilities-loader';
 import { ChampionPortrait } from '../../../components/champion-portrait';
 import { ScalingChart } from '../../../components/scaling-chart';
@@ -29,6 +32,7 @@ export default async function ChampionDetailPage({
   if (!champion) notFound();
 
   const synergies = loadSynergiesForChampion(slug);
+  const reciprocalSynergies = loadReciprocalSynergiesForChampion(slug);
   const abilities = loadAbilitiesFor(slug);
   const auntmPassives = loadAuntmPassivesFor(slug);
   const championLookup = loadChampionLookup();
@@ -123,7 +127,11 @@ export default async function ChampionDetailPage({
         />
       )}
 
-      <SynergiesSection synergies={synergies} championLookup={championLookup} />
+      <SynergiesSection
+        synergies={synergies}
+        reciprocals={reciprocalSynergies}
+        championLookup={championLookup}
+      />
 
       <section className="space-y-2 border-t border-[var(--color-rule)] pt-6">
         <h2 className="editorial-heading text-xl">Sources</h2>
