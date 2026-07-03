@@ -8,16 +8,29 @@
  * then feeds back through scripts/ingest-chart-template.ts to produce
  * data/champions/immunities-chart.json.
  *
- * The 13 effect columns start BLANK: a cell is only filled when the user
- * can verify a mark on the chart. Accepted cell values (parsed by the
- * ingester):
+ * Cells are pre-filled with a "hint" derived from what our OTHER sources
+ * currently claim, prefixed with `?` to mark them as unverified. The
+ * user's job is then to either verify against the chart (remove the `?`
+ * so `?immune` becomes `immune`) or replace/clear the cell if the chart
+ * disagrees. Cells still carrying `?` at ingest time are treated as
+ * hints and ignored — a `?immune` left untouched never becomes a fake
+ * chart vote.
+ *
+ * Accepted cell values (parsed by the ingester):
  *
  *   immune            → { band: 'immune' }
  *   NN%   (e.g. 80%)  → { band: 'resist', qual: 'NN%' }
  *   Purify            → { band: 'mechanic', qual: 'Purify' }
  *   Duration          → { band: 'mechanic', qual: 'Duration' }
  *   syn: Partner Name → { band: 'synergy', partner: 'Partner Name' }
+ *   ?<mark>           → hint from other sources; ignored until user
+ *                       removes the `?` to confirm chart agreement.
  *   (blank)           → no claim
+ *
+ * A hint is written ONLY when the OTHER sources agree on a single
+ * mark for that (champion, effect). Disagreements between existing
+ * sources leave the cell blank — the _hint column at the end still
+ * carries the full breakdown so the user can pick the right mark.
  *
  * Two trailing helper columns:
  *   _hint — read-only summary of what the OTHER sources (backfill, kit,
@@ -109,26 +122,46 @@ function describeBand(band: SourceBand): string {
 }
 
 /**
+ * For one (champion, effect), collect every source's mark, grouped by
+ * mark string. Returns a Map from mark description to the labels of
+ * sources that agree on it. Empty map when no source has a claim.
+ */
+function collectMarks(
+  championId: string,
+  effect: string,
+  sources: Array<{ label: HintSource; file: SourceFile | null }>,
+): Map<string, HintSource[]> {
+  const byMark = new Map<string, HintSource[]>();
+  for (const { label, file } of sources) {
+    const band = file?.champions[championId]?.[effect];
+    if (!band) continue;
+    const desc = describeBand(band);
+    (byMark.get(desc) ?? byMark.set(desc, []).get(desc)!).push(label);
+  }
+  return byMark;
+}
+
+/**
+ * Cell pre-fill: only when sources agree on a single mark, write `?<mark>`
+ * so the user can verify by removing the `?`. When sources disagree,
+ * leave the cell blank — the user needs to consult the chart to pick.
+ */
+function prefillCell(byMark: Map<string, HintSource[]>): string {
+  if (byMark.size !== 1) return '';
+  const [mark] = byMark.keys();
+  return `?${mark!}`;
+}
+
+/**
  * Build the compact per-champion hint, e.g.
  *   Poison: immune (backfill+auntm) | Bleed: 150% (kit+fixture)
  * Sources that agree on the identical mark are grouped with '+'; distinct
  * marks for the same effect are listed side by side with ' / ' so a
  * disagreement is visible at a glance. Effects with no data are skipped.
  */
-function buildHint(
-  championId: string,
-  sources: Array<{ label: HintSource; file: SourceFile | null }>,
-): string {
+function renderHint(perEffect: Array<{ effect: string; byMark: Map<string, HintSource[]> }>): string {
   const parts: string[] = [];
-  for (const effect of EFFECTS) {
-    // mark description → list of source labels claiming it
-    const byMark = new Map<string, HintSource[]>();
-    for (const { label, file } of sources) {
-      const band = file?.champions[championId]?.[effect];
-      if (!band) continue;
-      const desc = describeBand(band);
-      (byMark.get(desc) ?? byMark.set(desc, []).get(desc)!).push(label);
-    }
+  for (const { effect, byMark } of perEffect) {
     if (byMark.size === 0) continue;
     const marks = Array.from(byMark.entries())
       .map(([desc, labels]) => `${desc} (${labels.join('+')})`)
@@ -180,16 +213,28 @@ function main() {
     csvRow(['Champion', 'Class', 'Released', ...EFFECTS, '_hint', '_note']),
   );
 
-  let hinted = 0;
+  let hintedChamps = 0;
+  let prefilledCells = 0;
   for (const champ of champions) {
-    const hint = buildHint(champ.id, sources);
-    if (hint) hinted++;
+    // Collect marks once per effect for this champion — reused by
+    // prefillCell and renderHint so we don't walk sources twice.
+    const perEffect = EFFECTS.map((effect) => ({
+      effect,
+      byMark: collectMarks(champ.id, effect, sources),
+    }));
+    const effectCells = perEffect.map(({ byMark }) => {
+      const cell = prefillCell(byMark);
+      if (cell) prefilledCells++;
+      return cell;
+    });
+    const hint = renderHint(perEffect);
+    if (hint) hintedChamps++;
     lines.push(
       csvRow([
         champ.name,
         champ.class,
         champ.released ?? '',
-        ...EFFECTS.map(() => ''), // effect cells start blank — user fills in
+        ...effectCells,
         hint,
         '', // _note — user scratch space
       ]),
@@ -197,12 +242,27 @@ function main() {
   }
 
   ensureDir(OUTPUT_PATH);
-  writeFileSync(OUTPUT_PATH, lines.join('\n') + '\n');
+  const csv = lines.join('\n') + '\n';
+  let writePath = OUTPUT_PATH;
+  try {
+    writeFileSync(OUTPUT_PATH, csv);
+  } catch (err) {
+    // EBUSY is what Windows returns when Excel has the file open. Write
+    // a sidecar next to it so the user can diff / copy across when they
+    // close their editor. Anything else is a real failure.
+    const isBusy = (err as NodeJS.ErrnoException).code === 'EBUSY';
+    if (!isBusy) throw err;
+    writePath = OUTPUT_PATH.replace(/\.csv$/, '.new.csv');
+    writeFileSync(writePath, csv);
+    console.warn(
+      `\n  ⚠ ${OUTPUT_PATH} is locked (Excel? Sheets?) — wrote sidecar:\n     ${writePath}\n    Close the original, then either re-run this script or copy the sidecar into place.\n`,
+    );
+  }
   console.log(
-    `Wrote ${champions.length} champion rows (${hinted} with source hints) → ${OUTPUT_PATH}`,
+    `Wrote ${champions.length} champion rows — ${hintedChamps} with source hints, ${prefilledCells} cells pre-filled with '?' hints → ${writePath}`,
   );
   console.log(
-    'Fill the effect cells (immune / NN% / Purify / Duration / syn: Partner), then run: pnpm ingest-chart-template',
+    "For each '?<mark>' cell: verify against the chart, then either remove the '?' to accept, or replace/clear if the chart disagrees. Blank cells: fill from the chart or leave blank. Then: pnpm ingest-chart-template",
   );
 }
 
