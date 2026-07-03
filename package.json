@@ -21,6 +21,7 @@
     "generate-chart-template": "tsx scripts/generate-chart-template.ts",
     "ingest-chart-template": "tsx scripts/ingest-chart-template.ts",
     "extract-auntm-immunities": "tsx scripts/extract-immunities-from-auntm.ts",
+    "extract-kabam-immunities": "tsx scripts/extract-immunities-from-kabam.ts",
     "lint": "pnpm -F web lint"
   },
   "devDependencies": {

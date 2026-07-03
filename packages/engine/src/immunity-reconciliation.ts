@@ -26,7 +26,7 @@ import type { EffectName, ImmunityBand } from './immunities.js';
  * fetching lands; the reconciler doesn't care about the specific
  * source name, only about identity and freshness.
  */
-export type SourceName = 'abilityText' | 'fixture' | 'chart' | 'auntm';
+export type SourceName = 'abilityText' | 'fixture' | 'chart' | 'auntm' | 'kabam';
 
 /**
  * Per-source structural coverage window. If a champion's release year
@@ -50,6 +50,11 @@ export const DEFAULT_FRESHNESS: Record<SourceName, SourceFreshness> = {
   fixture: { staleAfter: null },
   chart: { staleAfter: 2026 },
   auntm: { staleAfter: 2024 },
+  // Kabam edits spotlights on reworks and publishes one per new
+  // release — treat as always-current. Coverage will thin for pre-2019
+  // legacy champs because the spotlight cadence wasn't consistent then,
+  // but a "missing" post is different from a stale one and both are OK.
+  kabam: { staleAfter: null },
 };
 
 // ─── Vote shape ────────────────────────────────────────────────────────
@@ -216,7 +221,17 @@ export function reconcile(
 
   // Multi-bucket = conflict. Pick a verdict from the "strongest" bucket
   // by trust-order + non-stale + size, and surface the conflict.
-  const trustOrder: SourceName[] = ['fixture', 'chart', 'abilityText', 'auntm'];
+  // Trust order for conflict tie-breaking: hand-curated fixture first,
+  // then the two structured community datasets, then Kabam's official
+  // prose (high trust but sometimes edited late), then MCOCHUB-derived
+  // scrapes. auntm sits last because it's a frozen mirror.
+  const trustOrder: SourceName[] = [
+    'fixture',
+    'chart',
+    'kabam',
+    'abilityText',
+    'auntm',
+  ];
   buckets.sort((a, b) => {
     const aTrust = Math.min(
       ...a.members.map((m) => trustOrder.indexOf(m.source)),

@@ -47,6 +47,7 @@ const PILL_PATH = 'data/champions/immunities-backfill.json';
 const FIXTURE_PATH = 'data/champions/immunities-fixture.json';
 const CHART_PATH = 'data/champions/immunities-chart.json';
 const AUNTM_PATH = 'data/champions/immunities-auntm.json';
+const KABAM_PATH = 'data/champions/immunities-kabam.json';
 
 // ─── Read sources ──────────────────────────────────────────────────────
 
@@ -132,6 +133,7 @@ function reconcileAll(
   fixture: SourceFile | null,
   chart: SourceFile | null,
   auntm: SourceFile | null,
+  kabam: SourceFile | null,
   releaseYear: Map<string, number | undefined>,
 ): CellReconciled[] {
   const out: CellReconciled[] = [];
@@ -148,6 +150,7 @@ function reconcileAll(
   if (fixture) add(fixture.champions);
   if (chart) add(chart.champions);
   if (auntm) add(auntm.champions);
+  if (kabam) add(kabam.champions);
 
   for (const [champ, effects] of perChamp) {
     for (const eff of effects) {
@@ -160,6 +163,8 @@ function reconcileAll(
       if (c) votes.push(bandToVote('chart', c));
       const u = auntm?.champions[champ]?.[eff];
       if (u) votes.push(bandToVote('auntm', u));
+      const k = kabam?.champions[champ]?.[eff];
+      if (k) votes.push(bandToVote('kabam', k));
 
       const r = reconcile(votes, { releaseYear: releaseYear.get(champ) });
       if (!r) continue;
@@ -349,9 +354,17 @@ function main() {
   const fixture = loadOptional(FIXTURE_PATH);
   const chart = loadOptional(CHART_PATH);
   const auntm = loadOptional(AUNTM_PATH);
+  const kabam = loadOptional(KABAM_PATH);
 
   const abilityText = mergeAbilityText(pill, kit);
-  const cells = reconcileAll(abilityText, fixture, chart, auntm, releaseYear);
+  const cells = reconcileAll(
+    abilityText,
+    fixture,
+    chart,
+    auntm,
+    kabam,
+    releaseYear,
+  );
 
   writeLocks(cells);
   writeQueue(cells, seedNames);
