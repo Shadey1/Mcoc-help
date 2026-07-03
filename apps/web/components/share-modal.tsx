@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import type { ChampionState } from '@prestige-tools/engine';
+import Link from 'next/link';
 import { createShare, recordLocalShare } from '../lib/share-client';
 import { trackEvent } from '../lib/analytics';
 
@@ -114,14 +115,22 @@ export function ShareModal({ open, onClose, roster }: ShareModalProps) {
       <div className="bg-[var(--color-paper)] border border-[var(--color-rule)] rounded-lg max-w-lg w-full p-6 shadow-xl">
         <div className="flex items-baseline justify-between mb-4">
           <h2 className="editorial-heading text-2xl">Share your roster</h2>
-          <button
-            type="button"
-            onClick={handleClose}
-            className="text-[var(--color-ink-soft)] hover:text-[var(--color-ink)]"
-            aria-label="Close"
-          >
-            ✕
-          </button>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/shares/"
+              className="text-xs text-[var(--color-ink-soft)] hover:text-[var(--color-marvel-impact)] underline"
+            >
+              Your shares →
+            </Link>
+            <button
+              type="button"
+              onClick={handleClose}
+              className="text-[var(--color-ink-soft)] hover:text-[var(--color-ink)]"
+              aria-label="Close"
+            >
+              ✕
+            </button>
+          </div>
         </div>
 
         {state.phase === 'form' && (
