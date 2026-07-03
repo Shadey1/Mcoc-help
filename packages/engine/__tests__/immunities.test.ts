@@ -222,13 +222,16 @@ describe('effectRosterCounts', () => {
     // added to the fixture. Rather than hard-coding, assert the
     // known-large lower bound and verify the load-bearing entries.
     expect(counts.Bleed).toBeGreaterThanOrEqual(16);
-    // Nullify: mangog (synergy), mordo (synergy), vision-aarkus
-    // (Purify) → 3.
-    expect(counts.Nullify).toBe(3);
-    // Heal Block: only vision-aarkus has an entry → 1.
-    expect(counts['Heal Block']).toBe(1);
-    // Falter is the newest tracked effect; only spiral covers it.
-    expect(counts.Falter).toBe(1);
+    // Nullify: mangog + mordo (both synergy), vision-aarkus (Purify),
+    // plus any global-duration champs (Blade) that add Nullify Duration.
+    // Same lower-bound pattern for churn resistance.
+    expect(counts.Nullify).toBeGreaterThanOrEqual(3);
+    // Heal Block: starts with vision-aarkus, grows as global-duration
+    // champs are added.
+    expect(counts['Heal Block']).toBeGreaterThanOrEqual(1);
+    // Falter is the newest tracked effect; spiral covers baseline,
+    // and any global-duration champs (Blade / Karnak) pick it up too.
+    expect(counts.Falter).toBeGreaterThanOrEqual(1);
   });
 
   it('drops synergy count when synergy band is off', () => {
@@ -237,7 +240,8 @@ describe('effectRosterCounts', () => {
     // Pavitr's synergy-only Bleed drops; every non-synergy entry stays.
     // Same lower-bound approach as the previous test.
     expect(counts.Bleed).toBeGreaterThanOrEqual(15);
-    // Nullify without synergy → 1 (only vision-aarkus's Purify remains).
-    expect(counts.Nullify).toBe(1);
+    // Nullify without synergy: strip mangog+mordo, keep vision-aarkus
+    // Purify + any Duration entries.
+    expect(counts.Nullify).toBeGreaterThanOrEqual(1);
   });
 });

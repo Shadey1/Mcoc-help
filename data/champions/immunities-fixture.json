@@ -102,6 +102,39 @@
       "Poison": { "band": "mechanic", "qual": "Duration", "note": "-75% Poison duration." },
       "Incinerate": { "band": "mechanic", "qual": "Duration", "note": "-75% Incinerate duration." }
     },
+    "blade": {
+      "Bleed": { "band": "mechanic", "qual": "Duration", "note": "-95% duration on all debuffs (global) — see abilities." },
+      "Poison": { "band": "mechanic", "qual": "Duration", "note": "-95% duration on all debuffs (global) — see abilities." },
+      "Incinerate": { "band": "mechanic", "qual": "Duration", "note": "-95% duration on all debuffs (global) — see abilities." },
+      "Coldsnap": { "band": "mechanic", "qual": "Duration", "note": "-95% duration on all debuffs (global) — see abilities." },
+      "Shock": { "band": "mechanic", "qual": "Duration", "note": "-95% duration on all debuffs (global) — see abilities." },
+      "Neuroshock": { "band": "mechanic", "qual": "Duration", "note": "-95% duration on all debuffs (global) — see abilities." },
+      "Stun": { "band": "mechanic", "qual": "Duration", "note": "-95% duration on all debuffs (global) — see abilities." },
+      "Stagger": { "band": "mechanic", "qual": "Duration", "note": "-95% duration on all debuffs (global) — see abilities." },
+      "Nullify": { "band": "mechanic", "qual": "Duration", "note": "-95% duration on all debuffs (global) — see abilities." },
+      "Armor Break": { "band": "mechanic", "qual": "Duration", "note": "-95% duration on all debuffs (global) — see abilities." },
+      "Degeneration": { "band": "mechanic", "qual": "Duration", "note": "-95% duration on all debuffs (global) — see abilities." },
+      "Power Burn": { "band": "mechanic", "qual": "Duration", "note": "-95% duration on all debuffs (global) — see abilities." },
+      "Heal Block": { "band": "mechanic", "qual": "Duration", "note": "-95% duration on all debuffs (global) — see abilities." },
+      "Falter": { "band": "mechanic", "qual": "Duration", "note": "-95% duration on all debuffs (global) — see abilities." }
+    },
+    "karnak": {
+      "Poison": { "band": "resist", "qual": "65%", "note": "-65% Poison damage — see abilities." },
+      "Stun": { "band": "mechanic", "qual": "Duration", "note": "-60% duration on non-damaging debuffs — see abilities." },
+      "Stagger": { "band": "mechanic", "qual": "Duration", "note": "-60% duration on non-damaging debuffs — see abilities." },
+      "Nullify": { "band": "mechanic", "qual": "Duration", "note": "-60% duration on non-damaging debuffs — see abilities." },
+      "Armor Break": { "band": "mechanic", "qual": "Duration", "note": "-60% duration on non-damaging debuffs — see abilities." },
+      "Heal Block": { "band": "mechanic", "qual": "Duration", "note": "-60% duration on non-damaging debuffs — see abilities." },
+      "Falter": { "band": "mechanic", "qual": "Duration", "note": "-60% duration on non-damaging debuffs — see abilities." }
+    },
+    "mbaku": {
+      "Coldsnap": { "band": "resist", "qual": "100%" }
+    },
+    "moondragon": {
+      "Bleed": { "band": "resist", "qual": "30%", "note": "80% resist when Psionic Charge is up — see abilities." },
+      "Poison": { "band": "resist", "qual": "30%", "note": "80% resist when Psionic Charge is up — see abilities." },
+      "Degeneration": { "band": "resist", "qual": "30%", "note": "80% resist when Psionic Charge is up — see abilities." }
+    },
     "maestro": {
       "Poison": { "band": "immune" },
       "Shock": { "band": "immune" },

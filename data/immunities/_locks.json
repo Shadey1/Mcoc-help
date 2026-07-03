@@ -2,13 +2,13 @@
   "generated": "2026-07-03",
   "chartDated": "2026-06",
   "_meta": {
-    "cellsTotal": 431,
-    "cellsLocked": 277,
+    "cellsTotal": 456,
+    "cellsLocked": 302,
     "cellsInReviewQueue": 154,
     "conflicts": 1,
     "singleSource": 153,
     "staleOnly": 0,
-    "uniqueChampsLocked": 153,
+    "uniqueChampsLocked": 157,
     "uniqueChampsProvisional": 113
   },
   "champions": {
@@ -1425,6 +1425,188 @@
         "confidence": "lock-2src",
         "qual": "Duration",
         "note": "-75% Incinerate duration.",
+        "_review": true
+      }
+    },
+    "blade": {
+      "Bleed": {
+        "band": "mechanic",
+        "confidence": "lock-2src",
+        "qual": "Duration",
+        "note": "-95% duration on all debuffs (global) — see abilities.",
+        "_review": true
+      },
+      "Poison": {
+        "band": "mechanic",
+        "confidence": "lock-2src",
+        "qual": "Duration",
+        "note": "-95% duration on all debuffs (global) — see abilities.",
+        "_review": true
+      },
+      "Incinerate": {
+        "band": "mechanic",
+        "confidence": "lock-2src",
+        "qual": "Duration",
+        "note": "-95% duration on all debuffs (global) — see abilities.",
+        "_review": true
+      },
+      "Coldsnap": {
+        "band": "mechanic",
+        "confidence": "lock-2src",
+        "qual": "Duration",
+        "note": "-95% duration on all debuffs (global) — see abilities.",
+        "_review": true
+      },
+      "Shock": {
+        "band": "mechanic",
+        "confidence": "lock-2src",
+        "qual": "Duration",
+        "note": "-95% duration on all debuffs (global) — see abilities.",
+        "_review": true
+      },
+      "Neuroshock": {
+        "band": "mechanic",
+        "confidence": "lock-2src",
+        "qual": "Duration",
+        "note": "-95% duration on all debuffs (global) — see abilities.",
+        "_review": true
+      },
+      "Stun": {
+        "band": "mechanic",
+        "confidence": "lock-2src",
+        "qual": "Duration",
+        "note": "-95% duration on all debuffs (global) — see abilities.",
+        "_review": true
+      },
+      "Stagger": {
+        "band": "mechanic",
+        "confidence": "lock-2src",
+        "qual": "Duration",
+        "note": "-95% duration on all debuffs (global) — see abilities.",
+        "_review": true
+      },
+      "Nullify": {
+        "band": "mechanic",
+        "confidence": "lock-2src",
+        "qual": "Duration",
+        "note": "-95% duration on all debuffs (global) — see abilities.",
+        "_review": true
+      },
+      "Armor Break": {
+        "band": "mechanic",
+        "confidence": "lock-2src",
+        "qual": "Duration",
+        "note": "-95% duration on all debuffs (global) — see abilities.",
+        "_review": true
+      },
+      "Degeneration": {
+        "band": "mechanic",
+        "confidence": "lock-2src",
+        "qual": "Duration",
+        "note": "-95% duration on all debuffs (global) — see abilities.",
+        "_review": true
+      },
+      "Power Burn": {
+        "band": "mechanic",
+        "confidence": "lock-2src",
+        "qual": "Duration",
+        "note": "-95% duration on all debuffs (global) — see abilities.",
+        "_review": true
+      },
+      "Heal Block": {
+        "band": "mechanic",
+        "confidence": "lock-2src",
+        "qual": "Duration",
+        "note": "-95% duration on all debuffs (global) — see abilities.",
+        "_review": true
+      },
+      "Falter": {
+        "band": "mechanic",
+        "confidence": "lock-2src",
+        "qual": "Duration",
+        "note": "-95% duration on all debuffs (global) — see abilities.",
+        "_review": true
+      }
+    },
+    "karnak": {
+      "Poison": {
+        "band": "resist",
+        "confidence": "lock-2src",
+        "value": 65,
+        "note": "-65% Poison damage — see abilities.",
+        "_review": true
+      },
+      "Stun": {
+        "band": "mechanic",
+        "confidence": "lock-2src",
+        "qual": "Duration",
+        "note": "-60% duration on non-damaging debuffs — see abilities.",
+        "_review": true
+      },
+      "Stagger": {
+        "band": "mechanic",
+        "confidence": "lock-2src",
+        "qual": "Duration",
+        "note": "-60% duration on non-damaging debuffs — see abilities.",
+        "_review": true
+      },
+      "Nullify": {
+        "band": "mechanic",
+        "confidence": "lock-2src",
+        "qual": "Duration",
+        "note": "-60% duration on non-damaging debuffs — see abilities.",
+        "_review": true
+      },
+      "Armor Break": {
+        "band": "mechanic",
+        "confidence": "lock-2src",
+        "qual": "Duration",
+        "note": "-60% duration on non-damaging debuffs — see abilities.",
+        "_review": true
+      },
+      "Heal Block": {
+        "band": "mechanic",
+        "confidence": "lock-2src",
+        "qual": "Duration",
+        "note": "-60% duration on non-damaging debuffs — see abilities.",
+        "_review": true
+      },
+      "Falter": {
+        "band": "mechanic",
+        "confidence": "lock-2src",
+        "qual": "Duration",
+        "note": "-60% duration on non-damaging debuffs — see abilities.",
+        "_review": true
+      }
+    },
+    "mbaku": {
+      "Coldsnap": {
+        "band": "resist",
+        "confidence": "lock-2src",
+        "value": 100,
+        "_review": true
+      }
+    },
+    "moondragon": {
+      "Bleed": {
+        "band": "resist",
+        "confidence": "lock-2src",
+        "value": 30,
+        "note": "80% resist when Psionic Charge is up — see abilities.",
+        "_review": true
+      },
+      "Poison": {
+        "band": "resist",
+        "confidence": "lock-2src",
+        "value": 30,
+        "note": "80% resist when Psionic Charge is up — see abilities.",
+        "_review": true
+      },
+      "Degeneration": {
+        "band": "resist",
+        "confidence": "lock-2src",
+        "value": 30,
+        "note": "80% resist when Psionic Charge is up — see abilities.",
         "_review": true
       }
     },
