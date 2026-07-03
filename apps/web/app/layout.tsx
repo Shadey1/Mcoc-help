@@ -121,10 +121,14 @@ export default function RootLayout({
                   War
                 </Link>
               </li>
-              {/* Immunities is not in nav yet — the route works and the
-                  engine + UI are done, but only 15 champs have data
-                  wired. Nav entry lands with the full GuiaMTC
-                  transcription (task #80). */}
+              <li>
+                <Link
+                  href="/immunities/"
+                  className="hover:text-[var(--color-marvel-impact)] transition-colors"
+                >
+                  Immunities
+                </Link>
+              </li>
               <li>
                 <Link
                   href="/champions/"

@@ -20,43 +20,26 @@ export default function ImmunitiesPage() {
           with a synergy partner — and can just take the fight.
         </p>
       </section>
-      <div className="border border-[var(--color-marvel-editorial)]/40 bg-[var(--color-marvel-editorial)]/5 rounded-md px-4 py-3 text-sm space-y-2">
-        <div>
-          <strong className="text-[var(--color-marvel-editorial)] font-semibold">
-            Preview — {dataMeta.championCount} of {champions.length} champions covered.
-          </strong>{' '}
-          <span className="text-[var(--color-ink-soft)]">
-            The provisional shape merges MCOCHUB pills ({dataMeta.backfillChampions ?? 0}),
-            parsed kit text ({dataMeta.kitChampions ?? 0}), and the hand-curated
-            fixture ({dataMeta.fixtureChampions ?? 0}). Everything renders below;
-            the reconciliation pipeline additionally tracks which cells cross
-            the consensus bar.
-          </span>
-        </div>
-        <div className="text-xs text-[var(--color-ink-soft)] pt-1 border-t border-[var(--color-marvel-editorial)]/20">
-          <span className="font-mono uppercase tracking-wide text-[10px] text-[var(--color-marvel-editorial)] mr-2">
-            Reconciliation
-          </span>
-          <strong className="text-[var(--color-ink)]">
-            {dataMeta.reconciliation.cellsLocked}
-          </strong>{' '}
-          locked cells across {dataMeta.reconciliation.uniqueChampsLocked} champions
-          {dataMeta.reconciliation.conflicts > 0 && (
-            <>
-              {' · '}
-              <strong className="text-[var(--color-marvel-editorial)]">
-                {dataMeta.reconciliation.conflicts}
-              </strong>{' '}
-              conflicts flagged
-            </>
-          )}
-          {' · '}
-          {dataMeta.reconciliation.singleSource} single-source in review queue
-          {dataMeta.reconciliation.staleOnly > 0 &&
-            ` · ${dataMeta.reconciliation.staleOnly} stale-only`}
-          . Locks ship after a second independent source agrees; today
-          most cells are still MCOCHUB-only.
-        </div>
+      <div className="border border-[var(--color-rule)] bg-[var(--color-paper-card)] rounded-md px-4 py-3 text-xs text-[var(--color-ink-soft)]">
+        <strong className="text-[var(--color-ink)]">
+          {dataMeta.reconciliation.uniqueChampsLocked} of {champions.length} champions
+        </strong>{' '}
+        have shipping-quality immunity data (
+        <strong className="text-[var(--color-ink)]">
+          {dataMeta.reconciliation.cellsLocked}
+        </strong>{' '}
+        cells verified across 2+ independent sources: MCOCHUB, auntm.ai, Kabam
+        spotlights, GuiaMTC chart, and hand-curated fixture).
+        {dataMeta.reconciliation.conflicts > 0 && (
+          <>
+            {' '}
+            {dataMeta.reconciliation.conflicts} conflicts pending in-game
+            verification;
+          </>
+        )}{' '}
+        remainder of the roster is either genuinely without tracked immunities or
+        still awaiting independent corroboration. Cells marked ★ carry caveats
+        beyond the four-signal model — hover the star for the specific mechanic.
       </div>
       <ImmunitiesView
         dataset={dataset}
