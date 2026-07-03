@@ -3,13 +3,13 @@
   "chartDated": "2026-06",
   "_meta": {
     "cellsTotal": 421,
-    "cellsLocked": 216,
-    "cellsInReviewQueue": 205,
+    "cellsLocked": 268,
+    "cellsInReviewQueue": 153,
     "conflicts": 1,
-    "singleSource": 204,
+    "singleSource": 152,
     "staleOnly": 0,
-    "uniqueChampsLocked": 137,
-    "uniqueChampsProvisional": 128
+    "uniqueChampsLocked": 148,
+    "uniqueChampsProvisional": 112
   },
   "champions": {
     "absorbing-man": {
@@ -80,6 +80,16 @@
       "Bleed": {
         "band": "immune",
         "confidence": "lock-2src"
+      },
+      "Incinerate": {
+        "band": "immune",
+        "confidence": "lock-2src",
+        "_review": true
+      },
+      "Shock": {
+        "band": "immune",
+        "confidence": "lock-2src",
+        "_review": true
       }
     },
     "captain-marvel": {
@@ -352,6 +362,11 @@
       "Bleed": {
         "band": "immune",
         "confidence": "lock-2src"
+      },
+      "Coldsnap": {
+        "band": "immune",
+        "confidence": "lock-2src",
+        "_review": true
       }
     },
     "iron-man-infamous": {
@@ -458,6 +473,17 @@
       "Heal Block": {
         "band": "immune",
         "confidence": "lock-2src"
+      },
+      "Bleed": {
+        "band": "immune",
+        "confidence": "lock-2src",
+        "_review": true
+      },
+      "Incinerate": {
+        "band": "resist",
+        "confidence": "lock-2src",
+        "value": 100,
+        "_review": true
       }
     },
     "luke-cage": {
@@ -484,6 +510,12 @@
       "Shock": {
         "band": "immune",
         "confidence": "lock-2src"
+      },
+      "Degeneration": {
+        "band": "resist",
+        "confidence": "lock-2src",
+        "value": 90,
+        "_review": true
       }
     },
     "magneto-house-of-x": {
@@ -832,6 +864,18 @@
       "Stun": {
         "band": "immune",
         "confidence": "lock-2src"
+      },
+      "Shock": {
+        "band": "resist",
+        "confidence": "lock-2src",
+        "value": 60,
+        "_review": true
+      },
+      "Incinerate": {
+        "band": "resist",
+        "confidence": "lock-2src",
+        "value": 100,
+        "_review": true
       }
     },
     "the-overseer": {
@@ -1006,6 +1050,22 @@
       "Coldsnap": {
         "band": "immune",
         "confidence": "lock-2src"
+      },
+      "Poison": {
+        "band": "immune",
+        "confidence": "lock-2src",
+        "_review": true
+      },
+      "Bleed": {
+        "band": "immune",
+        "confidence": "lock-2src",
+        "_review": true
+      },
+      "Shock": {
+        "band": "resist",
+        "confidence": "lock-2src",
+        "value": 80,
+        "_review": true
       }
     },
     "knull": {
@@ -1055,6 +1115,17 @@
         "band": "resist",
         "confidence": "lock-3src",
         "value": 150
+      },
+      "Stagger": {
+        "band": "immune",
+        "confidence": "lock-2src",
+        "_review": true
+      },
+      "Poison": {
+        "band": "resist",
+        "confidence": "lock-2src",
+        "value": 80,
+        "_review": true
       }
     },
     "shathra": {
@@ -1092,6 +1163,50 @@
         "confidence": "lock-2src"
       }
     },
+    "nova": {
+      "Bleed": {
+        "band": "immune",
+        "confidence": "lock-2src",
+        "_review": true
+      },
+      "Poison": {
+        "band": "immune",
+        "confidence": "lock-2src",
+        "_review": true
+      },
+      "Coldsnap": {
+        "band": "immune",
+        "confidence": "lock-2src",
+        "_review": true
+      },
+      "Incinerate": {
+        "band": "immune",
+        "confidence": "lock-2src",
+        "_review": true
+      }
+    },
+    "high-evolutionary": {
+      "Poison": {
+        "band": "immune",
+        "confidence": "lock-2src",
+        "_review": true
+      },
+      "Shock": {
+        "band": "immune",
+        "confidence": "lock-2src",
+        "_review": true
+      },
+      "Incinerate": {
+        "band": "immune",
+        "confidence": "lock-2src",
+        "_review": true
+      },
+      "Coldsnap": {
+        "band": "immune",
+        "confidence": "lock-2src",
+        "_review": true
+      }
+    },
     "mister-sinister": {
       "Bleed": {
         "band": "resist",
@@ -1100,11 +1215,228 @@
         "_review": true
       }
     },
+    "angela": {
+      "Bleed": {
+        "band": "mechanic",
+        "confidence": "lock-2src",
+        "qual": "Duration",
+        "note": "Sig-dependent duration reduction on damaging debuffs — see abilities.",
+        "_review": true
+      },
+      "Poison": {
+        "band": "mechanic",
+        "confidence": "lock-2src",
+        "qual": "Duration",
+        "note": "Sig-dependent duration reduction on damaging debuffs — see abilities.",
+        "_review": true
+      },
+      "Incinerate": {
+        "band": "mechanic",
+        "confidence": "lock-2src",
+        "qual": "Duration",
+        "note": "Sig-dependent duration reduction on damaging debuffs — see abilities.",
+        "_review": true
+      },
+      "Coldsnap": {
+        "band": "mechanic",
+        "confidence": "lock-2src",
+        "qual": "Duration",
+        "note": "Sig-dependent duration reduction on damaging debuffs — see abilities.",
+        "_review": true
+      },
+      "Shock": {
+        "band": "mechanic",
+        "confidence": "lock-2src",
+        "qual": "Duration",
+        "note": "Sig-dependent duration reduction on damaging debuffs — see abilities.",
+        "_review": true
+      },
+      "Neuroshock": {
+        "band": "mechanic",
+        "confidence": "lock-2src",
+        "qual": "Duration",
+        "note": "Sig-dependent duration reduction on damaging debuffs — see abilities.",
+        "_review": true
+      },
+      "Degeneration": {
+        "band": "mechanic",
+        "confidence": "lock-2src",
+        "qual": "Duration",
+        "note": "Sig-dependent duration reduction on damaging debuffs — see abilities.",
+        "_review": true
+      },
+      "Power Burn": {
+        "band": "mechanic",
+        "confidence": "lock-2src",
+        "qual": "Duration",
+        "note": "Sig-dependent duration reduction on damaging debuffs — see abilities.",
+        "_review": true
+      }
+    },
+    "corvus-glaive": {
+      "Bleed": {
+        "band": "immune",
+        "confidence": "lock-2src",
+        "note": "Only while Glaive Immunity is active — see abilities.",
+        "_review": true
+      },
+      "Coldsnap": {
+        "band": "immune",
+        "confidence": "lock-2src",
+        "note": "Only while Glaive Immunity is active — see abilities.",
+        "_review": true
+      },
+      "Shock": {
+        "band": "immune",
+        "confidence": "lock-2src",
+        "note": "Only while Glaive Immunity is active — see abilities.",
+        "_review": true
+      }
+    },
+    "superior-iron-man": {
+      "Bleed": {
+        "band": "resist",
+        "confidence": "lock-2src",
+        "value": 50,
+        "note": "Reduced a further 15% per unique Superior Buff — see abilities.",
+        "_review": true
+      },
+      "Incinerate": {
+        "band": "resist",
+        "confidence": "lock-2src",
+        "value": 50,
+        "note": "Reduced a further 15% per unique Superior Buff — see abilities.",
+        "_review": true
+      },
+      "Shock": {
+        "band": "resist",
+        "confidence": "lock-2src",
+        "value": 50,
+        "note": "Reduced a further 15% per unique Superior Buff — see abilities.",
+        "_review": true
+      }
+    },
+    "vision-aarkus": {
+      "Power Burn": {
+        "band": "resist",
+        "confidence": "lock-2src",
+        "value": 75,
+        "note": "Also reduces Power Drain, Power Steal, Power Lock, and Special by up to 75% — see abilities.",
+        "_review": true
+      },
+      "Stun": {
+        "band": "mechanic",
+        "confidence": "lock-2src",
+        "qual": "Purify",
+        "note": "Sig-dependent purify on non-damaging debuffs — see abilities.",
+        "_review": true
+      },
+      "Stagger": {
+        "band": "mechanic",
+        "confidence": "lock-2src",
+        "qual": "Purify",
+        "note": "Sig-dependent purify on non-damaging debuffs — see abilities.",
+        "_review": true
+      },
+      "Nullify": {
+        "band": "mechanic",
+        "confidence": "lock-2src",
+        "qual": "Purify",
+        "note": "Sig-dependent purify on non-damaging debuffs — see abilities.",
+        "_review": true
+      },
+      "Armor Break": {
+        "band": "mechanic",
+        "confidence": "lock-2src",
+        "qual": "Purify",
+        "note": "Sig-dependent purify on non-damaging debuffs — see abilities.",
+        "_review": true
+      },
+      "Heal Block": {
+        "band": "mechanic",
+        "confidence": "lock-2src",
+        "qual": "Purify",
+        "note": "Sig-dependent purify on non-damaging debuffs — see abilities.",
+        "_review": true
+      }
+    },
+    "hercules": {
+      "Bleed": {
+        "band": "immune",
+        "confidence": "lock-2src",
+        "_review": true
+      },
+      "Stun": {
+        "band": "mechanic",
+        "confidence": "lock-2src",
+        "qual": "Duration",
+        "_review": true
+      }
+    },
+    "patriot": {
+      "Bleed": {
+        "band": "immune",
+        "confidence": "lock-2src",
+        "_review": true
+      },
+      "Stagger": {
+        "band": "synergy",
+        "confidence": "lock-2src",
+        "partner": "Captain America (WWII)",
+        "_review": true
+      }
+    },
+    "baron-zemo": {
+      "Bleed": {
+        "band": "immune",
+        "confidence": "lock-2src",
+        "_review": true
+      },
+      "Armor Break": {
+        "band": "resist",
+        "confidence": "lock-2src",
+        "value": 50,
+        "_review": true
+      }
+    },
+    "spider-man-pavitr-prabhakar": {
+      "Bleed": {
+        "band": "synergy",
+        "confidence": "lock-2src",
+        "partner": "Spider-Man (2099)",
+        "_review": true
+      },
+      "Poison": {
+        "band": "mechanic",
+        "confidence": "lock-2src",
+        "qual": "Purify",
+        "_review": true
+      }
+    },
+    "spider-punk": {
+      "Shock": {
+        "band": "immune",
+        "confidence": "lock-2src",
+        "_review": true
+      },
+      "Stun": {
+        "band": "synergy",
+        "confidence": "lock-2src",
+        "partner": "Spider-Gwen",
+        "_review": true
+      }
+    },
     "domino": {
       "Bleed": {
         "band": "mechanic",
         "confidence": "lock-2src",
         "qual": "Purify",
+        "_review": true
+      },
+      "Incinerate": {
+        "band": "resist",
+        "confidence": "lock-2src",
+        "value": 50,
         "_review": true
       }
     },

@@ -220,9 +220,17 @@ export function reconcile(
       };
     }
     const n = nonStale.length;
+    // Fixture-as-single-source counts as a lock: fixture entries
+    // are the reviewer's explicit human verification against in-game
+    // behaviour, so treating them as flag-single (queue-only) would
+    // discard the work of the manual pass. Ship as lock-2src with a
+    // reviewFlag so the UI can indicate provenance.
+    const hasFixture = nonStale.some((v) => v.source === 'fixture');
     const confidence: Confidence =
-      n >= 3 ? 'lock-3src' : n >= 2 ? 'lock-2src' : 'flag-single';
-    const reviewFlag = confidence === 'lock-2src' && nonStale[0]!.band === 'resist';
+      n >= 3 ? 'lock-3src' : n >= 2 || hasFixture ? 'lock-2src' : 'flag-single';
+    const reviewFlag =
+      confidence === 'lock-2src' &&
+      (nonStale[0]!.band === 'resist' || (n === 1 && hasFixture));
     return {
       verdict: representativeVerdict(nonStale),
       confidence,
