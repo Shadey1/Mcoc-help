@@ -92,6 +92,16 @@
       "Bleed": { "band": "mechanic", "qual": "Duration", "note": "-90% Bleed duration." },
       "Poison": { "band": "mechanic", "qual": "Duration", "note": "-60% Poison duration." }
     },
+    "spiral": {
+      "Falter": { "band": "immune" }
+    },
+    "rhino": {
+      "Bleed": { "band": "immune", "note": "Recent buff: -75% Bleed accuracy — most bleeds fail to apply. See abilities." }
+    },
+    "wave": {
+      "Poison": { "band": "mechanic", "qual": "Duration", "note": "-75% Poison duration." },
+      "Incinerate": { "band": "mechanic", "qual": "Duration", "note": "-75% Incinerate duration." }
+    },
     "maestro": {
       "Poison": { "band": "immune" },
       "Shock": { "band": "immune" },

@@ -2,7 +2,7 @@
   "_meta": {
     "note": "Extracted from auntm.ai's public JS bundle (SPA client-side data). Immunity bands: Immunity type=... → immune; Mod Percent type=... → resist |modifier*100|%; Purify type=... → mechanic Purify. Champions released after 2024 are skipped because the bundle is frozen mid-2024 (matches DEFAULT_FRESHNESS.auntm.staleAfter). The passives object carries prose ability lines for the detail-page renderer to synthesise a PASSIVE card when MCOCHUB's kit doesn't already have one.",
     "source": "auntm.ai (main.js bundle)",
-    "generatedAt": "2026-07-02",
+    "generatedAt": "2026-07-03",
     "matched": 212,
     "skipped": 112
   },

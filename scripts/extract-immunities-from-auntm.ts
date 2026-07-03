@@ -55,6 +55,7 @@ const EFFECT_KEY_MAP: Record<string, string> = {
   degen: 'Degeneration',
   neuroshock: 'Neuroshock',
   power_burn: 'Power Burn',
+  falter: 'Falter',
   // Notes on unmapped keys we intentionally skip:
   //   frostbite, fateseal, petrify, neutralize, tranquilize, intimidate,
   //   infuriate, slow, mana_burn, mana_loss, mana_steal, armor_up,

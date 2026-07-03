@@ -2,9 +2,9 @@
   "_meta": {
     "note": "Auto-backfilled from data/champions/abilities.json (MCOCHUB pills.immunities). Covers only the immune + synergy bands — the resist % and mechanic Purify/Duration bands come from a separate GuiaMTC transcription pass (task #80) and override this file per-champion via the smoke fixture.",
     "source": "MCOCHUB pills.immunities (via abilities.json)",
-    "generatedAt": "2026-07-01",
-    "championCount": 123,
-    "skippedPills": 125
+    "generatedAt": "2026-07-03",
+    "championCount": 124,
+    "skippedPills": 123
   },
   "champions": {
     "absorbing-man": {
@@ -572,6 +572,9 @@
       "Bleed": {
         "band": "immune"
       },
+      "Falter": {
+        "band": "immune"
+      },
       "Incinerate": {
         "band": "immune"
       }
@@ -708,6 +711,11 @@
     },
     "spider-woman": {
       "Poison": {
+        "band": "immune"
+      }
+    },
+    "spiral": {
+      "Falter": {
         "band": "immune"
       }
     },

@@ -5,8 +5,8 @@
     "generatedAt": "2026-07-03",
     "matchedPosts": 319,
     "unresolvedSlugs": 5,
-    "championCount": 180,
-    "totalSignals": 273
+    "championCount": 181,
+    "totalSignals": 275
   },
   "champions": {
     "phyla-vell": {
@@ -182,6 +182,11 @@
         "band": "immune"
       }
     },
+    "spiral": {
+      "Falter": {
+        "band": "immune"
+      }
+    },
     "she-hulk-deathless": {
       "Poison": {
         "band": "immune"
@@ -251,6 +256,9 @@
       }
     },
     "prowler": {
+      "Falter": {
+        "band": "immune"
+      },
       "Bleed": {
         "band": "immune"
       },

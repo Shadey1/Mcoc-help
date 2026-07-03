@@ -2,14 +2,14 @@
   "generated": "2026-07-03",
   "chartDated": "2026-06",
   "_meta": {
-    "cellsTotal": 426,
-    "cellsLocked": 273,
-    "cellsInReviewQueue": 153,
+    "cellsTotal": 431,
+    "cellsLocked": 277,
+    "cellsInReviewQueue": 154,
     "conflicts": 1,
-    "singleSource": 152,
+    "singleSource": 153,
     "staleOnly": 0,
-    "uniqueChampsLocked": 150,
-    "uniqueChampsProvisional": 112
+    "uniqueChampsLocked": 153,
+    "uniqueChampsProvisional": 113
   },
   "champions": {
     "absorbing-man": {
@@ -657,6 +657,10 @@
         "band": "immune",
         "confidence": "lock-2src"
       },
+      "Falter": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      },
       "Incinerate": {
         "band": "immune",
         "confidence": "lock-2src"
@@ -798,6 +802,12 @@
       "Poison": {
         "band": "immune",
         "confidence": "lock-2src"
+      }
+    },
+    "spiral": {
+      "Falter": {
+        "band": "immune",
+        "confidence": "lock-3src"
       }
     },
     "storm": {
@@ -1003,10 +1013,6 @@
       }
     },
     "adam-warlock": {
-      "Nullify": {
-        "band": "immune",
-        "confidence": "lock-2src"
-      },
       "Shock": {
         "band": "immune",
         "confidence": "lock-2src"
@@ -1395,6 +1401,30 @@
         "confidence": "lock-2src",
         "qual": "Duration",
         "note": "-60% Poison duration.",
+        "_review": true
+      }
+    },
+    "rhino": {
+      "Bleed": {
+        "band": "immune",
+        "confidence": "lock-2src",
+        "note": "Recent buff: -75% Bleed accuracy — most bleeds fail to apply. See abilities.",
+        "_review": true
+      }
+    },
+    "wave": {
+      "Poison": {
+        "band": "mechanic",
+        "confidence": "lock-2src",
+        "qual": "Duration",
+        "note": "-75% Poison duration.",
+        "_review": true
+      },
+      "Incinerate": {
+        "band": "mechanic",
+        "confidence": "lock-2src",
+        "qual": "Duration",
+        "note": "-75% Incinerate duration.",
         "_review": true
       }
     },

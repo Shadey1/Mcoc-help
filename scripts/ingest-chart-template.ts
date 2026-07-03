@@ -50,6 +50,7 @@ const EFFECTS = [
   'Degeneration',
   'Power Burn',
   'Heal Block',
+  'Falter',
 ] as const;
 
 type EffectName = (typeof EFFECTS)[number];

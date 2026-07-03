@@ -42,6 +42,7 @@ const TRACKED_EFFECTS = new Set([
   'Degeneration',
   'Power Burn',
   'Heal Block',
+  'Falter',
 ]);
 
 type ImmunityBand =

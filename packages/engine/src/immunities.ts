@@ -43,6 +43,7 @@ export const IMMUNITY_EFFECTS = [
   'Degeneration',
   'Power Burn',
   'Heal Block',
+  'Falter',
 ] as const;
 
 export type EffectName = (typeof IMMUNITY_EFFECTS)[number];

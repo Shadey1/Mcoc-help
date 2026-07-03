@@ -3,22 +3,16 @@
     "note": "Auto-parsed from champion kit text in data/champions/abilities.json via @prestige-tools/engine parseImmunitiesFromLines(). Covers the immune band (from \"Immune to X\" / \"X Immunity\" declarations, guarded against negation + inflict false-positives) and the resist band (from \"N% X Resistance\" and \"takes N% damage from\" declarations). The mechanic Purify/Duration band and the synergy band come from other sources.",
     "source": "MCOCHUB champion kit text (via abilities.json)",
     "generatedAt": "2026-07-03",
-    "championCount": 95,
-    "signalCount": 131
+    "championCount": 94,
+    "signalCount": 129
   },
   "champions": {
     "absorbing-man": {
       "Armor Break": {
         "band": "immune"
-      },
-      "Incinerate": {
-        "band": "immune"
       }
     },
     "adam-warlock": {
-      "Nullify": {
-        "band": "immune"
-      },
       "Shock": {
         "band": "immune"
       }
@@ -107,11 +101,6 @@
     },
     "dark-phoenix": {
       "Incinerate": {
-        "band": "immune"
-      }
-    },
-    "diablo": {
-      "Stun": {
         "band": "immune"
       }
     },
@@ -406,6 +395,9 @@
       },
       "Incinerate": {
         "band": "immune"
+      },
+      "Falter": {
+        "band": "immune"
       }
     },
     "purgatory": {
@@ -491,13 +483,13 @@
         "band": "immune"
       }
     },
-    "storm": {
-      "Shock": {
+    "spiral": {
+      "Falter": {
         "band": "immune"
       }
     },
-    "storm-pyramid-x": {
-      "Coldsnap": {
+    "storm": {
+      "Shock": {
         "band": "immune"
       }
     },
