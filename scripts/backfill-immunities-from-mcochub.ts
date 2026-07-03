@@ -43,7 +43,19 @@ const TRACKED_EFFECTS = new Set([
   'Power Burn',
   'Heal Block',
   'Falter',
+  'Miss',
+  'Reverse Controls',
+  'Delirium',
 ]);
+
+/**
+ * MCOCHUB's pill names sometimes use a singular where our tracked
+ * vocab uses the plural (or vice-versa). Map the raw stripped pill
+ * name to the canonical form when they diverge.
+ */
+const EFFECT_ALIASES: Record<string, string> = {
+  'Reverse Control': 'Reverse Controls',
+};
 
 type ImmunityBand =
   | { band: 'immune' }
@@ -77,7 +89,8 @@ type SeedFile = {
  */
 function pillToEffect(pillName: string): string | null {
   const stripped = pillName.replace(/\s+Immunity$/i, '').trim();
-  return TRACKED_EFFECTS.has(stripped) ? stripped : null;
+  const aliased = EFFECT_ALIASES[stripped] ?? stripped;
+  return TRACKED_EFFECTS.has(aliased) ? aliased : null;
 }
 
 /**

@@ -2,14 +2,14 @@
   "generated": "2026-07-03",
   "chartDated": "2026-06",
   "_meta": {
-    "cellsTotal": 456,
-    "cellsLocked": 302,
-    "cellsInReviewQueue": 154,
-    "conflicts": 1,
-    "singleSource": 153,
+    "cellsTotal": 483,
+    "cellsLocked": 310,
+    "cellsInReviewQueue": 173,
+    "conflicts": 6,
+    "singleSource": 167,
     "staleOnly": 0,
-    "uniqueChampsLocked": 157,
-    "uniqueChampsProvisional": 113
+    "uniqueChampsLocked": 162,
+    "uniqueChampsProvisional": 124
   },
   "champions": {
     "absorbing-man": {
@@ -399,6 +399,10 @@
       "Incinerate": {
         "band": "immune",
         "confidence": "lock-2src"
+      },
+      "Reverse Controls": {
+        "band": "immune",
+        "confidence": "lock-2src"
       }
     },
     "joe-fixit": {
@@ -570,10 +574,41 @@
         "confidence": "lock-2src"
       }
     },
+    "mister-sinister": {
+      "Bleed": {
+        "band": "resist",
+        "confidence": "lock-2src",
+        "value": 100,
+        "_review": true
+      }
+    },
     "mole-man": {
       "Shock": {
         "band": "immune",
         "confidence": "lock-2src"
+      }
+    },
+    "moondragon": {
+      "Bleed": {
+        "band": "resist",
+        "confidence": "lock-2src",
+        "value": 30,
+        "note": "80% resist when Psionic Charge is up — see abilities.",
+        "_review": true
+      },
+      "Poison": {
+        "band": "resist",
+        "confidence": "lock-2src",
+        "value": 30,
+        "note": "80% resist when Psionic Charge is up — see abilities.",
+        "_review": true
+      },
+      "Degeneration": {
+        "band": "resist",
+        "confidence": "lock-2src",
+        "value": 30,
+        "note": "80% resist when Psionic Charge is up — see abilities.",
+        "_review": true
       }
     },
     "mordo": {
@@ -582,6 +617,12 @@
         "confidence": "lock-2src",
         "partner": "Doctor Voodoo",
         "_review": true
+      }
+    },
+    "mysterio": {
+      "Poison": {
+        "band": "immune",
+        "confidence": "lock-2src"
       }
     },
     "nick-fury": {
@@ -652,6 +693,12 @@
         "confidence": "lock-2src"
       }
     },
+    "professor-x": {
+      "Reverse Controls": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
     "prowler": {
       "Bleed": {
         "band": "immune",
@@ -702,6 +749,12 @@
       "Stun": {
         "band": "immune",
         "confidence": "lock-2src"
+      }
+    },
+    "ruby-thursday": {
+      "Delirium": {
+        "band": "immune",
+        "confidence": "lock-3src"
       }
     },
     "sabretooth": {
@@ -782,6 +835,19 @@
       "Poison": {
         "band": "immune",
         "confidence": "lock-2src"
+      }
+    },
+    "spider-punk": {
+      "Shock": {
+        "band": "immune",
+        "confidence": "lock-2src",
+        "_review": true
+      },
+      "Stun": {
+        "band": "synergy",
+        "confidence": "lock-2src",
+        "partner": "Spider-Gwen",
+        "_review": true
       }
     },
     "spider-slayer-j-jonah-jameson": {
@@ -1094,12 +1160,6 @@
         "confidence": "lock-2src"
       }
     },
-    "mysterio": {
-      "Poison": {
-        "band": "immune",
-        "confidence": "lock-2src"
-      }
-    },
     "nico-minoru": {
       "Poison": {
         "band": "immune",
@@ -1210,14 +1270,6 @@
       "Coldsnap": {
         "band": "immune",
         "confidence": "lock-2src",
-        "_review": true
-      }
-    },
-    "mister-sinister": {
-      "Bleed": {
-        "band": "resist",
-        "confidence": "lock-2src",
-        "value": 100,
         "_review": true
       }
     },
@@ -1587,26 +1639,38 @@
         "_review": true
       }
     },
-    "moondragon": {
+    "captain-america-sam-wilson": {
       "Bleed": {
-        "band": "resist",
+        "band": "immune",
         "confidence": "lock-2src",
-        "value": 30,
-        "note": "80% resist when Psionic Charge is up — see abilities.",
+        "note": "Reduces Bleed accuracy per Armor Up stack; not literal 100% immunity — see abilities.",
+        "_review": true
+      }
+    },
+    "ironheart": {
+      "Incinerate": {
+        "band": "immune",
+        "confidence": "lock-2src",
+        "note": "Only while Armor Up is active — see abilities.",
         "_review": true
       },
-      "Poison": {
-        "band": "resist",
+      "Coldsnap": {
+        "band": "immune",
         "confidence": "lock-2src",
-        "value": 30,
-        "note": "80% resist when Psionic Charge is up — see abilities.",
+        "note": "Only while Armor Up is active — see abilities.",
         "_review": true
       },
-      "Degeneration": {
-        "band": "resist",
+      "Reverse Controls": {
+        "band": "immune",
         "confidence": "lock-2src",
-        "value": 30,
-        "note": "80% resist when Psionic Charge is up — see abilities.",
+        "note": "Only while Armor Up is active — see abilities.",
+        "_review": true
+      }
+    },
+    "daredevil-hells-kitchen": {
+      "Miss": {
+        "band": "immune",
+        "confidence": "lock-2src",
         "_review": true
       }
     },
@@ -1660,19 +1724,6 @@
         "band": "mechanic",
         "confidence": "lock-2src",
         "qual": "Purify",
-        "_review": true
-      }
-    },
-    "spider-punk": {
-      "Shock": {
-        "band": "immune",
-        "confidence": "lock-2src",
-        "_review": true
-      },
-      "Stun": {
-        "band": "synergy",
-        "confidence": "lock-2src",
-        "partner": "Spider-Gwen",
         "_review": true
       }
     },

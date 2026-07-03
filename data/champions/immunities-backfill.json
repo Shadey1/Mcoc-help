@@ -3,8 +3,8 @@
     "note": "Auto-backfilled from data/champions/abilities.json (MCOCHUB pills.immunities). Covers only the immune + synergy bands — the resist % and mechanic Purify/Duration bands come from a separate GuiaMTC transcription pass (task #80) and override this file per-champion via the smoke fixture.",
     "source": "MCOCHUB pills.immunities (via abilities.json)",
     "generatedAt": "2026-07-03",
-    "championCount": 124,
-    "skippedPills": 123
+    "championCount": 132,
+    "skippedPills": 104
   },
   "champions": {
     "absorbing-man": {
@@ -278,6 +278,10 @@
         "band": "synergy",
         "partner": "Hulkbuster"
       },
+      "Reverse Controls": {
+        "band": "synergy",
+        "partner": "The Overseer"
+      },
       "Stagger": {
         "band": "synergy",
         "partner": "Hulkbuster"
@@ -286,6 +290,10 @@
     "hulk-immortal": {
       "Poison": {
         "band": "immune"
+      },
+      "Reverse Controls": {
+        "band": "synergy",
+        "partner": "The Overseer"
       }
     },
     "hulkling": {
@@ -362,10 +370,27 @@
     "jack-olantern": {
       "Incinerate": {
         "band": "immune"
+      },
+      "Reverse Controls": {
+        "band": "immune"
+      }
+    },
+    "jean-grey": {
+      "Reverse Controls": {
+        "band": "immune"
       }
     },
     "joe-fixit": {
       "Poison": {
+        "band": "immune"
+      },
+      "Reverse Controls": {
+        "band": "synergy",
+        "partner": "The Overseer"
+      }
+    },
+    "juggernaut": {
+      "Reverse Controls": {
         "band": "immune"
       }
     },
@@ -399,6 +424,10 @@
       },
       "Stun": {
         "band": "immune"
+      },
+      "Reverse Controls": {
+        "band": "synergy",
+        "partner": "Emma Frost"
       }
     },
     "korg": {
@@ -493,8 +522,18 @@
         "band": "immune"
       }
     },
+    "mister-sinister": {
+      "Reverse Controls": {
+        "band": "immune"
+      }
+    },
     "mole-man": {
       "Shock": {
+        "band": "immune"
+      }
+    },
+    "moondragon": {
+      "Reverse Controls": {
         "band": "immune"
       }
     },
@@ -502,6 +541,12 @@
       "Nullify": {
         "band": "synergy",
         "partner": "Doctor Voodoo · Sorcerer Supreme · Wiccan · Wong"
+      }
+    },
+    "mysterio": {
+      "Reverse Controls": {
+        "band": "synergy",
+        "partner": "Emma Frost"
       }
     },
     "nick-fury": {
@@ -568,6 +613,11 @@
         "band": "immune"
       }
     },
+    "professor-x": {
+      "Reverse Controls": {
+        "band": "immune"
+      }
+    },
     "prowler": {
       "Bleed": {
         "band": "immune"
@@ -577,6 +627,10 @@
       },
       "Incinerate": {
         "band": "immune"
+      },
+      "Reverse Controls": {
+        "band": "synergy",
+        "partner": "Spider-Punk"
       }
     },
     "purgatory": {
@@ -614,6 +668,11 @@
     },
     "rintrah": {
       "Stun": {
+        "band": "immune"
+      }
+    },
+    "ruby-thursday": {
+      "Delirium": {
         "band": "immune"
       }
     },
@@ -701,6 +760,12 @@
         "band": "immune"
       }
     },
+    "spider-punk": {
+      "Reverse Controls": {
+        "band": "synergy",
+        "partner": "Prowler"
+      }
+    },
     "spider-slayer-j-jonah-jameson": {
       "Bleed": {
         "band": "immune"
@@ -717,6 +782,10 @@
     "spiral": {
       "Falter": {
         "band": "immune"
+      },
+      "Reverse Controls": {
+        "band": "synergy",
+        "partner": "Gambit · Rogue"
       }
     },
     "spot": {
@@ -800,6 +869,9 @@
     "the-maker": {
       "Neuroshock": {
         "band": "immune"
+      },
+      "Reverse Controls": {
+        "band": "immune"
       }
     },
     "the-overseer": {
@@ -811,6 +883,10 @@
       },
       "Stagger": {
         "band": "immune"
+      },
+      "Reverse Controls": {
+        "band": "synergy",
+        "partner": "Hulk · Hulk (Immortal) · Hulk (Ragnarok) · Joe Fixit"
       }
     },
     "the-serpent": {
@@ -888,6 +964,10 @@
       },
       "Poison": {
         "band": "immune"
+      },
+      "Reverse Controls": {
+        "band": "synergy",
+        "partner": "Deathless Thanos Latest"
       }
     },
     "viv-vision": {
@@ -934,6 +1014,9 @@
     },
     "wiccan": {
       "Armor Break": {
+        "band": "immune"
+      },
+      "Reverse Controls": {
         "band": "immune"
       }
     },

@@ -135,6 +135,20 @@
       "Poison": { "band": "resist", "qual": "30%", "note": "80% resist when Psionic Charge is up — see abilities." },
       "Degeneration": { "band": "resist", "qual": "30%", "note": "80% resist when Psionic Charge is up — see abilities." }
     },
+    "captain-america-sam-wilson": {
+      "Bleed": { "band": "immune", "note": "Reduces Bleed accuracy per Armor Up stack; not literal 100% immunity — see abilities." }
+    },
+    "ironheart": {
+      "Incinerate": { "band": "immune", "note": "Only while Armor Up is active — see abilities." },
+      "Coldsnap": { "band": "immune", "note": "Only while Armor Up is active — see abilities." },
+      "Reverse Controls": { "band": "immune", "note": "Only while Armor Up is active — see abilities." }
+    },
+    "ruby-thursday": {
+      "Delirium": { "band": "immune" }
+    },
+    "daredevil-hells-kitchen": {
+      "Miss": { "band": "immune" }
+    },
     "maestro": {
       "Poison": { "band": "immune" },
       "Shock": { "band": "immune" },

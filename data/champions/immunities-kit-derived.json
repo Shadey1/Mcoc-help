@@ -3,8 +3,8 @@
     "note": "Auto-parsed from champion kit text in data/champions/abilities.json via @prestige-tools/engine parseImmunitiesFromLines(). Covers the immune band (from \"Immune to X\" / \"X Immunity\" declarations, guarded against negation + inflict false-positives) and the resist band (from \"N% X Resistance\" and \"takes N% damage from\" declarations). The mechanic Purify/Duration band and the synergy band come from other sources.",
     "source": "MCOCHUB champion kit text (via abilities.json)",
     "generatedAt": "2026-07-03",
-    "championCount": 94,
-    "signalCount": 129
+    "championCount": 95,
+    "signalCount": 130
   },
   "champions": {
     "absorbing-man": {
@@ -407,6 +407,11 @@
     },
     "red-skull": {
       "Nullify": {
+        "band": "immune"
+      }
+    },
+    "ruby-thursday": {
+      "Delirium": {
         "band": "immune"
       }
     },

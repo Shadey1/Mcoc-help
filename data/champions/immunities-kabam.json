@@ -5,8 +5,8 @@
     "generatedAt": "2026-07-03",
     "matchedPosts": 319,
     "unresolvedSlugs": 5,
-    "championCount": 181,
-    "totalSignals": 275
+    "championCount": 183,
+    "totalSignals": 283
   },
   "champions": {
     "phyla-vell": {
@@ -14,6 +14,11 @@
         "band": "immune"
       },
       "Power Burn": {
+        "band": "immune"
+      }
+    },
+    "ruby-thursday": {
+      "Delirium": {
         "band": "immune"
       }
     },
@@ -193,6 +198,9 @@
       }
     },
     "jack-olantern": {
+      "Reverse Controls": {
+        "band": "immune"
+      },
       "Incinerate": {
         "band": "immune"
       }
@@ -263,6 +271,14 @@
         "band": "immune"
       },
       "Incinerate": {
+        "band": "immune"
+      },
+      "Reverse Controls": {
+        "band": "immune"
+      }
+    },
+    "spider-punk": {
+      "Reverse Controls": {
         "band": "immune"
       }
     },
@@ -552,6 +568,9 @@
       }
     },
     "knull": {
+      "Reverse Controls": {
+        "band": "immune"
+      },
       "Degeneration": {
         "band": "resist",
         "qual": "40%"
@@ -572,6 +591,9 @@
     },
     "kitty-pryde": {
       "Incinerate": {
+        "band": "immune"
+      },
+      "Reverse Controls": {
         "band": "immune"
       }
     },
@@ -617,6 +639,9 @@
     },
     "the-overseer": {
       "Nullify": {
+        "band": "immune"
+      },
+      "Reverse Controls": {
         "band": "immune"
       }
     },
@@ -851,6 +876,9 @@
     },
     "mysterio": {
       "Poison": {
+        "band": "immune"
+      },
+      "Reverse Controls": {
         "band": "immune"
       }
     },

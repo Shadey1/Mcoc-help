@@ -279,6 +279,11 @@
         "band": "immune"
       }
     },
+    "longshot": {
+      "Miss": {
+        "band": "immune"
+      }
+    },
     "man-thing": {
       "Bleed": {
         "band": "immune"
@@ -373,6 +378,15 @@
     },
     "photon": {
       "Bleed": {
+        "band": "immune"
+      },
+      "Miss": {
+        "band": "mechanic",
+        "qual": "Purify"
+      }
+    },
+    "professor-x": {
+      "Reverse Controls": {
         "band": "immune"
       }
     },
@@ -637,6 +651,9 @@
     "kushala": [
       "Kushala's connection to her Spirit of Vengeance grants her immunity to all Bleed and Incinerate effects."
     ],
+    "longshot": [
+      "This attack cannot Miss or be Auto-Blocked."
+    ],
     "man-thing": [
       "Man-Thing\\u2019s lack of blood also makes it Immune to Bleed effects."
     ],
@@ -675,7 +692,11 @@
       "When Blocking or Auto-Blocking a Hit, Peni cannot be Stunned and Locks the Opponent\\u2019s Power."
     ],
     "photon": [
-      "Photon's altered body composition grants her Immunity to all Bleed and Power Steal effects."
+      "Photon's altered body composition grants her Immunity to all Bleed and Power Steal effects.",
+      "Photon's Medium Attacks cannot Miss."
+    ],
+    "professor-x": [
+      "Immune to Reversed Controls due to his mastery over Telepathy."
     ],
     "red-skull": [
       "Red Skull is Immune to Nullify, Fate Seal, and Stagger effects from Champions."

@@ -74,6 +74,9 @@ const EFFECTS = [
   'Power Burn',
   'Heal Block',
   'Falter',
+  'Miss',
+  'Reverse Controls',
+  'Delirium',
 ] as const;
 
 // ─── Types ─────────────────────────────────────────────────────────────
