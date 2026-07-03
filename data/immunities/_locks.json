@@ -2,13 +2,13 @@
   "generated": "2026-07-03",
   "chartDated": "2026-06",
   "_meta": {
-    "cellsTotal": 421,
-    "cellsLocked": 268,
+    "cellsTotal": 426,
+    "cellsLocked": 273,
     "cellsInReviewQueue": 153,
     "conflicts": 1,
     "singleSource": 152,
     "staleOnly": 0,
-    "uniqueChampsLocked": 148,
+    "uniqueChampsLocked": 150,
     "uniqueChampsProvisional": 112
   },
   "champions": {
@@ -1357,6 +1357,44 @@
         "confidence": "lock-2src",
         "qual": "Purify",
         "note": "Sig-dependent purify on non-damaging debuffs — see abilities.",
+        "_review": true
+      }
+    },
+    "shatterstar": {
+      "Bleed": {
+        "band": "resist",
+        "confidence": "lock-2src",
+        "value": 100,
+        "_review": true
+      },
+      "Poison": {
+        "band": "resist",
+        "confidence": "lock-2src",
+        "value": 40,
+        "note": "Only from quest nodes — see abilities.",
+        "_review": true
+      },
+      "Incinerate": {
+        "band": "resist",
+        "confidence": "lock-2src",
+        "value": 40,
+        "note": "Only from quest nodes — see abilities.",
+        "_review": true
+      }
+    },
+    "wolverine-x-23": {
+      "Bleed": {
+        "band": "mechanic",
+        "confidence": "lock-2src",
+        "qual": "Duration",
+        "note": "-90% Bleed duration.",
+        "_review": true
+      },
+      "Poison": {
+        "band": "mechanic",
+        "confidence": "lock-2src",
+        "qual": "Duration",
+        "note": "-60% Poison duration.",
         "_review": true
       }
     },

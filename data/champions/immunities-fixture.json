@@ -83,6 +83,15 @@
       "Armor Break": { "band": "mechanic", "qual": "Purify", "note": "Sig-dependent purify on non-damaging debuffs — see abilities." },
       "Heal Block": { "band": "mechanic", "qual": "Purify", "note": "Sig-dependent purify on non-damaging debuffs — see abilities." }
     },
+    "shatterstar": {
+      "Bleed": { "band": "resist", "qual": "100%" },
+      "Poison": { "band": "resist", "qual": "40%", "note": "Only from quest nodes — see abilities." },
+      "Incinerate": { "band": "resist", "qual": "40%", "note": "Only from quest nodes — see abilities." }
+    },
+    "wolverine-x-23": {
+      "Bleed": { "band": "mechanic", "qual": "Duration", "note": "-90% Bleed duration." },
+      "Poison": { "band": "mechanic", "qual": "Duration", "note": "-60% Poison duration." }
+    },
     "maestro": {
       "Poison": { "band": "immune" },
       "Shock": { "band": "immune" },
