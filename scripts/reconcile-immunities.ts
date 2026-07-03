@@ -51,11 +51,12 @@ const KABAM_PATH = 'data/champions/immunities-kabam.json';
 
 // ─── Read sources ──────────────────────────────────────────────────────
 
-type SourceBand =
+type SourceBand = (
   | { band: 'immune' }
   | { band: 'resist'; qual: string }
   | { band: 'mechanic'; qual: 'Purify' | 'Duration' }
-  | { band: 'synergy'; partner: string };
+  | { band: 'synergy'; partner: string }
+) & { note?: string };
 
 type SourceFile = {
   _meta?: Record<string, unknown>;
@@ -82,18 +83,20 @@ function loadSeed(): Map<string, number | undefined> {
 // ─── Convert file → votes ──────────────────────────────────────────────
 
 function bandToVote(source: SourceName, band: SourceBand): Vote {
-  if (band.band === 'immune') return { source, band: 'immune' };
+  const note = band.note && band.note.trim().length > 0 ? band.note : undefined;
+  if (band.band === 'immune') return { source, band: 'immune', note };
   if (band.band === 'resist') {
     const parsed = parseInt(band.qual, 10);
     return {
       source,
       band: 'resist',
       value: Number.isFinite(parsed) ? parsed : 0,
+      note,
     };
   }
   if (band.band === 'mechanic')
-    return { source, band: 'mechanic', qual: band.qual };
-  return { source, band: 'synergy', partner: band.partner };
+    return { source, band: 'mechanic', qual: band.qual, note };
+  return { source, band: 'synergy', partner: band.partner, note };
 }
 
 /**
@@ -199,6 +202,7 @@ type LocksOutput = {
         value?: number;
         qual?: string;
         partner?: string;
+        note?: string;
         confidence: Confidence;
         _review?: true;
       }
@@ -214,6 +218,7 @@ function toLockRow(r: CellReconciled) {
   if (r.verdict.value !== undefined) row.value = r.verdict.value;
   if (r.verdict.qual !== undefined) row.qual = r.verdict.qual;
   if (r.verdict.partner !== undefined) row.partner = r.verdict.partner;
+  if (r.verdict.note !== undefined) row.note = r.verdict.note;
   if (r.reviewFlag) row._review = true;
   return row;
 }

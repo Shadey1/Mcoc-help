@@ -49,11 +49,20 @@ export type EffectName = (typeof IMMUNITY_EFFECTS)[number];
 
 // ─── The four-signal band model ────────────────────────────────────────
 
-export type ImmunityBand =
+export type ImmunityBand = (
   | { band: 'immune' }
   | { band: 'resist'; qual: string }
   | { band: 'mechanic'; qual: 'Purify' | 'Duration' }
-  | { band: 'synergy'; partner: string };
+  | { band: 'synergy'; partner: string }
+) & {
+  /**
+   * Optional human caveat about the cell — the four-signal model can't
+   * express things like "only while X buff is active", "sig-scaling",
+   * or "reduced further per stack". The UI surfaces a star next to the
+   * badge when note is set, with the text in the tooltip.
+   */
+  note?: string;
+};
 
 export type BandKind = ImmunityBand['band'];
 

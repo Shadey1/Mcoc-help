@@ -2,14 +2,14 @@
   "generated": "2026-07-03",
   "chartDated": "2026-06",
   "_meta": {
-    "cellsTotal": 401,
+    "cellsTotal": 421,
     "cellsLocked": 216,
-    "cellsInReviewQueue": 185,
+    "cellsInReviewQueue": 205,
     "conflicts": 1,
-    "singleSource": 184,
+    "singleSource": 204,
     "staleOnly": 0,
     "uniqueChampsLocked": 137,
-    "uniqueChampsProvisional": 124
+    "uniqueChampsProvisional": 128
   },
   "champions": {
     "absorbing-man": {

@@ -55,6 +55,34 @@
     "venompool": {
       "Incinerate": { "band": "synergy", "partner": "Human Torch" }
     },
+    "angela": {
+      "Bleed": { "band": "mechanic", "qual": "Duration", "note": "Sig-dependent duration reduction on damaging debuffs — see abilities." },
+      "Poison": { "band": "mechanic", "qual": "Duration", "note": "Sig-dependent duration reduction on damaging debuffs — see abilities." },
+      "Incinerate": { "band": "mechanic", "qual": "Duration", "note": "Sig-dependent duration reduction on damaging debuffs — see abilities." },
+      "Coldsnap": { "band": "mechanic", "qual": "Duration", "note": "Sig-dependent duration reduction on damaging debuffs — see abilities." },
+      "Shock": { "band": "mechanic", "qual": "Duration", "note": "Sig-dependent duration reduction on damaging debuffs — see abilities." },
+      "Neuroshock": { "band": "mechanic", "qual": "Duration", "note": "Sig-dependent duration reduction on damaging debuffs — see abilities." },
+      "Degeneration": { "band": "mechanic", "qual": "Duration", "note": "Sig-dependent duration reduction on damaging debuffs — see abilities." },
+      "Power Burn": { "band": "mechanic", "qual": "Duration", "note": "Sig-dependent duration reduction on damaging debuffs — see abilities." }
+    },
+    "corvus-glaive": {
+      "Bleed": { "band": "immune", "note": "Only while Glaive Immunity is active — see abilities." },
+      "Coldsnap": { "band": "immune", "note": "Only while Glaive Immunity is active — see abilities." },
+      "Shock": { "band": "immune", "note": "Only while Glaive Immunity is active — see abilities." }
+    },
+    "superior-iron-man": {
+      "Bleed": { "band": "resist", "qual": "50%", "note": "Reduced a further 15% per unique Superior Buff — see abilities." },
+      "Incinerate": { "band": "resist", "qual": "50%", "note": "Reduced a further 15% per unique Superior Buff — see abilities." },
+      "Shock": { "band": "resist", "qual": "50%", "note": "Reduced a further 15% per unique Superior Buff — see abilities." }
+    },
+    "vision-aarkus": {
+      "Power Burn": { "band": "resist", "qual": "75%", "note": "Also reduces Power Drain, Power Steal, Power Lock, and Special by up to 75% — see abilities." },
+      "Stun": { "band": "mechanic", "qual": "Purify", "note": "Sig-dependent purify on non-damaging debuffs — see abilities." },
+      "Stagger": { "band": "mechanic", "qual": "Purify", "note": "Sig-dependent purify on non-damaging debuffs — see abilities." },
+      "Nullify": { "band": "mechanic", "qual": "Purify", "note": "Sig-dependent purify on non-damaging debuffs — see abilities." },
+      "Armor Break": { "band": "mechanic", "qual": "Purify", "note": "Sig-dependent purify on non-damaging debuffs — see abilities." },
+      "Heal Block": { "band": "mechanic", "qual": "Purify", "note": "Sig-dependent purify on non-damaging debuffs — see abilities." }
+    },
     "maestro": {
       "Poison": { "band": "immune" },
       "Shock": { "band": "immune" },

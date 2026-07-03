@@ -113,13 +113,15 @@ describe('queryImmunities — ANY mode', () => {
   });
 
   it('omits rows with zero coverage', () => {
-    // Neuroshock: only the-maker has an entry, but under ANY mode with
-    // no other champ covering, we get exactly the-maker. Test something
-    // truly uncovered instead: Power Burn has zero fixture entries.
+    // Every effect in the fixture has at least one champion these
+    // days, so we test the empty-result path by restricting the
+    // champion pool to just Spider-Punk — who has Shock immunity but
+    // nothing on Bleed. Querying Bleed against that pool must return
+    // nothing.
     const hits = queryImmunities(
       IMMUNITY_FIXTURE,
-      FIXTURE_IDS,
-      ['Power Burn'],
+      ['spider-punk'],
+      ['Bleed'],
       'any',
     );
     expect(hits).toEqual([]);
@@ -218,21 +220,24 @@ describe('effectRosterCounts', () => {
     const counts = effectRosterCounts(IMMUNITY_FIXTURE, FIXTURE_IDS);
     // Bleed: nova, onslaught, lizard, hercules, patriot, baron-zemo,
     // spider-man-pavitr-prabhakar (synergy), domino (Purify), iron-man,
-    // mister-sinister → 10.
-    expect(counts.Bleed).toBe(10);
-    // Nullify: mangog (synergy), mordo (synergy) → 2.
-    expect(counts.Nullify).toBe(2);
-    // Power Burn has no fixture entries.
-    expect(counts['Power Burn']).toBe(0);
+    // mister-sinister, angela (Duration), corvus-glaive (conditional
+    // immune), superior-iron-man (resist) → 13.
+    expect(counts.Bleed).toBe(13);
+    // Nullify: mangog (synergy), mordo (synergy), vision-aarkus
+    // (Purify) → 3.
+    expect(counts.Nullify).toBe(3);
+    // Heal Block: only vision-aarkus has an entry → 1.
+    expect(counts['Heal Block']).toBe(1);
   });
 
   it('drops synergy count when synergy band is off', () => {
     const bf: BandFilter = { ...ALL_BANDS_ON, synergy: false };
     const counts = effectRosterCounts(IMMUNITY_FIXTURE, FIXTURE_IDS, bf);
-    // Bleed list minus pavitr (only synergy-granted) → 9. Domino keeps
-    // her Purify mark; the rest are immune or resist.
-    expect(counts.Bleed).toBe(9);
-    // Nullify without synergy → 0 (both entries are synergy-granted).
-    expect(counts.Nullify).toBe(0);
+    // Bleed list minus pavitr (only synergy-granted) → 12. Domino
+    // keeps her Purify, Angela keeps Duration, Corvus keeps immune,
+    // Superior Iron Man keeps resist.
+    expect(counts.Bleed).toBe(12);
+    // Nullify without synergy → 1 (only vision-aarkus's Purify remains).
+    expect(counts.Nullify).toBe(1);
   });
 });

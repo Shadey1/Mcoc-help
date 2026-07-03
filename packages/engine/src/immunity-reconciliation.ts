@@ -73,6 +73,14 @@ export type Vote = {
   qual?: 'Purify' | 'Duration';
   /** For synergy bands: the partner name (display, not slug). */
   partner?: string;
+  /**
+   * Optional human note about the cell — a caveat the four-signal
+   * model can't express on its own. When present, the reconciler
+   * preserves it on the verdict and the UI surfaces a "see abilities"
+   * star. Typical uses: "conditional on Glaive Immunity being active",
+   * "scales with sig", "reduced further per superior buff".
+   */
+  note?: string;
 };
 
 // ─── Verdict + confidence ──────────────────────────────────────────────
@@ -93,6 +101,8 @@ export type Verdict = {
   value?: number;
   qual?: 'Purify' | 'Duration';
   partner?: string;
+  /** Human caveat on the cell — surfaced as a "see abilities" star in the UI. */
+  note?: string;
 };
 
 export type Reconciled = {
@@ -245,7 +255,7 @@ export function reconcile(
     return {
       verdict: fixtureVerdict,
       confidence: 'lock-2src',
-      votes,
+      votes: [...votes],
       reviewFlag: true,
       note: `Fixture-verified; other sources dissent: ${otherBucketDescriptions}.`,
     };
@@ -293,6 +303,11 @@ function representativeVerdict(members: readonly Vote[]): Verdict {
   } else if (v.band === 'synergy') {
     out.partner = v.partner;
   }
+  // Carry the first non-empty note (verdict-representative). Fixture
+  // votes are always sorted first in the fixture-authoritative path,
+  // so the fixture's note wins when present.
+  const noted = members.find((m) => m.note && m.note.trim().length > 0);
+  if (noted?.note) out.note = noted.note;
   return out;
 }
 

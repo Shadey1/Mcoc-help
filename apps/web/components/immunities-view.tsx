@@ -441,15 +441,38 @@ function Badge({ eff, mark }: { eff: EffectName; mark: ImmunityBand | null }) {
       </span>
     );
   }
+  // When the fixture carries a caveat the four-signal model can't
+  // express, surface it as a small gold star with the text in a
+  // hover tooltip. Combines with any band-specific tooltip so the
+  // user sees both the "effective immunity" and the "see abilities"
+  // context together.
+  const noteStar = mark.note ? (
+    <span
+      className="text-[10px] text-amber-600 cursor-help ml-0.5"
+      title={mark.note}
+      aria-label={mark.note}
+    >
+      ★
+    </span>
+  ) : null;
   if (mark.band === 'immune') {
     return (
-      <span className="inline-flex items-center gap-1 font-mono text-[10.5px] px-2 py-[3px] rounded bg-[var(--color-paper)] text-[var(--color-marvel-editorial)] border border-[var(--color-ink)]/20 font-medium">
-        <span className="opacity-60 text-[var(--color-ink-soft)]">{eff}</span> immune
+      <span
+        className="inline-flex items-center gap-1 font-mono text-[10.5px] px-2 py-[3px] rounded bg-[var(--color-paper)] text-[var(--color-marvel-editorial)] border border-[var(--color-ink)]/20 font-medium"
+        title={mark.note}
+      >
+        <span className="opacity-60 text-[var(--color-ink-soft)]">{eff}</span> immune{noteStar}
       </span>
     );
   }
   if (mark.band === 'resist') {
     const eff100 = isEffectivelyImmune(mark);
+    const title = [
+      eff100 ? 'Effective immunity — no damage, but debuff still applies' : null,
+      mark.note ?? null,
+    ]
+      .filter(Boolean)
+      .join(' · ');
     return (
       <span
         className={`inline-flex items-center gap-1 font-mono text-[10.5px] px-2 py-[3px] rounded border ${
@@ -457,26 +480,32 @@ function Badge({ eff, mark }: { eff: EffectName; mark: ImmunityBand | null }) {
             ? 'border-amber-500 text-amber-700 font-medium'
             : 'border-amber-400/60 text-amber-600'
         }`}
-        title={eff100 ? 'Effective immunity — no damage, but debuff still applies' : undefined}
+        title={title || undefined}
       >
         <span className="opacity-60">{eff}</span> {mark.qual}
         {eff100 ? ' · no dmg' : ''}
+        {noteStar}
       </span>
     );
   }
   if (mark.band === 'mechanic') {
     return (
-      <span className="inline-flex items-center gap-1 font-mono text-[10.5px] px-2 py-[3px] rounded border border-sky-500/60 text-sky-700">
+      <span
+        className="inline-flex items-center gap-1 font-mono text-[10.5px] px-2 py-[3px] rounded border border-sky-500/60 text-sky-700"
+        title={mark.note}
+      >
         <span className="opacity-60">{eff}</span> {mark.qual}
+        {noteStar}
       </span>
     );
   }
   return (
     <span
       className="inline-flex items-center gap-1 font-mono text-[10.5px] px-2 py-[3px] rounded border border-[var(--color-marvel-editorial)] text-[var(--color-marvel-editorial)]"
-      title={`Only when ${mark.partner} is on the squad`}
+      title={[`Only when ${mark.partner} is on the squad`, mark.note].filter(Boolean).join(' · ')}
     >
       <span className="opacity-60">{eff}</span> syn: {mark.partner}
+      {noteStar}
     </span>
   );
 }
