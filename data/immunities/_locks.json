@@ -2,14 +2,14 @@
   "generated": "2026-07-03",
   "chartDated": "2026-06",
   "_meta": {
-    "cellsTotal": 404,
-    "cellsLocked": 216,
-    "cellsInReviewQueue": 188,
-    "conflicts": 19,
-    "singleSource": 169,
+    "cellsTotal": 401,
+    "cellsLocked": 209,
+    "cellsInReviewQueue": 192,
+    "conflicts": 8,
+    "singleSource": 184,
     "staleOnly": 0,
-    "uniqueChampsLocked": 134,
-    "uniqueChampsProvisional": 125
+    "uniqueChampsLocked": 132,
+    "uniqueChampsProvisional": 126
   },
   "champions": {
     "absorbing-man": {
@@ -17,15 +17,7 @@
         "band": "immune",
         "confidence": "lock-2src"
       },
-      "Bleed": {
-        "band": "immune",
-        "confidence": "lock-2src"
-      },
       "Incinerate": {
-        "band": "immune",
-        "confidence": "lock-2src"
-      },
-      "Shock": {
         "band": "immune",
         "confidence": "lock-2src"
       }
@@ -80,10 +72,6 @@
     },
     "black-widow-claire-voyant": {
       "Bleed": {
-        "band": "immune",
-        "confidence": "lock-2src"
-      },
-      "Poison": {
         "band": "immune",
         "confidence": "lock-2src"
       }
@@ -244,10 +232,6 @@
     },
     "gentle": {
       "Bleed": {
-        "band": "immune",
-        "confidence": "lock-2src"
-      },
-      "Stun": {
         "band": "immune",
         "confidence": "lock-2src"
       }
@@ -762,12 +746,6 @@
         "confidence": "lock-3src"
       }
     },
-    "storm-pyramid-x": {
-      "Coldsnap": {
-        "band": "immune",
-        "confidence": "lock-2src"
-      }
-    },
     "sunspot": {
       "Incinerate": {
         "band": "immune",
@@ -838,10 +816,6 @@
       "Coldsnap": {
         "band": "immune",
         "confidence": "lock-2src"
-      },
-      "Stun": {
-        "band": "immune",
-        "confidence": "lock-3src"
       },
       "Stagger": {
         "band": "immune",
@@ -934,12 +908,6 @@
       "Poison": {
         "band": "immune",
         "confidence": "lock-3src"
-      }
-    },
-    "werewolf-by-night": {
-      "Heal Block": {
-        "band": "immune",
-        "confidence": "lock-2src"
       }
     },
     "white-tiger": {

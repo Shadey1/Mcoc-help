@@ -153,6 +153,20 @@ export const NEGATION_PATTERNS: RegExp[] = [
   // sentence for the guard to fire.
   /\b(?:prevented|fails?|failed|blocked)\s+.*due to\b.*\bimmunity\b/i,
   /\bfails?\s+to\s+apply\s+due to\b/i,
+  // Conditional immunity: "becomes Immune to X when/while/if …" is
+  // teamwork or state-gated, not general roster immunity. The Kabam
+  // spotlight prose loves this phrasing for synergy-granted marks
+  // (Storm becomes Coldsnap Immune when paired with Storm (Pyramid X))
+  // — treating it as unconditional would mislead a war planner
+  // relying on the champion in a solo path.
+  /\b(?:becomes?|is|are|gains?)\s+Immun(?:e|ity)\b.*\b(?:when|while|if|during|paired\s+with|only\s+if|only\s+when)\b/i,
+  // Synergy-granted immunity in Kabam spotlight prose almost always
+  // uses "Gain Immunity to X". Baseline immunity uses "is Immune to X"
+  // or "grants X Immunity" or "has X Immunity". Rejecting "Gain
+  // Immunity to" catches the synergy line without touching the base
+  // (Storm's synergy section: "Gain Immunity to Incinerate and
+  // Coldsnap"; her base kit: "grants her Immunity to Shock effects").
+  /\bGain\s+Immunity\s+to\b/i,
 ];
 
 /** Verbs whose object-effect indicates the champion INFLICTS that effect (not resists it). */
@@ -239,7 +253,11 @@ export function parseKitLine(
       assignBand(target, eff, { band: 'immune' });
     }
   }
-  // "N% X Resistance" (positive N only).
+  // "N% X Resistance" (positive N only). Rounded values ≤0 are dropped:
+  // they arise from fractional resistances ("gains 0.5% Bleed Resistance
+  // per Charge") that round to 0 and would ship as a meaningless mark,
+  // and they were surfacing as flag-conflict cells against real
+  // percentage values from Kabam/auntm.
   {
     const re = /(?<!-)(\d+(?:\.\d+)?)%\s+([A-Za-z][A-Za-z ]*?)\s+Resistance\b/g;
     let m: RegExpExecArray | null;
@@ -248,6 +266,7 @@ export function parseKitLine(
       if (!eff) continue;
       if (!guardsPass(line, m.index, eff)) continue;
       const pct = Math.round(parseFloat(m[1]!));
+      if (pct <= 0) continue;
       assignBand(target, eff, { band: 'resist', qual: `${pct}%` });
     }
   }
@@ -259,7 +278,7 @@ export function parseKitLine(
     let m: RegExpExecArray | null;
     while ((m = re.exec(line)) !== null) {
       const pct = parseSignedPercent(m[1]!);
-      if (pct === null) continue;
+      if (pct === null || pct <= 0) continue;
       const effects = extractImmuneClause(m[2]!);
       for (const eff of effects) {
         if (!guardsPass(line, m.index, eff)) continue;
@@ -274,7 +293,7 @@ export function parseKitLine(
     let m: RegExpExecArray | null;
     while ((m = re.exec(line)) !== null) {
       const pct = parseSignedPercent(m[2]!);
-      if (pct === null) continue;
+      if (pct === null || pct <= 0) continue;
       const effects = extractImmuneClause(m[1]!);
       for (const eff of effects) {
         if (!guardsPass(line, m.index, eff)) continue;
@@ -289,7 +308,7 @@ export function parseKitLine(
     let m: RegExpExecArray | null;
     while ((m = re.exec(line)) !== null) {
       const pct = parseSignedPercent(m[1]!);
-      if (pct === null) continue;
+      if (pct === null || pct <= 0) continue;
       const effects = extractImmuneClause(m[2]!);
       for (const eff of effects) {
         if (!guardsPass(line, m.index, eff)) continue;

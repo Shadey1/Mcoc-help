@@ -2,9 +2,9 @@
   "_meta": {
     "note": "Auto-parsed from champion kit text in data/champions/abilities.json via @prestige-tools/engine parseImmunitiesFromLines(). Covers the immune band (from \"Immune to X\" / \"X Immunity\" declarations, guarded against negation + inflict false-positives) and the resist band (from \"N% X Resistance\" and \"takes N% damage from\" declarations). The mechanic Purify/Duration band and the synergy band come from other sources.",
     "source": "MCOCHUB champion kit text (via abilities.json)",
-    "generatedAt": "2026-07-01",
-    "championCount": 101,
-    "signalCount": 140
+    "generatedAt": "2026-07-03",
+    "championCount": 95,
+    "signalCount": 131
   },
   "champions": {
     "absorbing-man": {
@@ -153,14 +153,6 @@
         "band": "immune"
       }
     },
-    "gentle": {
-      "Bleed": {
-        "band": "immune"
-      },
-      "Stun": {
-        "band": "immune"
-      }
-    },
     "ghost-rider": {
       "Bleed": {
         "band": "immune"
@@ -183,16 +175,6 @@
       "Bleed": {
         "band": "resist",
         "qual": "25%"
-      }
-    },
-    "heimdall": {
-      "Poison": {
-        "band": "resist",
-        "qual": "0%"
-      },
-      "Incinerate": {
-        "band": "resist",
-        "qual": "0%"
       }
     },
     "howard-the-duck": {
@@ -426,12 +408,6 @@
         "band": "immune"
       }
     },
-    "punisher": {
-      "Bleed": {
-        "band": "resist",
-        "qual": "0%"
-      }
-    },
     "purgatory": {
       "Incinerate": {
         "band": "immune"
@@ -475,12 +451,6 @@
     "shuri": {
       "Shock": {
         "band": "immune"
-      }
-    },
-    "silver-samurai": {
-      "Bleed": {
-        "band": "resist",
-        "qual": "0%"
       }
     },
     "silver-surfer": {
@@ -573,9 +543,6 @@
       }
     },
     "the-serpent": {
-      "Stun": {
-        "band": "immune"
-      },
       "Stagger": {
         "band": "immune"
       }
@@ -583,12 +550,6 @@
     "thing": {
       "Bleed": {
         "band": "immune"
-      }
-    },
-    "thor-jane-foster": {
-      "Shock": {
-        "band": "resist",
-        "qual": "0%"
       }
     },
     "toad": {
@@ -624,11 +585,6 @@
     },
     "warlock": {
       "Bleed": {
-        "band": "immune"
-      }
-    },
-    "werewolf-by-night": {
-      "Heal Block": {
         "band": "immune"
       }
     },

@@ -168,9 +168,24 @@ describe('parseImmunitiesFromLines — end-to-end', () => {
   it('promotes stronger bands per effect (immune > resist)', () => {
     const out = parseImmunitiesFromLines([
       'Champion has 80% Bleed Resistance.',
-      'Champion becomes Immune to Bleed while Charged.',
+      'Champion has Bleed Immunity.',
     ]);
     expect(out.Bleed).toEqual({ band: 'immune' });
+  });
+  it('rejects conditional immunity ("becomes Immune ... when/while X")', () => {
+    // The Kabam spotlight prose loves this phrasing for synergy-granted
+    // and state-gated immunities (Storm becomes Coldsnap Immune when
+    // paired with Storm (Pyramid X)). Treating those as unconditional
+    // misleads a war planner picking the champion for a solo path.
+    const cases = [
+      'Storm becomes Coldsnap Immune when paired with Storm (Pyramid X).',
+      'Champion is Immune to Bleed while Charged.',
+      'Deadpool gains Immunity to Poison if his combo exceeds 10.',
+    ];
+    for (const line of cases) {
+      const out = parseImmunitiesFromLines([line]);
+      expect(Object.keys(out), line).toHaveLength(0);
+    }
   });
   it('ignores out-of-vocabulary effects (Rupture, Frostbite, Fatigue)', () => {
     const out = parseImmunitiesFromLines([

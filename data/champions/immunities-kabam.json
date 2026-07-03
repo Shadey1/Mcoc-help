@@ -5,8 +5,8 @@
     "generatedAt": "2026-07-03",
     "matchedPosts": 319,
     "unresolvedSlugs": 5,
-    "championCount": 184,
-    "totalSignals": 288
+    "championCount": 180,
+    "totalSignals": 273
   },
   "champions": {
     "phyla-vell": {
@@ -170,9 +170,6 @@
     "thanos-deathless": {
       "Coldsnap": {
         "band": "immune"
-      },
-      "Power Burn": {
-        "band": "immune"
       }
     },
     "isophyne": {
@@ -182,11 +179,6 @@
     },
     "dazzler": {
       "Nullify": {
-        "band": "immune"
-      }
-    },
-    "spiral": {
-      "Degeneration": {
         "band": "immune"
       }
     },
@@ -264,9 +256,6 @@
       },
       "Incinerate": {
         "band": "immune"
-      },
-      "Nullify": {
-        "band": "immune"
       }
     },
     "king-groot-deathless": {
@@ -284,9 +273,6 @@
     },
     "the-serpent": {
       "Coldsnap": {
-        "band": "immune"
-      },
-      "Stun": {
         "band": "immune"
       },
       "Stagger": {
@@ -341,11 +327,6 @@
         "band": "immune"
       },
       "Incinerate": {
-        "band": "immune"
-      }
-    },
-    "werewolf-by-night": {
-      "Heal Block": {
         "band": "immune"
       }
     },
@@ -443,16 +424,7 @@
       "Armor Break": {
         "band": "immune"
       },
-      "Bleed": {
-        "band": "immune"
-      },
-      "Shock": {
-        "band": "immune"
-      },
       "Incinerate": {
-        "band": "immune"
-      },
-      "Poison": {
         "band": "immune"
       }
     },
@@ -521,12 +493,6 @@
     "storm": {
       "Shock": {
         "band": "immune"
-      },
-      "Coldsnap": {
-        "band": "immune"
-      },
-      "Incinerate": {
-        "band": "immune"
       }
     },
     "black-cat": {
@@ -556,9 +522,6 @@
     },
     "hawkeye": {
       "Bleed": {
-        "band": "immune"
-      },
-      "Poison": {
         "band": "immune"
       }
     },
@@ -791,11 +754,6 @@
         "qual": "80%"
       }
     },
-    "storm-pyramid-x": {
-      "Coldsnap": {
-        "band": "immune"
-      }
-    },
     "wolverine-weapon-x": {
       "Stun": {
         "band": "immune"
@@ -866,9 +824,6 @@
       }
     },
     "black-widow-claire-voyant": {
-      "Poison": {
-        "band": "immune"
-      },
       "Bleed": {
         "band": "immune"
       }
@@ -1041,14 +996,6 @@
         "band": "immune"
       },
       "Bleed": {
-        "band": "immune"
-      }
-    },
-    "doctor-strange": {
-      "Coldsnap": {
-        "band": "immune"
-      },
-      "Incinerate": {
         "band": "immune"
       }
     },
