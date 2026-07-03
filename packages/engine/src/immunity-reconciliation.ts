@@ -157,9 +157,15 @@ export type ReconcileOptions = {
  *      - 2 votes  → lock-2src
  *      - 1 vote   → flag-single (or flag-stale-only if that source is
  *                    structurally stale for this champion)
- *  3. Votes disagree on band, or on resist value beyond tolerance:
+ *  3. Votes disagree AND `fixture` is one of the voters:
+ *      - lock-2src at the fixture's mark, with reviewFlag=true. Fixture
+ *        represents an explicit human verification against in-game
+ *        behaviour; when a reviewer has set a value it should ship
+ *        even if scraped sources disagree. The dissent is preserved
+ *        in `votes` and `note` so the review queue still surfaces it.
+ *  4. Votes disagree with no fixture vote:
  *      - flag-conflict; verdict picks the strongest current-source
- *        opinion (chart/fixture over abilityText when they disagree,
+ *        opinion (chart/kabam over abilityText/auntm when they disagree,
  *        modulo the freshness override)
  */
 export function reconcile(
@@ -219,12 +225,33 @@ export function reconcile(
     };
   }
 
-  // Multi-bucket = conflict. Pick a verdict from the "strongest" bucket
-  // by trust-order + non-stale + size, and surface the conflict.
-  // Trust order for conflict tie-breaking: hand-curated fixture first,
-  // then the two structured community datasets, then Kabam's official
-  // prose (high trust but sometimes edited late), then MCOCHUB-derived
-  // scrapes. auntm sits last because it's a frozen mirror.
+  // Multi-bucket = conflict. Two cases:
+  //
+  // (a) Fixture is one of the voters → the reviewer has explicitly
+  //     verified this cell against the game. Ship the fixture value as
+  //     a lock-2src with reviewFlag=true; keep the dissenting sources
+  //     in `votes` and `note` so the review queue still lists it as
+  //     a checked-with-dissent cell. This is what the fixture is FOR
+  //     — encoding human verification that overrides scraped disagreement.
+  // (b) No fixture voice → surface as flag-conflict; verdict picks the
+  //     strongest-trust bucket per the trust order below.
+  const fixtureVote = votes.find((v) => v.source === 'fixture');
+  if (fixtureVote) {
+    const fixtureVerdict = representativeVerdict([fixtureVote]);
+    const otherBucketDescriptions = buckets
+      .filter((b) => !b.members.some((m) => m.source === 'fixture'))
+      .map((b) => describeVoteInline(b.representative))
+      .join(' vs ');
+    return {
+      verdict: fixtureVerdict,
+      confidence: 'lock-2src',
+      votes,
+      reviewFlag: true,
+      note: `Fixture-verified; other sources dissent: ${otherBucketDescriptions}.`,
+    };
+  }
+  // Trust order for conflict tie-breaking: chart, Kabam, MCOCHUB scrapes,
+  // then auntm as a frozen mirror.
   const trustOrder: SourceName[] = [
     'fixture',
     'chart',
@@ -285,4 +312,9 @@ function describeVote(v: Vote): string {
   if (v.band === 'resist') return `${v.value ?? '?'}%`;
   if (v.band === 'mechanic') return v.qual ?? 'mechanic';
   return `syn:${v.partner ?? '?'}`;
+}
+
+/** Compact per-vote description including source, for review-queue notes. */
+function describeVoteInline(v: Vote): string {
+  return `${v.source}=${describeVote(v)}`;
 }

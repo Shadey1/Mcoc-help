@@ -113,13 +113,15 @@ describe('queryImmunities — ANY mode', () => {
   });
 
   it('omits rows with zero coverage', () => {
+    // Neuroshock: only the-maker has an entry, but under ANY mode with
+    // no other champ covering, we get exactly the-maker. Test something
+    // truly uncovered instead: Power Burn has zero fixture entries.
     const hits = queryImmunities(
       IMMUNITY_FIXTURE,
       FIXTURE_IDS,
-      ['Nullify'],
+      ['Power Burn'],
       'any',
     );
-    // Nobody in the fixture covers Nullify.
     expect(hits).toEqual([]);
   });
 });
@@ -140,8 +142,8 @@ describe('queryImmunities — band filters', () => {
     const bf: BandFilter = { ...ALL_BANDS_ON, synergy: false };
     const hits = queryImmunities(IMMUNITY_FIXTURE, FIXTURE_IDS, ['Bleed'], 'any', bf);
     const ids = new Set(hits.map((h) => h.championId));
-    // Domino's only Bleed coverage is a synergy pill — she drops.
-    expect(ids.has('domino')).toBe(false);
+    // Pavitr's only Bleed coverage is synergy-granted — she drops.
+    expect(ids.has('spider-man-pavitr-prabhakar')).toBe(false);
     // Iron Man's Bleed is immune — untouched.
     expect(ids.has('iron-man')).toBe(true);
   });
@@ -215,15 +217,22 @@ describe('effectRosterCounts', () => {
   it('counts champions per effect across the given pool', () => {
     const counts = effectRosterCounts(IMMUNITY_FIXTURE, FIXTURE_IDS);
     // Bleed: nova, onslaught, lizard, hercules, patriot, baron-zemo,
-    // spider-man-pavitr-prabhakar (synergy), domino (synergy), iron-man
-    expect(counts.Bleed).toBe(9);
-    expect(counts.Nullify).toBe(0);
+    // spider-man-pavitr-prabhakar (synergy), domino (Purify), iron-man,
+    // mister-sinister → 10.
+    expect(counts.Bleed).toBe(10);
+    // Nullify: mangog (synergy), mordo (synergy) → 2.
+    expect(counts.Nullify).toBe(2);
+    // Power Burn has no fixture entries.
+    expect(counts['Power Burn']).toBe(0);
   });
 
   it('drops synergy count when synergy band is off', () => {
     const bf: BandFilter = { ...ALL_BANDS_ON, synergy: false };
     const counts = effectRosterCounts(IMMUNITY_FIXTURE, FIXTURE_IDS, bf);
-    // Same list minus pavitr + domino.
-    expect(counts.Bleed).toBe(7);
+    // Bleed list minus pavitr (only synergy-granted) → 9. Domino keeps
+    // her Purify mark; the rest are immune or resist.
+    expect(counts.Bleed).toBe(9);
+    // Nullify without synergy → 0 (both entries are synergy-granted).
+    expect(counts.Nullify).toBe(0);
   });
 });

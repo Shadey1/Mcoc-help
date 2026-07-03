@@ -3,13 +3,13 @@
   "chartDated": "2026-06",
   "_meta": {
     "cellsTotal": 401,
-    "cellsLocked": 209,
-    "cellsInReviewQueue": 192,
-    "conflicts": 8,
+    "cellsLocked": 216,
+    "cellsInReviewQueue": 185,
+    "conflicts": 1,
     "singleSource": 184,
     "staleOnly": 0,
-    "uniqueChampsLocked": 132,
-    "uniqueChampsProvisional": 126
+    "uniqueChampsLocked": 137,
+    "uniqueChampsProvisional": 124
   },
   "champions": {
     "absorbing-man": {
@@ -150,6 +150,12 @@
       "Stun": {
         "band": "immune",
         "confidence": "lock-2src"
+      },
+      "Poison": {
+        "band": "resist",
+        "confidence": "lock-2src",
+        "value": 100,
+        "_review": true
       }
     },
     "doctor-bong": {
@@ -386,6 +392,14 @@
         "confidence": "lock-2src"
       }
     },
+    "karolina-dean": {
+      "Incinerate": {
+        "band": "resist",
+        "confidence": "lock-2src",
+        "value": 100,
+        "_review": true
+      }
+    },
     "kindred": {
       "Heal Block": {
         "band": "immune",
@@ -497,6 +511,12 @@
         "band": "immune",
         "confidence": "lock-2src"
       },
+      "Nullify": {
+        "band": "synergy",
+        "confidence": "lock-2src",
+        "partner": "Odin",
+        "_review": true
+      },
       "Shock": {
         "band": "immune",
         "confidence": "lock-2src"
@@ -522,6 +542,14 @@
       "Shock": {
         "band": "immune",
         "confidence": "lock-2src"
+      }
+    },
+    "mordo": {
+      "Nullify": {
+        "band": "synergy",
+        "confidence": "lock-2src",
+        "partner": "Doctor Voodoo",
+        "_review": true
       }
     },
     "nick-fury": {
@@ -858,6 +886,14 @@
         "confidence": "lock-2src"
       }
     },
+    "venompool": {
+      "Incinerate": {
+        "band": "synergy",
+        "confidence": "lock-2src",
+        "partner": "Human Torch",
+        "_review": true
+      }
+    },
     "vision": {
       "Bleed": {
         "band": "immune",
@@ -1054,6 +1090,22 @@
       "Stun": {
         "band": "immune",
         "confidence": "lock-2src"
+      }
+    },
+    "mister-sinister": {
+      "Bleed": {
+        "band": "resist",
+        "confidence": "lock-2src",
+        "value": 100,
+        "_review": true
+      }
+    },
+    "domino": {
+      "Bleed": {
+        "band": "mechanic",
+        "confidence": "lock-2src",
+        "qual": "Purify",
+        "_review": true
       }
     },
     "abomination": {

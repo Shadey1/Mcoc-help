@@ -37,6 +37,24 @@
     "sunspot": {
       "Incinerate": { "band": "immune" }
     },
+    "diablo": {
+      "Poison": { "band": "resist", "qual": "100%" }
+    },
+    "karolina-dean": {
+      "Incinerate": { "band": "resist", "qual": "100%" }
+    },
+    "mister-sinister": {
+      "Bleed": { "band": "resist", "qual": "100%" }
+    },
+    "mangog": {
+      "Nullify": { "band": "synergy", "partner": "Odin" }
+    },
+    "mordo": {
+      "Nullify": { "band": "synergy", "partner": "Doctor Voodoo" }
+    },
+    "venompool": {
+      "Incinerate": { "band": "synergy", "partner": "Human Torch" }
+    },
     "maestro": {
       "Poison": { "band": "immune" },
       "Shock": { "band": "immune" },
@@ -70,7 +88,7 @@
       "Coldsnap": { "band": "immune" }
     },
     "domino": {
-      "Bleed": { "band": "synergy", "partner": "Cable" },
+      "Bleed": { "band": "mechanic", "qual": "Purify" },
       "Incinerate": { "band": "resist", "qual": "50%" }
     },
     "iron-man": {
