@@ -5,27 +5,12 @@
     "capturedAt": "2026-07-01"
   },
   "champions": {
-    "nova": {
-      "Bleed": { "band": "immune" },
-      "Poison": { "band": "immune" },
-      "Coldsnap": { "band": "immune" },
-      "Incinerate": { "band": "immune" }
-    },
-    "high-evolutionary": {
-      "Poison": { "band": "immune" },
-      "Shock": { "band": "immune" },
-      "Incinerate": { "band": "immune" },
-      "Coldsnap": { "band": "immune" }
-    },
     "onslaught": {
-      "Stagger": { "band": "immune" },
-      "Poison": { "band": "resist", "qual": "80%" },
       "Bleed": { "band": "resist", "qual": "150%" },
       "Incinerate": { "band": "resist", "qual": "150%" },
       "Shock": { "band": "resist", "qual": "150%" }
     },
     "lizard": {
-      "Bleed": { "band": "immune" },
       "Poison": { "band": "immune" },
       "Incinerate": { "band": "resist", "qual": "100%" }
     },
@@ -76,7 +61,6 @@
       "Shock": { "band": "resist", "qual": "50%", "note": "Reduced a further 15% per unique Superior Buff — see abilities." }
     },
     "vision-aarkus": {
-      "Power Burn": { "band": "resist", "qual": "75%", "note": "Also reduces Power Drain, Power Steal, Power Lock, and Special by up to 75% — see abilities." },
       "Stun": { "band": "mechanic", "qual": "Purify", "note": "Sig-dependent purify on non-damaging debuffs — see abilities." },
       "Stagger": { "band": "mechanic", "qual": "Purify", "note": "Sig-dependent purify on non-damaging debuffs — see abilities." },
       "Nullify": { "band": "mechanic", "qual": "Purify", "note": "Sig-dependent purify on non-damaging debuffs — see abilities." },
@@ -146,9 +130,6 @@
     "ruby-thursday": {
       "Delirium": { "band": "immune" }
     },
-    "daredevil-hells-kitchen": {
-      "Miss": { "band": "immune" }
-    },
     "kitty-pryde": {
       "Reverse Controls": { "band": "synergy", "partner": "Emma Frost" }
     },
@@ -163,11 +144,6 @@
     },
     "maestro": {
       "Poison": { "band": "immune" },
-      "Shock": { "band": "immune" },
-      "Degeneration": { "band": "resist", "qual": "90%" }
-    },
-    "blue-marvel": {
-      "Incinerate": { "band": "immune" },
       "Shock": { "band": "immune" }
     },
     "hercules": {
@@ -175,37 +151,25 @@
       "Stun": { "band": "mechanic", "qual": "Duration" }
     },
     "patriot": {
-      "Bleed": { "band": "immune" },
       "Stagger": { "band": "synergy", "partner": "Captain America (WWII)" }
     },
     "baron-zemo": {
-      "Bleed": { "band": "immune" },
-      "Armor Break": { "band": "resist", "qual": "50%" }
+      "Bleed": { "band": "immune" }
     },
     "spider-man-pavitr-prabhakar": {
       "Poison": { "band": "mechanic", "qual": "Purify" }
     },
     "spider-punk": {
-      "Shock": { "band": "immune" },
       "Stun": { "band": "synergy", "partner": "Spider-Gwen" },
       "Reverse Controls": { "band": "synergy", "partner": "Prowler" }
-    },
-    "imperiosa": {
-      "Coldsnap": { "band": "immune" }
     },
     "domino": {
       "Bleed": { "band": "mechanic", "qual": "Purify" },
       "Incinerate": { "band": "resist", "qual": "50%" }
     },
-    "iron-man": {
-      "Poison": { "band": "immune" },
-      "Bleed": { "band": "immune" },
-      "Shock": { "band": "resist", "qual": "80%" }
-    },
     "the-maker": {
       "Neuroshock": { "band": "immune" },
-      "Shock": { "band": "resist", "qual": "60%" },
-      "Incinerate": { "band": "resist", "qual": "100%" }
+      "Shock": { "band": "resist", "qual": "60%" }
     }
   }
 }

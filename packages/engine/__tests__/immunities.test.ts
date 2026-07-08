@@ -76,23 +76,24 @@ describe('queryImmunities — ALL mode', () => {
     const hits = queryImmunities(
       IMMUNITY_FIXTURE,
       FIXTURE_IDS,
-      ['Bleed', 'Incinerate'],
+      ['Bleed', 'Coldsnap'],
       'all',
     );
-    const nova = hits.find((h) => h.championId === 'nova');
-    // Nova is Bleed+Incinerate immune — should be a full-coverer.
-    expect(nova).toBeDefined();
-    expect(nova!.covered).toBe(2);
-    expect(nova!.marks['Bleed']).toEqual({ band: 'immune' });
-    expect(nova!.marks['Incinerate']).toEqual({ band: 'immune' });
+    const corvus = hits.find((h) => h.championId === 'corvus-glaive');
+    // Corvus Glaive is Bleed+Coldsnap immune (conditional on Glaive
+    // Immunity buff, but the band is still immune) — full-coverer.
+    expect(corvus).toBeDefined();
+    expect(corvus!.covered).toBe(2);
+    expect(corvus!.marks['Bleed']?.band).toBe('immune');
+    expect(corvus!.marks['Coldsnap']?.band).toBe('immune');
   });
 });
 
 describe('queryImmunities — ANY mode', () => {
-  it('includes both immune (Nova) and resist (Onslaught) champs for [Bleed]', () => {
+  it('includes both immune (Baron Zemo) and resist (Onslaught) champs for [Bleed]', () => {
     const hits = queryImmunities(IMMUNITY_FIXTURE, FIXTURE_IDS, ['Bleed'], 'any');
     const ids = new Set(hits.map((h) => h.championId));
-    expect(ids.has('nova')).toBe(true);
+    expect(ids.has('baron-zemo')).toBe(true);
     expect(ids.has('onslaught')).toBe(true);
   });
 
@@ -130,24 +131,24 @@ describe('queryImmunities — ANY mode', () => {
 
 describe('queryImmunities — band filters', () => {
   it('excludes full-immune champs when immune band is off', () => {
-    // Nova only has immune marks against Bleed; toggling immune off drops
-    // her below the coverage threshold.
+    // Baron Zemo's only Bleed mark is immune; toggling immune off drops
+    // him below the coverage threshold.
     const bf: BandFilter = { ...ALL_BANDS_ON, immune: false };
     const hits = queryImmunities(IMMUNITY_FIXTURE, FIXTURE_IDS, ['Bleed'], 'any', bf);
     const ids = new Set(hits.map((h) => h.championId));
-    expect(ids.has('nova')).toBe(false);
+    expect(ids.has('baron-zemo')).toBe(false);
     // Onslaught's Bleed is resist — should still be in.
     expect(ids.has('onslaught')).toBe(true);
   });
 
-  it('excludes synergy-only champs when synergy band is off', () => {
-    const bf: BandFilter = { ...ALL_BANDS_ON, synergy: false };
+  it('excludes mechanic-only champs when mechanic band is off', () => {
+    // Blade only has mechanic:Duration marks on Bleed; toggling
+    // mechanic off drops him. Baron Zemo (immune band) stays.
+    const bf: BandFilter = { ...ALL_BANDS_ON, mechanic: false };
     const hits = queryImmunities(IMMUNITY_FIXTURE, FIXTURE_IDS, ['Bleed'], 'any', bf);
     const ids = new Set(hits.map((h) => h.championId));
-    // Pavitr's only Bleed coverage is synergy-granted — she drops.
-    expect(ids.has('spider-man-pavitr-prabhakar')).toBe(false);
-    // Iron Man's Bleed is immune — untouched.
-    expect(ids.has('iron-man')).toBe(true);
+    expect(ids.has('blade')).toBe(false);
+    expect(ids.has('baron-zemo')).toBe(true);
   });
 });
 
@@ -155,29 +156,30 @@ describe('queryImmunities — sorting', () => {
   it('full-immune ranks above 150%-resist for the same single effect', () => {
     const hits = queryImmunities(
       IMMUNITY_FIXTURE,
-      ['onslaught', 'nova'],
+      ['onslaught', 'baron-zemo'],
       ['Bleed'],
       'any',
     );
-    // Both cover Bleed once. Nova's immune (score 4) beats Onslaught's
-    // 150% resist (score 3), so Nova ranks first.
-    expect(hits[0]!.championId).toBe('nova');
+    // Both cover Bleed once. Baron Zemo's immune (score 4) beats
+    // Onslaught's 150% resist (score 3), so Baron Zemo ranks first.
+    expect(hits[0]!.championId).toBe('baron-zemo');
     expect(hits[1]!.championId).toBe('onslaught');
   });
 
   it('full-coverer ranks above partial-coverer even with weaker bands', () => {
-    // Coverage-count is the primary axis. Even if a partial-coverer has
-    // strictly stronger bands on the effects they DO cover, they should
-    // rank below anyone who covers all selected effects.
+    // Coverage-count is the primary axis. Corvus Glaive covers both
+    // Bleed and Coldsnap (immune); Baron Zemo covers only Bleed. The
+    // partial-coverer must rank below the full-coverer.
     const hits = queryImmunities(
       IMMUNITY_FIXTURE,
-      ['nova', 'iron-man'],
-      ['Bleed', 'Poison'],
+      ['corvus-glaive', 'baron-zemo'],
+      ['Bleed', 'Coldsnap'],
       'any',
     );
-    // Both cover both — full-coverers tie on 2 covered; ranking then
-    // falls to score. Sanity check the shape.
-    expect(hits.every((h) => h.covered === 2)).toBe(true);
+    expect(hits[0]!.championId).toBe('corvus-glaive');
+    expect(hits[0]!.covered).toBe(2);
+    expect(hits[1]!.championId).toBe('baron-zemo');
+    expect(hits[1]!.covered).toBe(1);
   });
 });
 
@@ -203,10 +205,10 @@ describe('coverAllButOne', () => {
   });
 
   it('excludes full-coverers', () => {
-    const near = coverAllButOne(IMMUNITY_FIXTURE, FIXTURE_IDS, ['Bleed', 'Poison']);
-    // Nova is a full-coverer of Bleed+Poison; she must not be in the
-    // "cover all but one" list.
-    expect(near.map((h) => h.championId)).not.toContain('nova');
+    const near = coverAllButOne(IMMUNITY_FIXTURE, FIXTURE_IDS, ['Bleed', 'Coldsnap']);
+    // Corvus Glaive is a full-coverer of Bleed+Coldsnap; he must not
+    // be in the "cover all but one" list.
+    expect(near.map((h) => h.championId)).not.toContain('corvus-glaive');
   });
 
   it('is empty when fewer than 2 effects selected', () => {
@@ -221,7 +223,7 @@ describe('effectRosterCounts', () => {
     // Bleed grows every time a new champion with any Bleed band is
     // added to the fixture. Rather than hard-coding, assert the
     // known-large lower bound and verify the load-bearing entries.
-    expect(counts.Bleed).toBeGreaterThanOrEqual(16);
+    expect(counts.Bleed).toBeGreaterThanOrEqual(12);
     // Nullify: mangog + mordo (both synergy), vision-aarkus (Purify),
     // plus any global-duration champs (Blade) that add Nullify Duration.
     // Same lower-bound pattern for churn resistance.
@@ -239,7 +241,7 @@ describe('effectRosterCounts', () => {
     const counts = effectRosterCounts(IMMUNITY_FIXTURE, FIXTURE_IDS, bf);
     // Pavitr's synergy-only Bleed drops; every non-synergy entry stays.
     // Same lower-bound approach as the previous test.
-    expect(counts.Bleed).toBeGreaterThanOrEqual(15);
+    expect(counts.Bleed).toBeGreaterThanOrEqual(12);
     // Nullify without synergy: strip mangog+mordo, keep vision-aarkus
     // Purify + any Duration entries.
     expect(counts.Nullify).toBeGreaterThanOrEqual(1);

@@ -1,14 +1,14 @@
 {
-  "generated": "2026-07-03",
+  "generated": "2026-07-08",
   "chartDated": "2026-06",
   "_meta": {
-    "cellsTotal": 482,
-    "cellsLocked": 314,
+    "cellsTotal": 458,
+    "cellsLocked": 290,
     "cellsInReviewQueue": 168,
     "conflicts": 1,
     "singleSource": 167,
     "staleOnly": 0,
-    "uniqueChampsLocked": 162,
+    "uniqueChampsLocked": 159,
     "uniqueChampsProvisional": 121
   },
   "champions": {
@@ -80,16 +80,6 @@
       "Bleed": {
         "band": "immune",
         "confidence": "lock-2src"
-      },
-      "Incinerate": {
-        "band": "immune",
-        "confidence": "lock-2src",
-        "_review": true
-      },
-      "Shock": {
-        "band": "immune",
-        "confidence": "lock-2src",
-        "_review": true
       }
     },
     "captain-marvel": {
@@ -362,11 +352,6 @@
       "Bleed": {
         "band": "immune",
         "confidence": "lock-2src"
-      },
-      "Coldsnap": {
-        "band": "immune",
-        "confidence": "lock-2src",
-        "_review": true
       }
     },
     "iron-man-infamous": {
@@ -484,11 +469,6 @@
         "band": "immune",
         "confidence": "lock-2src"
       },
-      "Bleed": {
-        "band": "immune",
-        "confidence": "lock-2src",
-        "_review": true
-      },
       "Incinerate": {
         "band": "resist",
         "confidence": "lock-2src",
@@ -520,12 +500,6 @@
       "Shock": {
         "band": "immune",
         "confidence": "lock-2src"
-      },
-      "Degeneration": {
-        "band": "resist",
-        "confidence": "lock-2src",
-        "value": 90,
-        "_review": true
       }
     },
     "magneto-house-of-x": {
@@ -862,11 +836,6 @@
         "partner": "Prowler",
         "_review": true
       },
-      "Shock": {
-        "band": "immune",
-        "confidence": "lock-2src",
-        "_review": true
-      },
       "Stun": {
         "band": "synergy",
         "confidence": "lock-2src",
@@ -969,12 +938,6 @@
         "band": "resist",
         "confidence": "lock-2src",
         "value": 60,
-        "_review": true
-      },
-      "Incinerate": {
-        "band": "resist",
-        "confidence": "lock-2src",
-        "value": 100,
         "_review": true
       }
     },
@@ -1152,22 +1115,6 @@
       "Coldsnap": {
         "band": "immune",
         "confidence": "lock-2src"
-      },
-      "Poison": {
-        "band": "immune",
-        "confidence": "lock-2src",
-        "_review": true
-      },
-      "Bleed": {
-        "band": "immune",
-        "confidence": "lock-2src",
-        "_review": true
-      },
-      "Shock": {
-        "band": "resist",
-        "confidence": "lock-2src",
-        "value": 80,
-        "_review": true
       }
     },
     "knull": {
@@ -1211,17 +1158,6 @@
         "band": "resist",
         "confidence": "lock-3src",
         "value": 150
-      },
-      "Stagger": {
-        "band": "immune",
-        "confidence": "lock-2src",
-        "_review": true
-      },
-      "Poison": {
-        "band": "resist",
-        "confidence": "lock-2src",
-        "value": 80,
-        "_review": true
       }
     },
     "shathra": {
@@ -1257,50 +1193,6 @@
       "Stun": {
         "band": "immune",
         "confidence": "lock-2src"
-      }
-    },
-    "nova": {
-      "Bleed": {
-        "band": "immune",
-        "confidence": "lock-2src",
-        "_review": true
-      },
-      "Poison": {
-        "band": "immune",
-        "confidence": "lock-2src",
-        "_review": true
-      },
-      "Coldsnap": {
-        "band": "immune",
-        "confidence": "lock-2src",
-        "_review": true
-      },
-      "Incinerate": {
-        "band": "immune",
-        "confidence": "lock-2src",
-        "_review": true
-      }
-    },
-    "high-evolutionary": {
-      "Poison": {
-        "band": "immune",
-        "confidence": "lock-2src",
-        "_review": true
-      },
-      "Shock": {
-        "band": "immune",
-        "confidence": "lock-2src",
-        "_review": true
-      },
-      "Incinerate": {
-        "band": "immune",
-        "confidence": "lock-2src",
-        "_review": true
-      },
-      "Coldsnap": {
-        "band": "immune",
-        "confidence": "lock-2src",
-        "_review": true
       }
     },
     "angela": {
@@ -1405,13 +1297,6 @@
       }
     },
     "vision-aarkus": {
-      "Power Burn": {
-        "band": "resist",
-        "confidence": "lock-2src",
-        "value": 75,
-        "note": "Also reduces Power Drain, Power Steal, Power Lock, and Special by up to 75% — see abilities.",
-        "_review": true
-      },
       "Stun": {
         "band": "mechanic",
         "confidence": "lock-2src",
@@ -1697,13 +1582,6 @@
         "_review": true
       }
     },
-    "daredevil-hells-kitchen": {
-      "Miss": {
-        "band": "immune",
-        "confidence": "lock-2src",
-        "_review": true
-      }
-    },
     "hercules": {
       "Bleed": {
         "band": "immune",
@@ -1718,11 +1596,6 @@
       }
     },
     "patriot": {
-      "Bleed": {
-        "band": "immune",
-        "confidence": "lock-2src",
-        "_review": true
-      },
       "Stagger": {
         "band": "synergy",
         "confidence": "lock-2src",
@@ -1734,12 +1607,6 @@
       "Bleed": {
         "band": "immune",
         "confidence": "lock-2src",
-        "_review": true
-      },
-      "Armor Break": {
-        "band": "resist",
-        "confidence": "lock-2src",
-        "value": 50,
         "_review": true
       }
     },

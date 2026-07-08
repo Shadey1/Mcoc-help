@@ -558,7 +558,7 @@
       "id": "arnim-zola",
       "name": "Arnim Zola",
       "class": "Tech",
-      "ascendable": false,
+      "ascendable": true,
       "prestige": {
         "rank5": {
           "0": 28990,
@@ -6677,7 +6677,7 @@
       "id": "mysterio",
       "name": "Mysterio",
       "class": "Tech",
-      "ascendable": false,
+      "ascendable": true,
       "prestige": {
         "rank5": {
           "0": 28800,
@@ -8724,7 +8724,7 @@
       "id": "scream",
       "name": "Scream",
       "class": "Cosmic",
-      "ascendable": false,
+      "ascendable": true,
       "prestige": {
         "rank5": {
           "0": 28690,
@@ -11051,7 +11051,7 @@
       "id": "thor-ragnarok",
       "name": "Thor (Ragnarok)",
       "class": "Skill",
-      "ascendable": false,
+      "ascendable": true,
       "sigCurve": null,
       "tags": [],
       "_meta": {
