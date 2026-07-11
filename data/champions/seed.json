@@ -3868,6 +3868,50 @@
       "released": "2020"
     },
     {
+      "id": "hobgoblin",
+      "name": "Hobgoblin",
+      "class": "Tech",
+      "ascendable": true,
+      "prestige": {
+        "rank5": {
+          "0": 27620,
+          "20": 32700,
+          "40": 33860,
+          "60": 34830,
+          "80": 35690,
+          "100": 36480,
+          "120": 37220,
+          "140": 37910,
+          "160": 38580,
+          "180": 39210,
+          "200": 39830
+        },
+        "rank4": {
+          "0": 23290,
+          "20": 27580,
+          "40": 28560,
+          "60": 29370,
+          "80": 30100,
+          "100": 30760,
+          "120": 31380,
+          "140": 31970,
+          "160": 32530,
+          "180": 33070,
+          "200": 33580
+        }
+      },
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "MCOCHUB per-rank curves (R4 + R5 11-anchor, mcochub.insaneskull.com/champions/hobgoblin-philurich, 2026-07-11)",
+        "ascendableSource": "MCOCHUB explicit 'Ascendable Ramp-up Required' label",
+        "lastVerified": "2026-07-11"
+      },
+      "portraitUrl": null,
+      "sevenStarReleased": true,
+      "released": "2026"
+    },
+    {
       "id": "howard-the-duck",
       "name": "Howard The Duck",
       "class": "Tech",
