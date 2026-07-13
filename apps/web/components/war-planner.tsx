@@ -408,6 +408,9 @@ export function WarPlanner({ champions }: { champions: Champion[] }) {
     replacedChampionId: string,
     newState: ChampionState,
   ) {
+    if (!config) return;
+    const poolTiers = poolToTierMap(config.pool);
+    const newTier: WarTier = poolTiers.get(newState.championId) ?? 'mid';
     setRuns((prev) => {
       const run = prev[bg];
       if (!run.result) return prev;
@@ -419,6 +422,7 @@ export function WarPlanner({ champions }: { champions: Champion[] }) {
               rank: newState.rank,
               ascension: newState.ascension,
               sig: newState.sig,
+              tier: newTier,
             }
           : a,
       );
@@ -699,6 +703,7 @@ export function WarPlanner({ champions }: { champions: Champion[] }) {
               slotsPerPlayer={5}
               playerRosters={activePlayerRosters}
               floor={config.floor}
+              bgLabel={BG_LABELS[activeBg]}
               onSwap={(playerId, replacedChampionId, newState) =>
                 swapAssignment(activeBg, playerId, replacedChampionId, newState)
               }
