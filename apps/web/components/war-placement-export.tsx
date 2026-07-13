@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState, type RefObject } from 'react';
+import { flushSync } from 'react-dom';
 import type {
   Champion,
   WarAssignment,
@@ -24,12 +25,19 @@ export function WarPlacementExport({
   slotsPerPlayer,
   bgLabel,
   printRef,
+  setCapturing,
 }: {
   result: WarResult;
   championLookup: Map<string, Champion>;
   slotsPerPlayer: number;
   bgLabel: string;
   printRef: RefObject<HTMLDivElement | null>;
+  /** Toggle capture mode on the placement table — enlarges portraits, hides
+   *  in-table state text + the unavailable-champs footer, promotes the
+   *  mcoc.help wordmark so the PNG reads as a self-contained card. Wrapped
+   *  in flushSync at call sites to force a synchronous re-render before
+   *  html-to-image reads the DOM. */
+  setCapturing: (v: boolean) => void;
 }) {
   const [toast, setToast] = useState<string | null>(null);
   const [busy, setBusy] = useState<'text' | 'image' | null>(null);
@@ -63,6 +71,10 @@ export function WarPlacementExport({
     const node = printRef.current;
     if (!node) return;
     setBusy('image');
+    // flushSync forces the parent table to re-render into capture mode
+    // BEFORE we hand the DOM to html-to-image; otherwise React would
+    // batch the state update and we'd rasterise the pre-toggle layout.
+    flushSync(() => setCapturing(true));
     try {
       const { toBlob } = await import('html-to-image');
       const blob = await toBlob(node, {
@@ -86,6 +98,7 @@ export function WarPlacementExport({
       const msg = err instanceof Error ? err.message : 'Render failed';
       flashToast(`Couldn't build image: ${msg}`);
     } finally {
+      flushSync(() => setCapturing(false));
       setBusy(null);
     }
   }
@@ -121,9 +134,11 @@ export function WarPlacementExport({
 
 /**
  * Discord-friendly Markdown code-block: fixed-width pipe table so the rows
- * line up regardless of monospace font. Player column is truncated to 14
- * chars; slot columns include the champion name + rank/asc/sig — no
- * portraits or tier badges (that's what "Copy as image" is for).
+ * line up regardless of monospace font. Cells are just the champion name —
+ * rank/asc/sig deliberately omitted because it's always the highest copy
+ * that player owns at ≥ floor (algorithm invariant), so the state is
+ * derivable and would only widen the table. Player column is truncated to
+ * 14 chars.
  *
  * Wrapping in ``` keeps Discord from mangling the pipe characters as
  * quote-syntax or applying markdown italics to `*`-containing champion names.
@@ -172,8 +187,7 @@ function formatAsMarkdown(
         continue;
       }
       const name = championLookup.get(a.championId)?.name ?? a.championId;
-      const sigSuffix = a.sig > 0 ? ` s${a.sig}` : '';
-      cells.push(`${name} R${a.rank}${a.ascension}${sigSuffix}`);
+      cells.push(name);
     }
     rows.push(cells);
   }

@@ -89,6 +89,11 @@ export function WarPlacementTable({
   const editable = Boolean(onSwap && playerRosters && floor);
   const canShowCopies = Boolean(playerRosters && floor);
   const [editingPlayerId, setEditingPlayerId] = useState<string | null>(null);
+  // Capture mode toggled synchronously by WarPlacementExport before the PNG
+  // rasteriser reads the DOM. Enlarges portraits, hides per-cell state text
+  // and the unavailable-champs footer, promotes the mcoc.help wordmark —
+  // strips the table down to what makes a good shareable image.
+  const [isCapturing, setIsCapturing] = useState(false);
   // Currently-open "who else owns this?" info panel. Anchored to a specific
   // player row + champion so the panel renders directly under that row and
   // the officer knows which placement they're inspecting alternatives for.
@@ -178,6 +183,7 @@ export function WarPlacementTable({
             slotsPerPlayer={slotsPerPlayer}
             bgLabel={bgLabel}
             printRef={printRef}
+            setCapturing={setIsCapturing}
           />
         )}
       </div>
@@ -335,7 +341,30 @@ export function WarPlacementTable({
                     const isOpen =
                       openInfo?.playerId === pid &&
                       openInfo?.championId === a.championId;
-                    const cellContent = (
+                    const cellContent = isCapturing ? (
+                      // Capture layout: portrait-forward, name below,
+                      // no rank/sig chrome — every cell reads at a glance
+                      // and the whole row scans horizontally as a defence
+                      // strip. Sized so 5 slots + player col fit a Discord
+                      // paste at native width.
+                      <div className="flex flex-col items-center gap-1.5">
+                        <div className="relative shrink-0">
+                          <ChampionPortrait
+                            name={champName}
+                            klass={c?.class ?? 'Tech'}
+                            portraitUrl={c?.portraitUrl ?? null}
+                            size={80}
+                          />
+                          <TierBadge tier={a.tier} />
+                        </div>
+                        <div
+                          className="text-xs font-medium text-center leading-tight max-w-[6rem] truncate"
+                          title={champName}
+                        >
+                          {champName}
+                        </div>
+                      </div>
+                    ) : (
                       <div className="flex items-center gap-2">
                         <div className="relative shrink-0">
                           <ChampionPortrait
@@ -417,7 +446,7 @@ export function WarPlacementTable({
         </table>
       </div>
 
-      {result.unavailableChamps.length > 0 && (
+      {result.unavailableChamps.length > 0 && !isCapturing && (
         <div className="text-xs text-[var(--color-ink-soft)] border-t border-[var(--color-rule)] pt-3">
           <span className="font-medium">In pool but unavailable: </span>
           {result.unavailableChamps
@@ -430,9 +459,17 @@ export function WarPlacementTable({
       )}
 
       {/* mcoc.help footer — always visible; anchors the export PNG so a
-       *  shared image credits the source without extra chrome. */}
+       *  shared image credits the source without extra chrome. Bumps a few
+       *  sizes larger in capture mode so it reads legibly at Discord's
+       *  default inline-image scale. */}
       <div className="flex items-baseline justify-end pt-2 border-t border-[var(--color-rule)]/60">
-        <span className="editorial-heading text-xs text-[var(--color-ink-soft)] tracking-wider">
+        <span
+          className={`editorial-heading tracking-wider ${
+            isCapturing
+              ? 'text-lg text-[var(--color-marvel-impact)]'
+              : 'text-xs text-[var(--color-ink-soft)]'
+          }`}
+        >
           mcoc.help
         </span>
       </div>
