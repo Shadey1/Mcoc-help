@@ -238,37 +238,47 @@ export function WarPlacementTable({
                   key={pid}
                   className="border-b border-[var(--color-rule)]/40"
                 >
-                  <td className="px-2 py-3 align-top w-32 max-w-32">
+                  <td
+                    className={`px-2 py-3 w-32 max-w-32 ${
+                      isCapturing ? 'align-middle' : 'align-top'
+                    }`}
+                  >
                     <div
-                      className="font-medium text-sm truncate"
+                      className={`font-medium truncate ${
+                        isCapturing ? 'text-base' : 'text-sm'
+                      }`}
                       title={playerName}
                     >
                       {playerName}
                     </div>
-                    <div
-                      className={`text-xs ${
-                        isUnderfilled
-                          ? 'text-[var(--color-marvel-impact)]'
-                          : 'text-[var(--color-ink-soft)]'
-                      }`}
-                    >
-                      {placements.length}/{slotsPerPlayer}
-                    </div>
-                    {editable && (
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setEditingPlayerId((cur) => (cur === pid ? null : pid))
-                        }
-                        className="text-[11px] text-[var(--color-ink-soft)] hover:text-[var(--color-marvel-impact)] underline mt-1"
-                        title={
-                          editingPlayerId === pid
-                            ? 'Stop editing this row'
-                            : 'Swap in a different champion from this player’s roster'
-                        }
-                      >
-                        {editingPlayerId === pid ? 'done' : 'edit'}
-                      </button>
+                    {!isCapturing && (
+                      <>
+                        <div
+                          className={`text-xs ${
+                            isUnderfilled
+                              ? 'text-[var(--color-marvel-impact)]'
+                              : 'text-[var(--color-ink-soft)]'
+                          }`}
+                        >
+                          {placements.length}/{slotsPerPlayer}
+                        </div>
+                        {editable && (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setEditingPlayerId((cur) => (cur === pid ? null : pid))
+                            }
+                            className="text-[11px] text-[var(--color-ink-soft)] hover:text-[var(--color-marvel-impact)] underline mt-1"
+                            title={
+                              editingPlayerId === pid
+                                ? 'Stop editing this row'
+                                : 'Swap in a different champion from this player’s roster'
+                            }
+                          >
+                            {editingPlayerId === pid ? 'done' : 'edit'}
+                          </button>
+                        )}
+                      </>
                     )}
                   </td>
                   {Array.from({ length: slotsPerPlayer }, (_, i) => {

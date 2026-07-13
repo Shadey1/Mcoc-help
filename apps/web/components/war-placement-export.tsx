@@ -56,7 +56,6 @@ export function WarPlacementExport({
         result,
         championLookup,
         slotsPerPlayer,
-        bgLabel,
       );
       await navigator.clipboard.writeText(markdown);
       flashToast('Copied as text · paste into Discord');
@@ -133,21 +132,17 @@ export function WarPlacementExport({
 }
 
 /**
- * Discord-friendly Markdown code-block: fixed-width pipe table so the rows
- * line up regardless of monospace font. Cells are just the champion name —
- * rank/asc/sig deliberately omitted because it's always the highest copy
- * that player owns at ≥ floor (algorithm invariant), so the state is
- * derivable and would only widen the table. Player column is truncated to
- * 14 chars.
- *
- * Wrapping in ``` keeps Discord from mangling the pipe characters as
- * quote-syntax or applying markdown italics to `*`-containing champion names.
+ * Discord-friendly plain text: one line per player, "{name}: {champ}, ..."
+ * No header row, no table, no code fence. The point is that Discord chat
+ * columns are narrow — a pipe table needs to be wide enough to fit "Slot 5"
+ * headers plus the longest name; a comma list wraps naturally at whatever
+ * width the reader's chat pane happens to be. Missing slots (underfilled
+ * players) render as "—" so the row still reads as five defenders.
  */
 function formatAsMarkdown(
   result: WarResult,
   championLookup: Map<string, Champion>,
   slotsPerPlayer: number,
-  bgLabel: string,
 ): string {
   // Group assignments by player, preserving engine's within-player sort.
   const byPlayer = new Map<string, WarAssignment[]>();
@@ -175,43 +170,18 @@ function formatAsMarkdown(
     return (nameByPlayer.get(a) ?? a).localeCompare(nameByPlayer.get(b) ?? b);
   });
 
-  const header = ['Player', ...Array.from({ length: slotsPerPlayer }, (_, i) => `Slot ${i + 1}`)];
-  const rows: string[][] = [];
+  const lines: string[] = [];
   for (const pid of playerIds) {
     const placements = byPlayer.get(pid) ?? [];
-    const cells: string[] = [truncate(nameByPlayer.get(pid) ?? pid, 14)];
+    const pname = nameByPlayer.get(pid) ?? pid;
+    const champs: string[] = [];
     for (let i = 0; i < slotsPerPlayer; i++) {
       const a = placements[i];
-      if (!a) {
-        cells.push('—');
-        continue;
-      }
-      const name = championLookup.get(a.championId)?.name ?? a.championId;
-      cells.push(name);
+      champs.push(a ? championLookup.get(a.championId)?.name ?? a.championId : '—');
     }
-    rows.push(cells);
+    lines.push(`${pname}: ${champs.join(', ')}`);
   }
-
-  // Column widths for aligned monospace rendering in Discord.
-  const widths = header.map((h, i) =>
-    Math.max(h.length, ...rows.map((r) => r[i]?.length ?? 0)),
-  );
-  const pad = (cell: string, i: number) => cell.padEnd(widths[i] ?? 0, ' ');
-  const sep = widths.map((w) => '-'.repeat(w)).join('-+-');
-
-  const lines = [
-    `${bgLabel} placements — mcoc.help`,
-    '```',
-    header.map(pad).join(' | '),
-    sep,
-    ...rows.map((r) => r.map(pad).join(' | ')),
-    '```',
-  ];
   return lines.join('\n');
-}
-
-function truncate(s: string, max: number): string {
-  return s.length <= max ? s : `${s.slice(0, max - 1)}…`;
 }
 
 /**
