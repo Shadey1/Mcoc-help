@@ -27,7 +27,7 @@ describe('normaliseEffect', () => {
   it('rejects effects outside the tracked vocabulary', () => {
     expect(normaliseEffect('Fatigue')).toBeNull();
     expect(normaliseEffect('Precision')).toBeNull();
-    expect(normaliseEffect('Rupture')).toBeNull();
+    expect(normaliseEffect('Frostbite')).toBeNull();
   });
 });
 
@@ -187,9 +187,9 @@ describe('parseImmunitiesFromLines — end-to-end', () => {
       expect(Object.keys(out), line).toHaveLength(0);
     }
   });
-  it('ignores out-of-vocabulary effects (Rupture, Frostbite, Fatigue)', () => {
+  it('ignores out-of-vocabulary effects (Frostbite, Fatigue)', () => {
     const out = parseImmunitiesFromLines([
-      'Immune to Rupture and Frostbite.',
+      'Immune to Frostbite.',
       '80% Fatigue Resistance.',
     ]);
     expect(Object.keys(out)).toEqual([]);

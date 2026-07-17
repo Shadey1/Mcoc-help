@@ -47,6 +47,7 @@ export const IMMUNITY_EFFECTS = [
   'Miss',
   'Reverse Controls',
   'Delirium',
+  'Rupture',
 ] as const;
 
 export type EffectName = (typeof IMMUNITY_EFFECTS)[number];

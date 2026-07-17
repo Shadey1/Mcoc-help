@@ -571,11 +571,25 @@ async function main() {
   }
 
   const today = new Date().toISOString().slice(0, 10);
+  // Scoped runs (--ids / --limit) merge into the existing file so they
+  // never wipe champions we didn't ask about. Full runs replace it. This
+  // guards against the failure mode where `--ids hobgoblin` deletes the
+  // other 250+ champions from downstream backfill/kit-derived files.
+  const scoped = ONLY_IDS !== null || LIMIT !== undefined;
+  let mergedChampions: Record<string, ChampionAbilities> = out;
+  if (scoped && existsSync(OUTPUT_PATH)) {
+    const existing = JSON.parse(readFileSync(OUTPUT_PATH, 'utf8')) as {
+      champions: Record<string, ChampionAbilities>;
+    };
+    mergedChampions = { ...existing.champions, ...out };
+  }
   const payload = {
     version: '1',
     source: 'MCOCHUB (https://mcochub.insaneskull.com)',
     lastImported: today,
-    champions: out,
+    champions: Object.fromEntries(
+      Object.entries(mergedChampions).sort(([a], [b]) => a.localeCompare(b)),
+    ),
   };
   writeFileSync(OUTPUT_PATH, JSON.stringify(payload, null, 2) + '\n');
   writeFileSync(
@@ -588,7 +602,16 @@ async function main() {
   );
 
   console.log('');
-  console.log(`Wrote ${Object.keys(out).length} champion ability records → ${OUTPUT_PATH}`);
+  if (scoped) {
+    console.log(
+      `Wrote ${Object.keys(mergedChampions).length} champion ability records → ${OUTPUT_PATH} ` +
+        `(scoped run: updated ${Object.keys(out).length}, preserved ${Object.keys(mergedChampions).length - Object.keys(out).length}).`,
+    );
+  } else {
+    console.log(
+      `Wrote ${Object.keys(mergedChampions).length} champion ability records → ${OUTPUT_PATH}`,
+    );
+  }
   console.log(`Unresolved: ${unresolved.length}; see ${UNRESOLVED_PATH}`);
 }
 

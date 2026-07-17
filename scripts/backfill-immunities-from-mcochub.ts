@@ -46,6 +46,7 @@ const TRACKED_EFFECTS = new Set([
   'Miss',
   'Reverse Controls',
   'Delirium',
+  'Rupture',
 ]);
 
 /**
