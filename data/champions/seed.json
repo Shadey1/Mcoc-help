@@ -979,6 +979,25 @@
       "released": "2016"
     },
     {
+      "id": "black-tarantula",
+      "name": "Black Tarantula",
+      "class": "Skill",
+      "ascendable": false,
+      "prestige": {
+        "rank5": {
+          "0": 1,
+          "200": 1
+        }
+      },
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "PENDING — auto-added stub from Fandom on 2026-08-04; backfill BHR + ascendable before flipping sevenStarReleased"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/c/c1/Black_Tarantula_portrait.png/revision/latest/scale-to-width-down/200?cb=20260707214546",
+      "sevenStarReleased": false
+    },
+    {
       "id": "black-widow",
       "name": "Black Widow",
       "class": "Skill",
@@ -3488,50 +3507,6 @@
       "sevenStarReleased": false
     },
     {
-      "id": "guillotine-2099",
-      "name": "Guillotine 2099",
-      "class": "Tech",
-      "ascendable": false,
-      "prestige": {
-        "rank5": {
-          "0": 28740,
-          "20": 31680,
-          "40": 32890,
-          "60": 33910,
-          "80": 34820,
-          "100": 35640,
-          "120": 36420,
-          "140": 37150,
-          "160": 37850,
-          "180": 38520,
-          "200": 39160
-        },
-        "rank4": {
-          "0": 24250,
-          "20": 26730,
-          "40": 27760,
-          "60": 28620,
-          "80": 29380,
-          "100": 30080,
-          "120": 30740,
-          "140": 31350,
-          "160": 31940,
-          "180": 32510,
-          "200": 33050
-        }
-      },
-      "sigCurve": null,
-      "tags": [],
-      "_meta": {
-        "bhrSource": "mcoc.gg per-rank curves (R4 + R5 11-anchor, refreshed 2026-06-03)",
-        "ascendableSource": "non-ascendable per mcoc.gg",
-        "lastVerified": "2026-06-03"
-      },
-      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/8/8a/Guillotine_2099_portrait.png/revision/latest/scale-to-width-down/200?cb=20230824211019",
-      "sevenStarReleased": true,
-      "released": "2019"
-    },
-    {
       "id": "guillotine-deathless",
       "name": "Guillotine (Deathless)",
       "class": "Mystic",
@@ -3574,6 +3549,50 @@
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/6/63/Guillotine_%28Deathless%29_portrait.png/revision/latest/scale-to-width-down/200?cb=20231208154204",
       "sevenStarReleased": true,
       "released": "2023"
+    },
+    {
+      "id": "guillotine-2099",
+      "name": "Guillotine 2099",
+      "class": "Tech",
+      "ascendable": false,
+      "prestige": {
+        "rank5": {
+          "0": 28740,
+          "20": 31680,
+          "40": 32890,
+          "60": 33910,
+          "80": 34820,
+          "100": 35640,
+          "120": 36420,
+          "140": 37150,
+          "160": 37850,
+          "180": 38520,
+          "200": 39160
+        },
+        "rank4": {
+          "0": 24250,
+          "20": 26730,
+          "40": 27760,
+          "60": 28620,
+          "80": 29380,
+          "100": 30080,
+          "120": 30740,
+          "140": 31350,
+          "160": 31940,
+          "180": 32510,
+          "200": 33050
+        }
+      },
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "mcoc.gg per-rank curves (R4 + R5 11-anchor, refreshed 2026-06-03)",
+        "ascendableSource": "non-ascendable per mcoc.gg",
+        "lastVerified": "2026-06-03"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/8/8a/Guillotine_2099_portrait.png/revision/latest/scale-to-width-down/200?cb=20230824211019",
+      "sevenStarReleased": true,
+      "released": "2019"
     },
     {
       "id": "gwenpool",
@@ -5710,6 +5729,94 @@
       "released": "2025"
     },
     {
+      "id": "mbaku",
+      "name": "M'Baku",
+      "class": "Skill",
+      "ascendable": true,
+      "prestige": {
+        "rank5": {
+          "0": 27830,
+          "20": 32480,
+          "40": 33650,
+          "60": 34620,
+          "80": 35490,
+          "100": 36290,
+          "120": 37030,
+          "140": 37730,
+          "160": 38400,
+          "180": 39040,
+          "200": 39660
+        },
+        "rank4": {
+          "0": 0,
+          "20": 0,
+          "40": 0,
+          "60": 0,
+          "80": 0,
+          "100": 0,
+          "120": 0,
+          "140": 0,
+          "160": 0,
+          "180": 0,
+          "200": 33440
+        }
+      },
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "mcoc.gg per-rank curves (R4 + R5 11-anchor, refreshed 2026-06-03)",
+        "ascendableSource": "mcoc.gg per-state-columns + kabam-forum-base-pool",
+        "lastVerified": "2026-06-03"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/6/65/M%27Baku_portrait.png/revision/latest/scale-to-width-down/200?cb=20260203121626",
+      "sevenStarReleased": true,
+      "released": "2026"
+    },
+    {
+      "id": "modok",
+      "name": "M.O.D.O.K.",
+      "class": "Science",
+      "ascendable": false,
+      "prestige": {
+        "rank5": {
+          "0": 28610,
+          "20": 32020,
+          "40": 33220,
+          "60": 34220,
+          "80": 35120,
+          "100": 35940,
+          "120": 36700,
+          "140": 37420,
+          "160": 38110,
+          "180": 38770,
+          "200": 39400
+        },
+        "rank4": {
+          "0": 24110,
+          "20": 26980,
+          "40": 28000,
+          "60": 28840,
+          "80": 29590,
+          "100": 30280,
+          "120": 30920,
+          "140": 31530,
+          "160": 32110,
+          "180": 32670,
+          "200": 33200
+        }
+      },
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "mcoc.gg per-rank curves (R4 + R5 11-anchor, refreshed 2026-06-03)",
+        "ascendableSource": "non-ascendable per mcoc.gg",
+        "lastVerified": "2026-06-03"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/9/91/M.O.D.O.K._portrait.png/revision/latest/scale-to-width-down/200?cb=20171209233126",
+      "sevenStarReleased": true,
+      "released": "2017"
+    },
+    {
       "id": "madelyne-pryor",
       "name": "Madelyne Pryor",
       "class": "Mystic",
@@ -6076,50 +6183,6 @@
       "released": "2018"
     },
     {
-      "id": "mbaku",
-      "name": "M'Baku",
-      "class": "Skill",
-      "ascendable": true,
-      "prestige": {
-        "rank5": {
-          "0": 27830,
-          "20": 32480,
-          "40": 33650,
-          "60": 34620,
-          "80": 35490,
-          "100": 36290,
-          "120": 37030,
-          "140": 37730,
-          "160": 38400,
-          "180": 39040,
-          "200": 39660
-        },
-        "rank4": {
-          "0": 0,
-          "20": 0,
-          "40": 0,
-          "60": 0,
-          "80": 0,
-          "100": 0,
-          "120": 0,
-          "140": 0,
-          "160": 0,
-          "180": 0,
-          "200": 33440
-        }
-      },
-      "sigCurve": null,
-      "tags": [],
-      "_meta": {
-        "bhrSource": "mcoc.gg per-rank curves (R4 + R5 11-anchor, refreshed 2026-06-03)",
-        "ascendableSource": "mcoc.gg per-state-columns + kabam-forum-base-pool",
-        "lastVerified": "2026-06-03"
-      },
-      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/6/65/M%27Baku_portrait.png/revision/latest/scale-to-width-down/200?cb=20260203121626",
-      "sevenStarReleased": true,
-      "released": "2026"
-    },
-    {
       "id": "medusa",
       "name": "Medusa",
       "class": "Cosmic",
@@ -6352,50 +6415,6 @@
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/e/e3/Misty_Knight_portrait.png/revision/latest/scale-to-width-down/200?cb=20220211200835",
       "sevenStarReleased": true,
       "released": "2022"
-    },
-    {
-      "id": "modok",
-      "name": "M.O.D.O.K.",
-      "class": "Science",
-      "ascendable": false,
-      "prestige": {
-        "rank5": {
-          "0": 28610,
-          "20": 32020,
-          "40": 33220,
-          "60": 34220,
-          "80": 35120,
-          "100": 35940,
-          "120": 36700,
-          "140": 37420,
-          "160": 38110,
-          "180": 38770,
-          "200": 39400
-        },
-        "rank4": {
-          "0": 24110,
-          "20": 26980,
-          "40": 28000,
-          "60": 28840,
-          "80": 29590,
-          "100": 30280,
-          "120": 30920,
-          "140": 31530,
-          "160": 32110,
-          "180": 32670,
-          "200": 33200
-        }
-      },
-      "sigCurve": null,
-      "tags": [],
-      "_meta": {
-        "bhrSource": "mcoc.gg per-rank curves (R4 + R5 11-anchor, refreshed 2026-06-03)",
-        "ascendableSource": "non-ascendable per mcoc.gg",
-        "lastVerified": "2026-06-03"
-      },
-      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/9/91/M.O.D.O.K._portrait.png/revision/latest/scale-to-width-down/200?cb=20171209233126",
-      "sevenStarReleased": true,
-      "released": "2017"
     },
     {
       "id": "mojo",
@@ -9526,6 +9545,138 @@
       "released": "2020"
     },
     {
+      "id": "spider-man-stark-enhanced",
+      "name": "Spider Man (Stark Enhanced)",
+      "class": "Tech",
+      "ascendable": false,
+      "prestige": {
+        "rank5": {
+          "0": 29460,
+          "20": 34190,
+          "40": 34850,
+          "60": 35360,
+          "80": 35800,
+          "100": 36190,
+          "120": 36550,
+          "140": 36880,
+          "160": 37180,
+          "180": 37470,
+          "200": 37750
+        },
+        "rank4": {
+          "0": 24850,
+          "20": 28850,
+          "40": 29400,
+          "60": 29840,
+          "80": 30210,
+          "100": 30540,
+          "120": 30840,
+          "140": 31110,
+          "160": 31370,
+          "180": 31610,
+          "200": 31850
+        }
+      },
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "mcoc.gg per-rank curves (R4 + R5 11-anchor, refreshed 2026-06-03)",
+        "ascendableSource": "non-ascendable per mcoc.gg",
+        "lastVerified": "2026-06-03"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/a/a9/Spider-Man_%28Stark_Enhanced%29_portrait.png/revision/latest/scale-to-width-down/200?cb=20170722100121",
+      "sevenStarReleased": true,
+      "released": "2017"
+    },
+    {
+      "id": "spider-man-2099",
+      "name": "Spider Man 2099",
+      "class": "Science",
+      "ascendable": false,
+      "prestige": {
+        "rank5": {
+          "0": 28890,
+          "20": 31880,
+          "40": 33090,
+          "60": 34100,
+          "80": 35000,
+          "100": 35830,
+          "120": 36600,
+          "140": 37330,
+          "160": 38020,
+          "180": 38690,
+          "200": 39330
+        },
+        "rank4": {
+          "0": 24370,
+          "20": 26900,
+          "40": 27920,
+          "60": 28780,
+          "80": 29540,
+          "100": 30230,
+          "120": 30880,
+          "140": 31500,
+          "160": 32080,
+          "180": 32650,
+          "200": 33190
+        }
+      },
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "mcoc.gg per-rank curves (R4 + R5 11-anchor, refreshed 2026-06-03)",
+        "ascendableSource": "non-ascendable per mcoc.gg",
+        "lastVerified": "2026-06-03"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/8/81/Spider-Man_2099_portrait.png/revision/latest/scale-to-width-down/200?cb=20210814015916",
+      "sevenStarReleased": true,
+      "released": "2021"
+    },
+    {
+      "id": "spider-man-miles-morales",
+      "name": "Spider man (Miles Morales)",
+      "class": "Science",
+      "ascendable": false,
+      "prestige": {
+        "rank5": {
+          "0": 28060,
+          "20": 31350,
+          "40": 32520,
+          "60": 33500,
+          "80": 34380,
+          "100": 35180,
+          "120": 35930,
+          "140": 36640,
+          "160": 37310,
+          "180": 37960,
+          "200": 38580
+        },
+        "rank4": {
+          "0": 23660,
+          "20": 26440,
+          "40": 27430,
+          "60": 28260,
+          "80": 29000,
+          "100": 29680,
+          "120": 30310,
+          "140": 30900,
+          "160": 31470,
+          "180": 32020,
+          "200": 32540
+        }
+      },
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "mcoc.gg per-rank curves (R4 + R5 11-anchor, refreshed 2026-06-03)",
+        "ascendableSource": "non-ascendable per mcoc.gg",
+        "lastVerified": "2026-06-03"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/e/e0/Spider-Man_%28Miles_Morales%29_portrait.png/revision/latest/scale-to-width-down/200?cb=20160108034734",
+      "sevenStarReleased": true,
+      "released": "2016"
+    },
+    {
       "id": "spider-gwen",
       "name": "Spider-Gwen",
       "class": "Science",
@@ -9614,50 +9765,6 @@
       "released": "2020"
     },
     {
-      "id": "spider-man-2099",
-      "name": "Spider Man 2099",
-      "class": "Science",
-      "ascendable": false,
-      "prestige": {
-        "rank5": {
-          "0": 28890,
-          "20": 31880,
-          "40": 33090,
-          "60": 34100,
-          "80": 35000,
-          "100": 35830,
-          "120": 36600,
-          "140": 37330,
-          "160": 38020,
-          "180": 38690,
-          "200": 39330
-        },
-        "rank4": {
-          "0": 24370,
-          "20": 26900,
-          "40": 27920,
-          "60": 28780,
-          "80": 29540,
-          "100": 30230,
-          "120": 30880,
-          "140": 31500,
-          "160": 32080,
-          "180": 32650,
-          "200": 33190
-        }
-      },
-      "sigCurve": null,
-      "tags": [],
-      "_meta": {
-        "bhrSource": "mcoc.gg per-rank curves (R4 + R5 11-anchor, refreshed 2026-06-03)",
-        "ascendableSource": "non-ascendable per mcoc.gg",
-        "lastVerified": "2026-06-03"
-      },
-      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/8/81/Spider-Man_2099_portrait.png/revision/latest/scale-to-width-down/200?cb=20210814015916",
-      "sevenStarReleased": true,
-      "released": "2021"
-    },
-    {
       "id": "spider-man-classic",
       "name": "Spider-Man (Classic)",
       "class": "Science",
@@ -9702,50 +9809,6 @@
       "released": "2015"
     },
     {
-      "id": "spider-man-miles-morales",
-      "name": "Spider man (Miles Morales)",
-      "class": "Science",
-      "ascendable": false,
-      "prestige": {
-        "rank5": {
-          "0": 28060,
-          "20": 31350,
-          "40": 32520,
-          "60": 33500,
-          "80": 34380,
-          "100": 35180,
-          "120": 35930,
-          "140": 36640,
-          "160": 37310,
-          "180": 37960,
-          "200": 38580
-        },
-        "rank4": {
-          "0": 23660,
-          "20": 26440,
-          "40": 27430,
-          "60": 28260,
-          "80": 29000,
-          "100": 29680,
-          "120": 30310,
-          "140": 30900,
-          "160": 31470,
-          "180": 32020,
-          "200": 32540
-        }
-      },
-      "sigCurve": null,
-      "tags": [],
-      "_meta": {
-        "bhrSource": "mcoc.gg per-rank curves (R4 + R5 11-anchor, refreshed 2026-06-03)",
-        "ascendableSource": "non-ascendable per mcoc.gg",
-        "lastVerified": "2026-06-03"
-      },
-      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/e/e0/Spider-Man_%28Miles_Morales%29_portrait.png/revision/latest/scale-to-width-down/200?cb=20160108034734",
-      "sevenStarReleased": true,
-      "released": "2016"
-    },
-    {
       "id": "spider-man-pavitr-prabhakar",
       "name": "Spider-Man (Pavitr Prabhakar)",
       "class": "Mystic",
@@ -9788,50 +9851,6 @@
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/8/83/Spider-Man_%28Pavitr_Prabhakar%29_portrait.png/revision/latest/scale-to-width-down/200?cb=20251104193111",
       "sevenStarReleased": true,
       "released": "2025"
-    },
-    {
-      "id": "spider-man-stark-enhanced",
-      "name": "Spider Man (Stark Enhanced)",
-      "class": "Tech",
-      "ascendable": false,
-      "prestige": {
-        "rank5": {
-          "0": 29460,
-          "20": 34190,
-          "40": 34850,
-          "60": 35360,
-          "80": 35800,
-          "100": 36190,
-          "120": 36550,
-          "140": 36880,
-          "160": 37180,
-          "180": 37470,
-          "200": 37750
-        },
-        "rank4": {
-          "0": 24850,
-          "20": 28850,
-          "40": 29400,
-          "60": 29840,
-          "80": 30210,
-          "100": 30540,
-          "120": 30840,
-          "140": 31110,
-          "160": 31370,
-          "180": 31610,
-          "200": 31850
-        }
-      },
-      "sigCurve": null,
-      "tags": [],
-      "_meta": {
-        "bhrSource": "mcoc.gg per-rank curves (R4 + R5 11-anchor, refreshed 2026-06-03)",
-        "ascendableSource": "non-ascendable per mcoc.gg",
-        "lastVerified": "2026-06-03"
-      },
-      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/a/a9/Spider-Man_%28Stark_Enhanced%29_portrait.png/revision/latest/scale-to-width-down/200?cb=20170722100121",
-      "sevenStarReleased": true,
-      "released": "2017"
     },
     {
       "id": "spider-man-stealth-suit",
