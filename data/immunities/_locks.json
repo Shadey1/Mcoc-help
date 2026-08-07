@@ -1,15 +1,15 @@
 {
-  "generated": "2026-07-17",
+  "generated": "2026-08-07",
   "chartDated": "2026-06",
   "_meta": {
-    "cellsTotal": 467,
-    "cellsLocked": 290,
-    "cellsInReviewQueue": 177,
+    "cellsTotal": 471,
+    "cellsLocked": 291,
+    "cellsInReviewQueue": 180,
     "conflicts": 1,
-    "singleSource": 176,
+    "singleSource": 179,
     "staleOnly": 0,
-    "uniqueChampsLocked": 159,
-    "uniqueChampsProvisional": 129
+    "uniqueChampsLocked": 160,
+    "uniqueChampsProvisional": 131
   },
   "champions": {
     "absorbing-man": {
@@ -969,6 +969,12 @@
         "confidence": "lock-3src"
       },
       "Nullify": {
+        "band": "immune",
+        "confidence": "lock-2src"
+      }
+    },
+    "thor-ragnarok": {
+      "Shock": {
         "band": "immune",
         "confidence": "lock-2src"
       }

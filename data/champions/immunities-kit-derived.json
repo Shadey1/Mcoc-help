@@ -2,9 +2,9 @@
   "_meta": {
     "note": "Auto-parsed from champion kit text in data/champions/abilities.json via @prestige-tools/engine parseImmunitiesFromLines(). Covers the immune band (from \"Immune to X\" / \"X Immunity\" declarations, guarded against negation + inflict false-positives) and the resist band (from \"N% X Resistance\" and \"takes N% damage from\" declarations). The mechanic Purify/Duration band and the synergy band come from other sources.",
     "source": "MCOCHUB champion kit text (via abilities.json)",
-    "generatedAt": "2026-07-17",
-    "championCount": 96,
-    "signalCount": 135
+    "generatedAt": "2026-08-07",
+    "championCount": 99,
+    "signalCount": 138
   },
   "champions": {
     "absorbing-man": {
@@ -14,6 +14,11 @@
     },
     "adam-warlock": {
       "Shock": {
+        "band": "immune"
+      }
+    },
+    "agatha-harkness": {
+      "Armor Break": {
         "band": "immune"
       }
     },
@@ -66,6 +71,11 @@
     },
     "black-panther": {
       "Stun": {
+        "band": "immune"
+      }
+    },
+    "black-tarantula": {
+      "Poison": {
         "band": "immune"
       }
     },
@@ -563,6 +573,11 @@
     },
     "thing": {
       "Bleed": {
+        "band": "immune"
+      }
+    },
+    "thor-ragnarok": {
+      "Shock": {
         "band": "immune"
       }
     },

@@ -161,6 +161,49 @@
       "sevenStarReleased": false
     },
     {
+      "id": "agatha-harkness",
+      "name": "Agatha Harkness",
+      "class": "Mystic",
+      "ascendable": false,
+      "prestige": {
+        "rank5": {
+          "0": 29210,
+          "20": 32360,
+          "40": 33580,
+          "60": 34600,
+          "80": 35510,
+          "100": 36350,
+          "120": 37130,
+          "140": 37870,
+          "160": 38570,
+          "180": 39240,
+          "200": 39890
+        },
+        "rank4": {
+          "0": 24630,
+          "20": 27280,
+          "40": 28320,
+          "60": 29180,
+          "80": 29950,
+          "100": 30650,
+          "120": 31310,
+          "140": 31930,
+          "160": 32520,
+          "180": 33090,
+          "200": 33640
+        }
+      },
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "mcochub.insaneskull.com (JSON API, R4+R5 11-anchor curves, refreshed 2026-08-07)",
+        "lastVerified": "2026-08-07"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/4/44/Agatha_Harkness_portrait.png/revision/latest/scale-to-width-down/200?cb=20260804205908",
+      "sevenStarReleased": true,
+      "released": "2026"
+    },
+    {
       "id": "agent-venom",
       "name": "Agent Venom",
       "class": "Skill",
@@ -518,15 +561,15 @@
       "prestige": {
         "rank5": {
           "0": 28200,
-          "20": null,
-          "40": null,
-          "60": null,
-          "80": null,
-          "100": null,
-          "120": null,
-          "140": null,
-          "160": null,
-          "180": null,
+          "20": 30230,
+          "40": 31420,
+          "60": 32400,
+          "80": 33280,
+          "100": 34090,
+          "120": 34840,
+          "140": 35550,
+          "160": 36230,
+          "180": 36880,
           "200": 37500
         },
         "rank4": {
@@ -546,9 +589,9 @@
       "sigCurve": null,
       "tags": [],
       "_meta": {
-        "bhrSource": "R5 sig200=37500 verified in-game 2026-06-30 (mu3rto); intermediate R5 anchors nulled pending rescan, sig0 carried over from mcoc.gg as fallback. R4 still from mcoc.gg refreshed 2026-06-27.",
+        "bhrSource": "mcochub.insaneskull.com (11-anchor R5 curve, refreshed 2026-08-07)",
         "ascendableSource": "default non-ascendable; flip when confirmed",
-        "lastVerified": "2026-06-30"
+        "lastVerified": "2026-08-07"
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/6/6d/Archangel_portrait.png/revision/latest/scale-to-width-down/200?cb=20250411023139",
       "sevenStarReleased": true,
@@ -979,6 +1022,49 @@
       "released": "2016"
     },
     {
+      "id": "black-tarantula",
+      "name": "Black Tarantula",
+      "class": "Skill",
+      "ascendable": false,
+      "prestige": {
+        "rank5": {
+          "0": 28280,
+          "20": 33150,
+          "40": 34340,
+          "60": 35330,
+          "80": 36210,
+          "100": 37020,
+          "120": 37770,
+          "140": 38490,
+          "160": 39170,
+          "180": 39820,
+          "200": 40440
+        },
+        "rank4": {
+          "0": 23840,
+          "20": 27950,
+          "40": 28940,
+          "60": 29780,
+          "80": 30520,
+          "100": 31210,
+          "120": 31840,
+          "140": 32440,
+          "160": 33020,
+          "180": 33570,
+          "200": 34100
+        }
+      },
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "mcochub.insaneskull.com (JSON API, R4+R5 11-anchor curves, refreshed 2026-08-07)",
+        "lastVerified": "2026-08-07"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/c/c1/Black_Tarantula_portrait.png/revision/latest/scale-to-width-down/200?cb=20260707214546",
+      "sevenStarReleased": true,
+      "released": "2026"
+    },
+    {
       "id": "black-widow",
       "name": "Black Widow",
       "class": "Skill",
@@ -1264,11 +1350,40 @@
       "sigCurve": null,
       "tags": [],
       "_meta": {
-        "bhrSource": "partner-only stub — not yet released at 7★",
-        "lastVerified": "2026-06-10"
+        "bhrSource": "mcochub.insaneskull.com (JSON API, R4+R5 11-anchor curves, refreshed 2026-08-07)",
+        "lastVerified": "2026-08-07"
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/4/49/Cable_portrait.png/revision/latest/scale-to-width-down/200?cb=20170121235311",
-      "sevenStarReleased": false
+      "sevenStarReleased": true,
+      "prestige": {
+        "rank5": {
+          "0": 28960,
+          "20": 32310,
+          "40": 33530,
+          "60": 34540,
+          "80": 35440,
+          "100": 36270,
+          "120": 37050,
+          "140": 37780,
+          "160": 38470,
+          "180": 39140,
+          "200": 39780
+        },
+        "rank4": {
+          "0": 24410,
+          "20": 27240,
+          "40": 28270,
+          "60": 29120,
+          "80": 29880,
+          "100": 30580,
+          "120": 31230,
+          "140": 31850,
+          "160": 32440,
+          "180": 33000,
+          "200": 33540
+        }
+      },
+      "released": "2026"
     },
     {
       "id": "captain-america",
@@ -2418,7 +2533,7 @@
           "0": 29320,
           "20": 32170,
           "40": 33400,
-          "60": 34430,
+          "60": 34420,
           "80": 35340,
           "100": 36180,
           "120": 36960,
@@ -2444,9 +2559,9 @@
       "sigCurve": null,
       "tags": [],
       "_meta": {
-        "bhrSource": "mcoc.gg per-rank curves (R4 + R5 11-anchor, refreshed 2026-06-03)",
+        "bhrSource": "mcochub.insaneskull.com (11-anchor R5 curve, refreshed 2026-08-07)",
         "ascendableSource": "mcoc.gg per-state-columns + kabam-forum-base-pool",
-        "lastVerified": "2026-06-03"
+        "lastVerified": "2026-08-07"
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/8/83/Doctor_Strange_portrait.png/revision/latest/scale-to-width-down/200?cb=20260106195941",
       "sevenStarReleased": true,
@@ -2713,10 +2828,10 @@
           "60": 33800,
           "80": 34700,
           "100": 35520,
-          "120": 36300,
+          "120": 36290,
           "140": 37020,
           "160": 37710,
-          "180": 38380,
+          "180": 38370,
           "200": 39010
         },
         "rank4": {
@@ -2736,9 +2851,9 @@
       "sigCurve": null,
       "tags": [],
       "_meta": {
-        "bhrSource": "mcoc.gg per-rank curves (R4 + R5 11-anchor, refreshed 2026-06-03)",
+        "bhrSource": "mcochub.insaneskull.com (11-anchor R5 curve, refreshed 2026-08-07)",
         "ascendableSource": "non-ascendable per mcoc.gg",
-        "lastVerified": "2026-06-03"
+        "lastVerified": "2026-08-07"
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/9/99/Ebony_Maw_portrait.png/revision/latest/scale-to-width-down/200?cb=20230824212927",
       "sevenStarReleased": true,
@@ -4424,7 +4539,7 @@
           "140": 37620,
           "160": 38330,
           "180": 39000,
-          "200": 39655
+          "200": 39660
         },
         "rank4": {
           "0": 24770,
@@ -4443,9 +4558,9 @@
       "sigCurve": null,
       "tags": [],
       "_meta": {
-        "bhrSource": "mcoc.gg per-rank curves (R4 + R5 11-anchor, refreshed 2026-06-03), R5.200 sub-10 calibrated 2026-06-04 from in-game R5 sig200 A2 = 46000",
+        "bhrSource": "mcochub.insaneskull.com (11-anchor R5 curve, refreshed 2026-08-07)",
         "ascendableSource": "mcoc.gg per-state-columns + kabam-forum-base-pool",
-        "lastVerified": "2026-06-03"
+        "lastVerified": "2026-08-07"
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/c/c0/Iron_Man_portrait.png/revision/latest/scale-to-width-down/200?cb=20230907090031",
       "sevenStarReleased": true,
@@ -9929,11 +10044,40 @@
       "sigCurve": null,
       "tags": [],
       "_meta": {
-        "bhrSource": "partner-only stub — not yet released at 7★",
-        "lastVerified": "2026-06-10"
+        "bhrSource": "mcochub.insaneskull.com (JSON API, R4+R5 11-anchor curves, refreshed 2026-08-07)",
+        "lastVerified": "2026-08-07"
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/6/6e/Spider-Man_%28Symbiote%29_portrait.png/revision/latest/scale-to-width-down/200?cb=20150912165012",
-      "sevenStarReleased": false
+      "sevenStarReleased": true,
+      "prestige": {
+        "rank5": {
+          "0": 29550,
+          "20": 32100,
+          "40": 33340,
+          "60": 34380,
+          "80": 35300,
+          "100": 36140,
+          "120": 36930,
+          "140": 37680,
+          "160": 38390,
+          "180": 39070,
+          "200": 39720
+        },
+        "rank4": {
+          "0": 24930,
+          "20": 27080,
+          "40": 28120,
+          "60": 28990,
+          "80": 29770,
+          "100": 30480,
+          "120": 31150,
+          "140": 31780,
+          "160": 32380,
+          "180": 32950,
+          "200": 33500
+        }
+      },
+      "released": "2026"
     },
     {
       "id": "spider-punk",
@@ -11099,11 +11243,40 @@
       "sigCurve": null,
       "tags": [],
       "_meta": {
-        "bhrSource": "partner-only stub — not yet released at 7★",
-        "lastVerified": "2026-06-10"
+        "bhrSource": "mcochub.insaneskull.com (JSON API, R4+R5 11-anchor curves, refreshed 2026-08-07)",
+        "lastVerified": "2026-08-07"
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/2/2a/Thor_%28Ragnarok%29_portrait.png/revision/latest/scale-to-width-down/200?cb=20260604155336",
-      "sevenStarReleased": false
+      "sevenStarReleased": true,
+      "prestige": {
+        "rank5": {
+          "0": 28560,
+          "20": 32210,
+          "40": 33410,
+          "60": 34410,
+          "80": 35300,
+          "100": 36120,
+          "120": 36880,
+          "140": 37600,
+          "160": 38280,
+          "180": 38940,
+          "200": 39580
+        },
+        "rank4": {
+          "0": 24080,
+          "20": 27160,
+          "40": 28170,
+          "60": 29010,
+          "80": 29760,
+          "100": 30450,
+          "120": 31100,
+          "140": 31700,
+          "160": 32280,
+          "180": 32840,
+          "200": 33370
+        }
+      },
+      "released": "2026"
     },
     {
       "id": "tigra",
@@ -11244,17 +11417,17 @@
       "ascendable": false,
       "prestige": {
         "rank5": {
-          "0": 28640,
-          "20": 31230,
-          "40": 32430,
-          "60": 33430,
-          "80": 34330,
-          "100": 35150,
-          "120": 35910,
-          "140": 36630,
-          "160": 37320,
-          "180": 37980,
-          "200": 38620
+          "0": 29220,
+          "20": 34170,
+          "40": 34820,
+          "60": 35330,
+          "80": 35760,
+          "100": 36150,
+          "120": 36500,
+          "140": 36830,
+          "160": 37130,
+          "180": 37420,
+          "200": 37690
         },
         "rank4": {
           "0": 24140,
@@ -11273,9 +11446,9 @@
       "sigCurve": null,
       "tags": [],
       "_meta": {
-        "bhrSource": "mcoc.gg per-rank curves (R4 + R5 11-anchor, refreshed 2026-06-03)",
+        "bhrSource": "mcochub.insaneskull.com (11-anchor R5 curve, refreshed 2026-08-07)",
         "ascendableSource": "non-ascendable per mcoc.gg",
-        "lastVerified": "2026-06-03"
+        "lastVerified": "2026-08-07"
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/4/41/Ultron_portrait.png/revision/latest/scale-to-width-down/200?cb=20150830080132",
       "sevenStarReleased": true,

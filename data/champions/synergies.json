@@ -1,10 +1,10 @@
 {
   "_meta": {
     "source": "mcoc.gg /json/champions.json + /json/synergies.json",
-    "fetchedAt": "2026-06-10",
-    "seedChampionCount": 324,
-    "mcocggChampionCount": 324,
-    "matched": 324,
+    "fetchedAt": "2026-08-07",
+    "seedChampionCount": 327,
+    "mcocggChampionCount": 358,
+    "matched": 327,
     "unmatched": []
   },
   "champions": {
@@ -445,6 +445,135 @@
         ],
         "effects": [
           "Aegon, Angela, Proxima Midnight, Captain Marvel: +25% Potency to Fury effects."
+        ]
+      }
+    ],
+    "agatha-harkness": [
+      {
+        "synergyId": 1162,
+        "name": "Mentor",
+        "icon": "flourish",
+        "unique": true,
+        "partners": [
+          {
+            "name": "Scarlet Witch (Classic)",
+            "slug": "scarlet-witch-classic"
+          },
+          {
+            "name": "Scarlet Witch",
+            "slug": "scarlet-witch-sigil"
+          }
+        ],
+        "effects": [
+          "Agatha Harkness: Charging a Heavy Attack grants three 5% Amplify Passives until the end of her Heavy or Special Attack. This effect counts as personal.",
+          "Scarlet Witch, Scarlet Witch (Sigil): Personal Buffs gain 25% increased duration."
+        ]
+      },
+      {
+        "synergyId": 1163,
+        "name": "Familiar",
+        "icon": "pierce",
+        "unique": true,
+        "partners": [
+          {
+            "name": "Black Cat",
+            "slug": "black-cat"
+          }
+        ],
+        "effects": [
+          "Agatha Harkness: Agatha can also copy Energize and Pierce Buffs.",
+          "Black Cat: When inflicted with a non-Damaging Debuff, Black Cat has a 1% chance per Combo Meter to Purify the Debuff, up to a max of 50%. Cooldown: 5 seconds."
+        ]
+      },
+      {
+        "synergyId": 1164,
+        "name": "Magical Life",
+        "icon": "cosmicw",
+        "unique": true,
+        "partners": [
+          {
+            "name": "Wiccan",
+            "slug": "wiccan"
+          },
+          {
+            "name": "Quicksilver",
+            "slug": "quicksilver"
+          }
+        ],
+        "effects": [
+          "Agatha Harkness: Intercepts refresh up to 3 personal Buffs. Cooldown: 10 seconds.",
+          "Wiccan: Intercepts pause all active Spell effects and personal Debuffs for 6 seconds. Cooldown: 10 seconds.",
+          "Quicksilver: Intercepts grant 50 Momentum. Cooldown: 10 seconds."
+        ]
+      },
+      {
+        "synergyId": 1165,
+        "name": "The Governess",
+        "icon": "bulwark",
+        "unique": true,
+        "partners": [
+          {
+            "name": "Invisible Woman",
+            "slug": "invisible-woman"
+          }
+        ],
+        "effects": [
+          "Agatha Harkness: Gain +560 Block Proficiency.",
+          "Invisible Woman: Punishing the Opponent's Special Attacks grants a non-stacking +[1,200] Fury Passive for 15 seconds."
+        ]
+      },
+      {
+        "synergyId": 1166,
+        "name": "Witches",
+        "icon": "heartplus",
+        "unique": false,
+        "partners": [
+          {
+            "name": "Scarlet Witch (Classic)",
+            "slug": "scarlet-witch-classic"
+          },
+          {
+            "name": "Scarlet Witch",
+            "slug": "scarlet-witch-sigil"
+          },
+          {
+            "name": "Wiccan",
+            "slug": "wiccan"
+          },
+          {
+            "name": "Enchantress",
+            "slug": "enchantress"
+          },
+          {
+            "name": "Nico Minoru",
+            "slug": "nico-minoru"
+          }
+        ],
+        "effects": [
+          "Synergy Champions gain + 6% Health."
+        ]
+      },
+      {
+        "synergyId": 1167,
+        "name": "Self-Declared Sorcerer Supremes",
+        "icon": "bulwark",
+        "unique": false,
+        "partners": [
+          {
+            "name": "Doctor Strange",
+            "slug": "doctor-strange"
+          },
+          {
+            "name": "Sorcerer Supreme",
+            "slug": "sorcerer-supreme"
+          },
+          {
+            "name": "Symbiote Supreme",
+            "slug": "symbiote-supreme"
+          }
+        ],
+        "effects": [
+          "All Champions gain +5% Perfect Block Chance."
         ]
       }
     ],
@@ -1124,7 +1253,7 @@
           "Apocalypse: Start the first fight in a quest with maximum Genetic Code.",
           "Kang: Every 4 seconds, Kang Gains an indefinite Fury Buff granting 20% Attack Rating. This ends when reaching 20 stacks of Fury.",
           "Mister Sinister: Degeneration Debuffs gain +50% Potency.",
-          "Cable: Incinerate Debuffs gain +150% Potency. Additionally, Heavy Attacks now inflict Degeneration on each hit and their stack limit is removed."
+          "Cable: Incinerate Debuffs gain +150% increasd Potency. Additionally, Cable reduces the Opponent's chance to Purify Debuffs by 100%."
         ]
       },
       {
@@ -2304,7 +2433,7 @@
         ],
         "effects": [
           "Black Cat: While the Heist is not active, gain a 10% chance to Evade for each #Spider-Verse Heroes team member.",
-          "Spider-Man (Classic) & Spider-Man (Symbiote): On Evade, gain a Cruelty increasing Critical Damage Rating by [425] for 30 second(s)."
+          "Spider-Man (Classic), Spider-Man (Symbiote): Evades inflict a non-stacking [413] Physical Vulnerability Debuff for 30 seconds."
         ]
       },
       {
@@ -2603,6 +2732,80 @@
         ],
         "effects": [
           "Skill Champions deal +25% Bleed Damage"
+        ]
+      }
+    ],
+    "black-tarantula": [
+      {
+        "synergyId": 1125,
+        "name": "White and Black and Black and White",
+        "icon": "yingyang",
+        "unique": true,
+        "partners": [
+          {
+            "name": "Mister Negative",
+            "slug": "mister-negative"
+          },
+          {
+            "name": "White Tiger",
+            "slug": "white-tiger"
+          }
+        ],
+        "effects": [
+          "White Tiger: The Bleed on White Tiger's Special Attack 2 cannot have its duration or chance reduced.",
+          "Black Tarantula: Gain Immunity to Nullify.",
+          "Mister Negative: Light and Dark Energy gain 40% increased duration."
+        ]
+      },
+      {
+        "synergyId": 1126,
+        "name": "Puño Cerrado",
+        "icon": "skillw",
+        "unique": true,
+        "partners": [
+          {
+            "name": "Absorbing Man",
+            "slug": "absorbing-man"
+          },
+          {
+            "name": "Daredevil (Classic)",
+            "slug": "daredevil-classic"
+          }
+        ],
+        "effects": [
+          "Black Tarantula: Purify Ability Accuracy is increased by 200% while Stunned by non-Mutant Champions.",
+          "Daredevil: Evading during the Opponent's Special Attacks grants a +15% Fury Passive for 20 seconds. Max stacks: 3.",
+          "Absorbing Man: Punishing a Special Attack with a Light Attack pauses Omni-Morph Forms for 3 seconds."
+        ]
+      },
+      {
+        "synergyId": 1127,
+        "name": "Dark Spiders",
+        "icon": "mask",
+        "unique": true,
+        "partners": [],
+        "effects": [
+          "Black Tarantula: Medium Attacks cannot be Evaded. While a #Spider-Verse Hero Opponent is Halted, they cannot Evade."
+        ]
+      },
+      {
+        "synergyId": 1128,
+        "name": "Heavy Lies the Mantle",
+        "icon": "doom",
+        "unique": true,
+        "partners": [
+          {
+            "name": "Kushala",
+            "slug": "kushala"
+          },
+          {
+            "name": "Falcon (Joaquin Torres)",
+            "slug": "falcon-joaquin-torres"
+          }
+        ],
+        "effects": [
+          "Black Tarantula, Falcon (Joaquín Torres): Personal Furies gain 25% increased duration.",
+          "Kushala: When a Blessing expires naturally while Kushala is at max Blessings, pause all Blessings for 3 seconds."
         ]
       }
     ],
@@ -7128,7 +7331,6 @@
           "Annihilus: Gain +10% Special Damage.",
           "Medusa: Gain +20% Combat Adrenaline.",
           "Apocalypse: Gain +[500] Armor Rating.",
-          "Apocalypse: Gain +[500] Armor Rating.",
           "Franken-Castle: Gain +10% Attack Rating.",
           "Archangel: Gain +[200] Critical Rating.",
           "Dracula: Gain the bonuses of other present Synergy Champions."
@@ -10629,6 +10831,102 @@
         ]
       }
     ],
+    "hobgoblin": [
+      {
+        "synergyId": 1121,
+        "name": "My Own Twist",
+        "icon": "hobgoblin",
+        "unique": true,
+        "partners": [
+          {
+            "name": "Green Goblin",
+            "slug": "green-goblin"
+          }
+        ],
+        "effects": [
+          "Hobgoblin (Phil Urich): Activating a Striker refreshes personal Incinerate Debuffs.",
+          "Green Goblin: Start each fight with 50% Spirit. When a Striker exits, generate 20% Spirit."
+        ]
+      },
+      {
+        "synergyId": 1122,
+        "name": "Laughter Amongst The Stars",
+        "icon": "jack",
+        "unique": true,
+        "partners": [
+          {
+            "name": "Red Goblin",
+            "slug": "red-goblin"
+          }
+        ],
+        "effects": [
+          "Hobgoblin (Phil Urich): Start each fight with 50% of a Bar of Power.",
+          "Red Goblin: Inflict a Carnage Bomb Incinerate when a Miss, Auto-Block, or Evade fails to trigger. Cooldown: 3 seconds."
+        ]
+      },
+      {
+        "synergyId": 1123,
+        "name": "Working Overtime",
+        "icon": "merc",
+        "unique": true,
+        "partners": [
+          {
+            "name": "Kingpin",
+            "slug": "kingpin"
+          }
+        ],
+        "effects": [
+          "Hobgoblin (Phil Urich): The final hit of Special Attack 2 inflicts a Root Debuff for 3 seconds.",
+          "Kingpin: If no Overpower Buffs are active, increase the duration of Kingpin's next Overpower Buff by 20%."
+        ]
+      },
+      {
+        "synergyId": 1124,
+        "name": "Spidey Enemies",
+        "icon": "precision",
+        "unique": false,
+        "partners": [
+          {
+            "name": "Spider-Man (Classic)",
+            "slug": "spider-man-classic"
+          }
+        ],
+        "effects": [
+          "Hobgoblin and #Spider-Verse Heroes gain +[155] Critical Rating."
+        ]
+      },
+      {
+        "synergyId": 12,
+        "name": "Rivals",
+        "icon": "cruelty",
+        "unique": false,
+        "partners": [
+          {
+            "name": "Jack O'Lantern",
+            "slug": "jack-olantern"
+          },
+          {
+            "name": "Vulture",
+            "slug": "vulture"
+          },
+          {
+            "name": "Doctor Octopus",
+            "slug": "doctor-octopus"
+          },
+          {
+            "name": "Lizard",
+            "slug": "lizard"
+          },
+          {
+            "name": "Silver Sable",
+            "slug": "silver-sable"
+          }
+        ],
+        "effects": [
+          "All Champions gain +[115] Critical Damage Rating."
+        ]
+      }
+    ],
     "howard-the-duck": [
       {
         "synergyId": 2,
@@ -12025,7 +12323,7 @@
           }
         ],
         "effects": [
-          "nfamous Iron Man: Cowardice effects gain 50% increased potency.",
+          "Iron Man (Infamous): Cowardice effects gain 50% increased potency.",
           "Doctor Strange: During Special Attack 1, gain +40% Attack Rating."
         ]
       },
@@ -15208,6 +15506,10 @@
           {
             "name": "Green Goblin",
             "slug": "green-goblin"
+          },
+          {
+            "name": "Hobgoblin",
+            "slug": "hobgoblin"
           }
         ],
         "effects": [
@@ -15717,7 +16019,7 @@
         "effects": [
           "Magneto (House of X): Gain an indefinite Prowess Buff, granting +20% Special Attack damage.",
           "Wolverine (X-23): Bleed & Cruelty effects gain 10% increased duration.",
-          "Cable: Begin the fight with 60% Poison Resistance.",
+          "Cable: While suffering from a Poison effect, Cable gains a +25% Prowess Passive.",
           "Taskmaster: Exploit Weakness attacks deal +40% Damage."
         ]
       },
@@ -21729,7 +22031,7 @@
         ],
         "effects": [
           "Red Goblin: While Frenzy is active, Increase Buff Duration by 30%.",
-          "Spider-Man (Symbiote): Special 2 creates a non-stacking Fury Buff granting 5% attack for each Armor Break on the Opponent, lasting 20 seconds. While Active, Heavy Attacks inflict 1 additional Armor Break."
+          "Spider-Man (Symbiote): During Special Attack 1, gain +3% Attack Rating for each Armor Break on the Opponent."
         ]
       },
       {
@@ -24008,7 +24310,7 @@
           }
         ],
         "effects": [
-          "Shathra: For each dead Synergy Champion on the team, Shathra gains +6% Atk Rating.",
+          "Shathra: For each dead Synergy Champion on the team, Shathra gains +6% Attack Rating.",
           "#Spider-Verse Heroes: For each living #Spider-Verse Hero on the team, gain +6% Attack Rating."
         ]
       }
@@ -24406,7 +24708,7 @@
         "effects": [
           "Synergy Champions: Medium Attacks inflict a Damage Over Time Debuff dealing 20% of Attack over 2 seconds. The type of Debuff is specific to each Synergy Champion.",
           "Shocker: Shock Debuffs.",
-          "Spider-Man (Stark Enhanced): Rupture Debuffs.",
+          "Silk, Spider-Man (Stark Enhanced): Rupture Debuffs.",
           "Vulture: 10% Disintegration Debuffs."
         ]
       },
@@ -24423,7 +24725,7 @@
         ],
         "effects": [
           "Shocker: Activating a Special Attack inflicts a 50% Cowardice Debuff for 10 seconds.",
-          "Spider-Man (Symbiote): Activating a Special Attack grants a True Strike Buff for 10 seconds."
+          "Spider-Man (Symbiote): Activating a Special Attack grants a True Damage Buff for 10 seconds."
         ]
       }
     ],
@@ -26155,9 +26457,9 @@
         ],
         "effects": [
           "Spider-Man (Stealth Suit): +100% Evade Ability Accuracy against Unblockable attacks while the Opponent has a Vulnerability Debuff.",
-          "Spider-Man (Symbiote and Miles Morales): Evade does not trigger while Blocking.",
+          "Spider-Man (Miles Morales): Evade does not trigger while Blocking, and Special Attack 2 inflicts Power Sting for 8 seconds, dealing 100% of Attack as Direct Damage when the Opponent activates a Special Attack.",
           "Spider-Man (Miles Morales): Special Attack 2 inflicts Power Sting for 8 seconds, dealing 100% of Attack as Direct Damage when the Opponent activates a Special Attack.",
-          "Spider-Man (Symbiote): Heavy Attack inflicts a Vulnerability Debuff for 9 second(s)."
+          "Spider-Man (Symbiote): Heavy Attacks inflict a non-stacking [500] Fragility Debuff for 9 seconds."
         ]
       },
       {
@@ -26295,48 +26597,146 @@
     ],
     "spider-man-symbiote": [
       {
-        "synergyId": 2,
-        "name": "Friends",
-        "icon": "armor",
-        "unique": false,
+        "synergyId": 1156,
+        "name": "Wardrobe Malfunction",
+        "icon": "taunt",
+        "unique": true,
         "partners": [
           {
-            "name": "Storm",
-            "slug": "storm"
+            "name": "Spider-Man (Classic)",
+            "slug": "spider-man-classic"
           }
         ],
         "effects": [
-          "All Champions gain +[130] Armor Rating."
+          "Spider-Man (Classic): Finishing a Special Attack grants a Evade Buff for 1.1 seconds that starts paused until Spider-Man Evades, and will not cause Evades while Blocking. If it ends after triggering an Evade, it goes on a 15 second cooldown.",
+          "Spider-Man (Symbiote): Overstacking a Reflex Buff inflicts a 1% Taunt Debuff for 7 seconds. Cooldown: 15 seconds."
         ]
       },
       {
-        "synergyId": 1,
-        "name": "Enemies",
+        "synergyId": 1157,
+        "name": "Unexpected Hosts",
         "icon": "precision",
-        "unique": false,
+        "unique": true,
         "partners": [
           {
-            "name": "Electro",
-            "slug": "electro"
+            "name": "Mister Fantastic",
+            "slug": "mister-fantastic"
+          },
+          {
+            "name": "Mysterio",
+            "slug": "mysterio"
+          },
+          {
+            "name": "Deadpool",
+            "slug": "deadpool"
           }
         ],
         "effects": [
-          "All Champions gain +[155] Critical Rating."
+          "Synergy Champions: For each unique Buff on the Synergy Champion and each unique Debuff on the Opponent, gain +[295] Critical Rating. Max: 3 Buffs and 3 Debuffs."
         ]
       },
       {
-        "synergyId": 89,
-        "name": "Family",
+        "synergyId": 1158,
+        "name": "Photocopies",
+        "icon": "physicalresist",
+        "unique": true,
+        "partners": [
+          {
+            "name": "Deadpool (X-Force)",
+            "slug": "deadpool-x-force"
+          },
+          {
+            "name": "Franken-Castle",
+            "slug": "franken-castle"
+          },
+          {
+            "name": "Joe Fixit",
+            "slug": "joe-fixit"
+          },
+          {
+            "name": "War Machine",
+            "slug": "war-machine"
+          }
+        ],
+        "effects": [
+          "Synergy Champions: Inflicting a Debuff has a 20% chance to also inflict a [140] Physical Vulnerability Debuff for 10 seconds. Max stacks: 5."
+        ]
+      },
+      {
+        "synergyId": 1159,
+        "name": "Raging Inside Us",
+        "icon": "energize",
+        "unique": true,
+        "partners": [
+          {
+            "name": "Venom",
+            "slug": "venom"
+          },
+          {
+            "name": "Sandman",
+            "slug": "sandman"
+          },
+          {
+            "name": "Green Goblin",
+            "slug": "green-goblin"
+          }
+        ],
+        "effects": [
+          "Synergy Champions: Gain 5% Combat Power Rate while fighting #Spider-Verse Heroes, #Symbiote, or #Sinister Six Champions."
+        ]
+      },
+      {
+        "synergyId": 1160,
+        "name": "Hive",
         "icon": "heartplus",
         "unique": false,
         "partners": [
+          {
+            "name": "Venom",
+            "slug": "venom"
+          },
+          {
+            "name": "Carnage",
+            "slug": "carnage"
+          },
+          {
+            "name": "Scream",
+            "slug": "scream"
+          },
           {
             "name": "Agent Venom",
             "slug": "agent-venom"
           }
         ],
         "effects": [
-          "All Champions gain +6% Health."
+          "Synergy Champions: All Champions gain +6% Health."
+        ]
+      },
+      {
+        "synergyId": 1161,
+        "name": "Personal Demons",
+        "icon": "attackburst",
+        "unique": false,
+        "partners": [
+          {
+            "name": "Shocker",
+            "slug": "shocker"
+          },
+          {
+            "name": "Kraven",
+            "slug": "kraven"
+          },
+          {
+            "name": "Green Goblin",
+            "slug": "green-goblin"
+          },
+          {
+            "name": "Electro",
+            "slug": "electro"
+          }
+        ],
+        "effects": [
+          "Synergy Champions: All Champions gain +6% Attack Rating."
         ]
       }
     ],
@@ -27193,7 +27593,12 @@
         "name": "Forged in Galaxies",
         "icon": "comboshield",
         "unique": true,
-        "partners": [],
+        "partners": [
+          {
+            "name": "Blade (Stellar-Forged)",
+            "slug": "blade-stellar-forged"
+          }
+        ],
         "effects": [
           "Star-Lord: Crossing a Combo Meter threshold of 100 refreshes all Combo Shield Passives.",
           "Synergy Champions: +7% Health and Attack Rating."
@@ -31688,6 +32093,7 @@
           }
         ],
         "effects": [
+          "Synergy Champions: Charging Heavy outside of Specials grants an Untouchable Passive for 1 second, paused while charging or until an attack Misses. If it causes a Miss, it goes on cooldown for 30 seconds.",
           "Kitty Pryde: The first Miss counts as if it was caused by Kitty's Phase.",
           "Morbius: If this causes a Miss, Morbius' Heavy Attack gains the benefits of a Psionic Glide Medium Attack."
         ]

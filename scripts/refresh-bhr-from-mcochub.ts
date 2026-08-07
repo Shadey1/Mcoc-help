@@ -2,17 +2,19 @@
  * Refresh every champion's full 11-anchor R5 sig curve from MCOCHUB.
  *
  * MCOCHUB publishes BHR at sig 0/20/40/60/80/100/120/140/160/180/200 for
- * every 7-star R5 champion on https://mcochub.insaneskull.com/prestige.
- * The current seed only stores sig 0 and sig 200, which forces the engine
- * onto a global rank-default curve — that curve is wrong for many
- * champions, producing BHR errors of up to ~5% at mid-sig states.
+ * every 7-star R5 champion. Historically this lived in a server-rendered
+ * HTML table at /prestige; mid-2026 MCOCHUB migrated to a JSON payload at
+ * /data/prestige.json (rendered client-side by an Alpine.js filter). The
+ * old HTML scraper silently returned zero rows after the migration —
+ * hence this rewrite. The JSON has the same fields plus a few extras
+ * (attack/defense focus states, relic affinities) we don't consume yet.
  *
  * Strategy:
- *   1. Fetch the prestige page (server-side rendered HTML; no JS / no auth).
- *   2. Walk every <tr>; extract champion name, tier, rank, and the 11 BHR
- *      cells. Keep only tier=7 rank=5 rows.
- *   3. Reconcile MCOCHUB names against seed.json ids using a hyphen + case
- *      normalisation ladder (same as refresh-classes-from-fandom.ts).
+ *   1. Fetch /data/prestige.json (single GET; already client-side JSON).
+ *   2. For each row, keep tier=7 rank=5 (currently the only rows served)
+ *      and map its {"0":N, "20":N, …, "200":N} sigs into our brackets.
+ *   3. Reconcile MCOCHUB slugs against seed.json ids using a hyphen +
+ *      case normalisation ladder (same as refresh-classes-from-fandom.ts).
  *   4. Dry-run: write proposals to scripts/bhr-corrections.json.
  *   5. --apply: rewrite seed.json, backing up to seed.json.bak.
  *
@@ -35,7 +37,7 @@ import { readFileSync, writeFileSync, existsSync, copyFileSync } from 'fs';
 const SEED_PATH = 'data/champions/seed.json';
 const CORRECTIONS_PATH = 'scripts/bhr-corrections.json';
 const SEED_BACKUP_PATH = 'data/champions/seed.json.bak';
-const SOURCE_URL = 'https://mcochub.insaneskull.com/prestige';
+const SOURCE_URL = 'https://mcochub.insaneskull.com/data/prestige.json';
 const USER_AGENT =
   'mcoc.help BHR refresher (free MCOC tool; contact via mcoc.help)';
 const FETCH_TIMEOUT_MS = 30000;
@@ -79,82 +81,65 @@ type Correction = {
 
 // ─── Fetch + parse ──────────────────────────────────────────────────────
 
-async function fetchPrestigePage(): Promise<string> {
+type PrestigeJson = {
+  version: string;
+  tier: number;
+  rank: number;
+  rows: Array<{
+    slug: string;
+    name: string;
+    class?: string;
+    sigs: Record<string, number>;
+  }>;
+};
+
+async function fetchPrestigeJson(): Promise<PrestigeJson> {
   const ctl = new AbortController();
   const timer = setTimeout(() => ctl.abort(), FETCH_TIMEOUT_MS);
   try {
     const res = await fetch(SOURCE_URL, {
-      headers: { 'User-Agent': USER_AGENT, Accept: 'text/html' },
+      headers: { 'User-Agent': USER_AGENT, Accept: 'application/json' },
       signal: ctl.signal,
     });
     if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`);
-    const ct = res.headers.get('content-type') ?? '';
-    if (!ct.includes('html')) {
-      throw new Error(`Unexpected content-type: ${ct}`);
-    }
-    return res.text();
+    return (await res.json()) as PrestigeJson;
   } finally {
     clearTimeout(timer);
   }
 }
 
 /**
- * Pull champion rows out of MCOCHUB's HTML.
+ * Map every row from MCOCHUB's JSON payload into the {slug, name, tier,
+ * rank, brackets} shape the reconciliation + apply steps consume. The
+ * payload's tier/rank live at the top level (currently 7/5); we stamp
+ * each row with them so downstream code doesn't have to special-case.
  *
- * Each data row has the shape (whitespace varies):
- *   <tr>
- *     <td>RANK#</td>
- *     <td><img ...src="...../champs/SLUG.png" alt="NAME" title="NAME">...</td>
- *     <td>TIER</td>
- *     <td>RANK</td>
- *     <td>SIG0</td>  ... 11 numeric cells ...
- *     <td>SIG200</td>
- *   </tr>
- *
- * We slice the body by `<tr>`, then for each row extract the bits we need
- * with focused regexes. A single dependency-free pass — cheap and stable
- * unless MCOCHUB rewrites the row template.
+ * Any row missing a sig anchor is dropped — the reconciliation cares
+ * only about full 11-anchor curves. In practice MCOCHUB always ships
+ * all 11 for tier=7 rank=5 rows.
  */
-function parsePrestigeRows(html: string): ScrapedRow[] {
+function parsePrestigeRows(payload: PrestigeJson): ScrapedRow[] {
   const out: ScrapedRow[] = [];
-  // Split on opening <tr — first chunk is the head, rest are rows. Each row
-  // chunk contains everything up to (and including) the next <tr or EOF.
-  const chunks = html.split(/<tr\b/i);
-  for (let i = 1; i < chunks.length; i++) {
-    const chunk = chunks[i]!;
-    // Champion identification: prefer the title attribute (cleanest), then
-    // the image slug as a fallback (used for id reconciliation).
-    const nameMatch = chunk.match(/title=\s*"([^"]+)"/);
-    // MCOCHUB stores portraits as .png (legacy) or .webp (newer rows like
-    // Bastion). Some slugs contain unescaped apostrophes (chee'ilth.webp).
-    // Accept any non-slash/non-dot path segment ending in a known image ext.
-    const slugMatch = chunk.match(/\/champs\/([^/.]+)\.(?:png|webp|jpg|jpeg)\b/i);
-    if (!nameMatch || !slugMatch) continue;
-    const name = nameMatch[1]!.trim();
-    const slug = slugMatch[1]!.trim();
-
-    // Numeric cells: every <td>...</td> whose body is digits. MCOCHUB's
-    // template renders BHR values without commas or formatting so this is
-    // straightforward.
-    const numericCells: number[] = [];
-    const cellRe = /<td\b[^>]*>\s*(\d+)\s*<\/td>/g;
-    let m: RegExpExecArray | null;
-    while ((m = cellRe.exec(chunk)) !== null) {
-      numericCells.push(Number(m[1]!));
-    }
-
-    // Layout: [rowNum, tier, rank, sig0, sig20, …, sig200] → 14 numeric cells.
-    if (numericCells.length < 14) continue;
-    const tier = numericCells[1]!;
-    const rank = numericCells[2]!;
-    const bhrValues = numericCells.slice(3, 14);
-    if (bhrValues.length !== SIG_ANCHORS.length) continue;
-
+  const { tier, rank, rows } = payload;
+  for (const row of rows) {
     const brackets: Record<string, number> = {};
-    for (let j = 0; j < SIG_ANCHORS.length; j++) {
-      brackets[String(SIG_ANCHORS[j])] = bhrValues[j]!;
+    let complete = true;
+    for (const anchor of SIG_ANCHORS) {
+      const v = row.sigs[String(anchor)];
+      if (typeof v !== 'number') {
+        complete = false;
+        break;
+      }
+      brackets[String(anchor)] = v;
     }
-    out.push({ name, slug, tier, rank, brackets });
+    if (!complete) continue;
+    out.push({
+      name: row.name,
+      slug: row.slug,
+      tier,
+      rank,
+      brackets,
+    });
   }
   return out;
 }
@@ -262,20 +247,29 @@ function applyCorrections() {
 
 async function dryRun() {
   console.log(`Fetching ${SOURCE_URL}…`);
-  let html: string;
+  let payload: PrestigeJson;
   try {
-    html = await fetchPrestigePage();
+    payload = await fetchPrestigeJson();
   } catch (e) {
     console.error(`Fetch failed: ${(e as Error).message}`);
     process.exit(1);
   }
-  console.log(`Fetched ${html.length.toLocaleString()} bytes.`);
+  console.log(
+    `Fetched payload (version ${payload.version}, tier ${payload.tier} rank ${payload.rank}, ${payload.rows.length} rows).`,
+  );
 
-  const allRows = parsePrestigeRows(html);
+  const allRows = parsePrestigeRows(payload);
   const r5Rows = allRows.filter((r) => r.tier === 7 && r.rank === 5);
   console.log(
     `Parsed ${allRows.length} row${allRows.length === 1 ? '' : 's'}, ${r5Rows.length} at tier=7 rank=5.`,
   );
+  if (r5Rows.length === 0) {
+    console.error(
+      'Zero tier=7 rank=5 rows parsed. Bailing before we silently write an empty corrections file. ' +
+        `Check ${SOURCE_URL} shape hasn't changed again.`,
+    );
+    process.exit(1);
+  }
 
   const seed = readSeed();
   const byId = new Map(seed.champions.map((c) => [c.id, c]));
@@ -285,6 +279,7 @@ async function dryRun() {
 
   const corrections: Correction[] = [];
   const unmatched: ScrapedRow[] = [];
+  const stubsPromoted: Array<{ id: string; name: string; slug: string }> = [];
   let unchanged = 0;
 
   for (const row of r5Rows) {
@@ -293,7 +288,19 @@ async function dryRun() {
       unmatched.push(row);
       continue;
     }
-    const oldBrackets = seedChamp.prestige.rank5 as Record<string, number>;
+    // Partner-only stubs never got a prestige curve (they only exist so
+    // the synergies view can link to them). MCOCHUB serving R5 data
+    // means the champ is now 7★-released — flag it separately so the
+    // apply step (or a human) can promote it (flip sevenStarReleased,
+    // set _meta.bhrSource, add prestige.rank5) rather than silently
+    // partially-updating.
+    const oldBrackets = seedChamp.prestige?.rank5 as
+      | Record<string, number>
+      | undefined;
+    if (!oldBrackets) {
+      stubsPromoted.push({ id: seedChamp.id, name: seedChamp.name, slug: row.slug });
+      continue;
+    }
     if (bracketsEqual(oldBrackets, row.brackets)) {
       unchanged++;
       continue;
@@ -315,6 +322,7 @@ async function dryRun() {
         source: SOURCE_URL,
         corrections,
         unmatched: unmatched.map((u) => ({ name: u.name, slug: u.slug })),
+        stubsPromoted,
       },
       null,
       2,
@@ -326,12 +334,23 @@ async function dryRun() {
   console.log(`Unchanged:        ${unchanged}`);
   console.log(`Corrections:      ${corrections.length}`);
   console.log(`Unmatched on MCOCHUB side: ${unmatched.length}`);
+  console.log(`Stub promotions needed:    ${stubsPromoted.length}`);
   console.log(`Total R5 rows:    ${r5Rows.length}`);
   console.log('');
   if (corrections.length > 0) {
     console.log(`Corrections written to: ${CORRECTIONS_PATH}`);
     console.log('Review the file, then:');
     console.log('  pnpm refresh-bhr -- --apply');
+  }
+  if (stubsPromoted.length > 0) {
+    console.log('');
+    console.log('Stubs needing manual promotion to 7★-released:');
+    for (const s of stubsPromoted) {
+      console.log(`  ${s.name.padEnd(40)} id=${s.id}  slug=${s.slug}`);
+    }
+    console.log(
+      '  (add prestige.rank5, flip sevenStarReleased→true, update _meta.bhrSource)',
+    );
   }
   if (unmatched.length > 0) {
     console.log('');

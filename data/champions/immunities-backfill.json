@@ -2,9 +2,9 @@
   "_meta": {
     "note": "Auto-backfilled from data/champions/abilities.json (MCOCHUB pills.immunities). Covers only the immune + synergy bands — the resist % and mechanic Purify/Duration bands come from a separate GuiaMTC transcription pass (task #80) and override this file per-champion via the smoke fixture.",
     "source": "MCOCHUB pills.immunities (via abilities.json)",
-    "generatedAt": "2026-07-17",
-    "championCount": 134,
-    "skippedPills": 99
+    "generatedAt": "2026-08-07",
+    "championCount": 138,
+    "skippedPills": 102
   },
   "champions": {
     "absorbing-man": {
@@ -25,7 +25,12 @@
       },
       "Poison": {
         "band": "synergy",
-        "partner": "Immortalabomination · Hulk (Immortal)"
+        "partner": "Immortalabomination · Hulk (Immortal) · Immortalabomination · Hulk (Immortal)"
+      }
+    },
+    "agatha-harkness": {
+      "Armor Break": {
+        "band": "immune"
       }
     },
     "ant-man": {
@@ -67,6 +72,11 @@
     },
     "beta-ray-bill": {
       "Shock": {
+        "band": "immune"
+      }
+    },
+    "black-tarantula": {
+      "Poison": {
         "band": "immune"
       }
     },
@@ -126,11 +136,11 @@
     "crossbones": {
       "Nullify": {
         "band": "synergy",
-        "partner": "Punisher 2099 · Red Skull"
+        "partner": "Punisher 2099 · Red Skull · Punisher 2099 · Red Skull"
       },
       "Stagger": {
         "band": "synergy",
-        "partner": "Punisher 2099 · Red Skull"
+        "partner": "Punisher 2099 · Red Skull · Punisher 2099 · Red Skull"
       }
     },
     "dark-phoenix": {
@@ -144,7 +154,7 @@
       },
       "Incinerate": {
         "band": "synergy",
-        "partner": "Kitty Pryde"
+        "partner": "Kitty Pryde · Kitty Pryde"
       }
     },
     "diablo": {
@@ -163,7 +173,7 @@
     "doctor-strange": {
       "Coldsnap": {
         "band": "synergy",
-        "partner": "Dormammu"
+        "partner": "Dormammu · Dormammu"
       }
     },
     "dracula": {
@@ -262,7 +272,7 @@
     "hawkeye": {
       "Poison": {
         "band": "synergy",
-        "partner": "Black Widow · Blackwidowwhite · Nick Fury · Quake"
+        "partner": "Black Widow · Blackwidowwhite · Nick Fury · Quake · Black Widow · Blackwidowwhite · Nick Fury · Quake"
       }
     },
     "high-evolutionary": {
@@ -286,15 +296,15 @@
       },
       "Nullify": {
         "band": "synergy",
-        "partner": "Hulkbuster"
+        "partner": "Hulkbuster · Hulkbuster"
       },
       "Reverse Controls": {
         "band": "synergy",
-        "partner": "The Overseer"
+        "partner": "The Overseer · The Overseer"
       },
       "Stagger": {
         "band": "synergy",
-        "partner": "Hulkbuster"
+        "partner": "Hulkbuster · Hulkbuster"
       }
     },
     "hulk-immortal": {
@@ -303,7 +313,7 @@
       },
       "Reverse Controls": {
         "band": "synergy",
-        "partner": "The Overseer"
+        "partner": "The Overseer · The Overseer"
       }
     },
     "hulkling": {
@@ -318,7 +328,7 @@
       },
       "Stun": {
         "band": "synergy",
-        "partner": "Wiccan"
+        "partner": "Wiccan · Wiccan"
       }
     },
     "human-torch": {
@@ -396,7 +406,7 @@
       },
       "Reverse Controls": {
         "band": "synergy",
-        "partner": "The Overseer"
+        "partner": "The Overseer · The Overseer"
       }
     },
     "juggernaut": {
@@ -437,7 +447,7 @@
       },
       "Reverse Controls": {
         "band": "synergy",
-        "partner": "Emma Frost"
+        "partner": "Emma Frost · Emma Frost"
       }
     },
     "korg": {
@@ -451,7 +461,7 @@
     "kraven": {
       "Bleed": {
         "band": "synergy",
-        "partner": "Arcade"
+        "partner": "Arcade · Arcade"
       }
     },
     "kushala": {
@@ -494,7 +504,7 @@
     "magik": {
       "Bleed": {
         "band": "synergy",
-        "partner": "Purgatory"
+        "partner": "Purgatory · Purgatory"
       }
     },
     "magneto-house-of-x": {
@@ -519,7 +529,7 @@
       },
       "Nullify": {
         "band": "synergy",
-        "partner": "Odin"
+        "partner": "Odin · Odin"
       }
     },
     "medusa": {
@@ -553,13 +563,13 @@
     "mordo": {
       "Nullify": {
         "band": "synergy",
-        "partner": "Doctor Voodoo · Sorcerer Supreme · Wiccan · Wong"
+        "partner": "Doctor Voodoo · Sorcerer Supreme · Wiccan · Wong · Doctor Voodoo · Sorcerer Supreme · Wiccan · Wong"
       }
     },
     "mysterio": {
       "Reverse Controls": {
         "band": "synergy",
-        "partner": "Emma Frost"
+        "partner": "Emma Frost · Emma Frost"
       }
     },
     "nick-fury": {
@@ -602,7 +612,7 @@
       },
       "Stun": {
         "band": "synergy",
-        "partner": "Air-Walker · Falcon"
+        "partner": "Air-Walker · Falcon · Air-Walker · Falcon"
       }
     },
     "phoenix": {
@@ -643,7 +653,7 @@
       },
       "Reverse Controls": {
         "band": "synergy",
-        "partner": "Spider-Punk"
+        "partner": "Spider-Punk · Spider-Punk"
       }
     },
     "purgatory": {
@@ -652,7 +662,7 @@
       },
       "Bleed": {
         "band": "synergy",
-        "partner": "Dormammu · Magik · Mephisto · The Hood"
+        "partner": "Dormammu · Magik · Mephisto · The Hood · Dormammu · Magik · Mephisto · The Hood"
       }
     },
     "red-goblin": {
@@ -759,7 +769,7 @@
       },
       "Rupture": {
         "band": "synergy",
-        "partner": "Deathless Thanos Latest"
+        "partner": "Deathless Thanos Latest · Deathless Thanos Latest"
       }
     },
     "shocker": {
@@ -780,13 +790,21 @@
         "band": "immune"
       }
     },
+    "spider-man-symbiote": {
+      "Heal Block": {
+        "band": "immune"
+      },
+      "Power Burn": {
+        "band": "immune"
+      }
+    },
     "spider-punk": {
       "Rupture": {
         "band": "immune"
       },
       "Reverse Controls": {
         "band": "synergy",
-        "partner": "Prowler"
+        "partner": "Prowler · Prowler"
       }
     },
     "spider-slayer-j-jonah-jameson": {
@@ -808,7 +826,7 @@
       },
       "Reverse Controls": {
         "band": "synergy",
-        "partner": "Gambit · Rogue"
+        "partner": "Gambit · Rogue · Gambit · Rogue"
       }
     },
     "spot": {
@@ -822,11 +840,11 @@
       },
       "Coldsnap": {
         "band": "synergy",
-        "partner": "Storm (Pyramid X)"
+        "partner": "Storm (Pyramid X) · Storm (Pyramid X)"
       },
       "Incinerate": {
         "band": "synergy",
-        "partner": "Storm (Pyramid X)"
+        "partner": "Storm (Pyramid X) · Storm (Pyramid X)"
       }
     },
     "storm-pyramid-x": {
@@ -864,7 +882,7 @@
       },
       "Power Burn": {
         "band": "synergy",
-        "partner": "Vision (Deathless)"
+        "partner": "Vision (Deathless) · Vision (Deathless)"
       }
     },
     "the-destroyer": {
@@ -881,7 +899,7 @@
     "the-hood": {
       "Bleed": {
         "band": "synergy",
-        "partner": "Purgatory"
+        "partner": "Purgatory · Purgatory"
       }
     },
     "the-leader": {
@@ -909,7 +927,7 @@
       },
       "Reverse Controls": {
         "band": "synergy",
-        "partner": "Hulk · Hulk (Immortal) · Hulk (Ragnarok) · Joe Fixit"
+        "partner": "Hulk · Hulk (Immortal) · Hulk (Ragnarok) · Joe Fixit · Hulk · Hulk (Immortal) · Hulk (Ragnarok) · Joe Fixit"
       }
     },
     "the-serpent": {
@@ -937,10 +955,15 @@
         "band": "immune"
       }
     },
+    "thor-ragnarok": {
+      "Shock": {
+        "band": "immune"
+      }
+    },
     "titania": {
       "Bleed": {
         "band": "synergy",
-        "partner": "Absorbing Man"
+        "partner": "Absorbing Man · Absorbing Man"
       }
     },
     "toad": {
@@ -967,7 +990,7 @@
     "venompool": {
       "Incinerate": {
         "band": "synergy",
-        "partner": "Human Torch · Red Hulk · Sunspot"
+        "partner": "Human Torch · Red Hulk · Sunspot · Human Torch · Red Hulk · Sunspot"
       }
     },
     "vision": {
@@ -990,7 +1013,7 @@
       },
       "Reverse Controls": {
         "band": "synergy",
-        "partner": "Deathless Thanos Latest"
+        "partner": "Deathless Thanos Latest · Deathless Thanos Latest"
       }
     },
     "viv-vision": {
