@@ -1,0 +1,78 @@
+{
+  "_meta": {
+    "note": "Fandom-wiki kit-text fallback for champions whose MCOCHUB page is thin (typically post-buff, before MCOCHUB catches up). The web app renders this alongside MCOCHUB's kit as a separate 'via Fandom' panel — same treatment as auntm.ai passives. Wiki-table tier scaling is replaced with a '[tier scaling table on Fandom]' marker and readers follow the source link for the numbers.",
+    "source": "marvel-contestofchampions.fandom.com (MediaWiki parse API)",
+    "generatedAt": "2026-08-08"
+  },
+  "champions": {
+    "spider-man-symbiote": {
+      "source": {
+        "pageTitle": "Spider-Man_(Symbiote)",
+        "url": "https://marvel-contestofchampions.fandom.com/wiki/Spider-Man_(Symbiote)",
+        "capturedAt": "2026-08-08"
+      },
+      "sections": [
+        {
+          "title": "Abilities",
+          "cards": [
+            {
+              "title": "Critical Hits",
+              "lines": [
+                "71% chance to boost Critical Rating by X for 7.5 seconds.",
+                "[tier scaling table on Fandom]",
+                "29% chance to inflict Weakness , reducing Attack by 35% for 6 seconds.",
+                "Dev Notes: With each critical hit, Spider-Man (Symbiote) will make your opponent weaker, while boosting his own attacks."
+              ]
+            },
+            {
+              "title": "Heavy Attacks",
+              "lines": [
+                "100% chance to inflict an Armor Break Debuff, removing 1 Armor Up Buff and reducing Armor Rating by X for 80 seconds.",
+                "[tier scaling table on Fandom]",
+                "Dev Notes: This Armor Break has a long duration and it’s important for Champions that depend on their Armor, like Killmonger or War Machine."
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Signature Ability",
+          "cards": [
+            {
+              "title": "Symbiotic Enhancement — Special Attacks",
+              "lines": [
+                "The strange alien Symbiote grants Spider-Man enhanced Spider Senses whenever he activates a Special Attack, granting X % Evasion for 8 seconds.",
+                "[tier scaling table on Fandom]",
+                "Dev Notes: With his Signature Ability, Spider-Man (Symbiote) gains a chance to Evade any hits he would receive."
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Special Attacks",
+          "cards": [
+            {
+              "title": "Special 1 - Web-Slinger",
+              "lines": [
+                "With unlimited web from the symbiote suit, there's plenty to go around."
+              ]
+            },
+            {
+              "title": "Special 2 - Swingin'",
+              "lines": [
+                "Two feet in the face, courtesy of your friendly neighborhood Spider-Man.",
+                "This attack has 100% Critical Hit Chance.",
+                "Dev Notes: This is the Special Attack you want to use for the Critical Hit damage, especially after having Armor Breaks."
+              ]
+            },
+            {
+              "title": "Special 3 - Thwip, Thwip, Pow!",
+              "lines": [
+                "The symbiote suit gives Spider-Man the strength to deliver more than just pizza."
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

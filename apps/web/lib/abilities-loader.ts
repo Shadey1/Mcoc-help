@@ -1,5 +1,6 @@
 import abilitiesData from '../../../data/champions/abilities.json' with { type: 'json' };
 import auntmData from '../../../data/champions/immunities-auntm.json' with { type: 'json' };
+import fandomData from '../../../data/champions/abilities-fandom.json' with { type: 'json' };
 
 /**
  * Per-champion ability data scraped from MCOCHUB (see
@@ -114,4 +115,44 @@ const auntm = auntmData as unknown as AuntmFile;
 
 export function loadAuntmPassivesFor(seedId: string): string[] {
   return auntm.passives[seedId] ?? [];
+}
+
+// ─── Fandom wiki kit fallback ──────────────────────────────────────────
+//
+// For champions whose MCOCHUB page has been overtaken by a Kabam buff
+// (e.g. Spider-Man Symbiote's 2026 rework), the Fandom wiki tends to
+// carry the fuller kit text before MCOCHUB's maintainers catch up.
+// Populated by `pnpm refresh-abilities-fandom`; the champion detail
+// page renders it as a supplementary "via Fandom wiki" panel — same
+// treatment as [[loadAuntmPassivesFor]]. Data lives at
+// data/champions/abilities-fandom.json, keyed by seed id.
+
+export type FandomCard = {
+  /** Sub-heading text as it appears on Fandom (e.g. "Critical Hits",
+   *  "Special 1 - Web-Slinger", "Symbiotic Enhancement — Special
+   *  Attacks"). Empty for leading unlabelled prose in a section. */
+  title: string;
+  lines: string[];
+};
+
+export type FandomSection = {
+  /** "Abilities" / "Signature Ability" / "Special Attacks". */
+  title: string;
+  cards: FandomCard[];
+};
+
+export type FandomKit = {
+  source: { pageTitle: string; url: string; capturedAt: string };
+  sections: FandomSection[];
+};
+
+type FandomFile = {
+  _meta: Record<string, unknown>;
+  champions: Record<string, FandomKit>;
+};
+
+const fandom = fandomData as unknown as FandomFile;
+
+export function loadFandomKitFor(seedId: string): FandomKit | null {
+  return fandom.champions[seedId] ?? null;
 }

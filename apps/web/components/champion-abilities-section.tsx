@@ -1,5 +1,9 @@
 import Link from 'next/link';
-import type { ChampionAbilities, AbilityPill } from '../lib/abilities-loader';
+import type {
+  AbilityPill,
+  ChampionAbilities,
+  FandomKit,
+} from '../lib/abilities-loader';
 import { resolvePartnerSlug } from '../lib/abilities-loader';
 import { findChampionById } from '../lib/data-loader';
 
@@ -9,6 +13,12 @@ type ChampionAbilitiesSectionProps = {
    *  when MCOCHUB's kit doesn't spell out immunities in prose (legacy
    *  champs). Empty array or absent = no auntm data. */
   auntmPassives?: string[];
+  /** Fandom-wiki kit-text fallback. Set when MCOCHUB's page for this
+   *  champ is thin (typically post-buff before MCOCHUB catches up); the
+   *  panel renders Abilities/Signature/Special Attacks sections from the
+   *  wiki alongside MCOCHUB's own kit. Null when we haven't pulled
+   *  Fandom data for this champ. */
+  fandomKit?: FandomKit | null;
 };
 
 /**
@@ -22,6 +32,7 @@ type ChampionAbilitiesSectionProps = {
 export function ChampionAbilitiesSection({
   abilities,
   auntmPassives = [],
+  fandomKit = null,
 }: ChampionAbilitiesSectionProps) {
   const { pills, kit, source } = abilities;
   const hasPills =
@@ -30,8 +41,10 @@ export function ChampionAbilitiesSection({
     pills.tags.length > 0;
   const hasKit = kit.signature !== null || kit.cards.length > 0;
   const hasAuntmPassives = auntmPassives.length > 0;
+  const hasFandomKit =
+    fandomKit !== null && fandomKit.sections.length > 0;
 
-  if (!hasPills && !hasKit && !hasAuntmPassives) return null;
+  if (!hasPills && !hasKit && !hasAuntmPassives && !hasFandomKit) return null;
 
   return (
     <section className="space-y-5 border-t border-[var(--color-rule)] pt-6">
@@ -96,7 +109,65 @@ export function ChampionAbilitiesSection({
           ))}
         </div>
       )}
+
+      {hasFandomKit && fandomKit && (
+        <FandomKitPanel kit={fandomKit} />
+      )}
     </section>
+  );
+}
+
+/**
+ * Renders Fandom-wiki kit text as a supplementary panel. Used when
+ * MCOCHUB's page for this champion is thin (typically post-buff, before
+ * MCOCHUB's maintainers transcribe the new kit). Same visual treatment
+ * as [[AuntmPassivesCard]] but structured — Fandom pages have named
+ * sections (Abilities / Signature Ability / Special Attacks) and named
+ * sub-cards within each. Numeric tier scaling tables are replaced with
+ * a "[tier scaling table on Fandom]" marker in the scraper; readers
+ * follow the source link for the numbers.
+ */
+function FandomKitPanel({ kit }: { kit: FandomKit }) {
+  return (
+    <div className="border border-[var(--color-rule)] rounded-lg overflow-hidden bg-[var(--color-paper-card)]">
+      <div className="px-4 py-2 bg-[var(--color-marvel-editorial)]/10 border-b border-[var(--color-rule)] font-semibold text-sm flex items-baseline justify-between gap-2 flex-wrap">
+        <span>ABILITIES — via Fandom wiki</span>
+        <a
+          href={kit.source.url}
+          target="_blank"
+          rel="noopener"
+          className="text-[10px] font-normal uppercase tracking-wider text-[var(--color-ink-soft)] hover:text-[var(--color-marvel-impact)] underline"
+        >
+          Source ↗
+        </a>
+      </div>
+      <div className="divide-y divide-[var(--color-rule)]/60">
+        {kit.sections.map((section, si) => (
+          <div key={`${section.title}-${si}`} className="px-4 py-3 space-y-3">
+            <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-ink-soft)]">
+              {section.title}
+            </div>
+            <div className="space-y-2.5">
+              {section.cards.map((card, ci) => (
+                <div key={`${card.title}-${ci}`} className="space-y-1">
+                  {card.title && (
+                    <div className="font-medium text-sm">{card.title}</div>
+                  )}
+                  {card.lines.map((line, li) => (
+                    <p
+                      key={li}
+                      className="text-sm leading-relaxed text-[var(--color-ink)]"
+                    >
+                      {line}
+                    </p>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 

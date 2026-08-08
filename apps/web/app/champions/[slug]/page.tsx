@@ -9,7 +9,11 @@ import {
   loadReciprocalSynergiesForChampion,
   loadSynergiesForChampion,
 } from '../../../lib/synergies-loader';
-import { loadAbilitiesFor, loadAuntmPassivesFor } from '../../../lib/abilities-loader';
+import {
+  loadAbilitiesFor,
+  loadAuntmPassivesFor,
+  loadFandomKitFor,
+} from '../../../lib/abilities-loader';
 import { ChampionPortrait } from '../../../components/champion-portrait';
 import { ScalingChart } from '../../../components/scaling-chart';
 import { BhrReferenceTable } from '../../../components/bhr-reference-table';
@@ -35,6 +39,7 @@ export default async function ChampionDetailPage({
   const reciprocalSynergies = loadReciprocalSynergiesForChampion(slug);
   const abilities = loadAbilitiesFor(slug);
   const auntmPassives = loadAuntmPassivesFor(slug);
+  const fandomKit = loadFandomKitFor(slug);
   const championLookup = loadChampionLookup();
   const hasPrestige = champion.prestige !== undefined;
   const unreleased = champion.sevenStarReleased === false;
@@ -124,6 +129,7 @@ export default async function ChampionDetailPage({
         <ChampionAbilitiesSection
           abilities={abilities}
           auntmPassives={auntmPassives}
+          fandomKit={fandomKit}
         />
       )}
 
