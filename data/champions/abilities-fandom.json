@@ -2,14 +2,204 @@
   "_meta": {
     "note": "Fandom-wiki kit-text fallback for champions whose MCOCHUB page is thin (typically post-buff, before MCOCHUB catches up). The web app renders this alongside MCOCHUB's kit as a separate 'via Fandom' panel — same treatment as auntm.ai passives. Wiki-table tier scaling is replaced with a '[tier scaling table on Fandom]' marker and readers follow the source link for the numbers.",
     "source": "marvel-contestofchampions.fandom.com (MediaWiki parse API)",
-    "generatedAt": "2026-08-08"
+    "generatedAt": "2026-08-09"
   },
   "champions": {
+    "deadpool": {
+      "source": {
+        "pageTitle": "Deadpool",
+        "url": "https://marvel-contestofchampions.fandom.com/wiki/Deadpool",
+        "capturedAt": "2026-08-09"
+      },
+      "sections": [
+        {
+          "title": "Abilities",
+          "cards": [
+            {
+              "title": "Passive",
+              "lines": [
+                "Dropping below 20% Health activates Regeneration , recovering up to X Health over 6 seconds. This occurs only once per fight, and the amount Healed is tied to the Power Meter.",
+                "[tier scaling table on Fandom]",
+                "Dev Notes: The best way to leverage this Regeneration is to try to drop just below 20% and let the heal take you back up above 50%. Since you can only do this once per fight this requires having perfect control of the fight, but it can allow Deadpool to mitigate small amounts of damage in each fight.",
+                "Merc Note: Are you kidding me? The best way to play me is to almost die? When did you start playing this game?"
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Signature Ability",
+          "cards": [
+            {
+              "title": "Healing Factor — Passive",
+              "lines": [
+                "Permanently regenerating up to X Health per minute was granted when the natural healing factor of Wolverine was implanted into Deadpool . Regeneration amount is tied to Deadpool's Power Meter.",
+                "[tier scaling table on Fandom]",
+                "Dev Notes: To maximize the amount of Regeneration Deadpool receives from his Signature Ability, you should not use Special Attacks and try to keep power as high as possible.",
+                "Merc Note: Ha ha very funny. Why don’t you go pick on one of the X-Men? Jeez everyone around here is getting buffed and I still look like Marvel made a Mad-Libs game. I need to go call my agent. I have producers on speed dial. The court order doesn’t apply to business calls!"
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Special Attacks",
+          "cards": [
+            {
+              "title": "Special 1 - Spinnin' Groin Punch",
+              "lines": [
+                "A fancy way to punch someone where it counts."
+              ]
+            },
+            {
+              "title": "Special 2 - Spinny Sword Attack",
+              "lines": [
+                "It's an attack with TWO swords — oh, and there's an awesome spin...and two swords!",
+                "100% chance to inflict a Bleed Debuff, dealing X Direct Damage over 3 seconds.",
+                "[tier scaling table on Fandom]",
+                "Dev Notes: This is a sizable bleed and a significant source of Deadpool’s damage.",
+                "Merc Note: Special 2? What happened to Special 1? Listen, they do grow back but throw a guy a bone here. I should at least get a Fury buff for that."
+              ]
+            },
+            {
+              "title": "Special 3 - Hold Up",
+              "lines": [
+                "I've really gotta take this...",
+                "100% chance to inflict a Bleed Debuff, dealing X Direct Damage over 5.5 seconds.",
+                "[tier scaling table on Fandom]",
+                "Dev Notes: In most situations you will want to cycle the Special 2 to maximize Deadpool’s Bleed damage.",
+                "Merc Note: What lunatic designed me anyway? So one of my Special Attacks does nothing, and the other one you aren’t even supposed to use? Fine, you know what, how about you make my healing only work when I’m standing still. How about that?"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "kang-the-conqueror": {
+      "source": {
+        "pageTitle": "Kang_the_Conqueror",
+        "url": "https://marvel-contestofchampions.fandom.com/wiki/Kang_the_Conqueror",
+        "capturedAt": "2026-08-09"
+      },
+      "sections": [
+        {
+          "title": "Signature Ability",
+          "cards": [
+            {
+              "title": "Kang Armor — Passive",
+              "lines": [
+                "Kang's Power level fuels his neuro-kinetic suit of armor, endowing him with up to X Armor Rating based on stored Power.",
+                "[tier scaling table on Fandom]",
+                "Dev Notes: If you bank all your Power and refuse to throw Special Attacks, Kang has a very respectable Armor Rating. If you get too low on health, you can store your Power to reduce damage when blocking hits."
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Special Attacks",
+          "cards": [
+            {
+              "title": "Special 1 - Concussive Bolt",
+              "lines": [
+                "A concussive blast from the fingertips of Kang's gauntlets leave opponents in a daze.",
+                "100% chance to Stun for 2.4 second(s).",
+                "Dev Notes: This Special Attack is useful for Stunning your opponent to give yourself easier openings."
+              ]
+            },
+            {
+              "title": "Special 2 - E.M.P. Cannon",
+              "lines": [
+                "Kang's Time-Ship blasts his opponent back to the future from a remote location using an electromagnetic pulse cannon.",
+                "100% chance to Stun for 2 second(s).",
+                "Depletes up to 100% of the target's max Power .",
+                "Dev Notes: This attack Stuns the Opponent, and drains all of their Power. You can play super aggressively and use the Special 2 to make sure your opponent never gets too much Power."
+              ]
+            },
+            {
+              "title": "Special 3 - Drone Assault",
+              "lines": [
+                "Kang deploys a swarm of robotic drones from the future to seek and destroy his target.",
+                "100% chance to inflict Heal Block , preventing the target from recovering Health for 12 seconds.",
+                "Dev Notes: This Special Attack Heal Blocks the opponent, which can prove useful against any kind of healing ability."
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "scarlet-witch-classic": {
+      "source": {
+        "pageTitle": "Scarlet_Witch_(Classic)",
+        "url": "https://marvel-contestofchampions.fandom.com/wiki/Scarlet_Witch_(Classic)",
+        "capturedAt": "2026-08-09"
+      },
+      "sections": [
+        {
+          "title": "Abilities",
+          "cards": [
+            {
+              "title": "Critical Hits",
+              "lines": [
+                "Critical Hits have a 90% chance to Nullify , removing 1 Buff(s) from the opponent.",
+                "Expert Player Notes: Maximize Scarlet Witch’s chance to land Critical Hits to get the most out of this ability. Paring Nullify with the Mystic Dispersion mastery can yield quite a bit of power."
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Signature Ability",
+          "cards": [
+            {
+              "title": "Veil of Fortune — Critical Hits",
+              "lines": [
+                "Whenever a Critical Hit occurs for either player, there's a X % chance the Scarlet Witch triggers her chaos magic, generating 0-8 Buffs or Debuffs.",
+                "[tier scaling table on Fandom]",
+                "Expert Player Notes: Scarlet Witch’s main source of strength. Increasing her Signature Ability level and maximizing her critical rating can help you get the most out of this ability.",
+                "When landing a Critical Hit, Scarlet Witch has a chance to grant herself one of the following Buffs: Fury , Cruelty , and Regeneration .",
+                "When attacking, she can also inflict the opponent with: Power Lock , Power Steal , Armor , Weakness , and Stun .",
+                "When being attacked by a critical hit, she can trigger one of the following effects on the opponent: Fatigue , Heal Block , Poison , Fury , Weakness , and Power Drain .",
+                "And finally, when being hit by critical hits, she can grant herself any of these effects: Armor , Power Drain , and Power Gain .",
+                "Pairing Scarlet Witch (Classic) with Scarlet Witch (Sigil) increases the duration of all her Buffs by 20% and reduces the duration of Debuffs on her by the same amount."
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Special Attacks",
+          "cards": [
+            {
+              "title": "Special 1 - Hex Sphere",
+              "lines": [
+                "A concentrated sphere of Chaos Magic blasts Scarlet Witch's opponents.",
+                "This attack receives X additional Critical Rating.",
+                "[tier scaling table on Fandom]",
+                "Expert Player Notes: The lesser used Special Attack for Scarlet Witch. It can come in handy if your opponent has triggered a potent Buff that you need to Nullify quickly."
+              ]
+            },
+            {
+              "title": "Special 2 - Hex Bolt",
+              "lines": [
+                "Scarlet Witch sends her opponents flying with a bolt of Chaos Magic.",
+                "This attack receives X additional Critical Rating.",
+                "[tier scaling table on Fandom]",
+                "Expert Player Notes: Scarlet Witch’s most effective Special Attack. This attack benefits from increased critical rating and can hit very hard if paired with the correct Buffs. Scarlet Witch can get an additional source of Power Gain by bringing Spider-Man 2099 along, and also increase her Ability Power Rate (from Power Gain Buffs or Mystic Dispersion) by including the Jabari Panther Synergy."
+              ]
+            },
+            {
+              "title": "Special 3 - Chaotic Bombardment",
+              "lines": [
+                "Scarlet Witch cuffs her foes into helplessness before crushing them with a bombardment of Hex Bolts.",
+                "100% chance to Nullify , removing all positive status effects from opponents.",
+                "Expert Player Notes: A viable option to make sure all Buffs are Nullified from an opponent. In match-ups where dangerous Buffs like Unstoppable, Unblockable, or Evade are likely to activate, build up to and save this Special Attack as a failsafe."
+              ]
+            }
+          ]
+        }
+      ]
+    },
     "spider-man-symbiote": {
       "source": {
         "pageTitle": "Spider-Man_(Symbiote)",
         "url": "https://marvel-contestofchampions.fandom.com/wiki/Spider-Man_(Symbiote)",
-        "capturedAt": "2026-08-08"
+        "capturedAt": "2026-08-09"
       },
       "sections": [
         {
@@ -68,6 +258,152 @@
               "title": "Special 3 - Thwip, Thwip, Pow!",
               "lines": [
                 "The symbiote suit gives Spider-Man the strength to deliver more than just pizza."
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "star-lord": {
+      "source": {
+        "pageTitle": "Star-Lord",
+        "url": "https://marvel-contestofchampions.fandom.com/wiki/Star-Lord",
+        "capturedAt": "2026-08-09"
+      },
+      "sections": [
+        {
+          "title": "Abilities",
+          "cards": [
+            {
+              "title": "All Attacks",
+              "lines": [
+                "11% chance to gain a Fury Buff for 6.5 seconds, granting + X Attack .",
+                "[tier scaling table on Fandom]",
+                "Dev Notes: When Star-Lord has his Fury Buff, throw his Special 2 for maximum damage!"
+              ]
+            },
+            {
+              "title": "Element Gun Effects",
+              "lines": [
+                "FIRE: Breaks the opponent's Armor , reducing Armor Rating by X for 8 seconds.",
+                "[tier scaling table on Fandom]",
+                "AIR: Shocks the opponent, dealing X Energy Damage over 6 seconds. Shocks ignore Physical Resistance , but not Energy Resistance .",
+                "[tier scaling table on Fandom]",
+                "WATER: Drains up to 50% of the opponent's max Power .",
+                "EARTH: Places a Heal Block on the opponent, stopping all healing effects for 11 seconds.",
+                "Dev Notes: Star-Lord’s Element Gun effects are random and are applied from his Special 2 and Special 3."
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Signature Ability",
+          "cards": [
+            {
+              "title": "Tactician — All Attacks",
+              "lines": [
+                "As blows are exchanged, Star-Lord familiarizes with opponents' techniques, increasing Attack by X for each hit of the Combo Meter to maximum of 400 hits.",
+                "[tier scaling table on Fandom]",
+                "Star-Lord gains X Block Proficiency for every hit of his opponent’s Combo Meter.",
+                "[tier scaling table on Fandom]",
+                "Dev Notes: Star-Lord’s Signature Ability is key to his damage. A maxed Star-Lord will be able to take down the mightiest of foes!"
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Special Attacks",
+          "cards": [
+            {
+              "title": "Special 1 - Rocket Kick",
+              "lines": [
+                "What makes a kick to the face better? Rockets, and a little pelvic sorcery.",
+                "Deals 20% bonus damage when striking a charging enemy.",
+                "Dev Notes: This Special Attack is useful if Star-Lord finds himself backed in a corner because it creates distance between himself and his opponent."
+              ]
+            },
+            {
+              "title": "Special 2 - Element Gun",
+              "lines": [
+                "Star-Lord fires a shot from his Element Gun, but not before smacking his opponent in the face.",
+                "Star-Lord's Element Gun selects one element at random each time it fires. Each element has a different effect when it strikes the opponent.",
+                "Dev Notes: Star-Lord’s Special 2 is the Special for maximum damage. The higher Star-Lord’s combo is when he throws it, the more damage will be dealt!"
+              ]
+            },
+            {
+              "title": "Special 3 - Heroic Blast",
+              "lines": [
+                "With heroism like this, soon everyone in the galaxy will know the name \"Star-Lord\".",
+                "Star-Lord's Element Gun selects one element at random each time it fires. Each element has a different effect when it strikes the opponent.",
+                "Dev Notes: Star-Lord should throw his Special 3 in situations where he can’t throw his Special 2. If Star-Lord needs to create distance between his opponent is such an example."
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "vision": {
+      "source": {
+        "pageTitle": "Vision",
+        "url": "https://marvel-contestofchampions.fandom.com/wiki/Vision",
+        "capturedAt": "2026-08-09"
+      },
+      "sections": [
+        {
+          "title": "Abilities",
+          "cards": [
+            {
+              "title": "Passive",
+              "lines": [
+                "Advanced robotics provides full immunity to Poison and Bleed effects."
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Signature Ability",
+          "cards": [
+            {
+              "title": "Synthesis — Passive",
+              "lines": [
+                "The only known Synthezoid, the Vision is capable of synthesizing X % Power periodically during battle. 01001111 01010000",
+                "[tier scaling table on Fandom]",
+                "Dev Notes: Vision’s Power Gain can keep his power bar above the opponent’s, allowing you to continue to deny them use of their Specials Attacks!"
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Special Attacks",
+          "cards": [
+            {
+              "title": "",
+              "lines": [
+                "If this attack reduces the enemy to zero Power Meter, the opponent gains a Heal Block Debuff for 7 seconds.",
+                "Dev Notes: This Heal Block is most helpful against Champions with predictable healing. Time a Special Attack to reduce them to 0 power right when they start to heal, and deny them any health!"
+              ]
+            },
+            {
+              "title": "Special 1 - Infared Beam",
+              "lines": [
+                "The Solar Jewel in Vision's forehead releases a concentrated beam of infared radiation.",
+                "Burns up to 39% of the target's max Power and inflicts Direct Damage proportionate to the amount lost.",
+                "Dev Notes: Against Opponents without Power Gain, you can use Special 1 back to back and keep them from using a Special Attack almost the whole fight!"
+              ]
+            },
+            {
+              "title": "Special 2 - Power Crush",
+              "lines": [
+                "Vision increases the density of his fist, then smashes his opponent with full force, turning their own Power level against them.",
+                "Burns up to 100% of the target's max Power and inflicts Direct Damage proportionate to the amount lost.",
+                "Dev Notes: This is Vision’s most powerful Special Attack, guaranteeing removing all of the opponent’s power, as well as Heal Blocking the Opponent."
+              ]
+            },
+            {
+              "title": "Special 3 - Physical Disruption",
+              "lines": [
+                "Vision phases through the ground to deliver a surprise uppercut, followed by a close-range Infared Beam.",
+                "Burns up to 33% of the target's max Power and inflicts Direct Damage proportionate to the amount lost."
               ]
             }
           ]

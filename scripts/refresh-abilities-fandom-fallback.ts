@@ -245,27 +245,53 @@ function parseSectionCards(html: string): FandomCard[] {
     '<p>[tier scaling table on Fandom]</p>',
   );
 
-  // Cut on paragraphs whose first content is a `<b>` block:
-  //   `<p><b>Card Title</b></p>`                          — sub-heading only
+  // Cut on paragraphs whose first content is an emphasised block:
+  //   `<p><b>Card Title</b></p>`                          — bold sub-heading
   //   `<p><b>Symbiotic Enhancement</b> - Special Attacks</p>` — title + trigger label
   //   `<p><b>Special 1 - Web-Slinger</b><br /><i>…</i></p>` — sub-heading + prose
-  // Any of these shapes marks a new card. We consume `<p …><b …>TITLE</b>`
-  // plus whatever plain text or `-` fragment sits between the </b> and
-  // the next <br>/</p> (Fandom's "trigger label" convention), and
-  // fold that into the card title as "Title — Trigger" to match how
-  // MCOCHUB's cards already read (title + trigger separated by an
-  // em-dash). Real prose after that becomes the card body.
-  const HEADER_RE = /<p\b[^>]*>\s*<b\b[^>]*>([\s\S]*?)<\/b>([^<]*)/gi;
+  //   `<p>'<i>Critical Hits</i></p>`                      — italic-only variant
+  //     (this last is a Scarlet Witch pattern where the wiki editor
+  //      wrote `''''Critical Hits''''` — 4 apostrophes each side, which
+  //      MediaWiki renders as a stray `'` + `<i>…</i>`. The leading
+  //      punctuation is the disambiguator between "sub-heading in
+  //      italic" and "Dev Notes / Expert Player Notes" italic prose,
+  //      which is otherwise identical HTML.)
+  //
+  // Emphasised text after the boundary that doesn't look like a
+  // heading (i.e. Dev Notes prose, which is usually long or starts
+  // with a known prose prefix) gets skipped so it stays in the
+  // preceding card's body rather than starting a spurious new card.
+  const HEADER_RE =
+    /<p\b[^>]*>\s*(['"‘’“”·\-–—]?)\s*<(b|i)\b[^>]*>([\s\S]*?)<\/\2>([^<]*)/gi;
+  const NOISE_PREFIX =
+    /^(dev notes?|expert player notes?|merc note|note|player note|from the dev|designer)/i;
+  const MAX_TITLE_LEN = 90;
   const boundaries: Array<{ index: number; length: number; title: string }> = [];
   let m: RegExpExecArray | null;
   while ((m = HEADER_RE.exec(withTablesMarked)) !== null) {
-    const boldText = plainText(m[1] ?? '');
-    const trailingText = plainText(m[2] ?? '')
+    const leadPunct = m[1] ?? '';
+    const tag = m[2] ?? '';
+    const headText = plainText(m[3] ?? '')
+      .replace(/^[\s'"‘’“”·\-–—]+/, '')
+      .trim();
+    if (!headText) continue;
+    // Italic-only paragraphs are ambiguous — they might be a
+    // sub-heading (SW case) or Dev Notes prose. Only treat them as
+    // sub-headings when a leading punctuation mark distinguishes
+    // them, or when the text is short + non-noise.
+    if (tag.toLowerCase() === 'i') {
+      const hasLeadPunct = leadPunct.length > 0;
+      const looksLikeNote = NOISE_PREFIX.test(headText);
+      const tooLong = headText.length > MAX_TITLE_LEN;
+      if (looksLikeNote || tooLong) continue;
+      if (!hasLeadPunct && headText.length > 40) continue;
+    }
+    const trailingText = plainText(m[4] ?? '')
       .replace(/^[\s-–—:·]+/, '')
       .trim();
     const title = trailingText
-      ? `${boldText} — ${trailingText}`
-      : boldText;
+      ? `${headText} — ${trailingText}`
+      : headText;
     boundaries.push({
       index: m.index,
       length: m[0].length,
