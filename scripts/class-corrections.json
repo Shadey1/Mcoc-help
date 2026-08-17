@@ -1,74 +1,185 @@
 {
-  "generatedAt": "2026-06-02T09:35:05.275Z",
+  "generatedAt": "2026-08-17T03:58:07.872Z",
   "corrections": [],
-  "additions": [
-    {
-      "id": "shatterstar",
-      "name": "Shatterstar",
-      "proposedClass": "Mutant",
-      "sourceTitle": "Shatterstar",
-      "portraitUrl": null
-    },
-    {
-      "id": "phyla-vell",
-      "name": "Phyla-Vell",
-      "proposedClass": "Cosmic",
-      "sourceTitle": "Phyla-Vell",
-      "portraitUrl": null
-    },
-    {
-      "id": "wave",
-      "name": "Wave",
-      "proposedClass": "Science",
-      "sourceTitle": "Wave",
-      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/9/91/Wave_portrait.png/revision/latest/scale-to-width-down/200?cb=20260504222648"
-    }
-  ],
+  "additions": [],
   "issues": [
     {
-      "name": "Black Widow (disambiguation)",
+      "name": "Aegon",
+      "result": {
+        "kind": "no-infobox-class",
+        "sourceTitle": "Aegon"
+      }
+    },
+    {
+      "name": "Combo Lock",
       "result": {
         "kind": "discovery-skipped",
         "reason": "no class extractable from infobox"
       }
     },
     {
-      "name": "In Print, It's Libel",
+      "name": "Plague Cloud",
       "result": {
         "kind": "discovery-skipped",
         "reason": "no class extractable from infobox"
       }
     },
     {
-      "name": "Make Him Infamous",
+      "name": "Future and Stitch",
       "result": {
         "kind": "discovery-skipped",
         "reason": "no class extractable from infobox"
       }
     },
     {
-      "name": "Good, But It's Taken",
+      "name": "Horned Destroyer",
       "result": {
         "kind": "discovery-skipped",
         "reason": "no class extractable from infobox"
       }
     },
     {
-      "name": "Get Me A Violin",
+      "name": "Nomad and Curse",
       "result": {
         "kind": "discovery-skipped",
         "reason": "no class extractable from infobox"
       }
     },
     {
-      "name": "I Trust My Barber",
+      "name": "Forgiveness",
       "result": {
         "kind": "discovery-skipped",
         "reason": "no class extractable from infobox"
       }
     },
     {
-      "name": "A Page One Problem",
+      "name": "Repair",
+      "result": {
+        "kind": "discovery-skipped",
+        "reason": "no class extractable from infobox"
+      }
+    },
+    {
+      "name": "Responsibility",
+      "result": {
+        "kind": "discovery-skipped",
+        "reason": "no class extractable from infobox"
+      }
+    },
+    {
+      "name": "Regret",
+      "result": {
+        "kind": "discovery-skipped",
+        "reason": "no class extractable from infobox"
+      }
+    },
+    {
+      "name": "Harm",
+      "result": {
+        "kind": "discovery-skipped",
+        "reason": "no class extractable from infobox"
+      }
+    },
+    {
+      "name": "Emperor",
+      "result": {
+        "kind": "discovery-skipped",
+        "reason": "no class extractable from infobox"
+      }
+    },
+    {
+      "name": "Elector",
+      "result": {
+        "kind": "discovery-skipped",
+        "reason": "no class extractable from infobox"
+      }
+    },
+    {
+      "name": "Governor",
+      "result": {
+        "kind": "discovery-skipped",
+        "reason": "no class extractable from infobox"
+      }
+    },
+    {
+      "name": "Consul",
+      "result": {
+        "kind": "discovery-skipped",
+        "reason": "no class extractable from infobox"
+      }
+    },
+    {
+      "name": "Lord",
+      "result": {
+        "kind": "discovery-skipped",
+        "reason": "no class extractable from infobox"
+      }
+    },
+    {
+      "name": "Baron",
+      "result": {
+        "kind": "discovery-skipped",
+        "reason": "no class extractable from infobox"
+      }
+    },
+    {
+      "name": "Change",
+      "result": {
+        "kind": "discovery-skipped",
+        "reason": "no class extractable from infobox"
+      }
+    },
+    {
+      "name": "Deep Below",
+      "result": {
+        "kind": "discovery-skipped",
+        "reason": "no class extractable from infobox"
+      }
+    },
+    {
+      "name": "Wing and Sting",
+      "result": {
+        "kind": "discovery-skipped",
+        "reason": "no class extractable from infobox"
+      }
+    },
+    {
+      "name": "Twisting Form",
+      "result": {
+        "kind": "discovery-skipped",
+        "reason": "no class extractable from infobox"
+      }
+    },
+    {
+      "name": "Spell and Warrior",
+      "result": {
+        "kind": "discovery-skipped",
+        "reason": "no class extractable from infobox"
+      }
+    },
+    {
+      "name": "Excommunication",
+      "result": {
+        "kind": "discovery-skipped",
+        "reason": "no class extractable from infobox"
+      }
+    },
+    {
+      "name": "Blasphemy",
+      "result": {
+        "kind": "discovery-skipped",
+        "reason": "no class extractable from infobox"
+      }
+    },
+    {
+      "name": "Apostasy",
+      "result": {
+        "kind": "discovery-skipped",
+        "reason": "no class extractable from infobox"
+      }
+    },
+    {
+      "name": "Heresy",
       "result": {
         "kind": "discovery-skipped",
         "reason": "no class extractable from infobox"
