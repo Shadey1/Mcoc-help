@@ -1,4 +1,4 @@
-import type { Ascension, ChampionState, Rank } from '../types.js';
+import type { Ascension, ChampionState } from '../types.js';
 import type {
   WarAssignment,
   WarInput,
@@ -10,21 +10,6 @@ import type {
 } from './types.js';
 
 /**
- * Tier priority for the champion sort order. Strong < Mid < Base — Strong
- * champs are processed FIRST by Kuhn's, so every Strong placement that
- * structurally CAN exist DOES exist in the final matching. Augmenting paths
- * for later (Mid / Base) champs can only displace Strong placements if
- * those Strong champs can re-place themselves, so Strong count never drops.
- */
-const TIER_PRIORITY: Record<WarTier, number> = {
-  strong: 0,
-  mid: 1,
-  base: 2,
-};
-
-const ASC_TIER: Record<Ascension, number> = { A0: 0, A1: 1, A2: 2 };
-
-/**
  * Base power for an unascended rank. R6 sits a full ascension step above R5
  * because in-game R5 A2 and R6 A0 are equivalent power tiers — going up
  * from R5 max takes a big jump (dual T6 catalysts) that's worth two
@@ -34,6 +19,7 @@ const ASC_TIER: Record<Ascension, number> = { A0: 0, A1: 1, A2: 2 };
  * carries placeholder values for type completeness.
  */
 const RANK_BASE: Record<number, number> = { 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 7 };
+const ASC_TIER: Record<Ascension, number> = { A0: 0, A1: 1, A2: 2 };
 
 /**
  * Effective power tier on the in-game ladder:
@@ -58,21 +44,60 @@ function meetsFloor(state: ChampionState, floor: WarStateFloor): boolean {
 }
 
 /**
- * Score a champion state for tiebreaking: effective rank, then sig.
- * Encoded as a single sortable number — effective rank dominates, sig is
- * the within-tier tiebreaker. Tied effective ranks (e.g. R5 A0 vs R4 A1)
- * are intentionally interchangeable; sig decides between them.
- */
-function stateScore(state: ChampionState): number {
-  return effectiveRank(state.rank, state.ascension) * 1_000 + state.sig;
-}
-
-/**
- * Score a state for the output sort within a player's row. Same encoding
- * as stateScore but exposed so callers can mirror the engine's row order.
+ * Score a state for the output sort within a player's row. Effective rank
+ * dominates, sig is the within-tier tiebreaker. Exposed so callers can
+ * mirror the engine's row order.
  */
 export function assignmentStateScore(a: WarAssignment): number {
   return effectiveRank(a.rank, a.ascension) * 1_000 + a.sig;
+}
+
+/**
+ * Placement weight for the max-weight matching. Encodes STRICT lex order:
+ *   L1 — Total S count.        (dominates all lower levels)
+ *   L2 — Total S effective-rank sum.
+ *   L3 — Total M count.
+ *   L4 — Total M effective-rank sum.
+ *   L5 — Total B count.
+ *   L6 — Total B effective-rank sum.
+ *   L7 — Sig sum (global minor tiebreak).
+ *
+ * Per placement, weight decomposes as `TIER_WEIGHT[t] + EFF_WEIGHT[t] * eff
+ * + sig`. Coefficients are cascaded so any level-N change dominates the
+ * summed max of all lower levels — verified in the range analysis below.
+ *
+ * The interpretation:
+ *   - "Highest-ranked S defenders first, no matter what" (alliance rule):
+ *     boosting one S placement's effective rank by 1 (+EFF_S = +2e7)
+ *     dominates losing an entire M placement (-TIER_M = -1e5). The old
+ *     tier-composition scheme would reject that trade; this one accepts
+ *     it, because the alliance officer's preference is stronger meta
+ *     defenders on the board even if a filler slot drops to Base.
+ *   - Within a tier, effective rank still beats sig — sig is a global
+ *     minor tiebreak, not a lex level of its own.
+ *
+ * Range analysis (safe int budget 2^53 ≈ 9e15):
+ *   Max S count ≤ 30, max eff = 8 → max S state per placement = 8 * 2e7
+ *   = 1.6e8; max sum = 30 * (1e10 + 1.6e8) ≈ 3.05e11. Max M sum ≈ 1.08e7,
+ *   max B sum ≈ 8e4. Grand total ≤ ~3e11 — well within safe range.
+ */
+const TIER_WEIGHT: Record<WarTier, number> = {
+  strong: 10_000_000_000, // L1: dominates all S state + all M + all B
+  mid: 100_000,           // L3: dominates all M state + all B
+  base: 1,                // L5: dominates all B state
+};
+const EFF_WEIGHT: Record<WarTier, number> = {
+  strong: 20_000_000, // L2: > any M/B change combined (max ≈ 1.1e7)
+  mid: 1_000,         // L4: > any B change combined (max ≈ 800)
+  base: 100,          // L6: > sig contributions
+};
+
+function placementWeight(championTier: WarTier, state: ChampionState): number {
+  return (
+    TIER_WEIGHT[championTier] +
+    EFF_WEIGHT[championTier] * effectiveRank(state.rank, state.ascension) +
+    state.sig
+  );
 }
 
 type Candidate = {
@@ -81,54 +106,168 @@ type Candidate = {
 };
 
 /**
- * Tier-respecting max bipartite matching, plus same-tier rebalance.
+ * Min-cost max-flow bipartite matching.
  *
- * Optimisation criteria, in priority order:
+ * Structure:
+ *   - Source (node 0)
+ *   - Champion nodes (1 .. N)
+ *   - Slot nodes    (N+1 .. N+M)  — one per (player, slotIndex)
+ *   - Sink (N+M+1)
+ *
+ * Edges:
+ *   Source → Champion i           cap 1, cost 0
+ *   Champion i → Slot(p, k)       cap 1, cost -placementWeight(i, p's state)
+ *                                  (edge exists only if p owns i at ≥ floor)
+ *   Slot(p, k) → Sink             cap 1, cost 0
+ *
+ * SPFA (Bellman-Ford queue variant) finds the shortest-cost augmenting
+ * path each iteration; since our costs are negative-weight-encoded, the
+ * shortest path is the highest-weight placement/rearrangement. Iterates
+ * until no more augmenting paths exist. Result is max-cardinality (every
+ * slot filled that structurally can be) AND max-weight within that
+ * cardinality (the specific matching optimises tier + state).
+ *
+ * Determinism: edges are added in a fixed order (champions sorted by id,
+ * owners within a champion sorted by playerId, slots numbered 0..k-1).
+ * SPFA processes nodes in FIFO queue order, edges in adjacency-list order.
+ * Same input → same edge order → same augmenting sequence → same result.
+ *
+ * Runtime O(V·E·flow) with a small constant. At realistic war scale
+ * (~200 nodes, ~2K edges, ~50 flow) this is well under 10M ops.
+ */
+class MinCostMaxFlow {
+  private readonly n: number;
+  private readonly head: number[];
+  private readonly next: number[] = [];
+  private readonly to: number[] = [];
+  private readonly cap: number[] = [];
+  private readonly cost: number[] = [];
+
+  constructor(n: number) {
+    this.n = n;
+    this.head = new Array(n).fill(-1);
+  }
+
+  addEdge(u: number, v: number, capacity: number, cost: number): void {
+    this.to.push(v);
+    this.cap.push(capacity);
+    this.cost.push(cost);
+    this.next.push(this.head[u]!);
+    this.head[u] = this.to.length - 1;
+
+    this.to.push(u);
+    this.cap.push(0);
+    this.cost.push(-cost);
+    this.next.push(this.head[v]!);
+    this.head[v] = this.to.length - 1;
+  }
+
+  /** Returns { flow, cost, prevEdge } for reconstructing the matching. */
+  solve(source: number, sink: number): { flow: number; cost: number } {
+    let totalFlow = 0;
+    let totalCost = 0;
+    const dist = new Array(this.n).fill(Infinity);
+    const prevNode = new Array(this.n).fill(-1);
+    const prevEdge = new Array(this.n).fill(-1);
+    const inQueue = new Array(this.n).fill(false);
+
+    while (true) {
+      dist.fill(Infinity);
+      prevNode.fill(-1);
+      prevEdge.fill(-1);
+      inQueue.fill(false);
+      dist[source] = 0;
+
+      const queue: number[] = [source];
+      inQueue[source] = true;
+      let head = 0;
+      while (head < queue.length) {
+        const u = queue[head++]!;
+        inQueue[u] = false;
+        for (let e = this.head[u]!; e !== -1; e = this.next[e]!) {
+          if (this.cap[e]! <= 0) continue;
+          const nd = dist[u]! + this.cost[e]!;
+          const v = this.to[e]!;
+          if (nd < dist[v]!) {
+            dist[v] = nd;
+            prevNode[v] = u;
+            prevEdge[v] = e;
+            if (!inQueue[v]) {
+              queue.push(v);
+              inQueue[v] = true;
+            }
+          }
+        }
+      }
+
+      if (dist[sink] === Infinity) break;
+
+      // Unit capacities everywhere — bottleneck is always 1.
+      let v = sink;
+      while (v !== source) {
+        const e = prevEdge[v]!;
+        this.cap[e]!--;
+        this.cap[e ^ 1]!++;
+        v = prevNode[v]!;
+      }
+      totalFlow++;
+      totalCost += dist[sink]!;
+    }
+
+    return { flow: totalFlow, cost: totalCost };
+  }
+
+  /**
+   * After solve(), walk the residual graph to recover which slot each
+   * champion flows into. Returns a Map of championNodeIndex → slotNodeIndex.
+   */
+  recoverMatching(
+    championNodes: number[],
+    isChampionEdge: (edgeIndex: number) => boolean,
+  ): Map<number, number> {
+    const matching = new Map<number, number>();
+    for (const c of championNodes) {
+      for (let e = this.head[c]!; e !== -1; e = this.next[e]!) {
+        // Forward edge from champion to slot was used if capacity dropped to 0.
+        if (this.cap[e] === 0 && isChampionEdge(e)) {
+          matching.set(c, this.to[e]!);
+          break;
+        }
+      }
+    }
+    return matching;
+  }
+}
+
+/**
+ * War defence placement — maximum-weight bipartite matching.
+ *
+ * Optimisation criteria, in strict lex priority:
  *   1. NO DUPLICATES — each champion appears at most once across the table.
  *   2. ABOVE FLOOR — every placement is at or above the effective-tier
  *      floor selected by the officer.
- *   3. HIGHEST-TIER OWNER WINS — if a champion is owned by anyone at tier
- *      N, it is NEVER placed at tier <N. A R5 A0 Jean Grey beats a R4 A0
- *      Jean Grey; the algorithm only ever drops a tier when every higher-
- *      tier owner is full of their own higher-tier placements.
- *   4. MAX PLACEMENTS — fill as many slots as the pool/roster intersection
- *      structurally allows. Kuhn's gives this for free; we don't sacrifice
- *      it for tier (a tier-grouped edge list still finds the same max
- *      matching count, just at higher tier).
- *   5. FAIR DISTRIBUTION WITHIN A TIER — when two owners hold the same
- *      champ at the same effective tier, share evenly so one player isn't
- *      stacked at 5/5 while another sits at 0/5 with the same roster.
+ *   3. MAX CARDINALITY — fill every slot the pool/roster intersection
+ *      structurally allows.
+ *   4. TIER COMPOSITION — within max cardinality, prefer more Strong
+ *      placements over more Mid, and more Mid over more Base. Enforced
+ *      by TIER_STRIDE dominating any state-score change.
+ *   5. HIGHEST-STATE OWNER WINS — for each placed champion, pick the owner
+ *      with the highest effective rank (R6 > R5 A2 ≡ R6 A0 > R5 A1 > …).
+ *      Sig breaks ties within an effective rank.
+ *   6. FAIR SLOT DISTRIBUTION — a same-tier redistribution post-pass
+ *      evens out per-player slot counts without dropping any placement's
+ *      tier or effective rank.
  *
- * Algorithm — single-pass max bipartite matching with tier-priority edges:
- *   1. For each champion, collect every eligible (player, state) pair —
- *      players who own the champion at ≥ floor. Sort owners by stateScore
- *      desc.
- *   2. Sort champions by best-owner tier desc → scarcity asc → championId.
- *   3. Build edges per champion: every owner's slot, grouped by tier desc.
- *      Within each tier group, interleave slots across owners (slot 0 of
- *      every tier-N owner before slot 1 of any) so same-tier owners share
- *      placements evenly instead of one filling first.
- *   4. Run Kuhn's: for each champion in order, DFS for an augmenting path.
- *      Because edges are tier-grouped, the DFS exhausts SAME-TIER alternates
- *      before falling to a lower-tier owner. A placement only drops below
- *      its best tier when every same-tier alternative is locked.
- *   5. Post-pass: same-tier redistribution between (max-count, min-count)
- *      players. Tier never drops in this pass.
+ * Bug this replaces (Jannik's report, Aug 2026): the old Kuhn's-based
+ * greedy could give Nico Minoru to a R4 owner while the sole R5 owner
+ * of Nico (Jannik) sat with M-tier R4 filler in their row. Max cardinality
+ * was correct (50/50) but the specific matching chosen within the max
+ * was arbitrary — Kuhn's doesn't optimise for tier or state. Min-cost
+ * max-flow with negated placement-weight makes cardinality primary and
+ * weight secondary, which is exactly the lex order above.
  *
- * Trade-off chosen: max placement COUNT is the primary objective; tier is
- * secondary within max matching. Reasoning: in war, an empty defender slot
- * is a free hit for the attacker — strictly worse than a slightly weaker
- * defender on that node. So Maestro at R5 A1 on mu3rto beats Maestro at
- * R5 A2 on Jpang with a tier-6 champion left unplaced for lack of a slot.
- * (The strictly-tier-greedy two-phase variant lives one commit back in git
- * history if "best tier per champ regardless of empty slots" ever wins.)
- *
- * Pure-waste downgrades — same placement count but lower tier — are still
- * prevented by the tier-grouped edge order. Jean Grey at K-guns R5 A0
- * always beats Jean Grey at Rons R4 A0 because Rons's slots are listed
- * AFTER K-guns's in Jean Grey's edge list.
- *
- * Runtime O(V × E), trivial at war scale (~80 champs × ~40 slots).
+ * Runtime is O(V·E·flow), trivial at war scale. See MinCostMaxFlow above
+ * for the graph structure.
  */
 export function assignWar(input: WarInput): WarResult {
   const slotsPerPlayer = input.slotsPerPlayer ?? 5;
@@ -151,106 +290,94 @@ export function assignWar(input: WarInput): WarResult {
   const tierFor = (championId: string): WarTier =>
     input.defenderPool.get(championId) ?? 'mid';
 
-  // Within each champion, best-developed owner first.
-  // Stable tiebreak by playerId so results are deterministic.
-  for (const owners of candidatesByChamp.values()) {
-    owners.sort((a, b) => {
-      const delta = stateScore(b.state) - stateScore(a.state);
-      if (delta !== 0) return delta;
-      return a.playerId.localeCompare(b.playerId);
-    });
-  }
-
-  // Champions sorted by pool tier first (Strong → Mid → Base), then by
-  // best-owner state desc (power first), then by scarcity asc (rarest first
-  // within a tier+state group), then by championId for determinism.
-  //
-  // Why tier dominates: Kuhn's processes champions in order; each augmenting
-  // step preserves all prior matches. Sorting Strong first guarantees every
-  // structurally-possible Strong placement IS in the final matching, even
-  // if it means a higher-state Mid champ doesn't get placed. That's the
-  // officer's stated priority — meta defenders take precedence over raw
-  // tier when slots are scarce.
-  const championOrder = [...candidatesByChamp.entries()].sort((a, b) => {
-    const tierDelta = TIER_PRIORITY[tierFor(a[0])] - TIER_PRIORITY[tierFor(b[0])];
-    if (tierDelta !== 0) return tierDelta;
-    const stateDelta = stateScore(b[1][0]!.state) - stateScore(a[1][0]!.state);
-    if (stateDelta !== 0) return stateDelta;
-    const scarcityDelta = a[1].length - b[1].length;
-    if (scarcityDelta !== 0) return scarcityDelta;
-    return a[0].localeCompare(b[0]);
-  });
-
-  // Slot tracking
-  const slotsUsed = new Map<WarPlayerId, number>();
   const playerNameLookup = new Map<WarPlayerId, string>();
-  for (const p of input.players) {
-    slotsUsed.set(p.id, 0);
-    playerNameLookup.set(p.id, p.name);
+  for (const p of input.players) playerNameLookup.set(p.id, p.name);
+
+  // Deterministic node numbering. Champions sorted by id; players sorted by
+  // id; slots numbered 0..k-1 per player. Same input → same edge order →
+  // same augmenting sequence in SPFA.
+  const championIds = [...candidatesByChamp.keys()].sort();
+  const playerIds = input.players.map((p) => p.id).slice().sort();
+
+  const SOURCE = 0;
+  const championNodeOf = new Map<string, number>();
+  championIds.forEach((id, i) => championNodeOf.set(id, 1 + i));
+
+  const slotNodeOf = new Map<string, number>(); // "playerId::slotIndex" -> node
+  let slotNodeCounter = 1 + championIds.length;
+  for (const pid of playerIds) {
+    for (let k = 0; k < slotsPerPlayer; k++) {
+      slotNodeOf.set(`${pid}::${k}`, slotNodeCounter++);
+    }
+  }
+  const SINK = slotNodeCounter;
+  const totalNodes = SINK + 1;
+
+  const mcmf = new MinCostMaxFlow(totalNodes);
+
+  // Source → Champion. cap 1, cost 0. Order matters for determinism —
+  // sorted championIds already.
+  for (const id of championIds) {
+    mcmf.addEdge(SOURCE, championNodeOf.get(id)!, 1, 0);
   }
 
-  // Tier-grouped edges: every owner's slot, grouped by owner tier desc.
-  // Within each tier group, interleave slot indices across owners so same-
-  // tier owners share placements evenly. Augmenting paths in Kuhn's
-  // therefore exhaust same-tier alternates before falling to a lower-tier
-  // owner — pure-waste downgrades (Jean Grey case) are prevented, but
-  // real-trade-off downgrades (Maestro case) can still happen when staying
-  // at best tier would cost a placement elsewhere.
-  type SlotKey = string; // `${playerId}::${slotIndex}`
-  const edgesByChamp = new Map<string, SlotKey[]>();
-  for (const [champId, owners] of championOrder) {
-    const tierBuckets = new Map<number, Candidate[]>();
-    for (const owner of owners) {
-      const tier = effectiveRank(owner.state.rank, owner.state.ascension);
-      const bucket = tierBuckets.get(tier);
-      if (bucket) bucket.push(owner);
-      else tierBuckets.set(tier, [owner]);
-    }
-    const tiersDesc = [...tierBuckets.keys()].sort((a, b) => b - a);
-    const edges: SlotKey[] = [];
-    for (const tier of tiersDesc) {
-      const group = tierBuckets.get(tier)!;
+  // Champion → Slot. cap 1, cost -placementWeight. Add owners in
+  // playerId asc order (matches playerIds sort), slot k asc.
+  // Track which edges came out of a champion (for matching recovery).
+  const isChampionEdgeSet = new Set<number>();
+  for (const id of championIds) {
+    const champNode = championNodeOf.get(id)!;
+    const tier = tierFor(id);
+    const owners = candidatesByChamp.get(id)!;
+    // Sort owners by playerId asc for determinism (edge insertion order).
+    const sortedOwners = owners.slice().sort((a, b) =>
+      a.playerId.localeCompare(b.playerId),
+    );
+    for (const owner of sortedOwners) {
+      const w = placementWeight(tier, owner.state);
       for (let k = 0; k < slotsPerPlayer; k++) {
-        for (const owner of group) {
-          edges.push(`${owner.playerId}::${k}`);
-        }
+        const slotNode = slotNodeOf.get(`${owner.playerId}::${k}`)!;
+        // The forward-edge index in the MCMF internal edge array is
+        // determined by the addEdge call sequence — record it now.
+        const forwardEdgeIndex = (mcmf as unknown as { to: number[] }).to.length;
+        mcmf.addEdge(champNode, slotNode, 1, -w);
+        isChampionEdgeSet.add(forwardEdgeIndex);
       }
     }
-    edgesByChamp.set(champId, edges);
   }
 
-  const matching = new Map<SlotKey, string>(); // slot -> championId
-
-  function tryAugment(champId: string, visited: Set<SlotKey>): boolean {
-    const edges = edgesByChamp.get(champId);
-    if (!edges) return false;
-    for (const slot of edges) {
-      if (visited.has(slot)) continue;
-      visited.add(slot);
-      const occupant = matching.get(slot);
-      if (occupant === undefined || tryAugment(occupant, visited)) {
-        matching.set(slot, champId);
-        return true;
-      }
-    }
-    return false;
+  // Slot → Sink. cap 1, cost 0.
+  for (const [, slotNode] of slotNodeOf) {
+    mcmf.addEdge(slotNode, SINK, 1, 0);
   }
 
-  for (const [champId] of championOrder) {
-    tryAugment(champId, new Set());
-  }
+  mcmf.solve(SOURCE, SINK);
 
-  // Convert the matching back to WarAssignment[].
+  // Recover the matching: for each champion node, find the slot node it
+  // flowed into by scanning outgoing edges with cap = 0.
+  const championNodes = championIds.map((id) => championNodeOf.get(id)!);
+  const matching = mcmf.recoverMatching(championNodes, (e) => isChampionEdgeSet.has(e));
+
+  // Reverse the slot-node lookup for reconstruction.
+  const nodeToSlotKey = new Map<number, string>();
+  for (const [key, node] of slotNodeOf) nodeToSlotKey.set(node, key);
+
   const assignments: WarAssignment[] = [];
-  for (const [slotKey, champId] of matching) {
+  const slotsUsed = new Map<WarPlayerId, number>();
+  for (const p of input.players) slotsUsed.set(p.id, 0);
+
+  const championIdByNode = new Map<number, string>();
+  for (const [id, node] of championNodeOf) championIdByNode.set(node, id);
+
+  for (const [champNode, slotNode] of matching) {
+    const champId = championIdByNode.get(champNode)!;
+    const slotKey = nodeToSlotKey.get(slotNode)!;
     const sepIdx = slotKey.lastIndexOf('::');
     const playerId = slotKey.slice(0, sepIdx);
-    const owners = candidatesByChamp.get(champId) ?? [];
-    // The slot's player must own this champion (otherwise the edge wouldn't
-    // exist). Pick the candidate row that matches the player to recover its
-    // state.
+    const owners = candidatesByChamp.get(champId)!;
     const owner = owners.find((o) => o.playerId === playerId);
     if (!owner) continue;
+
     assignments.push({
       playerId,
       playerName: playerNameLookup.get(playerId) ?? playerId,
@@ -263,28 +390,15 @@ export function assignWar(input: WarInput): WarResult {
     slotsUsed.set(playerId, (slotsUsed.get(playerId) ?? 0) + 1);
   }
 
-  // Max-min redistribution.
-  //
-  // Kuhn's gives the optimum placement COUNT but the distribution can be
-  // uneven: when many champions are co-owned at the same tier, augmenting
-  // paths tend to land them on the alphabetically-earliest player's slots
-  // first. The total is right; whose row is full vs partial is biased.
-  //
-  // Walk pairs of (max-count player, min-count player). If the max player
-  // holds a champion that the min player ALSO owns at the same effective
-  // tier, reassign it. Each swap shrinks the slot-count gap by 1 with no
-  // change to total placements and no drop in tier (a R5 A2 placement can
-  // never be downgraded to a R5 A0 by this pass). Iterates until the
-  // distribution is within 1 of perfectly even, or no further tier-
-  // preserving swap exists.
-  redistributeForFairness(
-    assignments,
-    candidatesByChamp,
-    slotsUsed,
-    playerNameLookup,
-  );
+  // Same-effective-rank slot rebalance. MCMF can leave the distribution
+  // uneven when many co-owned same-tier placements are structurally
+  // interchangeable (e.g. 6 champs everyone owns at R5 A2 → could all
+  // land on one player). This pass moves placements between over- and
+  // under-filled players without dropping tier or effective rank, so
+  // total weight is preserved (up to ±sig per swap).
+  redistributeForFairness(assignments, candidatesByChamp, slotsUsed, playerNameLookup);
 
-  // Output sort: by playerId, then state desc within each player.
+  // Output sort: by playerId asc, then state desc within each player.
   assignments.sort((a, b) => {
     if (a.playerId !== b.playerId) return a.playerId.localeCompare(b.playerId);
     return assignmentStateScore(b) - assignmentStateScore(a);
@@ -377,10 +491,13 @@ function redistributeForFairness(
         slotsUsed.set(curr.playerId, currCount - 1);
         slotsUsed.set(alt.playerId, altCount + 1);
         swapped = true;
+        // Break out of the alt loop: `curr` is now stale (assignments[i] was
+        // replaced) and any further inner iteration would double-swap and
+        // corrupt slotsUsed. Restart the outer loop with fresh min/max.
+        break;
       }
     }
 
     if (!swapped) return;
   }
 }
-

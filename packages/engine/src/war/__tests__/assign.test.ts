@@ -845,4 +845,85 @@ describe('assignWar — power-first greedy placement', () => {
     const r2 = assignWar(input);
     expect(r1.assignments).toEqual(r2.assignments);
   });
+
+  it("Jannik's Aug-2026 bug: sole-R5 owner takes their unique champ over R4 alternates", () => {
+    // Regression for the alliance-reported war placement bug (mcoc.help/war
+    // /?pool=VT9GPSaZ). Setup mirrors the specific failure: one player is
+    // the sole R5 owner of a strong champ (nico) while several others own
+    // it only at R4. The old Kuhn's max-cardinality matching could place
+    // nico on an R4 owner because the specific matching within max-flow
+    // was arbitrary. Min-cost max-flow with negated placement weight makes
+    // tier + state secondary to cardinality — nico must land on the R5
+    // owner unless it structurally prevents another placement (it doesn't
+    // here — all players can fill 5/5).
+    //
+    // The compact structure: 5 champs everyone owns, plus nico which only
+    // Jannik has at R5. Jannik would otherwise be filled with mid-tier
+    // fillers he doesn't own uniquely; nico should displace one of those.
+    const strongPool = new Map<string, WarTier>();
+    for (const c of ['nico', 's-a', 's-b', 's-c', 's-d', 's-e']) {
+      strongPool.set(c, 'strong');
+    }
+    const commonRoster: ChampionState[] = [
+      state('nico', 4, 'A0'),
+      state('s-a', 4, 'A0'),
+      state('s-b', 4, 'A0'),
+      state('s-c', 4, 'A0'),
+      state('s-d', 4, 'A0'),
+      state('s-e', 4, 'A0'),
+    ];
+    const result = assignWar({
+      defenderPool: strongPool,
+      floor: { rank: 4, ascension: 'A0' },
+      players: [
+        player('p1-jannik', 'Jannik', [
+          state('nico', 5, 'A0'), // Jannik's unique R5
+          state('s-a', 4, 'A0'),
+          state('s-b', 4, 'A0'),
+          state('s-c', 4, 'A0'),
+          state('s-d', 4, 'A0'),
+          state('s-e', 4, 'A0'),
+        ]),
+        player('p2-breakout', 'Breakout', commonRoster),
+        player('p3-jnik', 'jnik', commonRoster),
+        player('p4-saleas', 'Saleas', commonRoster),
+        player('p5-gida', 'GIDA', commonRoster),
+        player('p6-querulant', 'Querulant', commonRoster),
+      ],
+      slotsPerPlayer: 1,
+    });
+
+    // Every champ placed, and nico landed on the sole R5 owner.
+    expect(result.totalPlaced).toBe(6);
+    const nico = result.assignments.find((a) => a.championId === 'nico');
+    expect(nico?.playerId).toBe('p1-jannik');
+    expect(nico?.rank).toBe(5);
+  });
+
+  it('prefers higher-state owner even when it costs the greedy first placement', () => {
+    // Two champs (x, y), two players. Alice owns both at R5 A2; Bob owns
+    // only y at R4 A0. slotsPerPlayer=1 so total placements ≤ 2. The
+    // matching MUST give x to Alice AND y to Bob — total weight is
+    // 2×TIER_WEIGHT + 7000+200 (Alice's R5A2) + 4000+200 (Bob's R4A0),
+    // versus Alice→y (R5A2) + Bob→x (impossible, Bob doesn't own x).
+    // The correct matching gives 2 placements, one at high tier, one at
+    // low. Any greedy that pins Alice to y "because Alice's y is the
+    // highest-state slot for y" would leave x unplaced.
+    const result = assignWar({
+      defenderPool: pool(['x', 'y']),
+      floor: { rank: 4, ascension: 'A0' },
+      players: [
+        player('p1', 'alice', [state('x', 5, 'A2'), state('y', 5, 'A2')]),
+        player('p2', 'bob', [state('y', 4, 'A0')]),
+      ],
+      slotsPerPlayer: 1,
+    });
+    expect(result.totalPlaced).toBe(2);
+    const x = result.assignments.find((a) => a.championId === 'x');
+    const y = result.assignments.find((a) => a.championId === 'y');
+    // Alice takes x (unique) at her R5 A2, Bob takes y at his R4 A0.
+    expect(x?.playerId).toBe('p1');
+    expect(x?.rank).toBe(5);
+    expect(y?.playerId).toBe('p2');
+  });
 });

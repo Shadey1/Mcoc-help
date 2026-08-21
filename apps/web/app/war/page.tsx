@@ -17,10 +17,10 @@ export default function WarPage() {
 
       <section className="border border-[var(--color-rule)] rounded-lg bg-[var(--color-paper-card)] p-5 text-sm space-y-2">
         <p>
-          The planner picks placements scarcity-first — rare champs first so
-          they don&apos;t lose slots to common metas — then by rank →
-          ascension → sig. Each champion is placed exactly once across the
-          alliance.
+          The planner maximises placements first, then places each champion
+          on their highest-ranked owner (rank → ascension → sig). Strong
+          defenders beat Mid, which beat Base. Each champion is placed
+          exactly once across the alliance.
         </p>
         <p>
           If a player ends up underfilled (fewer than 5 placements), it
