@@ -60,6 +60,8 @@ export function RosterManager({ champions }: RosterManagerProps) {
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const [unconfirmedOnly, setUnconfirmedOnly] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [classFilter, setClassFilter] = useState<string | 'all'>('all');
+  const [rankFilter, setRankFilter] = useState<3 | 4 | 5 | 'all'>('all');
   const [editingChampionId, setEditingChampionId] = useState<string | null>(null);
   const rosterSectionRef = useRef<HTMLElement | null>(null);
   const { overrides } = useBHROverrides();
@@ -249,8 +251,17 @@ export function RosterManager({ champions }: RosterManagerProps) {
     if (trimmedQuery && !e.championName.toLowerCase().includes(trimmedQuery)) {
       return false;
     }
+    if (classFilter !== 'all' && e.championClass !== classFilter) return false;
+    if (rankFilter !== 'all' && stateByChampion.get(e.championId)?.rank !== rankFilter) {
+      return false;
+    }
     return true;
   });
+  const filtersActive =
+    trimmedQuery.length > 0 ||
+    classFilter !== 'all' ||
+    rankFilter !== 'all' ||
+    unconfirmedOnly;
 
   return (
     <div className="space-y-8">
@@ -398,20 +409,47 @@ export function RosterManager({ champions }: RosterManagerProps) {
             </section>
           )}
 
-          <section className="flex items-center gap-3 flex-wrap">
-            <input
-              type="search"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search roster…"
-              aria-label="Search your roster by champion name"
-              className="flex-1 min-w-[200px] max-w-md px-3 py-1.5 text-sm border border-[var(--color-rule)] rounded bg-[var(--color-paper)] focus:outline-none focus:border-[var(--color-marvel-impact)]"
+          <section className="space-y-2">
+            <div className="flex items-center gap-3 flex-wrap">
+              <input
+                type="search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search roster…"
+                aria-label="Search your roster by champion name"
+                className="flex-1 min-w-[200px] max-w-md px-3 py-1.5 text-sm border border-[var(--color-rule)] rounded bg-[var(--color-paper)] focus:outline-none focus:border-[var(--color-marvel-impact)]"
+              />
+              {filtersActive && (
+                <span className="text-xs text-[var(--color-ink-soft)] numeric">
+                  {displayedCeilings.length} of {validRoster.champions.length} match
+                </span>
+              )}
+            </div>
+            <FilterChipGroup
+              label="Class"
+              value={classFilter}
+              onChange={(v) => setClassFilter(v)}
+              options={[
+                { value: 'all', label: 'All' },
+                { value: 'Cosmic', label: 'Cosmic' },
+                { value: 'Mutant', label: 'Mutant' },
+                { value: 'Mystic', label: 'Mystic' },
+                { value: 'Science', label: 'Science' },
+                { value: 'Skill', label: 'Skill' },
+                { value: 'Tech', label: 'Tech' },
+              ]}
             />
-            {trimmedQuery && (
-              <span className="text-xs text-[var(--color-ink-soft)] numeric">
-                {displayedCeilings.length} of {validRoster.champions.length} match
-              </span>
-            )}
+            <FilterChipGroup
+              label="Rank"
+              value={rankFilter}
+              onChange={(v) => setRankFilter(v as 3 | 4 | 5 | 'all')}
+              options={[
+                { value: 'all', label: 'All' },
+                { value: 5, label: 'R5' },
+                { value: 4, label: 'R4' },
+                { value: 3, label: 'R3' },
+              ]}
+            />
           </section>
 
           <section className="overflow-x-auto border border-[var(--color-rule)] rounded">
@@ -485,8 +523,8 @@ export function RosterManager({ champions }: RosterManagerProps) {
                       colSpan={9}
                       className="p-6 text-center text-sm text-[var(--color-ink-soft)]"
                     >
-                      No champions match
-                      {trimmedQuery ? ` "${searchQuery.trim()}"` : ''}.
+                      No champions match the current filters
+                      {trimmedQuery ? ` (search "${searchQuery.trim()}")` : ''}.
                     </td>
                   </tr>
                 )}
@@ -716,10 +754,12 @@ function StateCell({
       <button
         type="button"
         onClick={onStartEdit}
-        className="inline-block hover:text-[var(--color-marvel-impact)] transition-colors underline decoration-dotted decoration-[var(--color-rule)] underline-offset-2"
+        className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded border border-[var(--color-rule)] bg-[var(--color-paper)] hover:bg-[var(--color-paper-soft)] hover:border-[var(--color-marvel-impact)] hover:text-[var(--color-marvel-impact)] transition-colors"
         title="Click to edit rank, sig, or ascension"
+        aria-label={`Edit R${state.rank} sig ${state.sig} ${state.ascension}`}
       >
-        R{state.rank} sig {state.sig} {state.ascension}
+        <span>R{state.rank} sig {state.sig} {state.ascension}</span>
+        <span aria-hidden="true" className="text-[10px] opacity-60">✎</span>
       </button>
     );
   }
@@ -784,6 +824,46 @@ function StateCell({
         >
           Cancel
         </button>
+      </div>
+    </div>
+  );
+}
+
+function FilterChipGroup<T extends string | number>({
+  label,
+  value,
+  onChange,
+  options,
+}: {
+  label: string;
+  value: T | 'all';
+  onChange: (next: T | 'all') => void;
+  options: Array<{ value: T | 'all'; label: string }>;
+}) {
+  return (
+    <div className="flex items-center gap-2 flex-wrap text-xs">
+      <span className="text-[var(--color-ink-soft)] uppercase tracking-wide">
+        {label}
+      </span>
+      <div className="flex gap-1 flex-wrap">
+        {options.map((opt) => {
+          const active = opt.value === value;
+          return (
+            <button
+              key={String(opt.value)}
+              type="button"
+              onClick={() => onChange(opt.value)}
+              aria-pressed={active}
+              className={`px-2 py-0.5 rounded border transition-colors ${
+                active
+                  ? 'bg-[var(--color-marvel-impact)] text-[var(--color-paper)] border-[var(--color-marvel-impact)] font-medium'
+                  : 'border-[var(--color-rule)] bg-[var(--color-paper)] hover:border-[var(--color-marvel-impact)] hover:text-[var(--color-marvel-impact)]'
+              }`}
+            >
+              {opt.label}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
