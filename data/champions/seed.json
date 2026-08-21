@@ -164,7 +164,7 @@
       "id": "agatha-harkness",
       "name": "Agatha Harkness",
       "class": "Mystic",
-      "ascendable": false,
+      "ascendable": true,
       "prestige": {
         "rank5": {
           "0": 29210,
@@ -197,7 +197,8 @@
       "tags": [],
       "_meta": {
         "bhrSource": "mcochub.insaneskull.com (JSON API, R4+R5 11-anchor curves, refreshed 2026-08-07)",
-        "lastVerified": "2026-08-07"
+        "lastVerified": "2026-08-07",
+        "ascendableSource": "mcochub.insaneskull.com (Ascendable badge, verified 2026-08-21)"
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/4/44/Agatha_Harkness_portrait.png/revision/latest/scale-to-width-down/200?cb=20260804205908",
       "sevenStarReleased": true,
@@ -1025,7 +1026,7 @@
       "id": "black-tarantula",
       "name": "Black Tarantula",
       "class": "Skill",
-      "ascendable": false,
+      "ascendable": true,
       "prestige": {
         "rank5": {
           "0": 28280,
@@ -1058,7 +1059,8 @@
       "tags": [],
       "_meta": {
         "bhrSource": "mcochub.insaneskull.com (JSON API, R4+R5 11-anchor curves, refreshed 2026-08-07)",
-        "lastVerified": "2026-08-07"
+        "lastVerified": "2026-08-07",
+        "ascendableSource": "mcochub.insaneskull.com (Ascendable badge, verified 2026-08-21)"
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/c/c1/Black_Tarantula_portrait.png/revision/latest/scale-to-width-down/200?cb=20260707214546",
       "sevenStarReleased": true,
@@ -1827,7 +1829,7 @@
       "id": "colossus",
       "name": "Colossus",
       "class": "Mutant",
-      "ascendable": false,
+      "ascendable": true,
       "prestige": {
         "rank5": {
           "0": 28270,
@@ -1860,7 +1862,7 @@
       "tags": [],
       "_meta": {
         "bhrSource": "mcoc.gg per-rank curves (R4 + R5 11-anchor, refreshed 2026-06-03)",
-        "ascendableSource": "non-ascendable per mcoc.gg",
+        "ascendableSource": "mcochub.insaneskull.com (Ascendable badge, verified 2026-08-21)",
         "lastVerified": "2026-06-03"
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/5/56/Colossus_portrait.png/revision/latest/scale-to-width-down/200?cb=20250212224102",
@@ -2717,7 +2719,7 @@
       "id": "dragon-man",
       "name": "Dragon Man",
       "class": "Mystic",
-      "ascendable": false,
+      "ascendable": true,
       "prestige": {
         "rank5": {
           "0": 28970,
@@ -2750,7 +2752,7 @@
       "tags": [],
       "_meta": {
         "bhrSource": "mcoc.gg per-rank curves (R4 + R5 11-anchor, refreshed 2026-06-03)",
-        "ascendableSource": "non-ascendable per mcoc.gg",
+        "ascendableSource": "mcochub.insaneskull.com (Ascendable badge, verified 2026-08-21)",
         "lastVerified": "2026-06-03"
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/4/4e/Dragon_Man_portrait.png/revision/latest/scale-to-width-down/200?cb=20230825005128",
@@ -3606,7 +3608,7 @@
       "id": "guillotine-2099",
       "name": "Guillotine 2099",
       "class": "Tech",
-      "ascendable": false,
+      "ascendable": true,
       "prestige": {
         "rank5": {
           "0": 28740,
@@ -3639,7 +3641,7 @@
       "tags": [],
       "_meta": {
         "bhrSource": "mcoc.gg per-rank curves (R4 + R5 11-anchor, refreshed 2026-06-03)",
-        "ascendableSource": "non-ascendable per mcoc.gg",
+        "ascendableSource": "mcochub.insaneskull.com (Ascendable badge, verified 2026-08-21)",
         "lastVerified": "2026-06-03"
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/8/8a/Guillotine_2099_portrait.png/revision/latest/scale-to-width-down/200?cb=20230824211019",
@@ -6618,7 +6620,7 @@
       "id": "moondragon",
       "name": "Moondragon",
       "class": "Skill",
-      "ascendable": false,
+      "ascendable": true,
       "prestige": {
         "rank5": {
           "0": 26540,
@@ -6651,7 +6653,7 @@
       "tags": [],
       "_meta": {
         "bhrSource": "mcoc.gg per-rank curves (R4 + R5 11-anchor, refreshed 2026-06-03)",
-        "ascendableSource": "non-ascendable per mcoc.gg",
+        "ascendableSource": "mcochub.insaneskull.com (Ascendable badge, verified 2026-08-21)",
         "lastVerified": "2026-06-03"
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/e/e3/Moondragon_portrait.png/revision/latest/scale-to-width-down/200?cb=20230824222212",
@@ -7700,7 +7702,7 @@
       "id": "phyla-vell",
       "name": "Phyla-Vell",
       "class": "Cosmic",
-      "ascendable": false,
+      "ascendable": true,
       "prestige": {
         "rank5": {
           "0": 28920,
@@ -7733,7 +7735,8 @@
       "tags": [],
       "_meta": {
         "bhrSource": "mcoc.gg per-rank curves (R4 + R5 11-anchor, refreshed 2026-06-03)",
-        "lastVerified": "2026-06-03"
+        "lastVerified": "2026-06-03",
+        "ascendableSource": "mcochub.insaneskull.com (Ascendable badge, verified 2026-08-21)"
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/d/d0/Phyla-Vell_portrait.png/revision/latest/scale-to-width-down/200?cb=20260711000000",
       "sevenStarReleased": true,
@@ -9147,7 +9150,7 @@
       "id": "shatterstar",
       "name": "Shatterstar",
       "class": "Mutant",
-      "ascendable": false,
+      "ascendable": true,
       "prestige": {
         "rank5": {
           "0": 29130,
@@ -9180,7 +9183,8 @@
       "tags": [],
       "_meta": {
         "bhrSource": "mcoc.gg per-rank curves (R4 + R5 11-anchor, refreshed 2026-06-03)",
-        "lastVerified": "2026-06-03"
+        "lastVerified": "2026-06-03",
+        "ascendableSource": "mcochub.insaneskull.com (Ascendable badge, verified 2026-08-21)"
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/7/77/Shatterstar_portrait.png/revision/latest/scale-to-width-down/200?cb=20260711000000",
       "sevenStarReleased": true,
@@ -9776,7 +9780,7 @@
       "id": "spider-man-classic",
       "name": "Spider-Man (Classic)",
       "class": "Science",
-      "ascendable": false,
+      "ascendable": true,
       "prestige": {
         "rank5": {
           "0": 24890,
@@ -9809,7 +9813,7 @@
       "tags": [],
       "_meta": {
         "bhrSource": "mcoc.gg per-rank curves (R4 + R5 11-anchor, refreshed 2026-06-03)",
-        "ascendableSource": "non-ascendable per mcoc.gg",
+        "ascendableSource": "mcochub.insaneskull.com (Ascendable badge, verified 2026-08-21)",
         "lastVerified": "2026-06-03"
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/0/0b/Spider-Man_%28Classic%29_portrait.png/revision/latest/scale-to-width-down/200?cb=20230824215359",
@@ -10040,12 +10044,13 @@
       "id": "spider-man-symbiote",
       "name": "Spider-Man (Symbiote)",
       "class": "Cosmic",
-      "ascendable": false,
+      "ascendable": true,
       "sigCurve": null,
       "tags": [],
       "_meta": {
         "bhrSource": "mcochub.insaneskull.com (JSON API, R4+R5 11-anchor curves, refreshed 2026-08-07)",
-        "lastVerified": "2026-08-07"
+        "lastVerified": "2026-08-07",
+        "ascendableSource": "mcochub.insaneskull.com (Ascendable badge, verified 2026-08-21)"
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/6/6e/Spider-Man_%28Symbiote%29_portrait.png/revision/latest/scale-to-width-down/200?cb=20150912165012",
       "sevenStarReleased": true,
@@ -10727,7 +10732,7 @@
       "id": "terrax",
       "name": "Terrax",
       "class": "Cosmic",
-      "ascendable": false,
+      "ascendable": true,
       "prestige": {
         "rank5": {
           "0": 28790,
@@ -10760,7 +10765,7 @@
       "tags": [],
       "_meta": {
         "bhrSource": "mcoc.gg per-rank curves (R4 + R5 11-anchor, refreshed 2026-06-03)",
-        "ascendableSource": "non-ascendable per mcoc.gg",
+        "ascendableSource": "mcochub.insaneskull.com (Ascendable badge, verified 2026-08-21)",
         "lastVerified": "2026-06-03"
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/2/20/Terrax_portrait.png/revision/latest/scale-to-width-down/200?cb=20230824222417",
