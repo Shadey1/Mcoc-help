@@ -62,6 +62,7 @@ export function RosterManager({ champions }: RosterManagerProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [classFilter, setClassFilter] = useState<string | 'all'>('all');
   const [rankFilter, setRankFilter] = useState<3 | 4 | 5 | 'all'>('all');
+  const [ascensionFilter, setAscensionFilter] = useState<'A0' | 'A1' | 'A2' | 'all'>('all');
   const [editingChampionId, setEditingChampionId] = useState<string | null>(null);
   const rosterSectionRef = useRef<HTMLElement | null>(null);
   const { overrides } = useBHROverrides();
@@ -252,15 +253,16 @@ export function RosterManager({ champions }: RosterManagerProps) {
       return false;
     }
     if (classFilter !== 'all' && e.championClass !== classFilter) return false;
-    if (rankFilter !== 'all' && stateByChampion.get(e.championId)?.rank !== rankFilter) {
-      return false;
-    }
+    const rowState = stateByChampion.get(e.championId);
+    if (rankFilter !== 'all' && rowState?.rank !== rankFilter) return false;
+    if (ascensionFilter !== 'all' && rowState?.ascension !== ascensionFilter) return false;
     return true;
   });
   const filtersActive =
     trimmedQuery.length > 0 ||
     classFilter !== 'all' ||
     rankFilter !== 'all' ||
+    ascensionFilter !== 'all' ||
     unconfirmedOnly;
 
   return (
@@ -448,6 +450,17 @@ export function RosterManager({ champions }: RosterManagerProps) {
                 { value: 5, label: 'R5' },
                 { value: 4, label: 'R4' },
                 { value: 3, label: 'R3' },
+              ]}
+            />
+            <FilterChipGroup
+              label="Ascension"
+              value={ascensionFilter}
+              onChange={(v) => setAscensionFilter(v as 'A0' | 'A1' | 'A2' | 'all')}
+              options={[
+                { value: 'all', label: 'All' },
+                { value: 'A0', label: 'A0' },
+                { value: 'A1', label: 'A1' },
+                { value: 'A2', label: 'A2' },
               ]}
             />
           </section>
