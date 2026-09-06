@@ -49,7 +49,7 @@ function curveBHRs(
 }
 
 export function ScalingChart({ rank5Sig0, rank5Sig200, ascendable }: ScalingChartProps) {
-  const ascMult = ascendable ? 1.16 : 1.0;
+  const ascMult = ascendable ? multipliers.ascension.A2 : multipliers.ascension.A0;
   const r5 = curveBHRs(rank5Sig0, rank5Sig200, 5, ascMult);
   const r4 = curveBHRs(rank5Sig0, rank5Sig200, 4, ascMult);
   const r3 = curveBHRs(rank5Sig0, rank5Sig200, 3, ascMult);

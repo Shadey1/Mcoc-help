@@ -9,6 +9,12 @@ import type { Champion } from '../src/types.js';
 // §16 Phase 0 fixture (top-30 ground truth) — it is the canonical "who can
 // ascend" set, and seed.json's ascendable flags must agree with it.
 //
+// BHR values in the fixture are pre-2026-08 (before Kabam's ascension
+// compounding update, A2 additive 1.16 → compounding 1.1664). Membership /
+// ascendable-flag ground truth is unaffected; the BHR column is kept as a
+// historical anchor and is expected to be ~+0.55% low on A2 rows until
+// re-captured. See CLAUDE.md and multipliers.json for context.
+//
 // The fixture lists names as they appear in-game. Several use bare names
 // where seed.json carries a variant suffix (Storm → Storm (Pyramid X),
 // Black Panther → Civil War, etc.). The resolver below encodes those
@@ -84,14 +90,18 @@ describe('ascendable-roster fixture — seed.json ascendable flag agrees', () =>
 });
 
 describe('ascendable-roster fixture — anchor values match §16 ground truth', () => {
-  // Phase 0 ground-truth roster pins these same champs at the same BHRs.
-  // If either side drifts, this catches it.
-  it('Lizard BHR = 46,120 (matches §16)', () => {
+  // Phase 0 ground-truth roster pinned these champs at these BHRs.
+  // Values are pre-2026-08 (pre ascension-compounding update). This test
+  // guards against accidental edits to the fixture, not the engine's live
+  // computation — the engine now uses A2 = 1.1664 and predicts ~+0.55%
+  // higher values (see packages/engine/__tests__/bhr.test.ts for the
+  // post-change assertions).
+  it('Lizard fixture BHR = 46,120 (pre-2026-08 capture)', () => {
     const lizard = (fixture as FixtureEntry[]).find((f) => f.name === 'Lizard');
     expect(lizard?.bhr).toBe(46120);
   });
 
-  it('Patriot BHR = 45,770 (matches §16)', () => {
+  it('Patriot fixture BHR = 45,770 (pre-2026-08 capture)', () => {
     const patriot = (fixture as FixtureEntry[]).find((f) => f.name === 'Patriot');
     expect(patriot?.bhr).toBe(45770);
   });

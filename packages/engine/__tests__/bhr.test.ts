@@ -8,7 +8,12 @@ import {
 } from '../src/index.js';
 
 // Test fixtures drawn from §16 verified data points in architecture-v5.md.
-// These are real values from Dave's in-game roster, captured 2026-05-06.
+// A0/A1 values are real in-game readings from Dave's roster captured 2026-05-06.
+// A2 expected values were recomputed 2026-08 after Kabam's ascension compounding
+// update (A2 = 1.08 × 1.08 = 1.1664 instead of the old additive 1.16). The
+// engine's job is to match the game's current formula, so A2 assertions here
+// mirror what the new formula predicts; re-verify against fresh in-game
+// captures when convenient.
 
 function makeChampion(
   overrides: Partial<Champion> & {
@@ -34,7 +39,7 @@ function makeChampion(
 }
 
 describe('calculateBHR — top of Dave\'s roster (§16 ground truth)', () => {
-  it('Lizard R5 sig 200 A2 = 46,120', () => {
+  it('Lizard R5 sig 200 A2 = 46,380 (post-compounding)', () => {
     const lizard = makeChampion({
       id: 'lizard',
       name: 'Lizard',
@@ -48,11 +53,11 @@ describe('calculateBHR — top of Dave\'s roster (§16 ground truth)', () => {
       sig: 200,
       ascension: 'A2',
     };
-    // 39760 × 1.16 = 46121.6 → rounds to 46120
-    expect(calculateBHR(lizard, state)).toBe(46120);
+    // 39760 × 1.1664 = 46375.9 → rounds to 46380 (pre-change: 46120)
+    expect(calculateBHR(lizard, state)).toBe(46380);
   });
 
-  it('Patriot R5 sig 200 A2 = 45,770', () => {
+  it('Patriot R5 sig 200 A2 = 46,030 (post-compounding)', () => {
     const patriot = makeChampion({
       id: 'patriot',
       name: 'Patriot',
@@ -66,8 +71,8 @@ describe('calculateBHR — top of Dave\'s roster (§16 ground truth)', () => {
       sig: 200,
       ascension: 'A2',
     };
-    // 39460 × 1.16 = 45773.6 → rounds to 45770
-    expect(calculateBHR(patriot, state)).toBe(45770);
+    // 39460 × 1.1664 = 46026.2 → rounds to 46030 (pre-change: 45770)
+    expect(calculateBHR(patriot, state)).toBe(46030);
   });
 
   it('High Evolutionary R5 sig 200 A0 = 40,600', () => {
@@ -87,7 +92,7 @@ describe('calculateBHR — top of Dave\'s roster (§16 ground truth)', () => {
     expect(calculateBHR(he, state)).toBe(40600);
   });
 
-  it('Maestro R4 sig 200 A2 = 38,550', () => {
+  it('Maestro R4 sig 200 A2 = 38,770 (post-compounding)', () => {
     const maestro = makeChampion({
       id: 'maestro',
       name: 'Maestro',
@@ -101,10 +106,10 @@ describe('calculateBHR — top of Dave\'s roster (§16 ground truth)', () => {
       sig: 200,
       ascension: 'A2',
     };
-    // 39420 × 0.8431 × 1.16 = 38559.7 — game shows 38550 (rounded to 10)
+    // 39420 × 0.8431 × 1.1664 = 38772.4 → rounds to 38770 (pre-change: 38550)
     const bhr = calculateBHR(maestro, state);
-    expect(bhr).toBeGreaterThanOrEqual(38540);
-    expect(bhr).toBeLessThanOrEqual(38560);
+    expect(bhr).toBeGreaterThanOrEqual(38760);
+    expect(bhr).toBeLessThanOrEqual(38780);
   });
 
   it('IIM R4 sig 200 A1 = 36,780', () => {
@@ -200,8 +205,8 @@ describe('calculateCeilingBHR — max obtainable BHR for ceiling view', () => {
       rank5: { sig0: 30000, sig200: 40600 },
       ascendable: true,
     });
-    // 40600 × 1.16 = 47096 → rounds to 47100 (matches mcoc.gg ranking #1)
-    expect(calculateCeilingBHR(heroEvol)).toBe(47100);
+    // 40600 × 1.1664 = 47355.8 → rounds to 47360 (post-compounding; pre: 47100)
+    expect(calculateCeilingBHR(heroEvol)).toBe(47360);
   });
 
   it('returns R5 sig 200 A0 for non-ascendable champions', () => {
@@ -244,12 +249,12 @@ describe('calculateBHR — user overrides', () => {
       // Override for a different sig — should not apply
       [bhrOverrideKey('iron-man', 5, 100, 'A2'), 99999],
     ]);
-    // 39655 × 1.16 = 45999.8 → rounds to 46000 (curve value)
-    expect(calculateBHR(champion, state, overrides)).toBe(46000);
+    // 39655 × 1.1664 = 46253.7 → rounds to 46250 (curve value; pre-change: 46000)
+    expect(calculateBHR(champion, state, overrides)).toBe(46250);
   });
 
   it('falls through to the curve when overrides param is undefined', () => {
-    expect(calculateBHR(champion, state)).toBe(46000);
+    expect(calculateBHR(champion, state)).toBe(46250);
   });
 
   it('returns the override unrounded (user-entered value is gospel)', () => {

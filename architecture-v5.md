@@ -215,7 +215,7 @@ Key v5 changes:
   "ascension": {
     "A0": 1.00,
     "A1": 1.08,
-    "A2": 1.16
+    "A2": 1.1664
   },
   "sigCurves": {
     "rank5_default": [0.0000, 0.2400, 0.3100, 0.4700, 0.5600, 0.6500, 0.7300, 0.8000, 0.8700, 0.9400, 1.0000],
@@ -323,7 +323,7 @@ For each owned champion (every R3+), compute:
 
 ```
 ceilingBHR = champion.prestige.rank5["200"] × ascensionMultMax
-           where ascensionMultMax = 1.16 if ascendable else 1.00
+           where ascensionMultMax = 1.1664 if ascendable else 1.00
 
 prestigeDeltaIfMaxed = inTop30
                         ? (ceilingBHR - currentBHR) / 30
@@ -542,7 +542,7 @@ Captured 2026-05-06 from in-game prestige page.
 | R1 mult | null | Out of scope |
 | A0 mult | 1.00 | Definition |
 | A1 mult | 1.08 | IIM, Pavitr, all A1 champions |
-| A2 mult | 1.16 | Lizard, Patriot, Maestro, Nova, Deadpool |
+| A2 mult | 1.1664 | 1.08 × 1.08 (compounding). Per Kabam's 2026-08 ascension update: A2 now stacks on top of A1 rather than additively on base. Pre-change value was 1.16 (Lizard 46120/39760, Patriot, Maestro). Kabam quoted +0.5% prestige for A2 champs; actual ratio 1.1664/1.16 = 1.00552 (matches). |
 
 ### Sig curve normalised fractions
 

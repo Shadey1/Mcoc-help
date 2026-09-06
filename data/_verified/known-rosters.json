@@ -5,7 +5,8 @@
     "expectedChampionPrestige": 36120,
     "expectedRelicPrestige": 2290,
     "expectedTotalPrestige": 38410,
-    "source": "in-game prestige page screenshots"
+    "source": "in-game prestige page screenshots",
+    "_note": "PRE Kabam 2026-08 ascension compounding update (A2 additive 1.16 → compounding 1.1664). A2 rows in this fixture are ~+0.55% low vs the current in-game display; unascended rows (A0/A1) are unaffected. Re-capture when convenient — the aggregate expectedChampionPrestige will drift upward correspondingly."
   },
   "roster": [
     { "championId": "lizard",                       "rank": 5, "sig": 200, "ascension": "A2", "observedBHR": 46120 },

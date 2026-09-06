@@ -4,14 +4,19 @@
  * champion we try all 6 (rank, asc) combos and pick the closest fit to the
  * in-game value; the residual error after best-fit reveals whether our
  * multipliers and/or scraped sig 200 anchors are correct.
+ *
+ * Note: the `inGame` fixture below was captured 2026-05, PRE Kabam's 2026-08
+ * ascension compounding update (A2 additive 1.16 → compounding 1.1664).
+ * Running this script today shows A2 rows off by roughly +0.55% (engine
+ * predicts current-formula values, fixture holds pre-change readings).
+ * Re-capture from screenshots when convenient.
  */
 import { readFileSync } from 'fs';
 import { calculateBHR } from '../packages/engine/src/bhr.ts';
 
 const seed = JSON.parse(readFileSync('data/champions/seed.json', 'utf8'));
-const A0 = 1.0, A1 = 1.08, A2 = 1.16;
 
-// In-game readings from the screenshots, all at sig 200.
+// In-game readings from the screenshots, all at sig 200. Pre-2026-08 update.
 const inGame = [
   // image 3 (high tier)
   { name: 'Lizard',                  bhr: 46120 },

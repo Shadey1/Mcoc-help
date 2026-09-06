@@ -60,7 +60,9 @@ export default function AboutPage() {
             <strong>Rank multipliers:</strong> R5 = 1.000, R4 = 0.8431, R3 = 0.6906
           </li>
           <li>
-            <strong>Ascension multipliers:</strong> A0 = 1.00, A1 = 1.08, A2 = 1.16
+            <strong>Ascension multipliers:</strong> A0 = 1.00, A1 = 1.08,
+            A2 = 1.1664 (compounding: 1.08 × 1.08 — per Kabam&apos;s 2026-08
+            update, previously additive 1.16)
           </li>
           <li>
             <strong>Sig curves:</strong> rank-dependent, concave. Sig 0 → 100

@@ -35,7 +35,7 @@ function state(
 describe('computeCeilings — the long-term planning view', () => {
   it('surfaces Blue Marvel as a high-impact non-top-30 play (Phase 0 finding)', () => {
     // Blue Marvel sits outside Dave's top-30 at ~28k BHR but his ceiling
-    // (R5 sig 200 A2) is 46,930 — should be a top investment target.
+    // (R5 sig 200 A2) is ~47,190 — should be a top investment target.
     const blueMarvel = champ('blue-marvel', 'Blue Marvel', 'Science', 40460, true);
 
     // Top-30 of 30 unascendable champions, all at R4 sig 200
@@ -57,8 +57,9 @@ describe('computeCeilings — the long-term planning view', () => {
     const bm = ceilings.find((c) => c.championId === 'blue-marvel');
     expect(bm).toBeDefined();
 
-    // Blue Marvel's ceiling = 40460 × 1.16 = 46934 → rounds to 46930
-    expect(bm!.ceilingBHR).toBe(46930);
+    // Blue Marvel's ceiling = 40460 × 1.1664 = 47192.5 → rounds to 47190
+    // (post-compounding; pre-change: 46930)
+    expect(bm!.ceilingBHR).toBe(47190);
 
     // Not currently in top-30
     expect(bm!.inTop30).toBe(false);
