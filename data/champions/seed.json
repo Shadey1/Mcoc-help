@@ -2617,7 +2617,7 @@
       "id": "domino",
       "name": "Domino",
       "class": "Mutant",
-      "ascendable": false,
+      "ascendable": true,
       "prestige": {
         "rank5": {
           "0": 29400,
@@ -2650,7 +2650,7 @@
       "tags": [],
       "_meta": {
         "bhrSource": "mcoc.gg per-rank curves (R4 + R5 11-anchor, refreshed 2026-06-03)",
-        "ascendableSource": "non-ascendable per mcoc.gg",
+        "ascendableSource": "Kabam September 4th Livestream Summary (playcontestofchampions.com/news/september-4th-livestream-summary, verified 2026-09-07)",
         "lastVerified": "2026-06-03"
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/a/aa/Domino_portrait.png/revision/latest/scale-to-width-down/200?cb=20180630174513",
@@ -4310,7 +4310,7 @@
       "id": "hyperion",
       "name": "Hyperion",
       "class": "Cosmic",
-      "ascendable": false,
+      "ascendable": true,
       "prestige": {
         "rank5": {
           "0": 28140,
@@ -4343,7 +4343,7 @@
       "tags": [],
       "_meta": {
         "bhrSource": "mcoc.gg per-rank curves (R4 + R5 11-anchor, refreshed 2026-06-03)",
-        "ascendableSource": "non-ascendable per mcoc.gg",
+        "ascendableSource": "Kabam September 4th Livestream Summary (playcontestofchampions.com/news/september-4th-livestream-summary, verified 2026-09-07)",
         "lastVerified": "2026-06-03"
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/d/da/Hyperion_portrait.png/revision/latest/scale-to-width-down/200?cb=20161208231528",
@@ -5918,7 +5918,7 @@
       "id": "magik",
       "name": "Magik",
       "class": "Mystic",
-      "ascendable": false,
+      "ascendable": true,
       "prestige": {
         "rank5": {
           "0": 29500,
@@ -5951,7 +5951,7 @@
       "tags": [],
       "_meta": {
         "bhrSource": "mcoc.gg per-rank curves (R4 + R5 11-anchor, refreshed 2026-06-03)",
-        "ascendableSource": "non-ascendable per mcoc.gg",
+        "ascendableSource": "Kabam September 4th Livestream Summary (playcontestofchampions.com/news/september-4th-livestream-summary, verified 2026-09-07)",
         "lastVerified": "2026-06-03"
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/f/fd/Magik_portrait.png/revision/latest/scale-to-width-down/200?cb=20260303231322",
@@ -6766,7 +6766,7 @@
       "id": "mr-knight",
       "name": "Mr. Knight",
       "class": "Skill",
-      "ascendable": false,
+      "ascendable": true,
       "prestige": {
         "rank5": {
           "0": 29390,
@@ -6799,7 +6799,7 @@
       "tags": [],
       "_meta": {
         "bhrSource": "mcoc.gg per-rank curves (R4 + R5 11-anchor, refreshed 2026-06-03)",
-        "ascendableSource": "non-ascendable per mcoc.gg",
+        "ascendableSource": "Kabam September 4th Livestream Summary (playcontestofchampions.com/news/september-4th-livestream-summary, verified 2026-09-07)",
         "lastVerified": "2026-06-03"
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/6/6c/Mr._Knight_portrait.png/revision/latest/scale-to-width-down/200?cb=20250904112100",
@@ -7438,7 +7438,7 @@
       "id": "omega-sentinel",
       "name": "Omega Sentinel",
       "class": "Tech",
-      "ascendable": false,
+      "ascendable": true,
       "prestige": {
         "rank5": {
           "0": 28750,
@@ -7471,7 +7471,7 @@
       "tags": [],
       "_meta": {
         "bhrSource": "mcoc.gg per-rank curves (R4 + R5 11-anchor, refreshed 2026-06-03)",
-        "ascendableSource": "non-ascendable per mcoc.gg",
+        "ascendableSource": "Kabam September 4th Livestream Summary (playcontestofchampions.com/news/september-4th-livestream-summary, verified 2026-09-07)",
         "lastVerified": "2026-06-03"
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/2/2f/Omega_Sentinel_portrait.png/revision/latest/scale-to-width-down/200?cb=20220317220633",
@@ -8051,7 +8051,7 @@
       "id": "purgatory",
       "name": "Purgatory",
       "class": "Mystic",
-      "ascendable": false,
+      "ascendable": true,
       "prestige": {
         "rank5": {
           "0": 29120,
@@ -8084,7 +8084,7 @@
       "tags": [],
       "_meta": {
         "bhrSource": "mcoc.gg per-rank curves (R4 + R5 11-anchor, refreshed 2026-06-03)",
-        "ascendableSource": "non-ascendable per mcoc.gg",
+        "ascendableSource": "Kabam September 4th Livestream Summary (playcontestofchampions.com/news/september-4th-livestream-summary, verified 2026-09-07)",
         "lastVerified": "2026-06-03"
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/b/bb/Purgatory_portrait.png/revision/latest/scale-to-width-down/200?cb=20210531201227",
@@ -8330,7 +8330,7 @@
       "id": "rhino",
       "name": "Rhino",
       "class": "Science",
-      "ascendable": false,
+      "ascendable": true,
       "prestige": {
         "rank5": {
           "0": 25860,
@@ -8363,7 +8363,7 @@
       "tags": [],
       "_meta": {
         "bhrSource": "mcoc.gg per-rank curves (R4 + R5 11-anchor, refreshed 2026-06-03)",
-        "ascendableSource": "non-ascendable per mcoc.gg",
+        "ascendableSource": "Kabam September 4th Livestream Summary (playcontestofchampions.com/news/september-4th-livestream-summary, verified 2026-09-07)",
         "lastVerified": "2026-06-03"
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/2/2f/Rhino_portrait.png/revision/latest/scale-to-width-down/200?cb=20251006235515",
