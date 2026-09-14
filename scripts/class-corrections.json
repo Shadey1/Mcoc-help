@@ -1,74 +1,88 @@
 {
-  "generatedAt": "2026-06-02T09:35:05.275Z",
+  "generatedAt": "2026-09-14T08:39:40.198Z",
   "corrections": [],
   "additions": [
     {
-      "id": "shatterstar",
-      "name": "Shatterstar",
-      "proposedClass": "Mutant",
-      "sourceTitle": "Shatterstar",
-      "portraitUrl": null
+      "id": "spider-man-noir",
+      "name": "Spider-Man Noir",
+      "proposedClass": "Skill",
+      "sourceTitle": "Spider-Man Noir",
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/3/30/Spider-Man_Noir_portrait.png/revision/latest/scale-to-width-down/200?cb=20260912211214"
     },
     {
-      "id": "phyla-vell",
-      "name": "Phyla-Vell",
+      "id": "gwenom",
+      "name": "Gwenom",
       "proposedClass": "Cosmic",
-      "sourceTitle": "Phyla-Vell",
-      "portraitUrl": null
+      "sourceTitle": "Gwenom",
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/5/5b/Gwenom_portrait.png/revision/latest/scale-to-width-down/200?cb=20260912210535"
     },
     {
-      "id": "wave",
-      "name": "Wave",
+      "id": "green-goblin-stellar-forged",
+      "name": "Green Goblin (Stellar-Forged)",
       "proposedClass": "Science",
-      "sourceTitle": "Wave",
-      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/9/91/Wave_portrait.png/revision/latest/scale-to-width-down/200?cb=20260504222648"
+      "sourceTitle": "Green Goblin (Stellar-Forged)",
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/1/1e/Green_Goblin_%28Stellar-Forged%29_portrait.png/revision/latest/scale-to-width-down/200?cb=20260912210202"
     }
   ],
   "issues": [
     {
-      "name": "Black Widow (disambiguation)",
+      "name": "Aegon",
+      "result": {
+        "kind": "no-infobox-class",
+        "sourceTitle": "Aegon"
+      }
+    },
+    {
+      "name": "Implacable",
       "result": {
         "kind": "discovery-skipped",
         "reason": "no class extractable from infobox"
       }
     },
     {
-      "name": "In Print, It's Libel",
+      "name": "Crumble",
       "result": {
         "kind": "discovery-skipped",
         "reason": "no class extractable from infobox"
       }
     },
     {
-      "name": "Make Him Infamous",
+      "name": "Revenge of Legends",
       "result": {
         "kind": "discovery-skipped",
         "reason": "no class extractable from infobox"
       }
     },
     {
-      "name": "Good, But It's Taken",
+      "name": "Combo Lock",
       "result": {
         "kind": "discovery-skipped",
         "reason": "no class extractable from infobox"
       }
     },
     {
-      "name": "Get Me A Violin",
+      "name": "Plague Cloud",
       "result": {
         "kind": "discovery-skipped",
         "reason": "no class extractable from infobox"
       }
     },
     {
-      "name": "I Trust My Barber",
+      "name": "Future and Stitch",
       "result": {
         "kind": "discovery-skipped",
         "reason": "no class extractable from infobox"
       }
     },
     {
-      "name": "A Page One Problem",
+      "name": "Horned Destroyer",
+      "result": {
+        "kind": "discovery-skipped",
+        "reason": "no class extractable from infobox"
+      }
+    },
+    {
+      "name": "Nomad and Curse",
       "result": {
         "kind": "discovery-skipped",
         "reason": "no class extractable from infobox"
