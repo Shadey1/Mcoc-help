@@ -117,8 +117,24 @@ export default function RootLayout({
                 <Link
                   href="/war/"
                   className="hover:text-[var(--color-marvel-impact)] transition-colors"
+                  title="Diversity placement across all three BGs — the tool you've been using"
                 >
-                  War
+                  War diversity
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/war-planner/"
+                  className="hover:text-[var(--color-marvel-impact)] transition-colors inline-flex items-center gap-1.5"
+                  title="Per-BG, per-node placement using the season guide"
+                >
+                  War planner
+                  <span
+                    className="text-[10px] font-mono uppercase tracking-widest px-1 py-0.5 rounded border border-[var(--color-marvel-editorial)]/70 text-[var(--color-marvel-editorial)]"
+                    aria-label="Alpha release"
+                  >
+                    alpha
+                  </span>
                 </Link>
               </li>
               <li>

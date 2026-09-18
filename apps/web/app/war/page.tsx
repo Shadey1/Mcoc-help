@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { loadActiveChampions } from '../../lib/data-loader';
 import { WarPlanner } from '../../components/war-planner';
 
@@ -7,11 +8,21 @@ export default function WarPage() {
   return (
     <div className="space-y-8">
       <section>
-        <h1 className="editorial-heading text-4xl mb-2">War defence placement</h1>
+        <h1 className="editorial-heading text-4xl mb-2">War defence diversity</h1>
         <p className="text-lg text-[var(--color-ink-soft)] max-w-2xl">
           Tick the champions your alliance considers war-worthy defenders. Paste
           in share links from your 10 BG members. The planner tells everyone
           who places what — rank-weighted, no duplicates.
+        </p>
+        <p className="text-sm text-[var(--color-ink-soft)] mt-3 max-w-2xl">
+          Placing a specific BG by the season guide, node by node? Try the{' '}
+          <Link
+            href="/war-planner/"
+            className="underline hover:text-[var(--color-marvel-impact)]"
+          >
+            season war planner (alpha)
+          </Link>
+          .
         </p>
       </section>
 
