@@ -28,6 +28,7 @@ import {
   newPlan,
   picksAt,
   removePick,
+  reorderPick,
   resetAllPicks,
   resetNodePicks,
   setNodePicks,
@@ -845,6 +846,12 @@ function NodePanel({
   const [pinChampInput, setPinChampInput] = useState('');
   const [pinPlayer, setPinPlayer] = useState('');
   const [pinMsg, setPinMsg] = useState<string | null>(null);
+  // Drag-reorder state for the picks list. dragFrom is the index the
+  // officer picked up; dragOver is the index currently under the cursor.
+  // The ▲▼ buttons remain the keyboard/touch fallback — HTML5 drag has
+  // no mobile support without extra polyfills.
+  const [dragFrom, setDragFrom] = useState<number | null>(null);
+  const [dragOver, setDragOver] = useState<number | null>(null);
 
   // Reset transient inputs when the selected node changes so a leftover
   // pick doesn't spill into the next node's UI.
@@ -853,6 +860,8 @@ function NodePanel({
     setPinChampInput('');
     setPinPlayer('');
     setPinMsg(null);
+    setDragFrom(null);
+    setDragOver(null);
   }, [selectedNode]);
 
   const ownersMap = useMemo(() => {
@@ -1051,11 +1060,64 @@ function NodePanel({
         <ol className="border-t border-[var(--color-rule)]">
           {picks.map((c, i) => {
             const ownCount = ownersMap.get(c)?.length ?? 0;
+            const isDragging = dragFrom === i;
+            // Highlight the drop target with a thick top border when the
+            // dragged item would land above it, bottom when it'd land
+            // below. Same-index over-events collapse to no highlight.
+            const isDropTarget =
+              dragFrom !== null && dragOver === i && dragFrom !== i;
+            const insertBelow = isDropTarget && dragFrom !== null && dragFrom < i;
             return (
               <li
                 key={`${c}-${i}`}
-                className="grid grid-cols-[22px_1fr_auto_auto] items-center gap-2 py-1.5 border-b border-[var(--color-rule)]"
+                draggable
+                onDragStart={(e) => {
+                  setDragFrom(i);
+                  e.dataTransfer.effectAllowed = 'move';
+                  // Firefox refuses to start a drag without setData.
+                  e.dataTransfer.setData('text/plain', String(i));
+                }}
+                onDragOver={(e) => {
+                  if (dragFrom === null || dragFrom === i) return;
+                  e.preventDefault();
+                  e.dataTransfer.dropEffect = 'move';
+                  if (dragOver !== i) setDragOver(i);
+                }}
+                onDragLeave={() => {
+                  if (dragOver === i) setDragOver(null);
+                }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  if (dragFrom !== null && dragFrom !== i) {
+                    const from = dragFrom;
+                    mutatePlan((p) => reorderPick(p, selectedNode, from, i));
+                  }
+                  setDragFrom(null);
+                  setDragOver(null);
+                }}
+                onDragEnd={() => {
+                  setDragFrom(null);
+                  setDragOver(null);
+                }}
+                className={`grid grid-cols-[16px_22px_1fr_auto_auto] items-center gap-2 py-1.5 border-b border-[var(--color-rule)] transition-opacity ${
+                  isDragging ? 'opacity-40' : ''
+                } ${
+                  isDropTarget && !insertBelow
+                    ? 'border-t-2 border-t-[var(--color-marvel-impact)]'
+                    : ''
+                } ${
+                  isDropTarget && insertBelow
+                    ? 'border-b-2 border-b-[var(--color-marvel-impact)]'
+                    : ''
+                }`}
               >
+                <span
+                  className="text-[var(--color-ink-soft)] opacity-60 cursor-grab active:cursor-grabbing select-none text-center"
+                  aria-hidden="true"
+                  title="Drag to reorder"
+                >
+                  ⋮⋮
+                </span>
                 <span className="text-right text-xs text-[var(--color-ink-soft)] font-serif">
                   {i + 1}
                 </span>

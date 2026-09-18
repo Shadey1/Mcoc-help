@@ -123,6 +123,29 @@ export function movePick(
   return setNodePicks(plan, node, picks);
 }
 
+/** Move a pick from one index to another. Used by drag-and-drop reorder,
+ *  which needs arbitrary N-to-M motion rather than adjacent swaps. */
+export function reorderPick(
+  plan: SeasonPlan,
+  node: NodeNumber,
+  fromIdx: number,
+  toIdx: number,
+): SeasonPlan {
+  const picks = [...picksAt(plan, node)];
+  if (
+    fromIdx < 0 ||
+    fromIdx >= picks.length ||
+    toIdx < 0 ||
+    toIdx >= picks.length ||
+    fromIdx === toIdx
+  ) {
+    return plan;
+  }
+  const [moved] = picks.splice(fromIdx, 1);
+  picks.splice(toIdx, 0, moved!);
+  return setNodePicks(plan, node, picks);
+}
+
 export function removePick(plan: SeasonPlan, node: NodeNumber, index: number): SeasonPlan {
   const picks = [...picksAt(plan, node)];
   if (index < 0 || index >= picks.length) return plan;
