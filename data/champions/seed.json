@@ -3533,6 +3533,37 @@
       "sevenStarReleased": false
     },
     {
+      "id": "green-goblin-stellar-forged",
+      "name": "Green Goblin (Stellar Forged)",
+      "class": "Science",
+      "ascendable": true,
+      "prestige": {
+        "rank5": {
+          "0": 28820,
+          "20": 32070,
+          "40": 33280,
+          "60": 34290,
+          "80": 35190,
+          "100": 36010,
+          "120": 36780,
+          "140": 37510,
+          "160": 38200,
+          "180": 38870,
+          "200": 39510
+        }
+      },
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "mcochub.insaneskull.com (JSON API, R5 11-anchor curve, refreshed 2026-09-18)",
+        "lastVerified": "2026-09-18",
+        "ascendableSource": "mcochub.insaneskull.com (Ascendable badge, verified 2026-09-18)"
+      },
+      "portraitUrl": null,
+      "sevenStarReleased": true,
+      "released": "2026"
+    },
+    {
       "id": "groot",
       "name": "Groot",
       "class": "Cosmic",
@@ -3691,6 +3722,37 @@
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/6/63/Guillotine_%28Deathless%29_portrait.png/revision/latest/scale-to-width-down/200?cb=20231208154204",
       "sevenStarReleased": true,
       "released": "2023"
+    },
+    {
+      "id": "gwenom",
+      "name": "Gwenom",
+      "class": "Cosmic",
+      "ascendable": true,
+      "prestige": {
+        "rank5": {
+          "0": 28720,
+          "20": 32330,
+          "40": 33530,
+          "60": 34540,
+          "80": 35430,
+          "100": 36250,
+          "120": 37020,
+          "140": 37750,
+          "160": 38440,
+          "180": 39100,
+          "200": 39730
+        }
+      },
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "mcochub.insaneskull.com (JSON API, R5 11-anchor curve, refreshed 2026-09-18)",
+        "lastVerified": "2026-09-18",
+        "ascendableSource": "mcochub.insaneskull.com (Ascendable badge, verified 2026-09-18)"
+      },
+      "portraitUrl": null,
+      "sevenStarReleased": true,
+      "released": "2026"
     },
     {
       "id": "gwenpool",
@@ -9863,6 +9925,37 @@
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/e/e0/Spider-Man_%28Miles_Morales%29_portrait.png/revision/latest/scale-to-width-down/200?cb=20160108034734",
       "sevenStarReleased": true,
       "released": "2016"
+    },
+    {
+      "id": "spider-man-noir",
+      "name": "Spider-Man Noir",
+      "class": "Skill",
+      "ascendable": true,
+      "prestige": {
+        "rank5": {
+          "0": 28340,
+          "20": 32690,
+          "40": 33880,
+          "60": 34870,
+          "80": 35750,
+          "100": 36560,
+          "120": 37320,
+          "140": 38030,
+          "160": 38720,
+          "180": 39370,
+          "200": 40000
+        }
+      },
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "mcochub.insaneskull.com (JSON API, R5 11-anchor curve, refreshed 2026-09-18)",
+        "lastVerified": "2026-09-18",
+        "ascendableSource": "mcochub.insaneskull.com (Ascendable badge, verified 2026-09-18)"
+      },
+      "portraitUrl": null,
+      "sevenStarReleased": true,
+      "released": "2026"
     },
     {
       "id": "spider-man-pavitr-prabhakar",
