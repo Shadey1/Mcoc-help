@@ -11,9 +11,9 @@ export default function RecommendationsPage() {
           What should I do with my roster?
         </h1>
         <p className="text-lg text-[var(--color-ink-soft)] max-w-2xl">
-          Roster-aware prestige optimisation. Ranked recommendations for your
-          next move, plus a long-term picture of what&apos;s worth investing
-          in.
+          Add your roster, get told what to do next. What&apos;s worth
+          ranking, what&apos;s worth pulling — sorted by how much prestige
+          it actually adds.
         </p>
       </section>
 

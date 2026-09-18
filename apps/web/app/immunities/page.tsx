@@ -24,12 +24,12 @@ export default function ImmunitiesPage() {
         <strong className="text-[var(--color-ink)]">
           {dataMeta.reconciliation.uniqueChampsLocked} of {champions.length} champions
         </strong>{' '}
-        have shipping-quality immunity data (
+        have confirmed immunity data (
         <strong className="text-[var(--color-ink)]">
           {dataMeta.reconciliation.cellsLocked}
         </strong>{' '}
-        cells verified across 2+ independent sources: MCOCHUB, auntm.ai, Kabam
-        spotlights, GuiaMTC chart, and hand-curated fixture).
+        cells cross-checked against two or more sources: MCOCHUB, auntm.ai,
+        Kabam spotlights, GuiaMTC chart, and hand-curated notes).
         {dataMeta.reconciliation.conflicts > 0 && (
           <>
             {' '}

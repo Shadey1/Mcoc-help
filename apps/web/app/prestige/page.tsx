@@ -34,11 +34,9 @@ export default function PrestigePage() {
       <section>
         <h1 className="editorial-heading text-3xl mb-2">Prestige table</h1>
         <p className="text-[var(--color-ink-soft)]">
-          Base Hero Rating at Rank 5, signature 200, for every released 7-star
-          champion. Ascendable champions show A0, A1, and A2 tiers — the A2
-          column is their ceiling. Non-ascendable champions have only an A0
-          value. Sort by any column, filter by class or ascension status, or
-          search by name.
+          BHR at R5 sig 200 for every 7-star. Ascendable champs get A0/A1/A2
+          columns (A2 is the ceiling); the rest just show A0. Sort, filter,
+          search.
         </p>
       </section>
 

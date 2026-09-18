@@ -21,19 +21,18 @@ export default function AboutPage() {
       <section className="space-y-3">
         <h2 className="editorial-heading text-xl">What this is for</h2>
         <p>
-          Every other tool in the prestige space either calculates without
-          recommending, paywalls the calculator, or has been dark since 2024.
-          Kabam&apos;s official calculator hasn&apos;t been updated since the
-          Ascension+ launch. The result: most players don&apos;t know what they
-          should rank up next, or which pull would actually move their
+          Every other prestige tool either just calculates without telling
+          you what to do, charges you for it, or hasn&apos;t been touched
+          since 2024. Kabam&apos;s official calculator hasn&apos;t been
+          updated since Ascension+ launched. Most players don&apos;t know
+          what to rank up next, or which pull would actually move their
           prestige needle.
         </p>
         <p>
-          mcoc.help fills the gap. Add your roster once; the tool ranks every
-          available move by prestige impact, surfaces what&apos;s worth
-          developing long-term, and tells you which unowned champions would be
-          highest-impact pulls. The optimisation logic is the value-add — the
-          underlying data comes from the community.
+          This fills the gap. Roster in, ranked moves out — plus what&apos;s
+          worth developing later and which pulls would actually shift your
+          prestige. The maths is the value here; the numbers come from the
+          community.
         </p>
       </section>
 
@@ -159,26 +158,24 @@ export default function AboutPage() {
         <h2 className="editorial-heading text-xl">What this tool doesn&apos;t do</h2>
         <ul className="list-disc pl-6 space-y-1 text-sm">
           <li>
-            <strong>Track your stash.</strong> Cost gates are labelled, not
-            inventoried. You know what you have; we don&apos;t need to.
+            <strong>Track your stash.</strong> Costs are shown, not tracked.
+            You know what&apos;s in your stash.
           </li>
           <li>
-            <strong>Plan multi-step sequences.</strong> v1 surfaces atomic
-            moves and ceilings; multi-step planning is a v2 task.
+            <strong>Plan multi-step sequences.</strong> Single moves and
+            ceilings only. Multi-step planning is on the list.
           </li>
           <li>
-            <strong>Optimise relic prestige.</strong> Relics are the other ~6%
-            of total prestige and need their own optimisation loop. Coming in
-            v2.
+            <strong>Optimise relic prestige.</strong> Relics are the other
+            ~6% and need their own logic. Coming.
           </li>
           <li>
-            <strong>OCR your roster.</strong> Currently you type your champions
-            in (or bulk-paste them). Screenshot-import from the in-game
-            prestige page is a v2 priority.
+            <strong>OCR your roster.</strong> You type them in or bulk-paste.
+            Screenshot import is on the list.
           </li>
           <li>
-            <strong>Track 5-star or 6-star champions.</strong> 7-star data
-            only. The 7-star pool is what determines top prestige for Paragon
+            <strong>Track 5-star or 6-star champions.</strong> 7-stars only —
+            that&apos;s what your top prestige actually depends on at Paragon
             and above.
           </li>
           <li>

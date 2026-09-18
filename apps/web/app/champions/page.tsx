@@ -41,10 +41,9 @@ export default function ChampionsPage() {
       <section>
         <h1 className="editorial-heading text-3xl mb-2">Champions</h1>
         <p className="text-[var(--color-ink-soft)]">
-          {champions.length} 7-star champions. Filter by class, ascension
-          status, or tag — tags come from MCOCHUB and cover content categories
-          (AW: Decay, AQ: Ramp), kit shape (Offensive: Burst), faction
-          (Symbiote, X-Men), and hit type (Physical Damage, Energy Damage).
+          Every 7-star champion — {champions.length} of them. Filter by class,
+          ascension, or any tag: AW node (AW: Decay), AQ ramp, kit shape,
+          faction, damage type. Tags from MCOCHUB.
         </p>
       </section>
 

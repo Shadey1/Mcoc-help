@@ -10,9 +10,9 @@ export default function RelicsPage() {
       <section>
         <h1 className="editorial-heading text-4xl mb-2">Relics</h1>
         <p className="text-lg text-[var(--color-ink-soft)] max-w-2xl">
-          The other 6% of total prestige. Count what you own at each
-          (rank, sig) state; the engine surfaces the highest-impact upgrades
-          above your top-30 cutoff.
+          The other 6% of total prestige. Tell it what you&apos;ve got at
+          each rank and sig. It&apos;ll rank the upgrades worth doing above
+          your top-30 cutoff.
         </p>
       </section>
 

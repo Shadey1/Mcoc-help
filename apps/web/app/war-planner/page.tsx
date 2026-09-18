@@ -26,9 +26,8 @@ export default function WarPlannerPage() {
           </span>
         </h1>
         <p className="text-[var(--color-ink-soft)] max-w-3xl">
-          Edit any node, pin a defender where you want them, and the planner
-          places the 50 across your battlegroup, no duplicates. Champions
-          come from the BG rosters tab.
+          Reorder picks, pin defenders where you want them, hit Place.
+          Everyone gets 5, no duplicates. Champions from the BG rosters tab.
         </p>
       </section>
       <WarSubnav active="planner" />

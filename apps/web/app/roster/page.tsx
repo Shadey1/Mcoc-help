@@ -9,7 +9,7 @@ export default function RosterPage() {
       <section>
         <h1 className="editorial-heading text-3xl mb-2">Your roster</h1>
         <p className="text-[var(--color-ink-soft)]">
-          Add champions one by one. Your roster stays in your browser — no
+          Add your champions. Everything stays in your browser — no
           signup, nothing leaves your device.
         </p>
       </section>

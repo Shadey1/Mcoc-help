@@ -656,7 +656,7 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
           disabled={players.length === 0}
           className="ml-auto px-4 py-2 text-sm font-medium bg-[var(--color-marvel-impact)] text-white rounded-md hover:bg-[var(--color-marvel-editorial)] disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          Place defence
+          Place
         </button>
       </div>
 
@@ -1350,7 +1350,7 @@ function PlacementPanel({
       <div>
         <h2 className="editorial-heading text-2xl mb-1">Not placed yet</h2>
         <p className="text-sm text-[var(--color-ink-soft)]">
-          Load rosters and press <strong>Place defence</strong> to see who puts
+          Load rosters and hit <strong>Place</strong> to see who puts
           what where.
         </p>
       </div>
