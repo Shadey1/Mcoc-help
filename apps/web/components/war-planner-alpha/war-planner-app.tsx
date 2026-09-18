@@ -362,6 +362,10 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
     },
     [championById],
   );
+  const championPortraitFor = useCallback(
+    (id: ChampionId): string | null => championById.get(id)?.portraitUrl ?? null,
+    [championById],
+  );
   const playerNameFor = useCallback(
     (id: PlayerId): string => {
       const row = rosterRows.find((r) => r.playerId === id);
@@ -388,6 +392,7 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
         unfilled: result.unfilled.map((u) => u.node),
         championNameFor,
         championShortFor,
+        championPortraitFor,
         playerNameFor,
         playerOrder: activePlayers,
       };
@@ -410,6 +415,7 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
       season.season,
       championNameFor,
       championShortFor,
+      championPortraitFor,
       playerNameFor,
     ],
   );

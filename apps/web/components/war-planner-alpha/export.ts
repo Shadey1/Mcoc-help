@@ -50,6 +50,7 @@ type ExportDeps = {
   unfilled: readonly NodeNumber[];
   championNameFor: (id: string) => string;
   championShortFor: (id: string) => string;
+  championPortraitFor: (id: string) => string | null;
   playerNameFor: (id: PlayerId) => string;
   playerOrder: readonly { id: PlayerId; name: string }[];
 };
@@ -86,6 +87,41 @@ function fitText(x: CanvasRenderingContext2D, text: string, max: number): string
   return t + '…';
 }
 
+/**
+ * Load a portrait as an HTMLImageElement with CORS enabled so `drawImage`
+ * doesn't taint the canvas. Fandom's CDN (static.wikia.nocookie.net)
+ * sends `access-control-allow-origin: *` on image responses, so this
+ * works for the seed's default portrait URLs.
+ *
+ * Resolves to null on any error (missing URL, network flake, a hypothetical
+ * portrait host that doesn't return CORS). The renderer falls through to
+ * the initials-gradient placeholder for nulls, so the export still
+ * completes end-to-end.
+ */
+function loadPortrait(url: string | null): Promise<HTMLImageElement | null> {
+  if (!url) return Promise.resolve(null);
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => resolve(img);
+    img.onerror = () => resolve(null);
+    img.src = url;
+  });
+}
+
+/** Preload every champion portrait we'll need to draw, in parallel.
+ *  Returns a map of championId → loaded Image (or null on failure). */
+async function preloadPortraits(
+  championIds: readonly string[],
+  championPortraitFor: (id: string) => string | null,
+): Promise<Map<string, HTMLImageElement | null>> {
+  const uniq = Array.from(new Set(championIds));
+  const entries = await Promise.all(
+    uniq.map(async (id) => [id, await loadPortrait(championPortraitFor(id))] as const),
+  );
+  return new Map(entries);
+}
+
 function drawPortrait(
   x: CanvasRenderingContext2D,
   cx: number,
@@ -94,27 +130,48 @@ function drawPortrait(
   champId: string,
   championName: string,
   laneColor: string,
+  img: HTMLImageElement | null,
 ): void {
   const px = cx - size / 2;
   const py = cy - size / 2;
-  const h = hueOf(champId);
-  const grad = x.createLinearGradient(0, py, 0, py + size);
-  grad.addColorStop(0, `hsl(${h} 38% 36%)`);
-  grad.addColorStop(1, `hsl(${h} 42% 17%)`);
+  const r = size * 0.14;
+  // Clip to the rounded rect so a rectangular portrait respects the frame.
+  x.save();
   x.beginPath();
-  x.roundRect(px, py, size, size, size * 0.14);
-  x.fillStyle = grad;
-  x.fill();
+  x.roundRect(px, py, size, size, r);
+  x.clip();
+  if (img) {
+    // Fill background with the class hue in case the portrait has
+    // transparent margins.
+    const h = hueOf(champId);
+    x.fillStyle = `hsl(${h} 38% 22%)`;
+    x.fillRect(px, py, size, size);
+    // Draw the portrait cover-style — Fandom portraits are ~square
+    // already, so this rarely crops meaningfully.
+    x.drawImage(img, px, py, size, size);
+  } else {
+    // Placeholder: class-hued gradient + initials.
+    const h = hueOf(champId);
+    const grad = x.createLinearGradient(0, py, 0, py + size);
+    grad.addColorStop(0, `hsl(${h} 38% 36%)`);
+    grad.addColorStop(1, `hsl(${h} 42% 17%)`);
+    x.fillStyle = grad;
+    x.fillRect(px, py, size, size);
+    x.fillStyle = 'rgba(239, 230, 212, 0.85)';
+    x.font = `700 ${Math.round(size * 0.36)}px Fraunces, Georgia, serif`;
+    x.textAlign = 'center';
+    x.textBaseline = 'middle';
+    x.fillText(initialsOf(championName), cx, cy + size * 0.03);
+    x.textBaseline = 'alphabetic';
+    x.textAlign = 'left';
+  }
+  x.restore();
+  // Lane-coloured frame on top, outside the clip.
+  x.beginPath();
+  x.roundRect(px, py, size, size, r);
   x.lineWidth = size * 0.05;
   x.strokeStyle = laneColor;
   x.stroke();
-  x.fillStyle = 'rgba(239, 230, 212, 0.85)';
-  x.font = `700 ${Math.round(size * 0.36)}px Fraunces, Georgia, serif`;
-  x.textAlign = 'center';
-  x.textBaseline = 'middle';
-  x.fillText(initialsOf(championName), cx, cy + size * 0.03);
-  x.textBaseline = 'alphabetic';
-  x.textAlign = 'left';
 }
 
 function drawEmptySlot(
@@ -187,7 +244,12 @@ async function ensureFonts(): Promise<void> {
 // ─────────────────────────────────────────────────────────────────────────
 
 export async function renderMapExport(deps: ExportDeps, seasonNumber: number): Promise<HTMLCanvasElement> {
-  await ensureFonts();
+  const placedChampIds = Object.values(deps.placements).map((pl) => pl.championId);
+  const [_, portraits] = await Promise.all([
+    ensureFonts(),
+    preloadPortraits(placedChampIds, deps.championPortraitFor),
+  ]);
+  void _;
   const K = 1.5;
   const X0 = 60;
   const Y0 = -14;
@@ -257,7 +319,16 @@ export async function renderMapExport(deps: ExportDeps, seasonNumber: number): P
     const v = deps.placements[n];
     const tight = n >= 37 && n <= 45;
     if (v) {
-      drawPortrait(x, cx, cy, S, v.championId, deps.championNameFor(v.championId), SEASON_LANE[seasonLane(n)]!);
+      drawPortrait(
+        x,
+        cx,
+        cy,
+        S,
+        v.championId,
+        deps.championNameFor(v.championId),
+        SEASON_LANE[seasonLane(n)]!,
+        portraits.get(v.championId) ?? null,
+      );
     } else {
       drawEmptySlot(x, cx, cy, S);
     }
@@ -310,7 +381,12 @@ export async function renderMapExport(deps: ExportDeps, seasonNumber: number): P
 // ─────────────────────────────────────────────────────────────────────────
 
 export async function renderPlayerExport(deps: ExportDeps, seasonNumber: number): Promise<HTMLCanvasElement> {
-  await ensureFonts();
+  const placedChampIds = Object.values(deps.placements).map((pl) => pl.championId);
+  const [_, portraits] = await Promise.all([
+    ensureFonts(),
+    preloadPortraits(placedChampIds, deps.championPortraitFor),
+  ]);
+  void _;
   const W = 1080;
   const M = 32;
   const NAMEW = 200;
@@ -358,7 +434,16 @@ export async function renderPlayerExport(deps: ExportDeps, seasonNumber: number)
       const n = Number(nStr) as NodeNumber;
       const cx = M + NAMEW + TW * j + TW / 2;
       const cy = y + 18 + S / 2;
-      drawPortrait(x, cx, cy, S, v.championId, deps.championNameFor(v.championId), SEASON_LANE[seasonLane(n)]!);
+      drawPortrait(
+        x,
+        cx,
+        cy,
+        S,
+        v.championId,
+        deps.championNameFor(v.championId),
+        SEASON_LANE[seasonLane(n)]!,
+        portraits.get(v.championId) ?? null,
+      );
       drawNodeBadge(x, cx - S / 2 - 8, cy - S / 2 - 8, n, 16);
       if (v.pinned) {
         x.beginPath();
