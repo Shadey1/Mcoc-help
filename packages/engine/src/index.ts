@@ -176,9 +176,14 @@ export {
   whereLabel as seasonWhereLabel,
 } from './war/season/index.js';
 
+// SeasonChampionId is exposed alongside the shorter ChampionId alias so
+// callers can use whichever fits their local naming. NodeNumber and
+// PlayerId share their names between the two engines because they mean
+// the same thing everywhere.
 export type {
   BgIndex,
   ChampionId as SeasonChampionId,
+  ChampionId,
   Edge as SeasonMapEdge,
   ExplanationLine,
   FitResult,

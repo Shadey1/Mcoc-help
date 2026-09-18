@@ -9,7 +9,8 @@ import type {
   PlayerId,
   SeasonPlan,
 } from '../types.js';
-import type { Ascension, ChampionState, Rank, WarPlayer } from '../../../types.js';
+import type { Ascension, ChampionState, Rank } from '../../../types.js';
+import type { WarPlayer } from '../../types.js';
 
 /**
  * Solver invariants. These are the guarantees the handover asks the engine
@@ -148,7 +149,9 @@ describe('season solver invariants', () => {
 
   it('honours a with-player pin', () => {
     const players = buildBg();
-    const ownerP = players.find((p) => p.roster.some((s) => s.championId === 'champ-3'))!;
+    const ownerP = players.find((p) =>
+      p.roster.some((s: ChampionState) => s.championId === 'champ-3'),
+    )!;
     const plan = buildPlan({
       pins: { 12: { championId: 'champ-3', playerId: ownerP.id } },
     });
@@ -188,7 +191,9 @@ describe('season solver invariants', () => {
   it('reports an impossible pin instead of throwing', () => {
     // Pin champ-42 to node 5 with a player who doesn't own it.
     const players = buildBg();
-    const nonOwner = players.find((p) => !p.roster.some((s) => s.championId === 'champ-42'))!;
+    const nonOwner = players.find(
+      (p) => !p.roster.some((s: ChampionState) => s.championId === 'champ-42'),
+    )!;
     const plan = buildPlan({
       pins: { 5: { championId: 'champ-42', playerId: nonOwner.id } },
     });
