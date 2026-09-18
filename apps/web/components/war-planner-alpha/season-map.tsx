@@ -77,7 +77,7 @@ export function SeasonMap({
   );
 
   return (
-    <div className="border border-[var(--color-rule)] rounded-lg bg-[var(--color-paper-card)] p-2 sm:p-3">
+    <div className="border border-[var(--color-rule)] rounded-lg bg-[var(--war-map-bg)] p-2 sm:p-3">
       <svg
         viewBox="60 18 960 1220"
         xmlns="http://www.w3.org/2000/svg"

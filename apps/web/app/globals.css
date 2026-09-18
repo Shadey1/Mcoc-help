@@ -52,6 +52,11 @@
   --color-ink-soft: var(--brand-ink-soft);
   --color-rule: var(--brand-cream-line);
 
+  /* War map wants a whiter background than the cream card so the lane
+     colours pop and the map reads as a distinct surface. Kept as its
+     own token so a designer knob later stays scoped. */
+  --war-map-bg: #fbfaf6;
+
   /* Typography — next/font injects --font-* CSS variables; we point our
      semantic names at them. Generic fallback chain in case fonts fail to load. */
   --font-display: var(--font-fraunces), "Fraunces", "Georgia", serif;
@@ -76,6 +81,8 @@
   /* Editorial red drops in for softer legibility on warm-black; the
      impact starburst red stays canonical. */
   --color-marvel-editorial: var(--brand-marvel-soft);
+  /* War map keeps the warm panel surface in dark. */
+  --war-map-bg: var(--brand-panel);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -87,6 +94,7 @@
     --color-ink-soft: var(--brand-text-dim-dark);
     --color-rule: var(--brand-line);
     --color-marvel-editorial: var(--brand-marvel-soft);
+    --war-map-bg: var(--brand-panel);
   }
 }
 
