@@ -158,6 +158,40 @@ export type {
 
 export { assignWar, assignmentStateScore, effectiveRank } from './war/assign.js';
 
+// ─── Season war planner (sibling to the diversity engine above) ─────────
+export {
+  solvePlacement,
+  fit as seasonFit,
+  copyStrength as seasonCopyStrength,
+  meetsFloor as seasonMeetsFloor,
+  resolvePicks,
+  explainPlacement,
+  ALL_NODES as SEASON_NODES,
+  EDGES as SEASON_EDGES,
+  LANE as SEASON_LANE,
+  PT as SEASON_PT,
+  lane as seasonLane,
+  pathOf as seasonPathOf,
+  pos as seasonPos,
+  whereLabel as seasonWhereLabel,
+} from './war/season/index.js';
+
+export type {
+  BgIndex,
+  ChampionId as SeasonChampionId,
+  Edge as SeasonMapEdge,
+  ExplanationLine,
+  FitResult,
+  NodeNumber,
+  NodePlacement,
+  PlaceInput,
+  PlaceResult,
+  PlayerId,
+  Pin,
+  SeasonPlan,
+  UnfilledNode,
+} from './war/season/index.js';
+
 // ─── Immunity query engine ─────────────────────────────────────────────────
 
 export {
