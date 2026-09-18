@@ -44,6 +44,7 @@ import {
   type PlanPayload,
   type StoredPlanPublic,
 } from '../../lib/war-plan-client';
+import { deliverPng, renderMapExport, renderPlayerExport } from './export';
 import {
   cachePlan,
   readCachedPlan,
@@ -140,6 +141,7 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
   const [planShare, setPlanShare] = useState<{ id: string; version: number; canEdit: boolean } | null>(null);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'conflict' | 'error'>('idle');
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [exportModal, setExportModal] = useState<{ dataUrl: string; alt: string } | null>(null);
 
   const plan = plansByBg[activeBg]!;
   const result = resultByBg[activeBg];
@@ -373,6 +375,45 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
     setTab('node');
   }, []);
 
+  // ── Exports ─────────────────────────────────────────────────────────
+  const runExport = useCallback(
+    async (kind: 'map' | 'player') => {
+      if (!result) return;
+      const activePlayers = players
+        .filter((p) => !plan.excludedPlayers.has(p.id))
+        .map((p) => ({ id: p.id, name: p.name }));
+      const deps = {
+        bg: activeBg,
+        placements: result.placements,
+        unfilled: result.unfilled.map((u) => u.node),
+        championNameFor,
+        championShortFor,
+        playerNameFor,
+        playerOrder: activePlayers,
+      };
+      const cv =
+        kind === 'map'
+          ? await renderMapExport(deps, season.season)
+          : await renderPlayerExport(deps, season.season);
+      const filename = `bg${activeBg}-defence-${kind === 'map' ? 'map' : 'players'}.png`;
+      const title = `BG${activeBg} defence — ${kind === 'map' ? 'map' : 'by player'}`;
+      const delivery = await deliverPng(cv, filename, title);
+      if (delivery.kind === 'modal') {
+        setExportModal({ dataUrl: delivery.dataUrl, alt: title });
+      }
+    },
+    [
+      result,
+      players,
+      plan.excludedPlayers,
+      activeBg,
+      season.season,
+      championNameFor,
+      championShortFor,
+      playerNameFor,
+    ],
+  );
+
   // Explanation trace map for the node panel — computed lazily per solve.
   const explanationLookup = useMemo(() => {
     if (!result) return null;
@@ -521,6 +562,7 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
                 players={players}
                 championById={championById}
                 playerNameFor={playerNameFor}
+                onExport={runExport}
               />
             )}
             {tab === 'battlegroup' && (
@@ -538,7 +580,66 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
           </div>
         </aside>
       </div>
+
+      {exportModal && (
+        <ExportModal
+          dataUrl={exportModal.dataUrl}
+          alt={exportModal.alt}
+          onClose={() => setExportModal(null)}
+        />
+      )}
     </section>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Export modal — last-resort fallback when Web Share and download both
+// fail (iOS Safari in-app browsers, etc.). Long-press to save.
+// ─────────────────────────────────────────────────────────────────────────
+
+function ExportModal({
+  dataUrl,
+  alt,
+  onClose,
+}: {
+  dataUrl: string;
+  alt: string;
+  onClose: () => void;
+}) {
+  const closeBtnRef = useRef<HTMLButtonElement | null>(null);
+  useEffect(() => {
+    closeBtnRef.current?.focus();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Exported defence image"
+      className="fixed inset-0 bg-black/80 flex items-start justify-center p-5 overflow-auto z-50"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div className="max-w-3xl w-full">
+        <div className="flex justify-between items-center gap-3 mb-2 text-sm text-white/70">
+          <span>Long-press (mobile) or right-click the image to save it.</span>
+          <button
+            ref={closeBtnRef}
+            type="button"
+            onClick={onClose}
+            className="px-3 py-1 text-sm bg-white/10 border border-white/20 rounded hover:bg-white/20 text-white"
+          >
+            Close
+          </button>
+        </div>
+        <img src={dataUrl} alt={alt} className="w-full h-auto rounded" />
+      </div>
+    </div>
   );
 }
 
@@ -959,12 +1060,14 @@ function PlacementPanel({
   players,
   championById,
   playerNameFor,
+  onExport,
 }: {
   plan: SeasonPlan;
   result: PlaceResult | null | undefined;
   players: WarPlayer[];
   championById: Map<ChampionId, Champion>;
   playerNameFor: (id: PlayerId) => string;
+  onExport: (kind: 'map' | 'player') => Promise<void>;
 }) {
   const copyBtnRef = useRef<HTMLButtonElement | null>(null);
   const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'error'>('idle');
@@ -1021,6 +1124,20 @@ function PlacementPanel({
         <Stat n={miss} label="unfilled" tone={miss > 0 ? 'warn' : 'neutral'} />
       </div>
       <div className="flex flex-wrap gap-2 mt-4">
+        <button
+          type="button"
+          onClick={() => void onExport('map')}
+          className="px-3 py-1.5 text-sm border border-[var(--color-rule)] rounded hover:border-[var(--color-marvel-impact)]"
+        >
+          Export map
+        </button>
+        <button
+          type="button"
+          onClick={() => void onExport('player')}
+          className="px-3 py-1.5 text-sm border border-[var(--color-rule)] rounded hover:border-[var(--color-marvel-impact)]"
+        >
+          Export by player
+        </button>
         <button
           type="button"
           ref={copyBtnRef}
