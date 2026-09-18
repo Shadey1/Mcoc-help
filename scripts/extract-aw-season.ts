@@ -2,225 +2,381 @@
  * War planner — Alliance War season extractor.
  *
  * Usage:
- *   tsx scripts/extract-aw-season.ts <season-number> <guide-url> [--apply]
+ *   tsx scripts/extract-aw-season.ts <season-number> [--apply]
  *
- * What it does (per the handover):
- *   1. Fetch the guide season page and its table images.
- *   2. For each image, detect the row layout (4 / 3 / 5 rows depending on
- *      section). Never hardcode a count.
- *   3. Read the node number from the left cell of each row (image OCR).
- *   4. Crop the 4×2 defender grid from the middle column, run each cell
- *      through the portrait matcher.
- *   5. OCR the buff text (Tesseract). Handle wrapped lines — join a
- *      continuation onto the previous buff when the buff ends in ":"
- *      or the continuation isn't bold.
- *   6. Write confident results to data/aw/season-<N>.json; low-confidence
- *      to data/aw/_review-season-<N>.md with crop image paths.
- *   7. Attribute the source explicitly.
+ * Reads guide images from `dump/MTC Guide - AW - Season <N>_files/`
+ * (Chrome "Save Page As... > Complete Webpage" output), crops each
+ * defender cell, phash-matches to the portrait cache at
+ * data/champions/portrait-hashes.json (built by
+ * scripts/build-portrait-hash-cache.ts), and writes:
  *
- * Status: SCAFFOLD. Stages 1, 6, 7 are wired and pluggable. Stages 2–5
- * are per-source (they depend on how the guide lays its tables out) and
- * need a live URL to inspect against — see `docs/extractor-notes.md` for
- * the remaining checklist and the exact hooks to fill in.
+ *   data/aw/season-<N>.json       — 50 nodes × up to 8 defender ids
+ *   data/aw/_review-season-<N>.md — low-confidence matches (crop path
+ *                                    + top-3 candidates for hand-fix)
  *
- * Run in dry-run mode without --apply. Only --apply writes files.
+ * Node mapping across GuiaMTC's 13 pick tables:
+ *   Path 1..9 images     → nodes N, N+9, N+18, N+27 for path N
+ *   SUBS Section 1..3    → nodes 37-45 (grouping determined empirically)
+ *   Boss Island          → nodes 46-50 in 5 rows
+ *
+ * Buff text is not OCR'd yet — the schema wants a string[] per node and
+ * the guide's Portuguese-and-English buff labels are noisy. Existing
+ * buff placeholders in the season file are preserved on overwrite.
+ *
+ * Dry-run by default. Pass --apply to write the files.
  */
 
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
-
-// ── Args ────────────────────────────────────────────────────────────────
+import sharp from 'sharp';
 
 const args = process.argv.slice(2);
-const apply = args.includes('--apply');
+const APPLY = args.includes('--apply');
 const positional = args.filter((a) => !a.startsWith('--'));
-
-if (positional.length < 2) {
-  console.error(
-    'Usage: tsx scripts/extract-aw-season.ts <season-number> <guide-url> [--apply]',
-  );
+if (positional.length < 1) {
+  console.error('Usage: tsx scripts/extract-aw-season.ts <season-number> [--apply]');
   process.exit(64);
 }
-
-const seasonNumber = parseInt(positional[0]!, 10);
-const guideUrl = positional[1]!;
-
-if (!Number.isInteger(seasonNumber) || seasonNumber < 1) {
+const SEASON = parseInt(positional[0]!, 10);
+if (!Number.isInteger(SEASON) || SEASON < 1) {
   console.error('Invalid season number.');
-  process.exit(64);
-}
-try {
-  new URL(guideUrl);
-} catch {
-  console.error('Invalid guide URL.');
   process.exit(64);
 }
 
 const REPO_ROOT = resolve(import.meta.dirname, '..');
-const SEASON_FILE = resolve(REPO_ROOT, `data/aw/season-${seasonNumber}.json`);
-const REVIEW_FILE = resolve(REPO_ROOT, `data/aw/_review-season-${seasonNumber}.md`);
+const DUMP = resolve(REPO_ROOT, `dump/MTC Guide - AW - Season ${SEASON}_files`);
+const HASH_CACHE_PATH = resolve(REPO_ROOT, 'data/champions/portrait-hashes.json');
+const SEED_PATH = resolve(REPO_ROOT, 'data/champions/seed.json');
+const SEASON_FILE = resolve(REPO_ROOT, `data/aw/season-${SEASON}.json`);
+const REVIEW_FILE = resolve(REPO_ROOT, `data/aw/_review-season-${SEASON}.md`);
+const CELLS_DIR = resolve(REPO_ROOT, `data/aw/_cells-s${SEASON}`);
 
-// ── Stage 1: fetch ──────────────────────────────────────────────────────
+// ── Image layout constants ──────────────────────────────────────────────
+const DEFENDERS_X_FRAC = 470 / 1280;
+const DEFENDERS_W_FRAC = 410 / 1280;
+const HEADER_H_PX = 115;
+const HASH_SIZE = 8;
 
-/** Fetch the guide page HTML. Fandom, GuiaMTC and similar sources
- *  usually require a proper browser UA to serve real content instead of
- *  a 403. */
-async function fetchGuidePage(url: string): Promise<string> {
-  const res = await fetch(url, {
-    headers: {
-      'user-agent':
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-      accept: 'text/html,application/xhtml+xml',
-    },
-  });
-  if (!res.ok) {
-    throw new Error(`fetch failed: HTTP ${res.status} ${res.statusText}`);
+// ── Section → image mapping (DOM order in the saved HTML) ──────────────
+const PATH_IMAGES: Record<number, string> = {
+  1: 'unnamed(3).png',
+  2: 'unnamed(6).png',
+  3: 'unnamed(9).png',
+  4: 'unnamed(11).png',
+  5: 'unnamed(15).png',
+  6: 'unnamed(18).png',
+  7: 'unnamed(21).png',
+  8: 'unnamed(24).png',
+  9: 'unnamed(28).png',
+};
+const SUBS_IMAGES: Record<string, string> = {
+  's1': 'unnamed(33).png',
+  's2': 'unnamed(36).png',
+  's3': 'unnamed(40).png',
+};
+const BOSS_IMAGE = 'unnamed(44).png';
+// SUBS-image → node numbers. The map's numbering (37-45 left→right)
+// doesn't match GuiaMTC's SUBS Section 1/2/3 labels, so this is an
+// empirical mapping — reviewer confirms.
+const SUBS_NODES: Record<string, [number, number, number]> = {
+  's1': [40, 41, 42], // left column
+  's2': [43, 44, 45], // centre column
+  's3': [37, 38, 39], // right column
+};
+
+// ── phash helpers ───────────────────────────────────────────────────────
+
+async function hashBuffer(buf: Buffer): Promise<string> {
+  const raw = await sharp(buf)
+    .resize(HASH_SIZE, HASH_SIZE, { fit: 'fill' })
+    .greyscale()
+    .raw()
+    .toBuffer();
+  let sum = 0;
+  for (let i = 0; i < raw.length; i++) sum += raw[i]!;
+  const mean = sum / raw.length;
+  let bits = '';
+  for (let i = 0; i < raw.length; i++) bits += raw[i]! > mean ? '1' : '0';
+  let hex = '';
+  for (let i = 0; i < 64; i += 4) {
+    hex += parseInt(bits.slice(i, i + 4), 2).toString(16);
   }
-  return res.text();
+  return hex;
 }
 
-// ── Stage 2–5: extraction ───────────────────────────────────────────────
+function hammingDistance(a: string, b: string): number {
+  if (a.length !== b.length) throw new Error(`Hash length mismatch: ${a.length} vs ${b.length}`);
+  let d = 0;
+  for (let i = 0; i < a.length; i++) {
+    const xa = parseInt(a[i]!, 16);
+    const xb = parseInt(b[i]!, 16);
+    let x = xa ^ xb;
+    while (x) {
+      d += x & 1;
+      x >>>= 1;
+    }
+  }
+  return d;
+}
 
-/**
- * Per-source table extractor. Returns one entry per node parsed from the
- * guide's table images. Confidence: 0..1 per cell — the matcher reports
- * its own confidence, and OCR reports its.
- *
- * NOT IMPLEMENTED — needs live GuiaMTC page inspection to know:
- *   - How the season page links to its table images (Cloudinary?
- *     wp-content? inline SVG?)
- *   - Table image dimensions (fixed or responsive)
- *   - Defender cell geometry within a table row (px offsets, cell size)
- *   - Buff text region (font size, background colour for OCR contrast)
- *   - How the SUBS section numbers its rows differently from paths 1..9
- *
- * See docs/extractor-notes.md for the walkthrough of what to add.
- */
-type ExtractedNode = {
+type Match = { championId: string; distance: number };
+
+function findMatches(hash: string, cache: Record<string, string>, topN = 3): Match[] {
+  const results: Match[] = [];
+  for (const [id, h] of Object.entries(cache)) {
+    results.push({ championId: id, distance: hammingDistance(hash, h) });
+  }
+  results.sort((a, b) => a.distance - b.distance);
+  return results.slice(0, topN);
+}
+
+// ── Cell extraction ────────────────────────────────────────────────────
+
+/** Crop the 8 defender cells for one row of a table image. Returns
+ *  buffers in reading order (top-left → top-right → bottom-left → …). */
+async function extractRowCells(imgPath: string, rows: number, rowIdx: number): Promise<Buffer[]> {
+  const meta = await sharp(imgPath).metadata();
+  const W = meta.width!;
+  const H = meta.height!;
+  const rowH = Math.floor((H - HEADER_H_PX) / rows);
+  const dx = Math.round(W * DEFENDERS_X_FRAC);
+  const dw = Math.round(W * DEFENDERS_W_FRAC);
+  const dy = HEADER_H_PX + rowIdx * rowH;
+  const height = Math.min(rowH, H - dy);
+  const cellW = Math.floor(dw / 4);
+  const cellH = Math.floor(height / 2);
+  const cells: Buffer[] = [];
+  for (let r = 0; r < 2; r++) {
+    for (let c = 0; c < 4; c++) {
+      const cx = dx + c * cellW;
+      const cy = dy + r * cellH;
+      const buf = await sharp(imgPath)
+        .extract({ left: cx, top: cy, width: cellW, height: cellH })
+        .png()
+        .toBuffer();
+      cells.push(buf);
+    }
+  }
+  return cells;
+}
+
+// ── Main pipeline ───────────────────────────────────────────────────────
+
+type NodeExtraction = {
   node: number;
   buffs: string[];
   guideDefenders: string[];
   reviewFlags: string[];
+  candidates: Array<{ slot: number; top: Match[] }>;
 };
 
-async function extractFromGuide(_html: string, _url: string): Promise<ExtractedNode[]> {
-  throw new Error(
-    "Extractor's per-source parser is not implemented. See docs/extractor-notes.md.\n" +
-      'The scaffold handles fetch, output, review-queue, and attribution — only the\n' +
-      'guide-specific defender-cell + buff parser is missing.',
-  );
-}
-
-// ── Stage 6: write ──────────────────────────────────────────────────────
-
-type SeasonNode = {
-  node: number;
-  buffs: string[];
-  guideDefenders: string[];
-  reviewFlags?: string[];
-};
-
-type Season = {
-  season: number;
-  source: { name: string; url: string; capturedAt: string };
-  nodes: SeasonNode[];
-  defaultKeyNodes: number[];
-};
-
-function readExistingSeason(): Season | null {
-  if (!existsSync(SEASON_FILE)) return null;
+function readExistingBuffs(): Record<number, string[]> {
+  if (!existsSync(SEASON_FILE)) return {};
   try {
-    return JSON.parse(readFileSync(SEASON_FILE, 'utf-8')) as Season;
-  } catch {
-    return null;
-  }
-}
-
-function inferSourceName(url: string): string {
-  try {
-    const host = new URL(url).hostname.replace(/^www\./, '');
-    return host;
-  } catch {
-    return 'unknown';
-  }
-}
-
-function writeSeasonFile(nodes: ExtractedNode[]): void {
-  const existing = readExistingSeason();
-  const defaultKeyNodes = existing?.defaultKeyNodes ?? [48, 49, 50];
-  const cleaned: SeasonNode[] = nodes.map((n) => {
-    const out: SeasonNode = {
-      node: n.node,
-      buffs: n.buffs,
-      guideDefenders: n.guideDefenders,
+    const s = JSON.parse(readFileSync(SEASON_FILE, 'utf-8')) as {
+      nodes: Array<{ node: number; buffs: string[] }>;
     };
-    if (n.reviewFlags.length > 0) out.reviewFlags = n.reviewFlags;
+    const out: Record<number, string[]> = {};
+    for (const n of s.nodes) out[n.node] = n.buffs;
     return out;
-  });
-  const season: Season = {
-    season: seasonNumber,
-    source: {
-      name: inferSourceName(guideUrl),
-      url: guideUrl,
-      capturedAt: new Date().toISOString().slice(0, 10),
-    },
-    nodes: cleaned,
-    defaultKeyNodes,
+  } catch {
+    return {};
+  }
+}
+
+/** Match one row of cells and produce a node extraction. Cells that
+ *  land beyond CONFIDENCE_MISS are flagged and their crop is saved for
+ *  reviewer inspection. */
+const CONFIDENCE_OK = 12; // Hamming distance below which we trust the match
+const CONFIDENCE_MISS = 22; // above this, treat as no-match
+async function matchRow(
+  node: number,
+  imgPath: string,
+  rows: number,
+  rowIdx: number,
+  cache: Record<string, string>,
+  existingBuffs: Record<number, string[]>,
+): Promise<NodeExtraction> {
+  const cells = await extractRowCells(imgPath, rows, rowIdx);
+  const guideDefenders: string[] = [];
+  const reviewFlags: string[] = [];
+  const candidates: Array<{ slot: number; top: Match[] }> = [];
+  for (let slot = 0; slot < cells.length; slot++) {
+    const cellBuf = cells[slot]!;
+    const hash = await hashBuffer(cellBuf);
+    const top = findMatches(hash, cache, 3);
+    candidates.push({ slot: slot + 1, top });
+    const best = top[0];
+    if (!best) {
+      reviewFlags.push(`slot ${slot + 1}: no match candidates (empty cache?)`);
+      continue;
+    }
+    if (best.distance <= CONFIDENCE_OK) {
+      guideDefenders.push(best.championId);
+    } else if (best.distance <= CONFIDENCE_MISS) {
+      guideDefenders.push(best.championId);
+      const alt = top
+        .slice(1)
+        .map((m) => `${m.championId}(d=${m.distance})`)
+        .join(', ');
+      reviewFlags.push(
+        `slot ${slot + 1} weak: ${best.championId} (d=${best.distance}); alts: ${alt}`,
+      );
+      // Save the crop so reviewer can eyeball
+      mkdirSync(CELLS_DIR, { recursive: true });
+      const cellPath = resolve(CELLS_DIR, `node-${String(node).padStart(2, '0')}-slot-${slot + 1}.png`);
+      writeFileSync(cellPath, cellBuf);
+    } else {
+      const alt = top
+        .map((m) => `${m.championId}(d=${m.distance})`)
+        .join(', ');
+      reviewFlags.push(`slot ${slot + 1} MISS: best d=${best.distance}; candidates: ${alt}`);
+      mkdirSync(CELLS_DIR, { recursive: true });
+      const cellPath = resolve(CELLS_DIR, `node-${String(node).padStart(2, '0')}-slot-${slot + 1}.png`);
+      writeFileSync(cellPath, cellBuf);
+    }
+  }
+  return {
+    node,
+    buffs: existingBuffs[node] ?? [],
+    guideDefenders,
+    reviewFlags,
+    candidates,
   };
-  mkdirSync(dirname(SEASON_FILE), { recursive: true });
-  writeFileSync(SEASON_FILE, JSON.stringify(season, null, 2) + '\n', 'utf-8');
-  console.log(`wrote ${SEASON_FILE}`);
 }
-
-function writeReviewQueue(nodes: ExtractedNode[]): void {
-  const flagged = nodes.filter((n) => n.reviewFlags.length > 0);
-  if (flagged.length === 0) {
-    console.log('review queue: empty — every node extracted with confidence');
-    return;
-  }
-  const lines: string[] = [
-    `# Season ${seasonNumber} extraction review queue`,
-    '',
-    `Source: ${guideUrl}`,
-    `Captured: ${new Date().toISOString().slice(0, 10)}`,
-    '',
-    `${flagged.length} node(s) need review before the season file is trusted.`,
-    '',
-  ];
-  for (const n of flagged) {
-    lines.push(`## Node ${n.node}`);
-    lines.push('');
-    for (const f of n.reviewFlags) lines.push(`- ${f}`);
-    lines.push('');
-  }
-  mkdirSync(dirname(REVIEW_FILE), { recursive: true });
-  writeFileSync(REVIEW_FILE, lines.join('\n'), 'utf-8');
-  console.log(`wrote ${REVIEW_FILE} — ${flagged.length} node(s) flagged`);
-}
-
-// ── Main ────────────────────────────────────────────────────────────────
 
 async function main(): Promise<void> {
-  console.log(`Extracting season ${seasonNumber} from ${guideUrl}`);
-  console.log(apply ? '(apply mode — will write files)' : '(dry-run — pass --apply to write)');
-  const html = await fetchGuidePage(guideUrl);
-  console.log(`fetched ${html.length} bytes of HTML`);
-  const nodes = await extractFromGuide(html, guideUrl);
-  if (nodes.length !== 50) {
-    console.warn(`WARN: extracted ${nodes.length} nodes — expected 50`);
+  if (!existsSync(DUMP)) {
+    console.error(`Dump dir not found: ${DUMP}`);
+    process.exit(1);
   }
-  if (!apply) {
-    console.log('dry run: would write:');
-    console.log(` - ${SEASON_FILE}`);
-    console.log(` - ${REVIEW_FILE} (if any node was flagged)`);
+  if (!existsSync(HASH_CACHE_PATH)) {
+    console.error(
+      `Portrait hash cache not found. Run: tsx scripts/build-portrait-hash-cache.ts`,
+    );
+    process.exit(1);
+  }
+  const cache = (JSON.parse(readFileSync(HASH_CACHE_PATH, 'utf-8')) as {
+    hashes: Record<string, string>;
+  }).hashes;
+  console.log(`portrait cache: ${Object.keys(cache).length} champions`);
+
+  const existingBuffs = readExistingBuffs();
+  const seed = JSON.parse(readFileSync(SEED_PATH, 'utf-8')) as {
+    champions: Array<{ id: string; name: string }>;
+  };
+  const nameById = new Map(seed.champions.map((c) => [c.id, c.name]));
+
+  const extractions: NodeExtraction[] = [];
+
+  console.log('\n── Paths ──────');
+  for (const [pathNumStr, filename] of Object.entries(PATH_IMAGES)) {
+    const pathNum = Number(pathNumStr);
+    const imgPath = resolve(DUMP, filename);
+    if (!existsSync(imgPath)) {
+      console.warn(`  path ${pathNum}: ${filename} not found`);
+      continue;
+    }
+    for (let r = 0; r < 4; r++) {
+      const node = pathNum + 9 * r;
+      const ext = await matchRow(node, imgPath, 4, r, cache, existingBuffs);
+      extractions.push(ext);
+      const names = ext.guideDefenders.map((id) => nameById.get(id) ?? id).join(', ');
+      const flag = ext.reviewFlags.length > 0 ? ` ⚠ ${ext.reviewFlags.length}` : '';
+      console.log(`  node ${String(node).padStart(2)}: ${names}${flag}`);
+    }
+  }
+
+  console.log('\n── SUBS ──────');
+  for (const [key, filename] of Object.entries(SUBS_IMAGES)) {
+    const imgPath = resolve(DUMP, filename);
+    if (!existsSync(imgPath)) {
+      console.warn(`  ${key}: ${filename} not found`);
+      continue;
+    }
+    const nodes = SUBS_NODES[key]!;
+    for (let r = 0; r < 3; r++) {
+      const node = nodes[r]!;
+      const ext = await matchRow(node, imgPath, 3, r, cache, existingBuffs);
+      extractions.push(ext);
+      const names = ext.guideDefenders.map((id) => nameById.get(id) ?? id).join(', ');
+      const flag = ext.reviewFlags.length > 0 ? ` ⚠ ${ext.reviewFlags.length}` : '';
+      console.log(`  node ${String(node).padStart(2)}: ${names}${flag}`);
+    }
+  }
+
+  console.log('\n── Boss Island ──────');
+  const bossPath = resolve(DUMP, BOSS_IMAGE);
+  if (existsSync(bossPath)) {
+    for (let r = 0; r < 5; r++) {
+      const node = 46 + r;
+      const ext = await matchRow(node, bossPath, 5, r, cache, existingBuffs);
+      extractions.push(ext);
+      const names = ext.guideDefenders.map((id) => nameById.get(id) ?? id).join(', ');
+      const flag = ext.reviewFlags.length > 0 ? ` ⚠ ${ext.reviewFlags.length}` : '';
+      console.log(`  node ${String(node).padStart(2)}: ${names}${flag}`);
+    }
+  }
+
+  extractions.sort((a, b) => a.node - b.node);
+  const totalFlags = extractions.reduce((n, e) => n + e.reviewFlags.length, 0);
+  console.log(
+    `\nExtracted ${extractions.length} nodes; ${totalFlags} cells need review.`,
+  );
+
+  if (!APPLY) {
+    console.log('\n(dry run — pass --apply to write files)');
     return;
   }
-  writeSeasonFile(nodes);
-  writeReviewQueue(nodes);
+  // Write season file (preserve defaultKeyNodes if present, else default)
+  const existing = existsSync(SEASON_FILE)
+    ? (JSON.parse(readFileSync(SEASON_FILE, 'utf-8')) as {
+        defaultKeyNodes?: number[];
+      })
+    : {};
+  const seasonOut = {
+    season: SEASON,
+    source: {
+      name: 'guiamtc.com',
+      url: `https://www.guiamtc.com/aw-season-${SEASON}`,
+      capturedAt: new Date().toISOString().slice(0, 10),
+    },
+    nodes: extractions.map((e) => ({
+      node: e.node,
+      buffs: e.buffs,
+      guideDefenders: e.guideDefenders,
+      ...(e.reviewFlags.length > 0 ? { reviewFlags: e.reviewFlags } : {}),
+    })),
+    defaultKeyNodes: existing.defaultKeyNodes ?? [48, 49, 50],
+  };
+  mkdirSync(dirname(SEASON_FILE), { recursive: true });
+  writeFileSync(SEASON_FILE, JSON.stringify(seasonOut, null, 2) + '\n');
+  console.log(`wrote ${SEASON_FILE}`);
+
+  // Review queue
+  const reviewLines: string[] = [
+    `# Season ${SEASON} extraction review queue`,
+    '',
+    `Source: https://www.guiamtc.com/aw-season-${SEASON}`,
+    `Captured: ${new Date().toISOString().slice(0, 10)}`,
+    '',
+    `${extractions.filter((e) => e.reviewFlags.length > 0).length} nodes flagged (${totalFlags} cells).`,
+    '',
+    'Crop images for weak matches are under `data/aw/_cells-s' + SEASON + '/`.',
+    '',
+  ];
+  for (const e of extractions) {
+    if (e.reviewFlags.length === 0) continue;
+    reviewLines.push(`## Node ${e.node}`);
+    reviewLines.push('');
+    for (const f of e.reviewFlags) reviewLines.push(`- ${f}`);
+    reviewLines.push('');
+  }
+  writeFileSync(REVIEW_FILE, reviewLines.join('\n'));
+  console.log(`wrote ${REVIEW_FILE}`);
 }
 
 main().catch((e: unknown) => {
-  console.error('extract-aw-season failed:');
   console.error(e instanceof Error ? e.message : String(e));
   process.exit(1);
 });

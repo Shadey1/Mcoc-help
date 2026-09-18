@@ -1,8 +1,60 @@
-# AW season extractor — completion notes
+# AW season extractor — how to run it
 
-`scripts/extract-aw-season.ts` is a scaffold. The fetch, output, review-queue and attribution stages are wired. The per-source parser is not — it needs a live guide page to inspect against.
+Full pipeline is wired against GuiaMTC's page layout. Three scripts, run in order:
 
-This doc is the checklist for finishing it against a chosen guide (GuiaMTC or similar). Run through it in order.
+## 1. Save the guide page
+
+In Chrome / Edge / Firefox, open `https://www.guiamtc.com/aw-season-<N>` and use `File → Save Page As… → Complete Webpage`. Drop the resulting `.html` and `_files` folder into `dump/` at the repo root. The `_files` folder should contain 45 `unnamed*.png` images.
+
+The `dump/` folder is gitignored — nothing committed from the guide itself.
+
+## 2. Build the champion portrait hash cache (once)
+
+```
+pnpm build-portrait-hashes
+```
+
+Fetches every champion's `portraitUrl` from Fandom, computes an 8×8 aHash, saves to `data/champions/portrait-hashes.json`. Idempotent (skips existing entries); rerun after adding new champions. Rate-limited to 500 ms between fetches — the full 330-champion build takes ~3 minutes on a warm connection.
+
+**Fandom rate-limit note.** After heavy scraping activity Fandom's WAF can flag your IP for 403 responses. If you see all-403s, wait a few hours and retry. Pass `--force` to rebuild from scratch.
+
+## 3. Run the extractor
+
+```
+pnpm extract-aw-season 69           # dry run — prints what it would extract
+pnpm extract-aw-season 69 --apply   # write the season file
+```
+
+Produces:
+- `data/aw/season-<N>.json` — 50 nodes × up to 8 defender ids
+- `data/aw/_review-season-<N>.md` — cells the phash matcher wasn't sure about, with top-3 candidates and paths to the cropped cell image for eyeball verification
+- `data/aw/_cells-s<N>/` — cropped low-confidence cells (both these last two are gitignored — regenerable)
+
+## Section → image mapping
+
+The extractor knows GuiaMTC's DOM order:
+
+- Path 1..9 → `unnamed(3|6|9|11|15|18|21|24|28).png`
+- SUBS Section 1/2/3 → `unnamed(33|36|40).png`
+- Boss Island → `unnamed(44).png`
+
+If GuiaMTC reshuffles the page for a future season, update `PATH_IMAGES` / `SUBS_IMAGES` / `BOSS_IMAGE` at the top of `scripts/extract-aw-season.ts`.
+
+The SUBS-image → node-numbers mapping (`SUBS_NODES`) is the handover-flagged trap: the guide's "Section 1/2/3" labels don't match the map's node numbering. The current mapping (`s1 → 40-42, s2 → 43-45, s3 → 37-39`) was determined by hand after the first run — verify against the actual guide when a new season lands.
+
+## Buff text
+
+Not OCR'd. The guide's Portuguese-plus-English buff labels are noisy and the field is display-only in the season schema. Any `buffs` already in the season file are preserved on re-run; officers can hand-fix from the guide's per-node bar.
+
+## Fallback: hand-populate
+
+If Fandom is 403-blocking and you need picks now, `scripts/crop-aw-cells.ts` produces per-node "sheets" (8 defender portraits side-by-side, upscaled to ~200 px each) under `data/aw/_review-s<N>/node-<n>.png`. Officer eyeballs each sheet, hand-fills the JSON. Slower but requires no Fandom access.
+
+---
+
+## Historical notes
+
+An earlier version of this doc walked through the completion checklist for the scaffold — that scaffold is now filled in. Keeping the section headers here so a search for "row detection" or "buff OCR" lands somewhere useful.
 
 ## 1. Confirm the source URL
 
