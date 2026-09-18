@@ -29,6 +29,8 @@ type CachedPlan = {
 
 const PLAN_KEY = (id: string): string => `war-plan:${id}`;
 const TOKEN_KEY = (id: string): string => `war-plan-token:${id}`;
+/** Draft plan state, per-BG. Lets a page refresh not wipe unsaved edits. */
+const DRAFT_KEY = (bg: 1 | 2 | 3): string => `war-plan-draft:${bg}`;
 
 export function cachePlan(id: string, stored: StoredPlanPublic): void {
   const { createdAt: _c, expiresAt: _e, label, ...rest } = stored;
@@ -91,6 +93,38 @@ export function readDeleteToken(id: string): string | null {
 export function clearDeleteToken(id: string): void {
   try {
     localStorage.removeItem(TOKEN_KEY(id));
+  } catch {
+    // ignore
+  }
+}
+
+// ── Per-BG plan drafts ──────────────────────────────────────────────────
+// Distinct from the by-id cache above — this is "here's the current
+// planner state I was editing" so a refresh doesn't wipe unsaved work.
+// One entry per BG so switching BGs during an edit session doesn't
+// clobber the others.
+
+export function readDraftPlan(bg: 1 | 2 | 3): PlanPayload | null {
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY(bg));
+    if (!raw) return null;
+    return JSON.parse(raw) as PlanPayload;
+  } catch {
+    return null;
+  }
+}
+
+export function writeDraftPlan(bg: 1 | 2 | 3, payload: PlanPayload): void {
+  try {
+    localStorage.setItem(DRAFT_KEY(bg), JSON.stringify(payload));
+  } catch {
+    // Quota / private-mode — silently drop.
+  }
+}
+
+export function clearDraftPlan(bg: 1 | 2 | 3): void {
+  try {
+    localStorage.removeItem(DRAFT_KEY(bg));
   } catch {
     // ignore
   }

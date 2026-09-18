@@ -87,3 +87,21 @@ export async function fetchSharedBg(id: string): Promise<SharedBgPayload> {
   }
   return await res.json();
 }
+
+/**
+ * Delete a BG share. Requires the delete token returned at create time,
+ * which the officer's browser keeps in localStorage — see the BG-token
+ * helpers in war-bgs-shared.
+ */
+export async function deleteSharedBg(id: string, deleteToken: string): Promise<void> {
+  const res = await fetch(
+    `/api/share-bg/${encodeURIComponent(id)}?token=${encodeURIComponent(deleteToken)}`,
+    { method: 'DELETE' },
+  );
+  if (!res.ok) {
+    const body = (await res.json().catch(() => ({
+      error: `request failed (${res.status})`,
+    }))) as { error?: string };
+    throw new Error(body.error ?? `request failed (${res.status})`);
+  }
+}

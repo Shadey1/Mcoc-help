@@ -50,10 +50,20 @@ import {
 import { deliverPng, renderMapExport, renderPlayerExport } from './export';
 import {
   cachePlan,
+  clearDraftPlan,
   readCachedPlan,
   readDeleteToken,
+  readDraftPlan,
   saveDeleteToken,
+  writeDraftPlan,
 } from '../../lib/war-plan-storage';
+import {
+  clearDvOverride,
+  overlayDvOverrides,
+  readDvOverrides,
+  writeDvOverride,
+  type DvOverrides,
+} from '../../lib/dv-overrides';
 
 /**
  * Season war planner root — Alpha.
@@ -119,7 +129,7 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
     for (const c of champions) m.set(c.name.toLowerCase(), c.id);
     return m;
   }, [champions]);
-  const dvMap = useMemo(() => defenderValueMap(), []);
+  const dvSeed = useMemo(() => defenderValueMap(), []);
 
   const [activeBg, setActiveBg] = useState<BgIndex>(1);
   const [plansByBg, setPlansByBg] = useState<Record<BgIndex, SeasonPlan>>(() => ({
@@ -146,6 +156,17 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [conflictPayload, setConflictPayload] = useState<StoredPlanPublic | null>(null);
   const [exportModal, setExportModal] = useState<{ dataUrl: string; alt: string } | null>(null);
+  /** Set by any local mutation; cleared by save success and by
+   *  hydration. Drives the little red dot on the Save button. */
+  const [dirty, setDirty] = useState(false);
+  /** Officer-tweaked defender values. Layered on top of the seed at
+   *  solve time; editing here writes through to localStorage and marks
+   *  the plan dirty so the officer knows to re-save. */
+  const [dvOverrides, setDvOverrides] = useState<DvOverrides>({});
+  useEffect(() => {
+    setDvOverrides(readDvOverrides());
+  }, []);
+  const dvMap = useMemo(() => overlayDvOverrides(dvSeed, dvOverrides), [dvSeed, dvOverrides]);
 
   const plan = plansByBg[activeBg]!;
   const result = resultByBg[activeBg];
@@ -187,11 +208,37 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
 
   const mutatePlan = useCallback(
     (mutator: (p: SeasonPlan) => SeasonPlan) => {
-      setPlansByBg((prev) => ({ ...prev, [activeBg]: mutator(prev[activeBg]!) }));
+      setPlansByBg((prev) => {
+        const nextPlan = mutator(prev[activeBg]!);
+        // Write through to the per-BG draft cache so a refresh doesn't
+        // wipe the edit. Roster share ids live in the war-bgs-shared
+        // bridge, not the draft, so we leave that field empty here.
+        writeDraftPlan(activeBg, { ...planToPayload(nextPlan), rosterShareIds: [] });
+        return { ...prev, [activeBg]: nextPlan };
+      });
+      setDirty(true);
       invalidate();
     },
     [activeBg, invalidate],
   );
+
+  /** Set a dv override for a champion. Marks the plan dirty because
+   *  changing dv shifts placements — the officer should re-solve. */
+  const editDv = useCallback((championId: string, value: number) => {
+    writeDvOverride(championId, value);
+    setDvOverrides((prev) => ({ ...prev, [championId]: Math.max(0, Math.min(100, Math.round(value))) }));
+    setDirty(true);
+  }, []);
+
+  const resetDv = useCallback((championId: string) => {
+    clearDvOverride(championId);
+    setDvOverrides((prev) => {
+      const next = { ...prev };
+      delete next[championId];
+      return next;
+    });
+    setDirty(true);
+  }, []);
 
   // ── URL-driven plan hydration ───────────────────────────────────────
   // On mount, if `?plan=<id>` is present, fetch the plan and hydrate.
@@ -210,6 +257,7 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
           const fresh = await fetchSharedPlan(id);
           cachePlan(id, fresh);
           hydrateFromPayload(id, planPayloadFromStored(fresh), fresh.version, true);
+          setDirty(false);
         } catch (e) {
           const msg = e instanceof Error ? e.message : String(e);
           setSaveError(`Could not load plan ${id}: ${msg}`);
@@ -217,6 +265,15 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
       })();
       return;
     }
+    // No plan in the URL — restore per-BG drafts from the last edit
+    // session (each BG cached independently so switching BGs mid-edit
+    // preserves the others). Drafts are best-effort; a schema drift on
+    // the season file just re-defaults them.
+    ([1, 2, 3] as const).forEach((bg) => {
+      const draft = readDraftPlan(bg);
+      if (!draft) return;
+      setPlansByBg((prev) => ({ ...prev, [bg]: planFromPayload(season, draft) }));
+    });
     // No plan in the URL — fall back to the shared BG rosters set on
     // the BG rosters tab. Per-BG merge only: hydrate a BG only if
     // shared has non-empty content for it, so a partially populated
@@ -258,7 +315,10 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
       });
       const token = readDeleteToken(id);
       setPlanShare({ id, version, canEdit: Boolean(token) });
-      if (isFresh) setSaveStatus('saved');
+      if (isFresh) {
+        setSaveStatus('saved');
+        setDirty(false);
+      }
     },
     [season],
   );
@@ -301,12 +361,16 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
         setPlanShare({ id: res.id, version: res.version, canEdit: true });
         setSaveStatus('saved');
         setConflictPayload(null);
+        setDirty(false);
+        clearDraftPlan(activeBg);
       } else {
         const res = await createSharedPlan(payload);
         saveDeleteToken(res.id, res.deleteToken);
         setPlanShare({ id: res.id, version: res.version, canEdit: true });
         setSaveStatus('saved');
         setConflictPayload(null);
+        setDirty(false);
+        clearDraftPlan(activeBg);
         if (typeof window !== 'undefined') {
           const url = new URL(window.location.href);
           url.searchParams.set('plan', res.id);
@@ -317,7 +381,7 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
       setSaveStatus('error');
       setSaveError(e instanceof Error ? e.message : String(e));
     }
-  }, [plan, planShare, result, rosterRows]);
+  }, [plan, planShare, result, rosterRows, activeBg]);
 
   // ── Conflict recovery ──────────────────────────────────────────────
   const discardMyEdits = useCallback(() => {
@@ -326,7 +390,9 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
     setSaveStatus('saved');
     setSaveError(null);
     setConflictPayload(null);
-  }, [conflictPayload, planShare, hydrateFromPayload]);
+    setDirty(false);
+    clearDraftPlan(activeBg);
+  }, [conflictPayload, planShare, hydrateFromPayload, activeBg]);
 
   const overwriteTheirs = useCallback(async () => {
     if (!planShare?.canEdit) return;
@@ -361,11 +427,13 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
       setPlanShare({ id: res.id, version: res.version, canEdit: true });
       setSaveStatus('saved');
       setConflictPayload(null);
+      setDirty(false);
+      clearDraftPlan(activeBg);
     } catch (e) {
       setSaveStatus('error');
       setSaveError(e instanceof Error ? e.message : String(e));
     }
-  }, [plan, planShare, conflictPayload, result, rosterRows]);
+  }, [plan, planShare, conflictPayload, result, rosterRows, activeBg]);
 
   // ── Roster loading ──────────────────────────────────────────────────
   const loadRow = useCallback(
@@ -713,6 +781,10 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
                 explanationLookup={explanationLookup}
                 mutatePlan={mutatePlan}
                 playerNameFor={playerNameFor}
+                dvSeed={dvSeed}
+                dvOverrides={dvOverrides}
+                onEditDv={editDv}
+                onResetDv={resetDv}
               />
             )}
             {tab === 'placement' && (
@@ -737,6 +809,7 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
                 saveStatus={saveStatus}
                 saveError={saveError}
                 conflictPayload={conflictPayload}
+                dirty={dirty}
                 onSave={savePlan}
                 onDiscardMyEdits={discardMyEdits}
                 onOverwriteTheirs={overwriteTheirs}
@@ -827,6 +900,10 @@ type NodePanelProps = {
   } | null;
   mutatePlan: (m: (p: SeasonPlan) => SeasonPlan) => void;
   playerNameFor: (id: PlayerId) => string;
+  dvSeed: ReadonlyMap<ChampionId, number>;
+  dvOverrides: DvOverrides;
+  onEditDv: (championId: string, value: number) => void;
+  onResetDv: (championId: string) => void;
 };
 
 function NodePanel({
@@ -841,6 +918,10 @@ function NodePanel({
   explanationLookup,
   mutatePlan,
   playerNameFor,
+  dvSeed,
+  dvOverrides,
+  onEditDv,
+  onResetDv,
 }: NodePanelProps) {
   const [addPickInput, setAddPickInput] = useState('');
   const [pinChampInput, setPinChampInput] = useState('');
@@ -974,13 +1055,13 @@ function NodePanel({
           <div className="relative min-w-0">
             <input
               type="text"
-              list="champion-list"
+              list="owned-champion-list"
               value={pinChampInput}
               onChange={(e) => {
                 setPinChampInput(e.target.value);
                 setPinMsg(null);
               }}
-              placeholder="Champion"
+              placeholder="Champion (owned only)"
               aria-label="Champion to pin"
               className="w-full min-w-0 pl-2 pr-7 py-1.5 text-sm border border-[var(--color-rule)] rounded bg-[var(--color-paper)] focus:outline-none focus:border-[var(--color-marvel-impact)]"
             />
@@ -1122,10 +1203,19 @@ function NodePanel({
                   {i + 1}
                 </span>
                 <span className="text-sm">{championById.get(c)?.name ?? c}</span>
-                <span
-                  className={`text-xs ${ownCount === 0 ? 'text-[var(--color-marvel-editorial)]' : 'text-[var(--color-ink-soft)]'}`}
-                >
-                  {ownCount === 0 ? 'nobody owns' : `${ownCount} own`}
+                <span className="flex items-center gap-2">
+                  <DvChip
+                    championId={c}
+                    seed={dvSeed.get(c) ?? 50}
+                    override={dvOverrides[c]}
+                    onEdit={onEditDv}
+                    onReset={onResetDv}
+                  />
+                  <span
+                    className={`text-xs ${ownCount === 0 ? 'text-[var(--color-marvel-editorial)]' : 'text-[var(--color-ink-soft)]'}`}
+                  >
+                    {ownCount === 0 ? 'nobody owns' : `${ownCount} own`}
+                  </span>
                 </span>
                 <span className="flex gap-0.5">
                   <IconButton
@@ -1286,11 +1376,22 @@ function NodePanel({
         </div>
       )}
 
-      {/* Champion datalist shared across the pin + add inputs. */}
+      {/* Champion datalists. `champion-list` (all 7-stars) drives the
+          add-defender input — officers curate picks from the full pool,
+          including champs nobody in the BG owns. `owned-champion-list`
+          drives the pin input so the officer can't pin someone who
+          isn't in the BG. */}
       <datalist id="champion-list">
         {champions.map((c) => (
           <option key={c.id} value={c.name} />
         ))}
+      </datalist>
+      <datalist id="owned-champion-list">
+        {champions
+          .filter((c) => (ownersMap.get(c.id)?.length ?? 0) > 0)
+          .map((c) => (
+            <option key={c.id} value={c.name} />
+          ))}
       </datalist>
     </div>
   );
@@ -1319,6 +1420,95 @@ function IconButton({
       className="w-6 h-6 rounded text-xs text-[var(--color-ink-soft)] hover:bg-[var(--color-paper-soft)] hover:text-[var(--color-ink)] disabled:opacity-30 disabled:cursor-not-allowed"
     >
       {children}
+    </button>
+  );
+}
+
+/**
+ * Inline defender-value chip. Shows the effective dv (seed or override)
+ * and, on click, becomes a numeric input for the officer to tweak. The
+ * change persists to localStorage and applies globally — a champion's dv
+ * is the same across every node they appear on.
+ *
+ * Yellow ring signals an active override so it's obvious which values
+ * have been touched from the seed.
+ */
+function DvChip({
+  championId,
+  seed,
+  override,
+  onEdit,
+  onReset,
+}: {
+  championId: string;
+  seed: number;
+  override: number | undefined;
+  onEdit: (championId: string, value: number) => void;
+  onReset: (championId: string) => void;
+}) {
+  const [editing, setEditing] = useState(false);
+  const effective = override ?? seed;
+  const [draft, setDraft] = useState<string>(String(effective));
+  useEffect(() => {
+    setDraft(String(override ?? seed));
+  }, [seed, override]);
+  const hasOverride = override !== undefined && override !== seed;
+
+  const commit = (): void => {
+    const n = parseInt(draft, 10);
+    if (!Number.isFinite(n)) {
+      setDraft(String(effective));
+      setEditing(false);
+      return;
+    }
+    onEdit(championId, n);
+    setEditing(false);
+  };
+
+  if (editing) {
+    return (
+      <input
+        type="number"
+        min={0}
+        max={100}
+        value={draft}
+        autoFocus
+        onChange={(e) => setDraft(e.target.value)}
+        onBlur={commit}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') commit();
+          if (e.key === 'Escape') {
+            setDraft(String(effective));
+            setEditing(false);
+          }
+        }}
+        aria-label={`Defender value for ${championId}`}
+        className="w-12 px-1 py-0.5 text-xs border border-[var(--color-marvel-impact)] rounded bg-[var(--color-paper)] focus:outline-none numeric"
+      />
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={() => setEditing(true)}
+      onContextMenu={(e) => {
+        if (!hasOverride) return;
+        e.preventDefault();
+        onReset(championId);
+      }}
+      title={
+        hasOverride
+          ? `dv ${effective} (override, was ${seed}). Click to edit; right-click to reset.`
+          : `dv ${effective}. Click to override for the whole alliance.`
+      }
+      className={`text-xs px-1.5 py-0.5 rounded numeric ${
+        hasOverride
+          ? 'bg-[color-mix(in_srgb,#d9a93f_20%,transparent)] text-[var(--color-ink)] border border-[#d9a93f]/60'
+          : 'text-[var(--color-ink-soft)] border border-transparent hover:border-[var(--color-rule)]'
+      }`}
+    >
+      dv {effective}
     </button>
   );
 }
@@ -1533,6 +1723,7 @@ function BattlegroupPanel({
   saveStatus,
   saveError,
   conflictPayload,
+  dirty,
   onSave,
   onDiscardMyEdits,
   onOverwriteTheirs,
@@ -1551,6 +1742,7 @@ function BattlegroupPanel({
   saveStatus: 'idle' | 'saving' | 'saved' | 'conflict' | 'error';
   saveError: string | null;
   conflictPayload: StoredPlanPublic | null;
+  dirty: boolean;
   onSave: () => void;
   onDiscardMyEdits: () => void;
   onOverwriteTheirs: () => void;
@@ -1590,7 +1782,7 @@ function BattlegroupPanel({
             type="button"
             onClick={onSave}
             disabled={saveStatus === 'saving'}
-            className="px-3 py-1.5 text-sm border border-[var(--color-rule)] rounded hover:border-[var(--color-marvel-impact)] disabled:opacity-40"
+            className="relative px-3 py-1.5 text-sm border border-[var(--color-rule)] rounded hover:border-[var(--color-marvel-impact)] disabled:opacity-40"
           >
             {planShare?.canEdit
               ? saveStatus === 'saving'
@@ -1599,6 +1791,13 @@ function BattlegroupPanel({
               : saveStatus === 'saving'
                 ? 'Sharing…'
                 : 'Save & share plan'}
+            {dirty && saveStatus !== 'saving' && (
+              <span
+                aria-label="Unsaved changes"
+                title="Unsaved changes"
+                className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-[var(--color-marvel-impact)] border-2 border-[var(--color-paper-soft)]"
+              />
+            )}
           </button>
           {planShare && (
             <>

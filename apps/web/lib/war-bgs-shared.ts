@@ -62,6 +62,66 @@ export function writeSharedBg(bgIndex: 0 | 1 | 2, rows: WarPlayerInput[]): void 
   writeSharedBgs(next);
 }
 
+// ── BG-share delete tokens ─────────────────────────────────────────────
+// A BG share (from /api/share-bg) hands back an 8-char id + 16-char
+// deleteToken. Officers who shared a BG keep the token in their browser
+// so they can revoke the share later. Same pattern the plan share uses.
+
+const BG_TOKEN_KEY = (id: string): string => `war-bg-token:${id}`;
+
+export function saveBgDeleteToken(id: string, deleteToken: string): void {
+  try {
+    localStorage.setItem(BG_TOKEN_KEY(id), deleteToken);
+  } catch {
+    // ignore
+  }
+}
+
+export function readBgDeleteToken(id: string): string | null {
+  try {
+    return localStorage.getItem(BG_TOKEN_KEY(id));
+  } catch {
+    return null;
+  }
+}
+
+export function clearBgDeleteToken(id: string): void {
+  try {
+    localStorage.removeItem(BG_TOKEN_KEY(id));
+  } catch {
+    // ignore
+  }
+}
+
+// Track the most-recently-shared BG id per BG index, so the Revoke
+// button survives a refresh. The id + token pair is what's needed to
+// call DELETE; both are per-browser.
+const LAST_SHARED_KEY = (bg: 0 | 1 | 2): string => `war-bg-last-shared:${bg}`;
+
+export function writeLastSharedBgId(bg: 0 | 1 | 2, id: string): void {
+  try {
+    localStorage.setItem(LAST_SHARED_KEY(bg), id);
+  } catch {
+    // ignore
+  }
+}
+
+export function readLastSharedBgId(bg: 0 | 1 | 2): string | null {
+  try {
+    return localStorage.getItem(LAST_SHARED_KEY(bg));
+  } catch {
+    return null;
+  }
+}
+
+export function clearLastSharedBgId(bg: 0 | 1 | 2): void {
+  try {
+    localStorage.removeItem(LAST_SHARED_KEY(bg));
+  } catch {
+    // ignore
+  }
+}
+
 /** Extract the 8-char share IDs from one BG's roster rows, in slot order.
  *  Empty / malformed rows produce empty strings — the planner needs the
  *  positional array to keep player-index stable. */

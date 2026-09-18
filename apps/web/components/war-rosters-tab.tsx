@@ -2,9 +2,19 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { WarBgs, WarPlayerInput } from '../lib/war-storage';
-import { readSharedBgs, writeSharedBg, writeSharedBgs } from '../lib/war-bgs-shared';
+import {
+  clearBgDeleteToken,
+  clearLastSharedBgId,
+  readBgDeleteToken,
+  readLastSharedBgId,
+  readSharedBgs,
+  saveBgDeleteToken,
+  writeLastSharedBgId,
+  writeSharedBg,
+  writeSharedBgs,
+} from '../lib/war-bgs-shared';
 import { fetchShare, type SharedRosterPayload } from '../lib/share-client';
-import { fetchSharedBg, createSharedBg } from '../lib/share-bg-client';
+import { fetchSharedBg, createSharedBg, deleteSharedBg } from '../lib/share-bg-client';
 import { WarShareInput, extractShareId, type WarShareRowStatus } from './war-share-input';
 
 /**
@@ -39,6 +49,13 @@ export function WarRostersTab() {
   const [importInput, setImportInput] = useState<[string, string, string]>(['', '', '']);
   const [importStatus, setImportStatus] = useState<[string, string, string]>(['', '', '']);
   const [shareStatus, setShareStatus] = useState<[string, string, string]>(['', '', '']);
+  /** The most-recent share id per BG whose delete token we hold. Lets
+   *  the officer revoke it without having to remember the id. */
+  const [ownedShareId, setOwnedShareId] = useState<[string | null, string | null, string | null]>([
+    null,
+    null,
+    null,
+  ]);
   const [hydrated, setHydrated] = useState(false);
 
   // Hydrate from the shared store on first mount. Kick off a load for
@@ -54,6 +71,14 @@ export function WarRostersTab() {
         });
       });
     }
+    // Re-hydrate the "we own this share" state so Revoke survives a
+    // refresh. Only show it if we still hold the delete token.
+    const owned: [string | null, string | null, string | null] = [null, null, null];
+    ([0, 1, 2] as const).forEach((bg) => {
+      const id = readLastSharedBgId(bg);
+      if (id && readBgDeleteToken(id)) owned[bg] = id;
+    });
+    setOwnedShareId(owned);
     setHydrated(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -185,6 +210,17 @@ export function WarRostersTab() {
       });
       try {
         const res = await createSharedBg(rows, { label: BG_LABELS[bg] });
+        saveBgDeleteToken(res.id, res.deleteToken);
+        writeLastSharedBgId(bg, res.id);
+        setOwnedShareId((prev) => {
+          const next: [string | null, string | null, string | null] = [...prev] as [
+            string | null,
+            string | null,
+            string | null,
+          ];
+          next[bg] = res.id;
+          return next;
+        });
         const url =
           typeof window !== 'undefined'
             ? `${window.location.origin}/war-rosters/?bg=${res.id}`
@@ -212,6 +248,56 @@ export function WarRostersTab() {
       }
     },
     [bgs],
+  );
+
+  /** Revoke a BG share the officer owns. Requires the delete token
+   *  saved at share time; clears local trackers so the Revoke button
+   *  disappears afterwards. */
+  const revokeBg = useCallback(
+    async (bg: BgIndex) => {
+      const id = ownedShareId[bg];
+      if (!id) return;
+      const token = readBgDeleteToken(id);
+      if (!token) {
+        setShareStatus((prev) => {
+          const next: [string, string, string] = [...prev] as [string, string, string];
+          next[bg] = 'No delete token for this share — can only revoke shares this browser created.';
+          return next;
+        });
+        return;
+      }
+      setShareStatus((prev) => {
+        const next: [string, string, string] = [...prev] as [string, string, string];
+        next[bg] = 'Revoking…';
+        return next;
+      });
+      try {
+        await deleteSharedBg(id, token);
+        clearBgDeleteToken(id);
+        clearLastSharedBgId(bg);
+        setOwnedShareId((prev) => {
+          const next: [string | null, string | null, string | null] = [...prev] as [
+            string | null,
+            string | null,
+            string | null,
+          ];
+          next[bg] = null;
+          return next;
+        });
+        setShareStatus((prev) => {
+          const next: [string, string, string] = [...prev] as [string, string, string];
+          next[bg] = `Revoked ${id}. The link no longer resolves.`;
+          return next;
+        });
+      } catch (e) {
+        setShareStatus((prev) => {
+          const next: [string, string, string] = [...prev] as [string, string, string];
+          next[bg] = e instanceof Error ? e.message : String(e);
+          return next;
+        });
+      }
+    },
+    [ownedShareId],
   );
 
   const totalLoaded = useMemo(
@@ -321,13 +407,25 @@ export function WarRostersTab() {
 
             {/* Share BG button */}
             <div className="pt-2 border-t border-[var(--color-rule)]">
-              <button
-                type="button"
-                onClick={() => void shareBg(bg)}
-                className="px-3 py-1.5 text-xs border border-[var(--color-rule)] rounded hover:border-[var(--color-marvel-impact)]"
-              >
-                Share this BG
-              </button>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => void shareBg(bg)}
+                  className="px-3 py-1.5 text-xs border border-[var(--color-rule)] rounded hover:border-[var(--color-marvel-impact)]"
+                >
+                  Share this BG
+                </button>
+                {ownedShareId[bg] && (
+                  <button
+                    type="button"
+                    onClick={() => void revokeBg(bg)}
+                    title={`Revoke shared BG ${ownedShareId[bg]}`}
+                    className="px-3 py-1.5 text-xs border border-[var(--color-marvel-editorial)] text-[var(--color-marvel-editorial)] rounded hover:bg-[var(--color-marvel-editorial)] hover:text-white"
+                  >
+                    Revoke
+                  </button>
+                )}
+              </div>
               {shareStatus[bg] && (
                 <p className="text-xs text-[var(--color-ink-soft)] mt-1.5 break-all">
                   {shareStatus[bg]}
