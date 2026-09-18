@@ -26,10 +26,9 @@ export default function WarPlannerPage() {
           </span>
         </h1>
         <p className="text-[var(--color-ink-soft)] max-w-3xl">
-          Every node starts with the season {season.season} guide&apos;s eight
-          defenders. Edit any node, pin a defender where you want them, and
-          the planner places the other 50 across your battlegroup, no
-          duplicates. Rosters come from the BG rosters tab.
+          Edit any node, pin a defender where you want them, and the planner
+          places the 50 across your battlegroup, no duplicates. Champions
+          come from the BG rosters tab.
         </p>
       </section>
       <WarSubnav active="planner" />
