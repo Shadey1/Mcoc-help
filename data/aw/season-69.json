@@ -1,0 +1,815 @@
+{
+  "season": 69,
+  "source": {
+    "name": "Placeholder (extractor not yet run)",
+    "url": "https://mcoc.help/war-planner",
+    "capturedAt": "2026-09-18"
+  },
+  "nodes": [
+    {
+      "node": 1,
+      "buffs": [
+        "Path buff placeholder: Regeneration, Unblockable"
+      ],
+      "guideDefenders": [
+        "sersi",
+        "emma-frost",
+        "mister-sinister",
+        "titania",
+        "isophyne",
+        "dazzler",
+        "toad",
+        "hit-monkey"
+      ]
+    },
+    {
+      "node": 2,
+      "buffs": [
+        "Path buff placeholder: Placebo, Shock, Root"
+      ],
+      "guideDefenders": [
+        "hit-monkey",
+        "silver-sable",
+        "domino",
+        "spider-woman",
+        "void",
+        "scorpion",
+        "spiral",
+        "colossus"
+      ]
+    },
+    {
+      "node": 3,
+      "buffs": [
+        "Path buff placeholder: Armor, Autoblock, Disintegration"
+      ],
+      "guideDefenders": [
+        "colossus",
+        "rhino",
+        "purgatory",
+        "iron-man",
+        "hyperion",
+        "storm-pyramid-x",
+        "spider-ham",
+        "magik"
+      ]
+    },
+    {
+      "node": 4,
+      "buffs": [
+        "Path buff placeholder: Unblockable, Reverse Controls, Glancing"
+      ],
+      "guideDefenders": [
+        "magik",
+        "onslaught",
+        "the-serpent",
+        "kushala",
+        "nimrod",
+        "kindred",
+        "mister-negative",
+        "photon"
+      ]
+    },
+    {
+      "node": 5,
+      "buffs": [
+        "Path buff placeholder: Knockdown, Intercept, Falter"
+      ],
+      "guideDefenders": [
+        "photon",
+        "absorbing-man",
+        "mysterio",
+        "warlock",
+        "sasquatch",
+        "hulkling",
+        "dragon-man",
+        "sentinel"
+      ]
+    },
+    {
+      "node": 6,
+      "buffs": [
+        "Path buff placeholder: Invisibility, Prowess, Daunted"
+      ],
+      "guideDefenders": [
+        "sentinel",
+        "dust",
+        "tigra",
+        "symbiote-supreme",
+        "shathra",
+        "the-hood",
+        "omega-sentinel",
+        "bishop"
+      ]
+    },
+    {
+      "node": 7,
+      "buffs": [
+        "Path buff placeholder: Damage Reflection, Purify"
+      ],
+      "guideDefenders": [
+        "bishop",
+        "wiccan",
+        "mole-man",
+        "doctor-bong",
+        "the-maker",
+        "blue-marvel",
+        "america-chavez",
+        "sersi"
+      ]
+    },
+    {
+      "node": 8,
+      "buffs": [
+        "Path buff placeholder: Power Gain, Glance"
+      ],
+      "guideDefenders": [
+        "sersi",
+        "emma-frost",
+        "mister-sinister",
+        "titania",
+        "isophyne",
+        "dazzler",
+        "toad",
+        "hit-monkey"
+      ]
+    },
+    {
+      "node": 9,
+      "buffs": [
+        "Path buff placeholder: Hazard Shift"
+      ],
+      "guideDefenders": [
+        "hit-monkey",
+        "silver-sable",
+        "domino",
+        "spider-woman",
+        "void",
+        "scorpion",
+        "spiral",
+        "colossus"
+      ]
+    },
+    {
+      "node": 10,
+      "buffs": [
+        "Path buff placeholder: Regeneration, Unblockable"
+      ],
+      "guideDefenders": [
+        "colossus",
+        "rhino",
+        "purgatory",
+        "iron-man",
+        "hyperion",
+        "storm-pyramid-x",
+        "spider-ham",
+        "magik"
+      ]
+    },
+    {
+      "node": 11,
+      "buffs": [
+        "Path buff placeholder: Placebo, Shock, Root"
+      ],
+      "guideDefenders": [
+        "magik",
+        "onslaught",
+        "the-serpent",
+        "kushala",
+        "nimrod",
+        "kindred",
+        "mister-negative",
+        "photon"
+      ]
+    },
+    {
+      "node": 12,
+      "buffs": [
+        "Path buff placeholder: Armor, Autoblock, Disintegration"
+      ],
+      "guideDefenders": [
+        "photon",
+        "absorbing-man",
+        "mysterio",
+        "warlock",
+        "sasquatch",
+        "hulkling",
+        "dragon-man",
+        "sentinel"
+      ]
+    },
+    {
+      "node": 13,
+      "buffs": [
+        "Path buff placeholder: Unblockable, Reverse Controls, Glancing"
+      ],
+      "guideDefenders": [
+        "sentinel",
+        "dust",
+        "tigra",
+        "symbiote-supreme",
+        "shathra",
+        "the-hood",
+        "omega-sentinel",
+        "bishop"
+      ]
+    },
+    {
+      "node": 14,
+      "buffs": [
+        "Path buff placeholder: Knockdown, Intercept, Falter"
+      ],
+      "guideDefenders": [
+        "bishop",
+        "wiccan",
+        "mole-man",
+        "doctor-bong",
+        "the-maker",
+        "blue-marvel",
+        "america-chavez",
+        "sersi"
+      ]
+    },
+    {
+      "node": 15,
+      "buffs": [
+        "Path buff placeholder: Invisibility, Prowess, Daunted"
+      ],
+      "guideDefenders": [
+        "sersi",
+        "emma-frost",
+        "mister-sinister",
+        "titania",
+        "isophyne",
+        "dazzler",
+        "toad",
+        "hit-monkey"
+      ]
+    },
+    {
+      "node": 16,
+      "buffs": [
+        "Path buff placeholder: Damage Reflection, Purify"
+      ],
+      "guideDefenders": [
+        "hit-monkey",
+        "silver-sable",
+        "domino",
+        "spider-woman",
+        "void",
+        "scorpion",
+        "spiral",
+        "colossus"
+      ]
+    },
+    {
+      "node": 17,
+      "buffs": [
+        "Path buff placeholder: Power Gain, Glance"
+      ],
+      "guideDefenders": [
+        "colossus",
+        "rhino",
+        "purgatory",
+        "iron-man",
+        "hyperion",
+        "storm-pyramid-x",
+        "spider-ham",
+        "magik"
+      ]
+    },
+    {
+      "node": 18,
+      "buffs": [
+        "Path buff placeholder: Hazard Shift"
+      ],
+      "guideDefenders": [
+        "magik",
+        "onslaught",
+        "the-serpent",
+        "kushala",
+        "nimrod",
+        "kindred",
+        "mister-negative",
+        "photon"
+      ]
+    },
+    {
+      "node": 19,
+      "buffs": [
+        "Path buff placeholder: Regeneration, Unblockable"
+      ],
+      "guideDefenders": [
+        "photon",
+        "absorbing-man",
+        "mysterio",
+        "warlock",
+        "sasquatch",
+        "hulkling",
+        "dragon-man",
+        "sentinel"
+      ]
+    },
+    {
+      "node": 20,
+      "buffs": [
+        "Path buff placeholder: Placebo, Shock, Root"
+      ],
+      "guideDefenders": [
+        "sentinel",
+        "dust",
+        "tigra",
+        "symbiote-supreme",
+        "shathra",
+        "the-hood",
+        "omega-sentinel",
+        "bishop"
+      ]
+    },
+    {
+      "node": 21,
+      "buffs": [
+        "Path buff placeholder: Armor, Autoblock, Disintegration"
+      ],
+      "guideDefenders": [
+        "bishop",
+        "wiccan",
+        "mole-man",
+        "doctor-bong",
+        "the-maker",
+        "blue-marvel",
+        "america-chavez",
+        "sersi"
+      ]
+    },
+    {
+      "node": 22,
+      "buffs": [
+        "Path buff placeholder: Unblockable, Reverse Controls, Glancing"
+      ],
+      "guideDefenders": [
+        "sersi",
+        "emma-frost",
+        "mister-sinister",
+        "titania",
+        "isophyne",
+        "dazzler",
+        "toad",
+        "hit-monkey"
+      ]
+    },
+    {
+      "node": 23,
+      "buffs": [
+        "Path buff placeholder: Knockdown, Intercept, Falter"
+      ],
+      "guideDefenders": [
+        "hit-monkey",
+        "silver-sable",
+        "domino",
+        "spider-woman",
+        "void",
+        "scorpion",
+        "spiral",
+        "colossus"
+      ]
+    },
+    {
+      "node": 24,
+      "buffs": [
+        "Path buff placeholder: Invisibility, Prowess, Daunted"
+      ],
+      "guideDefenders": [
+        "colossus",
+        "rhino",
+        "purgatory",
+        "iron-man",
+        "hyperion",
+        "storm-pyramid-x",
+        "spider-ham",
+        "magik"
+      ]
+    },
+    {
+      "node": 25,
+      "buffs": [
+        "Path buff placeholder: Damage Reflection, Purify"
+      ],
+      "guideDefenders": [
+        "magik",
+        "onslaught",
+        "the-serpent",
+        "kushala",
+        "nimrod",
+        "kindred",
+        "mister-negative",
+        "photon"
+      ]
+    },
+    {
+      "node": 26,
+      "buffs": [
+        "Path buff placeholder: Power Gain, Glance"
+      ],
+      "guideDefenders": [
+        "photon",
+        "absorbing-man",
+        "mysterio",
+        "warlock",
+        "sasquatch",
+        "hulkling",
+        "dragon-man",
+        "sentinel"
+      ]
+    },
+    {
+      "node": 27,
+      "buffs": [
+        "Path buff placeholder: Hazard Shift"
+      ],
+      "guideDefenders": [
+        "sentinel",
+        "dust",
+        "tigra",
+        "symbiote-supreme",
+        "shathra",
+        "the-hood",
+        "omega-sentinel",
+        "bishop"
+      ]
+    },
+    {
+      "node": 28,
+      "buffs": [
+        "Path buff placeholder: Regeneration, Unblockable"
+      ],
+      "guideDefenders": [
+        "bishop",
+        "wiccan",
+        "mole-man",
+        "doctor-bong",
+        "the-maker",
+        "blue-marvel",
+        "america-chavez",
+        "sersi"
+      ]
+    },
+    {
+      "node": 29,
+      "buffs": [
+        "Path buff placeholder: Placebo, Shock, Root"
+      ],
+      "guideDefenders": [
+        "sersi",
+        "emma-frost",
+        "mister-sinister",
+        "titania",
+        "isophyne",
+        "dazzler",
+        "toad",
+        "hit-monkey"
+      ]
+    },
+    {
+      "node": 30,
+      "buffs": [
+        "Path buff placeholder: Armor, Autoblock, Disintegration"
+      ],
+      "guideDefenders": [
+        "hit-monkey",
+        "silver-sable",
+        "domino",
+        "spider-woman",
+        "void",
+        "scorpion",
+        "spiral",
+        "colossus"
+      ]
+    },
+    {
+      "node": 31,
+      "buffs": [
+        "Path buff placeholder: Unblockable, Reverse Controls, Glancing"
+      ],
+      "guideDefenders": [
+        "colossus",
+        "rhino",
+        "purgatory",
+        "iron-man",
+        "hyperion",
+        "storm-pyramid-x",
+        "spider-ham",
+        "magik"
+      ]
+    },
+    {
+      "node": 32,
+      "buffs": [
+        "Path buff placeholder: Knockdown, Intercept, Falter"
+      ],
+      "guideDefenders": [
+        "magik",
+        "onslaught",
+        "the-serpent",
+        "kushala",
+        "nimrod",
+        "kindred",
+        "mister-negative",
+        "photon"
+      ]
+    },
+    {
+      "node": 33,
+      "buffs": [
+        "Path buff placeholder: Invisibility, Prowess, Daunted"
+      ],
+      "guideDefenders": [
+        "photon",
+        "absorbing-man",
+        "mysterio",
+        "warlock",
+        "sasquatch",
+        "hulkling",
+        "dragon-man",
+        "sentinel"
+      ]
+    },
+    {
+      "node": 34,
+      "buffs": [
+        "Path buff placeholder: Damage Reflection, Purify"
+      ],
+      "guideDefenders": [
+        "sentinel",
+        "dust",
+        "tigra",
+        "symbiote-supreme",
+        "shathra",
+        "the-hood",
+        "omega-sentinel",
+        "bishop"
+      ]
+    },
+    {
+      "node": 35,
+      "buffs": [
+        "Path buff placeholder: Power Gain, Glance"
+      ],
+      "guideDefenders": [
+        "bishop",
+        "wiccan",
+        "mole-man",
+        "doctor-bong",
+        "the-maker",
+        "blue-marvel",
+        "america-chavez",
+        "sersi"
+      ]
+    },
+    {
+      "node": 36,
+      "buffs": [
+        "Path buff placeholder: Hazard Shift"
+      ],
+      "guideDefenders": [
+        "sersi",
+        "emma-frost",
+        "mister-sinister",
+        "titania",
+        "isophyne",
+        "dazzler",
+        "toad",
+        "hit-monkey"
+      ]
+    },
+    {
+      "node": 37,
+      "buffs": [
+        "Section 3 node buff placeholder"
+      ],
+      "guideDefenders": [
+        "hit-monkey",
+        "silver-sable",
+        "domino",
+        "spider-woman",
+        "void",
+        "scorpion",
+        "spiral",
+        "colossus"
+      ]
+    },
+    {
+      "node": 38,
+      "buffs": [
+        "Section 3 node buff placeholder"
+      ],
+      "guideDefenders": [
+        "colossus",
+        "rhino",
+        "purgatory",
+        "iron-man",
+        "hyperion",
+        "storm-pyramid-x",
+        "spider-ham",
+        "magik"
+      ]
+    },
+    {
+      "node": 39,
+      "buffs": [
+        "Section 3 node buff placeholder"
+      ],
+      "guideDefenders": [
+        "magik",
+        "onslaught",
+        "the-serpent",
+        "kushala",
+        "nimrod",
+        "kindred",
+        "mister-negative",
+        "photon"
+      ]
+    },
+    {
+      "node": 40,
+      "buffs": [
+        "Section 3 node buff placeholder"
+      ],
+      "guideDefenders": [
+        "photon",
+        "absorbing-man",
+        "mysterio",
+        "warlock",
+        "sasquatch",
+        "hulkling",
+        "dragon-man",
+        "sentinel"
+      ]
+    },
+    {
+      "node": 41,
+      "buffs": [
+        "Section 3 node buff placeholder"
+      ],
+      "guideDefenders": [
+        "sentinel",
+        "dust",
+        "tigra",
+        "symbiote-supreme",
+        "shathra",
+        "the-hood",
+        "omega-sentinel",
+        "bishop"
+      ]
+    },
+    {
+      "node": 42,
+      "buffs": [
+        "Section 3 node buff placeholder"
+      ],
+      "guideDefenders": [
+        "bishop",
+        "wiccan",
+        "mole-man",
+        "doctor-bong",
+        "the-maker",
+        "blue-marvel",
+        "america-chavez",
+        "sersi"
+      ]
+    },
+    {
+      "node": 43,
+      "buffs": [
+        "Section 3 node buff placeholder"
+      ],
+      "guideDefenders": [
+        "sersi",
+        "emma-frost",
+        "mister-sinister",
+        "titania",
+        "isophyne",
+        "dazzler",
+        "toad",
+        "hit-monkey"
+      ]
+    },
+    {
+      "node": 44,
+      "buffs": [
+        "Section 3 node buff placeholder"
+      ],
+      "guideDefenders": [
+        "hit-monkey",
+        "silver-sable",
+        "domino",
+        "spider-woman",
+        "void",
+        "scorpion",
+        "spiral",
+        "colossus"
+      ]
+    },
+    {
+      "node": 45,
+      "buffs": [
+        "Section 3 node buff placeholder"
+      ],
+      "guideDefenders": [
+        "colossus",
+        "rhino",
+        "purgatory",
+        "iron-man",
+        "hyperion",
+        "storm-pyramid-x",
+        "spider-ham",
+        "magik"
+      ]
+    },
+    {
+      "node": 46,
+      "buffs": [
+        "Mini boss node buff placeholder"
+      ],
+      "guideDefenders": [
+        "magik",
+        "onslaught",
+        "the-serpent",
+        "kushala",
+        "nimrod",
+        "kindred",
+        "mister-negative",
+        "photon"
+      ]
+    },
+    {
+      "node": 47,
+      "buffs": [
+        "Mini boss node buff placeholder"
+      ],
+      "guideDefenders": [
+        "photon",
+        "absorbing-man",
+        "mysterio",
+        "warlock",
+        "sasquatch",
+        "hulkling",
+        "dragon-man",
+        "sentinel"
+      ]
+    },
+    {
+      "node": 48,
+      "buffs": [
+        "Mini boss node buff placeholder"
+      ],
+      "guideDefenders": [
+        "sentinel",
+        "dust",
+        "tigra",
+        "symbiote-supreme",
+        "shathra",
+        "the-hood",
+        "omega-sentinel",
+        "bishop"
+      ]
+    },
+    {
+      "node": 49,
+      "buffs": [
+        "Mini boss node buff placeholder"
+      ],
+      "guideDefenders": [
+        "bishop",
+        "wiccan",
+        "mole-man",
+        "doctor-bong",
+        "the-maker",
+        "blue-marvel",
+        "america-chavez",
+        "sersi"
+      ]
+    },
+    {
+      "node": 50,
+      "buffs": [
+        "Boss node buff placeholder"
+      ],
+      "guideDefenders": [
+        "sersi",
+        "emma-frost",
+        "mister-sinister",
+        "titania",
+        "isophyne",
+        "dazzler",
+        "toad",
+        "hit-monkey"
+      ]
+    }
+  ],
+  "defaultKeyNodes": [
+    48,
+    49,
+    50
+  ]
+}
