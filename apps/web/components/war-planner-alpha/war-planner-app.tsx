@@ -38,6 +38,7 @@ import {
 import { fetchShare } from '../../lib/share-client';
 import { fetchSharedBg } from '../../lib/share-bg-client';
 import { extractShareId } from '../war-share-input';
+import { readSharedBgs, writeSharedBg } from '../../lib/war-bgs-shared';
 import {
   createSharedPlan,
   fetchSharedPlan,
@@ -200,19 +201,42 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
     if (typeof window === 'undefined') return;
     const params = new URLSearchParams(window.location.search);
     const id = params.get('plan');
-    if (!id || !/^[A-Za-z0-9]{8}$/.test(id)) return;
-    const cached = readCachedPlan(id);
-    if (cached) hydrateFromPayload(id, cached.payload, cached.version, false);
-    void (async () => {
-      try {
-        const fresh = await fetchSharedPlan(id);
-        cachePlan(id, fresh);
-        hydrateFromPayload(id, planPayloadFromStored(fresh), fresh.version, true);
-      } catch (e) {
-        const msg = e instanceof Error ? e.message : String(e);
-        setSaveError(`Could not load plan ${id}: ${msg}`);
-      }
-    })();
+    if (id && /^[A-Za-z0-9]{8}$/.test(id)) {
+      const cached = readCachedPlan(id);
+      if (cached) hydrateFromPayload(id, cached.payload, cached.version, false);
+      void (async () => {
+        try {
+          const fresh = await fetchSharedPlan(id);
+          cachePlan(id, fresh);
+          hydrateFromPayload(id, planPayloadFromStored(fresh), fresh.version, true);
+        } catch (e) {
+          const msg = e instanceof Error ? e.message : String(e);
+          setSaveError(`Could not load plan ${id}: ${msg}`);
+        }
+      })();
+      return;
+    }
+    // No plan in the URL — fall back to the shared BG rosters set on
+    // the BG rosters tab. Per-BG merge only: hydrate a BG only if
+    // shared has non-empty content for it, so a partially populated
+    // shared store doesn't wipe rows the officer pasted directly here.
+    const shared = readSharedBgs();
+    if (!shared) return;
+    ([0, 1, 2] as const).forEach((bgIdx) => {
+      const bgRows = shared.bgs[bgIdx]!;
+      if (!bgRows.some((r) => r.url.trim())) return;
+      const bg = (bgIdx + 1) as BgIndex;
+      const rows: RosterRow[] = bgRows.slice(0, 10).map((r) => ({
+        input: r.url,
+        status: 'loading',
+        playerName: r.name?.trim() || undefined,
+      }));
+      while (rows.length < 10) rows.push({ input: '', status: 'idle' });
+      setRostersByBg((prev) => ({ ...prev, [bg]: rows }));
+      bgRows.forEach((r, i) => {
+        if (r.url.trim()) void loadRow(bg, i, r.url);
+      });
+    });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Bulk-hydrate one BG's plan state + roster inputs from a plan payload.
@@ -386,17 +410,28 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
     [],
   );
 
+  /** Write the current BG's roster rows through to the shared BG store
+   *  so the diversity tool sees the same rosters next time it mounts. */
+  const syncBgToShared = useCallback((bg: BgIndex, rows: RosterRow[]): void => {
+    const flat = rows.map((r) => ({
+      url: r.input,
+      name: r.playerName ?? '',
+    }));
+    writeSharedBg((bg - 1) as 0 | 1 | 2, flat);
+  }, []);
+
   const handleRowChange = useCallback(
     (rowIdx: number, next: string) => {
       const bg = activeBg;
       setRostersByBg((prev) => {
         const rows = [...prev[bg]!];
         rows[rowIdx] = { ...rows[rowIdx]!, input: next };
+        syncBgToShared(bg, rows);
         return { ...prev, [bg]: rows };
       });
       void loadRow(bg, rowIdx, next);
     },
-    [activeBg, loadRow],
+    [activeBg, loadRow, syncBgToShared],
   );
 
   /** Rename a loaded player. Only meaningful once the roster is 'ok';
@@ -408,10 +443,11 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
       setRostersByBg((prev) => {
         const rows = [...prev[bg]!];
         rows[rowIdx] = { ...rows[rowIdx]!, playerName: name };
+        syncBgToShared(bg, rows);
         return { ...prev, [bg]: rows };
       });
     },
-    [activeBg],
+    [activeBg, syncBgToShared],
   );
 
   /** Load a BG share (from the diversity tool at /war): one 8-char id
@@ -440,6 +476,7 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
         }));
         while (newRows.length < 10) newRows.push({ input: '', status: 'idle' });
         setRostersByBg((prev) => ({ ...prev, [bg]: newRows }));
+        syncBgToShared(bg, newRows);
         // Kick off each row's load; loadRow uses the pasted string to
         // extract the roster share id, so passing r.url works verbatim.
         payload.rows.slice(0, 10).forEach((r, i) => {
@@ -457,7 +494,7 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
         });
       }
     },
-    [activeBg, loadRow],
+    [activeBg, loadRow, syncBgToShared],
   );
 
   // ── Callbacks passed to map ─────────────────────────────────────────

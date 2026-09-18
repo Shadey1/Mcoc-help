@@ -1,30 +1,20 @@
-import Link from 'next/link';
 import { loadActiveChampions } from '../../lib/data-loader';
 import { WarPlanner } from '../../components/war-planner';
+import { WarSubnav } from '../../components/war-subnav';
 
 export default function WarPage() {
   const champions = loadActiveChampions();
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <section>
-        <h1 className="editorial-heading text-4xl mb-2">War defence diversity</h1>
-        <p className="text-lg text-[var(--color-ink-soft)] max-w-2xl">
-          Tick the champions your alliance considers war-worthy defenders. Paste
-          in share links from your 10 BG members. The planner tells everyone
-          who places what — rank-weighted, no duplicates.
-        </p>
-        <p className="text-sm text-[var(--color-ink-soft)] mt-3 max-w-2xl">
-          Placing a specific BG by the season guide, node by node? Try the{' '}
-          <Link
-            href="/war-planner/"
-            className="underline hover:text-[var(--color-marvel-impact)]"
-          >
-            season war planner (alpha)
-          </Link>
-          .
+        <h1 className="editorial-heading text-4xl mb-1">War · Diversity</h1>
+        <p className="text-[var(--color-ink-soft)] max-w-2xl">
+          Tick your alliance&apos;s war-worthy defenders. Placement is
+          rank-weighted, no duplicates. Rosters come from the BG rosters tab.
         </p>
       </section>
+      <WarSubnav active="diversity" />
 
       <section className="border border-[var(--color-rule)] rounded-lg bg-[var(--color-paper-card)] p-5 text-sm space-y-2">
         <p>

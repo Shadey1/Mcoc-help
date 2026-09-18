@@ -33,6 +33,7 @@ import {
 } from '../lib/share-client';
 import { fetchSharedPool, type SharedPoolPayload } from '../lib/share-pool-client';
 import { createSharedBg, fetchSharedBg } from '../lib/share-bg-client';
+import { readSharedBgs, writeSharedBg } from '../lib/war-bgs-shared';
 import { loadRoster } from '../lib/roster-storage';
 import { WarPoolTickbox } from './war-pool-tickbox';
 import {
@@ -151,6 +152,22 @@ export function WarPlanner({ champions }: { champions: Champion[] }) {
 
   useEffect(() => {
     const loaded = loadWarConfig();
+    // Bring in the BG rosters tab's shared store. Per-BG merge only —
+    // if shared has content for a BG, use it; if shared has that BG
+    // empty, keep whatever the per-tool cache already had. This means
+    // an officer who's been using the diversity tool alone doesn't
+    // lose data the first time either tool touches the shared store.
+    const shared = readSharedBgs();
+    if (shared) {
+      const nextBgs: WarBgs = [...loaded.bgs] as WarBgs;
+      shared.bgs.forEach((bg, i) => {
+        if (bg.some((r) => r.url.trim())) nextBgs[i] = bg;
+      });
+      if (nextBgs.some((bg, i) => bg !== loaded.bgs[i])) {
+        loaded.bgs = nextBgs;
+        saveWarConfig(loaded);
+      }
+    }
     setConfig(loaded);
     setPoolExpanded(poolSize(loaded.pool) === 0);
   }, []);
@@ -293,6 +310,8 @@ export function WarPlanner({ champions }: { champions: Champion[] }) {
     const nextBgs: WarBgs = [...config.bgs] as WarBgs;
     nextBgs[bg] = rows;
     updateConfig({ ...config, bgs: nextBgs });
+    // Mirror the BG rosters tab so the planner sees the update too.
+    writeSharedBg(bg as 0 | 1 | 2, rows);
     clearAllRuns();
   }
 
