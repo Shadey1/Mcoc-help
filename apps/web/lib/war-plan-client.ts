@@ -98,11 +98,17 @@ export async function updateSharedPlan(
   deleteToken: string,
   baseVersion: number,
   payload: PlanPayload,
+  options?: { force?: boolean },
 ): Promise<UpdatePlanResponse | UpdatePlanConflict> {
   const res = await fetch(`/api/share-plan/${encodeURIComponent(id)}`, {
     method: 'PUT',
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ deleteToken, baseVersion, payload }),
+    body: JSON.stringify({
+      deleteToken,
+      baseVersion,
+      payload,
+      ...(options?.force ? { force: true } : {}),
+    }),
   });
   if (res.status === 409) {
     const body = (await readErrorBody(res)) as {

@@ -70,6 +70,7 @@ export const onRequestPut: PagesFunction<Env> = async ({ params, env, request })
   const b = body as Record<string, unknown>;
   const deleteToken = b.deleteToken;
   const baseVersion = b.baseVersion;
+  const force = b.force === true;
   if (typeof deleteToken !== 'string' || !TOKEN_PATTERN.test(deleteToken)) {
     return errorResponse('invalid deleteToken format', 400);
   }
@@ -91,9 +92,12 @@ export const onRequestPut: PagesFunction<Env> = async ({ params, env, request })
     return errorResponse('deleteToken does not match', 403);
   }
   const currentVersion = typeof stored.version === 'number' ? stored.version : 1;
-  if (currentVersion !== baseVersion) {
+  if (currentVersion !== baseVersion && !force) {
     // Conflict — client's baseVersion is stale. Hand back the current
     // stored payload (minus deleteToken) so the client can merge / redo.
+    // Client can retry with { force: true } to intentionally overwrite,
+    // which is what the "Overwrite theirs" button in the conflict panel
+    // does after the officer sees the diff.
     const { deleteToken: _, ...currentPublic } = stored;
     return errorResponse('version conflict', 409, {
       currentVersion,

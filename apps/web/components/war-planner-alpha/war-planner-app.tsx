@@ -141,6 +141,7 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
   const [planShare, setPlanShare] = useState<{ id: string; version: number; canEdit: boolean } | null>(null);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'conflict' | 'error'>('idle');
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [conflictPayload, setConflictPayload] = useState<StoredPlanPublic | null>(null);
   const [exportModal, setExportModal] = useState<{ dataUrl: string; alt: string } | null>(null);
 
   const plan = plansByBg[activeBg]!;
@@ -264,18 +265,22 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
         const res = await updateSharedPlan(planShare.id, token, planShare.version, payload);
         if ('conflict' in res) {
           setSaveStatus('conflict');
+          setConflictPayload(res.currentPayload);
           setSaveError(
-            'Someone else saved this plan while you were editing. Reload to see their version, then re-apply your change.',
+            `Someone else saved v${res.currentVersion} while you were editing v${planShare.version}. Discard your edits or overwrite theirs — see the Battlegroup tab.`,
           );
+          setTab('battlegroup');
           return;
         }
         setPlanShare({ id: res.id, version: res.version, canEdit: true });
         setSaveStatus('saved');
+        setConflictPayload(null);
       } else {
         const res = await createSharedPlan(payload);
         saveDeleteToken(res.id, res.deleteToken);
         setPlanShare({ id: res.id, version: res.version, canEdit: true });
         setSaveStatus('saved');
+        setConflictPayload(null);
         if (typeof window !== 'undefined') {
           const url = new URL(window.location.href);
           url.searchParams.set('plan', res.id);
@@ -287,6 +292,54 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
       setSaveError(e instanceof Error ? e.message : String(e));
     }
   }, [plan, planShare, result, rosterRows]);
+
+  // ── Conflict recovery ──────────────────────────────────────────────
+  const discardMyEdits = useCallback(() => {
+    if (!conflictPayload || !planShare) return;
+    hydrateFromPayload(planShare.id, planPayloadFromStored(conflictPayload), conflictPayload.version, false);
+    setSaveStatus('saved');
+    setSaveError(null);
+    setConflictPayload(null);
+  }, [conflictPayload, planShare, hydrateFromPayload]);
+
+  const overwriteTheirs = useCallback(async () => {
+    if (!planShare?.canEdit) return;
+    const token = readDeleteToken(planShare.id);
+    if (!token) return;
+    setSaveStatus('saving');
+    setSaveError(null);
+    const rosterShareIds = rosterRows
+      .filter((r) => r.status === 'ok' && r.playerId)
+      .map((r) => r.playerId!);
+    const playerNames: Record<string, string> = {};
+    for (const r of rosterRows) {
+      if (r.playerId && r.playerName) playerNames[r.playerId] = r.playerName;
+    }
+    // baseVersion must be the current server version, not our stale one,
+    // so the server accepts the force write without a mismatched check.
+    const currentServerVersion = conflictPayload?.version ?? planShare.version;
+    const payload: PlanPayload = {
+      ...planToPayload(plan),
+      rosterShareIds,
+      playerNames,
+      lastPlacement: result ? placementsToPayload(result.placements) : undefined,
+    };
+    try {
+      const res = await updateSharedPlan(planShare.id, token, currentServerVersion, payload, { force: true });
+      if ('conflict' in res) {
+        setSaveStatus('conflict');
+        setSaveError('Server rejected the force write — someone saved again during the recovery. Try once more.');
+        setConflictPayload(res.currentPayload);
+        return;
+      }
+      setPlanShare({ id: res.id, version: res.version, canEdit: true });
+      setSaveStatus('saved');
+      setConflictPayload(null);
+    } catch (e) {
+      setSaveStatus('error');
+      setSaveError(e instanceof Error ? e.message : String(e));
+    }
+  }, [plan, planShare, conflictPayload, result, rosterRows]);
 
   // ── Roster loading ──────────────────────────────────────────────────
   const loadRow = useCallback(
@@ -580,7 +633,10 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
                 planShare={planShare}
                 saveStatus={saveStatus}
                 saveError={saveError}
+                conflictPayload={conflictPayload}
                 onSave={savePlan}
+                onDiscardMyEdits={discardMyEdits}
+                onOverwriteTheirs={overwriteTheirs}
               />
             )}
           </div>
@@ -1263,7 +1319,10 @@ function BattlegroupPanel({
   planShare,
   saveStatus,
   saveError,
+  conflictPayload,
   onSave,
+  onDiscardMyEdits,
+  onOverwriteTheirs,
 }: {
   rosterRows: RosterRow[];
   onRowChange: (rowIdx: number, next: string) => void;
@@ -1272,7 +1331,10 @@ function BattlegroupPanel({
   planShare: { id: string; version: number; canEdit: boolean } | null;
   saveStatus: 'idle' | 'saving' | 'saved' | 'conflict' | 'error';
   saveError: string | null;
+  conflictPayload: StoredPlanPublic | null;
   onSave: () => void;
+  onDiscardMyEdits: () => void;
+  onOverwriteTheirs: () => void;
 }) {
   const okCount = rosterRows.filter((r) => r.status === 'ok').length;
   const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'error'>('idle');
@@ -1343,8 +1405,32 @@ function BattlegroupPanel({
             token stored here can save further changes.
           </p>
         )}
-        {saveStatus === 'conflict' && (
-          <p className="text-xs text-[var(--color-marvel-editorial)] mt-2">{saveError}</p>
+        {saveStatus === 'conflict' && conflictPayload && (
+          <div className="mt-2 p-2.5 border border-[var(--color-marvel-editorial)] rounded bg-[var(--color-paper)]">
+            <p className="text-xs text-[var(--color-marvel-editorial)] font-medium mb-1">
+              Version conflict
+            </p>
+            <p className="text-xs text-[var(--color-ink-soft)] mb-2">
+              {saveError} Server v{conflictPayload.version} was last saved{' '}
+              {new Date(conflictPayload.updatedAt).toLocaleString()}.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={onDiscardMyEdits}
+                className="text-xs px-2 py-1 border border-[var(--color-rule)] rounded hover:border-[var(--color-marvel-impact)]"
+              >
+                Discard my edits, use theirs
+              </button>
+              <button
+                type="button"
+                onClick={onOverwriteTheirs}
+                className="text-xs px-2 py-1 border border-[var(--color-marvel-editorial)] text-[var(--color-marvel-editorial)] rounded hover:bg-[var(--color-marvel-editorial)] hover:text-white"
+              >
+                Overwrite theirs with mine
+              </button>
+            </div>
+          </div>
         )}
         {saveStatus === 'error' && saveError && (
           <p className="text-xs text-[var(--color-marvel-editorial)] mt-2">{saveError}</p>
