@@ -250,8 +250,7 @@ export function WarRostersTab() {
   return (
     <section className="space-y-4">
       <p className="text-sm text-[var(--color-ink-soft)]">
-        Set up your three battlegroups once. Both the Diversity and Planner
-        tabs read from what you paste here.
+        Both the Diversity and Planner tabs read from what you paste here.
         {totalLoaded > 0 && (
           <span className="ml-2 numeric">{totalLoaded} rosters loaded.</span>
         )}

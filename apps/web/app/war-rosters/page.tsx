@@ -13,7 +13,7 @@ export default function WarRostersPage() {
       <section>
         <h1 className="editorial-heading text-4xl mb-1">War</h1>
         <p className="text-[var(--color-ink-soft)]">
-          Set up your BG rosters here, then use the tool the task calls for.
+          Set up your BG rosters here.
         </p>
       </section>
       <WarSubnav active="rosters" />
