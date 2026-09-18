@@ -702,6 +702,7 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
             {tab === 'node' && (
               <NodePanel
                 plan={plan}
+                season={season}
                 selectedNode={selectedNode}
                 result={result}
                 players={players}
@@ -812,6 +813,7 @@ function ExportModal({
 
 type NodePanelProps = {
   plan: SeasonPlan;
+  season: Season;
   selectedNode: NodeNumber | null;
   result: PlaceResult | null | undefined;
   players: WarPlayer[];
@@ -828,6 +830,7 @@ type NodePanelProps = {
 
 function NodePanel({
   plan,
+  season,
   selectedNode,
   result,
   players,
@@ -885,6 +888,8 @@ function NodePanel({
   const pin = plan.pins[selectedNode];
   const pathBuff = seasonPathOf(selectedNode);
   const location = seasonWhereLabel(selectedNode);
+  const buffs =
+    season.nodes.find((n) => n.node === selectedNode)?.buffs ?? [];
 
   const resolveByName = (raw: string): ChampionId | null =>
     championIdByName.get(raw.trim().toLowerCase()) ?? null;
@@ -907,6 +912,21 @@ function NodePanel({
         {location}
         {pathBuff !== null ? ` — path ${pathBuff}` : ''}
       </p>
+
+      {/* Active node buffs — the pills that live on this node this season */}
+      {buffs.length > 0 && (
+        <ul className="flex flex-wrap gap-1.5 mt-3">
+          {buffs.map((b, i) => (
+            <li
+              key={i}
+              className="text-xs px-2 py-0.5 rounded-full bg-[var(--color-paper-soft)] border border-[var(--color-rule)] text-[var(--color-ink-soft)]"
+            >
+              {b}
+            </li>
+          ))}
+        </ul>
+      )}
+
       {/* Key toggle */}
       <label className="inline-flex items-center gap-2 text-sm text-[var(--color-ink-soft)] mt-3">
         <input
@@ -942,18 +962,34 @@ function NodePanel({
         </div>
       ) : (
         <div className="grid grid-cols-[1fr_auto_auto] gap-1.5">
-          <input
-            type="text"
-            list="champion-list"
-            value={pinChampInput}
-            onChange={(e) => {
-              setPinChampInput(e.target.value);
-              setPinMsg(null);
-            }}
-            placeholder="Champion"
-            aria-label="Champion to pin"
-            className="min-w-0 px-2 py-1.5 text-sm border border-[var(--color-rule)] rounded bg-[var(--color-paper)] focus:outline-none focus:border-[var(--color-marvel-impact)]"
-          />
+          <div className="relative min-w-0">
+            <input
+              type="text"
+              list="champion-list"
+              value={pinChampInput}
+              onChange={(e) => {
+                setPinChampInput(e.target.value);
+                setPinMsg(null);
+              }}
+              placeholder="Champion"
+              aria-label="Champion to pin"
+              className="w-full min-w-0 pl-2 pr-7 py-1.5 text-sm border border-[var(--color-rule)] rounded bg-[var(--color-paper)] focus:outline-none focus:border-[var(--color-marvel-impact)]"
+            />
+            {pinChampInput && (
+              <button
+                type="button"
+                onClick={() => {
+                  setPinChampInput('');
+                  setPinPlayer('');
+                  setPinMsg(null);
+                }}
+                aria-label="Clear champion"
+                className="absolute right-1.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded text-[var(--color-ink-soft)] hover:bg-[var(--color-paper-soft)] hover:text-[var(--color-ink)] text-sm leading-none"
+              >
+                ×
+              </button>
+            )}
+          </div>
           <select
             value={pinPlayer}
             onChange={(e) => setPinPlayer(e.target.value)}
@@ -1071,24 +1107,36 @@ function NodePanel({
         </p>
       )}
       {picks.length < 8 && (
-        <input
-          type="text"
-          list="champion-list"
-          value={addPickInput}
-          onChange={(e) => setAddPickInput(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              const c = resolveByName(addPickInput);
-              if (c) {
-                mutatePlan((p) => addPick(p, selectedNode, c));
-                setAddPickInput('');
+        <div className="relative mt-2">
+          <input
+            type="text"
+            list="champion-list"
+            value={addPickInput}
+            onChange={(e) => setAddPickInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                const c = resolveByName(addPickInput);
+                if (c) {
+                  mutatePlan((p) => addPick(p, selectedNode, c));
+                  setAddPickInput('');
+                }
               }
-            }
-          }}
-          placeholder="Add a defender"
-          aria-label="Add a defender"
-          className="w-full mt-2 px-2 py-1.5 text-sm border border-[var(--color-rule)] rounded bg-[var(--color-paper)] focus:outline-none focus:border-[var(--color-marvel-impact)]"
-        />
+            }}
+            placeholder="Add a defender"
+            aria-label="Add a defender"
+            className="w-full pl-2 pr-7 py-1.5 text-sm border border-[var(--color-rule)] rounded bg-[var(--color-paper)] focus:outline-none focus:border-[var(--color-marvel-impact)]"
+          />
+          {addPickInput && (
+            <button
+              type="button"
+              onClick={() => setAddPickInput('')}
+              aria-label="Clear"
+              className="absolute right-1.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded text-[var(--color-ink-soft)] hover:bg-[var(--color-paper-soft)] hover:text-[var(--color-ink)] text-sm leading-none"
+            >
+              ×
+            </button>
+          )}
+        </div>
       )}
       {isEditedFromGuide(plan, selectedNode) && (
         <button

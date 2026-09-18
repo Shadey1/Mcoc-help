@@ -475,35 +475,23 @@ export async function renderPlayerExport(deps: ExportDeps, seasonNumber: number)
 // ─────────────────────────────────────────────────────────────────────────
 
 export type DeliveryResult =
-  | { kind: 'shared' }
   | { kind: 'downloaded' }
   | { kind: 'modal'; dataUrl: string };
 
-/** Save a canvas as a PNG using the best available delivery method for
- *  the current browser. iOS/Line falls through to the modal, which the
- *  UI shows with "long-press to save" instructions. */
+/** Save a canvas as a PNG. Default path is a plain download — the OS
+ *  share sheet feels intrusive on desktop and officers want the file,
+ *  not a picker. If the download API isn't available (some in-app
+ *  browsers) we fall through to a modal with "long-press to save"
+ *  instructions. */
 export async function deliverPng(
   canvas: HTMLCanvasElement,
   filename: string,
-  title: string,
+  _title: string,
 ): Promise<DeliveryResult> {
+  void _title;
   const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/png'));
   if (!blob) throw new Error('Failed to encode PNG.');
 
-  // 1. navigator.share with a File. Best on iOS Safari 15+ and Android.
-  try {
-    const file = new File([blob], filename, { type: 'image/png' });
-    const nav = navigator as Navigator & { canShare?: (data: ShareData) => boolean };
-    if (typeof navigator.share === 'function' && nav.canShare?.({ files: [file] })) {
-      await navigator.share({ files: [file], title });
-      return { kind: 'shared' };
-    }
-  } catch {
-    // User cancelled or share failed — fall through.
-  }
-
-  // 2. Download link — works everywhere except iOS Safari (which ignores
-  // `download` on cross-origin blobs).
   try {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -516,10 +504,9 @@ export async function deliverPng(
     setTimeout(() => URL.revokeObjectURL(url), 1000);
     return { kind: 'downloaded' };
   } catch {
-    // fall through to modal
+    // Fall through to the modal — iOS Safari in-app browsers ignore
+    // the `download` attribute, so we surface the image and let the
+    // user long-press to save.
+    return { kind: 'modal', dataUrl: canvas.toDataURL('image/png') };
   }
-
-  // 3. Modal — the mockup's last resort. The image sits in a modal and
-  // the user long-presses to save. Reliable on every browser we've seen.
-  return { kind: 'modal', dataUrl: canvas.toDataURL('image/png') };
 }
