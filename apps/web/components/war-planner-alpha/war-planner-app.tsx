@@ -37,6 +37,19 @@ import {
   togglePlayerExcluded,
 } from './plan-model';
 import { fetchShare } from '../../lib/share-client';
+import {
+  createSharedPlan,
+  fetchSharedPlan,
+  updateSharedPlan,
+  type PlanPayload,
+  type StoredPlanPublic,
+} from '../../lib/war-plan-client';
+import {
+  cachePlan,
+  readCachedPlan,
+  readDeleteToken,
+  saveDeleteToken,
+} from '../../lib/war-plan-storage';
 
 /**
  * Season war planner root — Alpha.
@@ -124,6 +137,9 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
   const [floorAsc, setFloorAsc] = useState<'A0' | 'A1' | 'A2'>('A0');
   const [tab, setTab] = useState<Tab>('node');
   const [selectedNode, setSelectedNode] = useState<NodeNumber | null>(null);
+  const [planShare, setPlanShare] = useState<{ id: string; version: number; canEdit: boolean } | null>(null);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'conflict' | 'error'>('idle');
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const plan = plansByBg[activeBg]!;
   const result = resultByBg[activeBg];
@@ -170,6 +186,105 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
     },
     [activeBg, invalidate],
   );
+
+  // ── URL-driven plan hydration ───────────────────────────────────────
+  // On mount, if `?plan=<id>` is present, fetch the plan and hydrate.
+  // Cached copy renders instantly; the fresh copy replaces it once the
+  // network round-trip returns. Any error surfaces as a save-status
+  // string rather than blocking the whole page.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('plan');
+    if (!id || !/^[A-Za-z0-9]{8}$/.test(id)) return;
+    const cached = readCachedPlan(id);
+    if (cached) hydrateFromPayload(id, cached.payload, cached.version, false);
+    void (async () => {
+      try {
+        const fresh = await fetchSharedPlan(id);
+        cachePlan(id, fresh);
+        hydrateFromPayload(id, planPayloadFromStored(fresh), fresh.version, true);
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : String(e);
+        setSaveError(`Could not load plan ${id}: ${msg}`);
+      }
+    })();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Bulk-hydrate one BG's plan state + roster inputs from a plan payload.
+  const hydrateFromPayload = useCallback(
+    (id: string, payload: PlanPayload, version: number, isFresh: boolean) => {
+      const bg = payload.bg;
+      setActiveBg(bg);
+      setPlansByBg((prev) => ({ ...prev, [bg]: planFromPayload(season, payload) }));
+      const rows: RosterRow[] = payload.rosterShareIds.map((shareId) => ({
+        input: shareId,
+        status: 'loading',
+      }));
+      while (rows.length < 10) rows.push({ input: '', status: 'idle' });
+      setRostersByBg((prev) => ({ ...prev, [bg]: rows }));
+      // Kick off individual roster loads in parallel.
+      payload.rosterShareIds.forEach((shareId, i) => {
+        void loadRow(bg, i, shareId);
+      });
+      const token = readDeleteToken(id);
+      setPlanShare({ id, version, canEdit: Boolean(token) });
+      if (isFresh) setSaveStatus('saved');
+    },
+    [season],
+  );
+
+  // ── Save / update ───────────────────────────────────────────────────
+  const savePlan = useCallback(async () => {
+    setSaveStatus('saving');
+    setSaveError(null);
+    const rosterShareIds = rosterRows
+      .filter((r) => r.status === 'ok' && r.playerId)
+      .map((r) => r.playerId!);
+    const playerNames: Record<string, string> = {};
+    for (const r of rosterRows) {
+      if (r.playerId && r.playerName) playerNames[r.playerId] = r.playerName;
+    }
+    const payload: PlanPayload = {
+      ...planToPayload(plan),
+      rosterShareIds,
+      playerNames,
+      lastPlacement: result ? placementsToPayload(result.placements) : undefined,
+    };
+    try {
+      if (planShare?.canEdit) {
+        const token = readDeleteToken(planShare.id);
+        if (!token) {
+          setSaveStatus('error');
+          setSaveError('Missing edit token; cannot update this plan.');
+          return;
+        }
+        const res = await updateSharedPlan(planShare.id, token, planShare.version, payload);
+        if ('conflict' in res) {
+          setSaveStatus('conflict');
+          setSaveError(
+            'Someone else saved this plan while you were editing. Reload to see their version, then re-apply your change.',
+          );
+          return;
+        }
+        setPlanShare({ id: res.id, version: res.version, canEdit: true });
+        setSaveStatus('saved');
+      } else {
+        const res = await createSharedPlan(payload);
+        saveDeleteToken(res.id, res.deleteToken);
+        setPlanShare({ id: res.id, version: res.version, canEdit: true });
+        setSaveStatus('saved');
+        if (typeof window !== 'undefined') {
+          const url = new URL(window.location.href);
+          url.searchParams.set('plan', res.id);
+          window.history.replaceState({}, '', url.toString());
+        }
+      }
+    } catch (e) {
+      setSaveStatus('error');
+      setSaveError(e instanceof Error ? e.message : String(e));
+    }
+  }, [plan, planShare, result, rosterRows]);
 
   // ── Roster loading ──────────────────────────────────────────────────
   const loadRow = useCallback(
@@ -414,6 +529,10 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
                 onRowChange={handleRowChange}
                 plan={plan}
                 mutatePlan={mutatePlan}
+                planShare={planShare}
+                saveStatus={saveStatus}
+                saveError={saveError}
+                onSave={savePlan}
               />
             )}
           </div>
@@ -1018,13 +1137,39 @@ function BattlegroupPanel({
   onRowChange,
   plan,
   mutatePlan,
+  planShare,
+  saveStatus,
+  saveError,
+  onSave,
 }: {
   rosterRows: RosterRow[];
   onRowChange: (rowIdx: number, next: string) => void;
   plan: SeasonPlan;
   mutatePlan: (m: (p: SeasonPlan) => SeasonPlan) => void;
+  planShare: { id: string; version: number; canEdit: boolean } | null;
+  saveStatus: 'idle' | 'saving' | 'saved' | 'conflict' | 'error';
+  saveError: string | null;
+  onSave: () => void;
 }) {
   const okCount = rosterRows.filter((r) => r.status === 'ok').length;
+  const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'error'>('idle');
+
+  const planUrl =
+    planShare && typeof window !== 'undefined'
+      ? `${window.location.origin}/war-planner/?plan=${planShare.id}`
+      : null;
+
+  const copyLink = async () => {
+    if (!planUrl) return;
+    try {
+      await navigator.clipboard.writeText(planUrl);
+      setCopyStatus('copied');
+    } catch {
+      setCopyStatus('error');
+    }
+    setTimeout(() => setCopyStatus('idle'), 1600);
+  };
+
   return (
     <div>
       <h2 className="editorial-heading text-2xl mb-0.5">Battlegroup {plan.bg}</h2>
@@ -1032,6 +1177,63 @@ function BattlegroupPanel({
         {okCount} of 10 rosters loaded. Paste share IDs or full{' '}
         <code>/r/?share=…</code> URLs.
       </p>
+
+      {/* Save / share block */}
+      <div className="mt-4 p-3 border border-[var(--color-rule)] rounded-md bg-[var(--color-paper-soft)]">
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={onSave}
+            disabled={saveStatus === 'saving'}
+            className="px-3 py-1.5 text-sm border border-[var(--color-rule)] rounded hover:border-[var(--color-marvel-impact)] disabled:opacity-40"
+          >
+            {planShare?.canEdit
+              ? saveStatus === 'saving'
+                ? 'Saving…'
+                : 'Save changes'
+              : saveStatus === 'saving'
+                ? 'Sharing…'
+                : 'Save & share plan'}
+          </button>
+          {planShare && (
+            <>
+              <span className="text-xs text-[var(--color-ink-soft)] font-mono">
+                id: {planShare.id} · v{planShare.version}
+              </span>
+              <button
+                type="button"
+                onClick={copyLink}
+                className="text-xs px-2 py-1 border border-[var(--color-rule)] rounded hover:border-[var(--color-marvel-impact)]"
+              >
+                {copyStatus === 'copied'
+                  ? 'Copied'
+                  : copyStatus === 'error'
+                    ? 'Copy failed'
+                    : 'Copy link'}
+              </button>
+            </>
+          )}
+        </div>
+        {saveStatus === 'saved' && planShare && (
+          <p className="text-xs text-[var(--color-ink-soft)] mt-2">
+            Saved. Anyone with the link opens this plan; officers with the edit
+            token stored here can save further changes.
+          </p>
+        )}
+        {saveStatus === 'conflict' && (
+          <p className="text-xs text-[var(--color-marvel-editorial)] mt-2">{saveError}</p>
+        )}
+        {saveStatus === 'error' && saveError && (
+          <p className="text-xs text-[var(--color-marvel-editorial)] mt-2">{saveError}</p>
+        )}
+        {!planShare && (
+          <p className="text-xs text-[var(--color-ink-soft)] mt-2 opacity-70">
+            Save the current plan (guide edits, pins, key nodes, roster refs) to
+            KV. You get a short URL other officers can open on any device.
+          </p>
+        )}
+      </div>
+
       <ul className="mt-4 space-y-1.5">
         {rosterRows.map((row, i) => {
           const excluded = row.playerId
@@ -1090,6 +1292,80 @@ function BattlegroupPanel({
       </ul>
     </div>
   );
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Plan ↔ payload converters (localStorage + API shape ↔ engine shape)
+// ─────────────────────────────────────────────────────────────────────────
+
+function planToPayload(plan: SeasonPlan): Omit<PlanPayload, 'rosterShareIds'> {
+  const pickOverrides: Record<string, string[]> = {};
+  for (const [k, v] of Object.entries(plan.pickOverrides)) {
+    pickOverrides[k] = [...v];
+  }
+  const pins: PlanPayload['pins'] = {};
+  for (const [k, v] of Object.entries(plan.pins)) {
+    pins[k] = { championId: v.championId, playerId: v.playerId };
+  }
+  return {
+    bg: plan.bg,
+    season: plan.season,
+    pickOverrides,
+    keyNodes: [...plan.keyNodes],
+    pins,
+    excludedPlayers: [...plan.excludedPlayers],
+    strict: plan.strict,
+  };
+}
+
+function planFromPayload(season: Season, payload: PlanPayload): SeasonPlan {
+  const guide: Record<number, string[]> = {};
+  for (const n of season.nodes) guide[n.node] = [...n.guideDefenders];
+  const pickOverrides: Record<number, string[]> = {};
+  for (const [k, v] of Object.entries(payload.pickOverrides)) {
+    pickOverrides[Number(k)] = [...v];
+  }
+  const pins: SeasonPlan['pins'] = {};
+  for (const [k, v] of Object.entries(payload.pins)) {
+    pins[Number(k)] = { championId: v.championId, playerId: v.playerId };
+  }
+  const lastPlacement: SeasonPlan['lastPlacement'] | undefined = payload.lastPlacement
+    ? Object.fromEntries(
+        Object.entries(payload.lastPlacement).map(([k, v]) => [Number(k), v]),
+      )
+    : undefined;
+  return {
+    season: payload.season,
+    bg: payload.bg,
+    guidePicks: guide,
+    pickOverrides,
+    keyNodes: new Set(payload.keyNodes),
+    pins,
+    excludedPlayers: new Set(payload.excludedPlayers),
+    strict: payload.strict,
+    lastPlacement,
+  };
+}
+
+function planPayloadFromStored(stored: StoredPlanPublic): PlanPayload {
+  const { createdAt: _c, updatedAt: _u, expiresAt: _e, version: _v, label, ...rest } = stored;
+  void _c; void _u; void _e; void _v;
+  return { ...rest, label: label ?? undefined };
+}
+
+function placementsToPayload(
+  placements: Record<NodeNumber, NodePlacement>,
+): PlanPayload['lastPlacement'] {
+  const out: NonNullable<PlanPayload['lastPlacement']> = {};
+  for (const [k, v] of Object.entries(placements)) {
+    out[k] = {
+      championId: v.championId,
+      playerId: v.playerId,
+      pickRank: v.pickRank,
+      pinned: v.pinned,
+    };
+  }
+  return out;
 }
 
 // ─────────────────────────────────────────────────────────────────────────
