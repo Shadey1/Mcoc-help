@@ -34,9 +34,10 @@ import {
   setPin,
   setStrict,
   toggleKeyNode,
-  togglePlayerExcluded,
 } from './plan-model';
 import { fetchShare } from '../../lib/share-client';
+import { fetchSharedBg } from '../../lib/share-bg-client';
+import { extractShareId } from '../war-share-input';
 import {
   createSharedPlan,
   fetchSharedPlan,
@@ -398,6 +399,67 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
     [activeBg, loadRow],
   );
 
+  /** Rename a loaded player. Only meaningful once the roster is 'ok';
+   *  writes to rosterRows so the map / placement / exports reflect it,
+   *  and the plan share persists it via `playerNames`. */
+  const renamePlayer = useCallback(
+    (rowIdx: number, name: string) => {
+      const bg = activeBg;
+      setRostersByBg((prev) => {
+        const rows = [...prev[bg]!];
+        rows[rowIdx] = { ...rows[rowIdx]!, playerName: name };
+        return { ...prev, [bg]: rows };
+      });
+    },
+    [activeBg],
+  );
+
+  /** Load a BG share (from the diversity tool at /war): one 8-char id
+   *  that expands into up to 10 roster shares. Each roster row then
+   *  hydrates in parallel exactly like a direct paste would. */
+  const [bgShareStatus, setBgShareStatus] = useState<
+    { status: 'idle' } | { status: 'loading' } | { status: 'error'; msg: string } | { status: 'ok'; label: string | null; count: number }
+  >({ status: 'idle' });
+  const loadBgShare = useCallback(
+    async (raw: string) => {
+      const id = extractShareId(raw);
+      if (!id) {
+        setBgShareStatus({ status: 'error', msg: 'Not a share id.' });
+        return;
+      }
+      setBgShareStatus({ status: 'loading' });
+      try {
+        const payload = await fetchSharedBg(id);
+        const bg = activeBg;
+        const newRows: RosterRow[] = payload.rows.slice(0, 10).map((r) => ({
+          input: r.url,
+          status: 'loading',
+          // Preserve the officer-set name from the BG bundle so we
+          // don't clobber it if the individual share's label is blank.
+          playerName: r.name?.trim() || undefined,
+        }));
+        while (newRows.length < 10) newRows.push({ input: '', status: 'idle' });
+        setRostersByBg((prev) => ({ ...prev, [bg]: newRows }));
+        // Kick off each row's load; loadRow uses the pasted string to
+        // extract the roster share id, so passing r.url works verbatim.
+        payload.rows.slice(0, 10).forEach((r, i) => {
+          void loadRow(bg, i, r.url);
+        });
+        setBgShareStatus({
+          status: 'ok',
+          label: payload.label,
+          count: payload.rows.length,
+        });
+      } catch (e) {
+        setBgShareStatus({
+          status: 'error',
+          msg: e instanceof Error ? e.message : String(e),
+        });
+      }
+    },
+    [activeBg, loadRow],
+  );
+
   // ── Callbacks passed to map ─────────────────────────────────────────
   const championNameFor = useCallback(
     (id: ChampionId): string => championById.get(id)?.name ?? id,
@@ -628,8 +690,10 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
               <BattlegroupPanel
                 rosterRows={rosterRows}
                 onRowChange={handleRowChange}
+                onRenamePlayer={renamePlayer}
+                onLoadBgShare={loadBgShare}
+                bgShareStatus={bgShareStatus}
                 plan={plan}
-                mutatePlan={mutatePlan}
                 planShare={planShare}
                 saveStatus={saveStatus}
                 saveError={saveError}
@@ -1314,8 +1378,10 @@ function Stat({
 function BattlegroupPanel({
   rosterRows,
   onRowChange,
+  onRenamePlayer,
+  onLoadBgShare,
+  bgShareStatus,
   plan,
-  mutatePlan,
   planShare,
   saveStatus,
   saveError,
@@ -1326,8 +1392,14 @@ function BattlegroupPanel({
 }: {
   rosterRows: RosterRow[];
   onRowChange: (rowIdx: number, next: string) => void;
+  onRenamePlayer: (rowIdx: number, name: string) => void;
+  onLoadBgShare: (raw: string) => void;
+  bgShareStatus:
+    | { status: 'idle' }
+    | { status: 'loading' }
+    | { status: 'error'; msg: string }
+    | { status: 'ok'; label: string | null; count: number };
   plan: SeasonPlan;
-  mutatePlan: (m: (p: SeasonPlan) => SeasonPlan) => void;
   planShare: { id: string; version: number; canEdit: boolean } | null;
   saveStatus: 'idle' | 'saving' | 'saved' | 'conflict' | 'error';
   saveError: string | null;
@@ -1338,6 +1410,7 @@ function BattlegroupPanel({
 }) {
   const okCount = rosterRows.filter((r) => r.status === 'ok').length;
   const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'error'>('idle');
+  const [bgShareInput, setBgShareInput] = useState('');
 
   const planUrl =
     planShare && typeof window !== 'undefined'
@@ -1359,8 +1432,8 @@ function BattlegroupPanel({
     <div>
       <h2 className="editorial-heading text-2xl mb-0.5">Battlegroup {plan.bg}</h2>
       <p className="text-sm text-[var(--color-ink-soft)]">
-        {okCount} of 10 rosters loaded. Paste share IDs or full{' '}
-        <code>/r/?share=…</code> URLs.
+        {okCount} of 10 rosters loaded. Paste roster share IDs individually,
+        or import a whole BG bundle from the diversity tool below.
       </p>
 
       {/* Save / share block */}
@@ -1443,63 +1516,133 @@ function BattlegroupPanel({
         )}
       </div>
 
+      {/* Load a shared BG bundle from the diversity tool (/war). One id
+          expands into up to 10 individual roster share loads — same
+          share endpoint both tools use, so an officer sets BGs up once
+          and reuses across both. */}
+      <div className="mt-4 p-3 border border-[var(--color-rule)] rounded-md bg-[var(--color-paper-soft)]">
+        <label className="text-xs uppercase tracking-wide text-[var(--color-ink-soft)]">
+          Import BG bundle from /war
+        </label>
+        <div className="flex gap-2 mt-1.5">
+          <input
+            type="text"
+            value={bgShareInput}
+            onChange={(e) => setBgShareInput(e.target.value)}
+            placeholder="BG share id or URL — e.g. VT9GPSaZ"
+            aria-label="BG share id"
+            className="flex-1 min-w-0 px-2 py-1.5 text-sm border border-[var(--color-rule)] rounded bg-[var(--color-paper)] focus:outline-none focus:border-[var(--color-marvel-impact)]"
+          />
+          <button
+            type="button"
+            onClick={() => {
+              if (!bgShareInput.trim()) return;
+              onLoadBgShare(bgShareInput);
+            }}
+            disabled={bgShareStatus.status === 'loading' || !bgShareInput.trim()}
+            className="px-3 py-1.5 text-sm border border-[var(--color-rule)] rounded hover:border-[var(--color-marvel-impact)] disabled:opacity-40"
+          >
+            {bgShareStatus.status === 'loading' ? 'Loading…' : 'Load BG'}
+          </button>
+        </div>
+        {bgShareStatus.status === 'ok' && (
+          <p className="text-xs text-[var(--color-ink-soft)] mt-1.5">
+            Loaded {bgShareStatus.count} rosters
+            {bgShareStatus.label ? ` from "${bgShareStatus.label}"` : ''}.
+            Individual loads below.
+          </p>
+        )}
+        {bgShareStatus.status === 'error' && (
+          <p className="text-xs text-[var(--color-marvel-editorial)] mt-1.5">
+            {bgShareStatus.msg}
+          </p>
+        )}
+      </div>
+
       <ul className="mt-4 space-y-1.5">
-        {rosterRows.map((row, i) => {
-          const excluded = row.playerId
-            ? plan.excludedPlayers.has(row.playerId)
-            : false;
-          return (
-            <li key={i} className="flex items-center gap-2">
-              <input
-                type="text"
-                value={row.input}
-                onChange={(e) => onRowChange(i, e.target.value)}
-                placeholder={`Player ${i + 1} — share ID or URL`}
-                aria-label={`Player ${i + 1} share`}
-                className={`flex-1 min-w-0 px-2 py-1.5 text-sm border rounded bg-[var(--color-paper)] focus:outline-none focus:border-[var(--color-marvel-impact)] ${
-                  row.status === 'error'
-                    ? 'border-[var(--color-marvel-impact)]'
-                    : row.status === 'ok'
-                      ? 'border-[var(--color-rule)]'
-                      : 'border-[var(--color-rule)]'
-                }`}
-              />
-              <div className="text-xs w-32 text-[var(--color-ink-soft)] truncate">
-                {row.status === 'loading' && 'loading…'}
-                {row.status === 'ok' && (
-                  <>
-                    <span className="text-[var(--color-ink)]">
-                      {row.playerName}
-                    </span>{' '}
-                    <span className="opacity-70">
-                      ({row.roster?.length} champs)
-                    </span>
-                  </>
-                )}
-                {row.status === 'error' && (
-                  <span className="text-[var(--color-marvel-editorial)]">
-                    {row.error?.slice(0, 40)}
-                  </span>
-                )}
-              </div>
-              {row.status === 'ok' && row.playerId && (
-                <label className="flex items-center gap-1 text-xs text-[var(--color-ink-soft)]">
-                  <input
-                    type="checkbox"
-                    checked={excluded}
-                    onChange={() =>
-                      mutatePlan((p) => togglePlayerExcluded(p, row.playerId!))
-                    }
-                    className="accent-[var(--color-marvel-impact)]"
-                  />
-                  absent
-                </label>
-              )}
-            </li>
-          );
-        })}
+        {rosterRows.map((row, i) => (
+          <RosterRowInput
+            key={i}
+            index={i}
+            row={row}
+            onChange={(next) => onRowChange(i, next)}
+            onRename={(name) => onRenamePlayer(i, name)}
+          />
+        ))}
       </ul>
     </div>
+  );
+}
+
+function RosterRowInput({
+  index,
+  row,
+  onChange,
+  onRename,
+}: {
+  index: number;
+  row: RosterRow;
+  onChange: (next: string) => void;
+  onRename: (name: string) => void;
+}) {
+  // Local buffer for the name field so we don't fire a rename on every
+  // keystroke; commit onBlur / Enter.
+  const [nameDraft, setNameDraft] = useState<string>('');
+  useEffect(() => {
+    setNameDraft(row.playerName ?? '');
+  }, [row.playerName, row.status]);
+
+  const commitName = (): void => {
+    const trimmed = nameDraft.trim();
+    if (!trimmed) return;
+    if (trimmed !== row.playerName) onRename(trimmed);
+  };
+
+  return (
+    <li className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2">
+      <input
+        type="text"
+        value={row.input}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={`Player ${index + 1} — share id or URL`}
+        aria-label={`Player ${index + 1} share`}
+        className={`flex-1 min-w-0 px-2 py-1.5 text-sm border rounded bg-[var(--color-paper)] focus:outline-none focus:border-[var(--color-marvel-impact)] ${
+          row.status === 'error'
+            ? 'border-[var(--color-marvel-impact)]'
+            : 'border-[var(--color-rule)]'
+        }`}
+      />
+      {row.status === 'ok' ? (
+        <div className="flex items-center gap-1.5 sm:w-56">
+          <input
+            type="text"
+            value={nameDraft}
+            onChange={(e) => setNameDraft(e.target.value)}
+            onBlur={commitName}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                (e.target as HTMLInputElement).blur();
+              }
+            }}
+            placeholder="Player name"
+            aria-label={`Player ${index + 1} name`}
+            className="flex-1 min-w-0 px-2 py-1 text-sm border border-[var(--color-rule)] rounded bg-[var(--color-paper)] focus:outline-none focus:border-[var(--color-marvel-impact)]"
+          />
+          <span className="text-xs text-[var(--color-ink-soft)] opacity-70 whitespace-nowrap">
+            {row.roster?.length ?? 0}
+          </span>
+        </div>
+      ) : (
+        <div className="text-xs sm:w-56 text-[var(--color-ink-soft)] truncate">
+          {row.status === 'loading' && 'loading…'}
+          {row.status === 'error' && (
+            <span className="text-[var(--color-marvel-editorial)]">
+              {row.error?.slice(0, 60)}
+            </span>
+          )}
+        </div>
+      )}
+    </li>
   );
 }
 
