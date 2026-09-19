@@ -1,6 +1,6 @@
 # Season 69 war planner — pre-build audit
 
-Read `war-planner-handover.md` first. This audit answers the five questions the handover asks under **Step 0** before any feature code is written. It ends with open questions I need Dave to decide before I start building.
+Read `docs/war-planner-handover.md` first. This audit answers the five questions the handover asks under **Step 0** before any feature code is written. It ends with open questions I need Dave to decide before I start building.
 
 Mockup: [Season 69 war planner (alpha mockup)](https://claude.ai/artifact/2vkwDoxruvF6c858wsxijs). The solver and export code inside it are the reference — port, don't reinvent.
 

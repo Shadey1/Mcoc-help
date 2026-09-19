@@ -1,54 +1,49 @@
 # AW season extractor — how to run it
 
-Full pipeline is wired against GuiaMTC's page layout. Three scripts, run in order:
-
-## 1. Save the guide page
-
-In Chrome / Edge / Firefox, open `https://www.guiamtc.com/aw-season-<N>` and use `File → Save Page As… → Complete Webpage`. Drop the resulting `.html` and `_files` folder into `dump/` at the repo root. The `_files` folder should contain 45 `unnamed*.png` images.
-
-The `dump/` folder is gitignored — nothing committed from the guide itself.
-
-## 2. Build the champion portrait hash cache (once)
+One command per season. Everything is read from the guide's images.
 
 ```
-pnpm build-portrait-hashes
+pnpm extract-aw-season 70 --fetch           # download the guide, dry run
+pnpm extract-aw-season 70 --fetch --apply   # download and write the season file
+pnpm extract-aw-season 70 --check           # has the guide changed since we captured it?
 ```
 
-Fetches every champion's `portraitUrl` from Fandom, computes an 8×8 aHash, saves to `data/champions/portrait-hashes.json`. Idempotent (skips existing entries); rerun after adding new champions. Rate-limited to 500 ms between fetches — the full 330-champion build takes ~3 minutes on a warm connection.
+## 1. Getting the guide images
 
-**Fandom rate-limit note.** After heavy scraping activity Fandom's WAF can flag your IP for 403 responses. If you see all-403s, wait a few hours and retry. Pass `--force` to rebuild from scratch.
+`--fetch` downloads every image on `https://www.guiamtc.com/aw-season-<N>` into `dump/aw-season-<N>/` (gitignored). Takes 1-3 minutes; Google's image host is slow. Without `--fetch` the last download is reused, so iterating on the script is fast.
 
-## 3. Run the extractor
+The guide is a Google Sites page. Its image URLs are signed, expire about a minute after the page loads and need that page request's cookies, so the script pulls them in parallel and re-requests the page for anything refused. A failed download leaves the previous one untouched.
+
+Fallback if that ever breaks: save the page from a browser (`File → Save Page As… → Complete Webpage`) into `dump/`. A `dump/MTC Guide - AW - Season <N>_files/` folder is picked up when there is no `dump/aw-season-<N>/`.
+
+## 2. Refresh the reference portraits (only when new champions were added)
 
 ```
-pnpm extract-aw-season 69           # dry run — prints what it would extract
-pnpm extract-aw-season 69 --apply   # write the season file
+pnpm fetch-portraits
 ```
+
+Drives local Chrome to fetch each champion's `portraitUrl` from Fandom into `data/champions/portraits-cache/<id>.png`. Idempotent; pass `-- --force` to refetch everything. The extractor matches against those PNGs directly, and warns up front if any seed champion has no PNG yet.
+
+**Fandom rate-limit note.** After heavy scraping Fandom's WAF can 403 your IP. Wait a few hours and retry.
+
+## 3. What it writes
 
 Produces:
-- `data/aw/season-<N>.json` — 50 nodes × up to 8 defender ids
-- `data/aw/_review-season-<N>.md` — cells the phash matcher wasn't sure about, with top-3 candidates and paths to the cropped cell image for eyeball verification
-- `data/aw/_cells-s<N>/` — cropped low-confidence cells (both these last two are gitignored — regenerable)
+- `data/aw/season-<N>.json` — 50 nodes, each with OCR'd buffs and up to 8 defender ids
+- `data/aw/_review-season-<N>.md` — only what it wasn't sure of. Season 69 came out empty.
+- `data/aw/_cells-s<N>/` — crops of flagged cells only (gitignored)
 
-## Section → image mapping
+The dry run writes nothing. `--apply` refuses to write if any node is missing, duplicated or unreadable, so a bad run can't replace a good season file. Both modes print which nodes differ from the current file first: a re-run replaces hand edits to `buffs` and `guideDefenders`, so check that list before applying over a file you've corrected.
 
-The extractor knows GuiaMTC's DOM order:
+## How it works
 
-- Path 1..9 → `unnamed(3|6|9|11|15|18|21|24|28).png`
-- SUBS Section 1/2/3 → `unnamed(33|36|40).png`
-- Boss Island → `unnamed(44).png`
-
-If GuiaMTC reshuffles the page for a future season, update `PATH_IMAGES` / `SUBS_IMAGES` / `BOSS_IMAGE` at the top of `scripts/extract-aw-season.ts`.
-
-The SUBS-image → node-numbers mapping (`SUBS_NODES`) is the handover-flagged trap: the guide's "Section 1/2/3" labels don't match the map's node numbering. The current mapping (`s1 → 40-42, s2 → 43-45, s3 → 37-39`) was determined by hand after the first run — verify against the actual guide when a new season lands.
-
-## Buff text
-
-Not OCR'd. The guide's Portuguese-plus-English buff labels are noisy and the field is display-only in the season schema. Any `buffs` already in the season file are preserved on re-run; officers can hand-fix from the guide's per-node bar.
-
-## Fallback: hand-populate
-
-If Fandom is 403-blocking and you need picks now, `scripts/crop-aw-cells.ts` produces per-node "sheets" (8 defender portraits side-by-side, upscaled to ~200 px each) under `data/aw/_review-s<N>/node-<n>.png`. Officer eyeballs each sheet, hand-fills the JSON. Slower but requires no Fandom access.
+- **Spotting guide edits.** Google serves byte-identical files until the guide is edited, so the season file stores a hash of the pick-table images (`source.fingerprint`). `--check` downloads the guide, compares, and exits 0 (same) or 2 (changed) without needing portraits or OCR. `capturedAt` only moves when the fingerprint does.
+- **Finding tables.** Every image in the dump is checked for the blue / dark-red / dark-green "Node / Defenders / Attackers" header. No filenames or page order are assumed, so a reshuffled page doesn't matter.
+- **Rows.** Detected from the dark separator bars, never counted. Season 69: 4 rows on paths, 3 on SUBS, 5 on Boss Island.
+- **Node numbers.** OCR'd from the left cell of each row. The guide's "SUBS Section 1/2/3" labels are ignored. Cross-checks: every node 1–50 must appear exactly once, and numbers within one table must step evenly (9 on a path, 1 elsewhere). Failures are listed as structural problems.
+- **Buffs.** OCR'd. A line is joined onto the previous buff when that buff ends in a colon, has an unclosed bracket, or the line starts with a bracket. Trailing junk from the guide's emoji icons is stripped. The guide's known misspellings ("Agression", "Dauting", "Controlos", "Desintegration", "Adaptative") are corrected via the `GUIDE_TYPOS` table in the script; add new ones there, not by hand in the season file, or the next run reverts them.
+- **Defenders.** The guide pastes the stock portrait onto a flat coloured cell at near-native size, so each cell is template-matched against the reference PNGs, scoring only where the reference is opaque (`scripts/lib/portrait-match.ts`). Correct matches score 0.82–0.99 with the runner-up around 0.45–0.65. Perceptual hashes were tried first and can't survive the background and framing difference — distances came out near random.
+- **Flags.** A cell is flagged when its lead over the runner-up is under 0.15, and left out of the picks entirely when the best score is under 0.75 (almost always a champion with no reference portrait — run step 2).
 
 ---
 

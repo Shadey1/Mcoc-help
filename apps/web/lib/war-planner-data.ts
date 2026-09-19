@@ -1,4 +1,4 @@
-import type { Season, DefenderValues } from '../../../data/aw/season-69.schema';
+import { Season, DefenderValues } from '../../../data/aw/season-69.schema';
 import season69 from '../../../data/aw/season-69.json' with { type: 'json' };
 import defenderValuesFile from '../../../data/aw/defender-values.json' with { type: 'json' };
 
@@ -14,12 +14,17 @@ import defenderValuesFile from '../../../data/aw/defender-values.json' with { ty
  * v2 will let officers override per-alliance via a shared knob; today
  * they're a single build-time constant.
  */
+// Parsed at module load so a malformed data file fails the static
+// build (pages prerender at build time) instead of reaching users.
+const season = Season.parse(season69);
+const defenderValues = DefenderValues.parse(defenderValuesFile);
+
 export function loadSeason(): Season {
-  return season69 as Season;
+  return season;
 }
 
 export function loadDefenderValues(): DefenderValues {
-  return defenderValuesFile as DefenderValues;
+  return defenderValues;
 }
 
 /** Convert the DefenderValues envelope into the ReadonlyMap the engine

@@ -32,7 +32,8 @@ export const SeasonNode = z.object({
 });
 export type SeasonNode = z.infer<typeof SeasonNode>;
 
-export const Season = z.object({
+export const Season = z
+  .object({
   /** Season number, e.g. 69. */
   season: z.number().int().min(1),
   /** Attribution — always credit the guide source on the page. */
@@ -40,13 +41,26 @@ export const Season = z.object({
     name: z.string().min(1),
     url: z.string().url(),
     capturedAt: z.string(),
+    /** Hash of the guide's pick-table images at capture; the extractor's
+     *  --check compares against it to spot a mid-season guide edit. */
+    fingerprint: z.string().optional(),
   }),
   /** Exactly 50 node entries, one per node number 1..50. */
   nodes: z.array(SeasonNode).length(50),
   /** Default key nodes (the ones the UI marks red on first load).
    *  Typically the boss island: [48, 49, 50]. Officer can edit. */
   defaultKeyNodes: z.array(z.number().int().min(1).max(50)),
-});
+  })
+  .superRefine((season, ctx) => {
+    const seen = new Set<number>();
+    for (const n of season.nodes) {
+      if (seen.has(n.node)) ctx.addIssue({ code: 'custom', message: `node ${n.node} appears twice` });
+      seen.add(n.node);
+      if (new Set(n.guideDefenders).size !== n.guideDefenders.length) {
+        ctx.addIssue({ code: 'custom', message: `node ${n.node} lists the same defender twice` });
+      }
+    }
+  });
 export type Season = z.infer<typeof Season>;
 
 /**
