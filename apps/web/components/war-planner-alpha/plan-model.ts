@@ -13,6 +13,13 @@ import type { Season } from '../../../../data/aw/season.schema';
  * plan; nothing mutates in place.
  */
 
+/** Node → how many leading picks the guide highlights as its best tier. */
+export function guideTopPicks(season: Season): Record<NodeNumber, number> {
+  const top: Record<NodeNumber, number> = {};
+  for (const n of season.nodes) if (n.topPicks !== undefined) top[n.node] = n.topPicks;
+  return top;
+}
+
 export function newPlan(season: Season, bg: 1 | 2 | 3): SeasonPlan {
   const guide: Record<NodeNumber, ChampionId[]> = {};
   for (const n of season.nodes) guide[n.node] = [...n.guideDefenders];
@@ -20,6 +27,7 @@ export function newPlan(season: Season, bg: 1 | 2 | 3): SeasonPlan {
     season: season.season,
     bg,
     guidePicks: guide,
+    guideTopPicks: guideTopPicks(season),
     pickOverrides: {},
     keyNodes: new Set(season.defaultKeyNodes),
     pins: {},

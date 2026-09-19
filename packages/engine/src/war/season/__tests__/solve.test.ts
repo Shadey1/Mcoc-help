@@ -244,6 +244,25 @@ describe('season solver behaviour', () => {
     expect(r.placements[1]?.championId).toBe('champ-2');
   });
 
+  it('a contested champion goes to the node where the guide highlights it', () => {
+    // champ-1 is node 1's first pick (an alternate there) and node 2's
+    // second pick (top tier there). By list position alone node 1 wins it:
+    // 100 + 82 beats 91 + 82. The tier bonus flips that.
+    const guidePicks = {
+      1: ['champ-1', 'champ-9', 'champ-2'],
+      2: ['champ-8', 'champ-1', 'champ-3'],
+    };
+    const players: WarPlayer[] = [makePlayer('a', 'A', ['champ-1', 'champ-2', 'champ-3'])];
+    const flat = solvePlacement(buildInput({ plan: buildPlan({ guidePicks, keyNodes: new Set() }), players }));
+    expect(flat.placements[1]?.championId).toBe('champ-1');
+
+    const tiered = solvePlacement(
+      buildInput({ plan: buildPlan({ guidePicks, guideTopPicks: { 1: 0, 2: 2 }, keyNodes: new Set() }), players }),
+    );
+    expect(tiered.placements[2]?.championId).toBe('champ-1');
+    expect(tiered.placements[1]?.championId).toBe('champ-2');
+  });
+
   it('excluded players contribute zero placements', () => {
     const players = buildBg();
     const plan = buildPlan({ excludedPlayers: new Set(['p1']) });

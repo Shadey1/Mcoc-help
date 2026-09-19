@@ -26,6 +26,10 @@ export const SeasonNode = z.object({
    * through to the `dv × 0.55` pickless-node formula.
    */
   guideDefenders: z.array(ChampionId).max(8),
+  /** How many of the leading guideDefenders the guide highlights as its
+   *  best tier (yellow cells); the rest are alternates. Absent in season
+   *  files captured before the extractor read it. */
+  topPicks: z.number().int().min(0).max(8).optional(),
   /** Extractor notes about anything it wasn't sure of (buff wrap
    *  ambiguity, low-confidence portrait match). Empty when clean. */
   reviewFlags: z.array(z.string()).optional(),

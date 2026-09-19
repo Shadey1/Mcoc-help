@@ -46,7 +46,7 @@ function seededRng(seed: number): () => number {
 type SeedFile = { champions: Champion[] };
 type SeasonFile = {
   season: number;
-  nodes: { node: number; buffs: string[]; guideDefenders: string[] }[];
+  nodes: { node: number; buffs: string[]; guideDefenders: string[]; topPicks?: number }[];
   defaultKeyNodes: number[];
 };
 type DvFile = { values: Record<string, number> };
@@ -126,11 +126,16 @@ function buildRealisticBg(): {
 function loadSeasonPlan(): SeasonPlan {
   const season = readJson<SeasonFile>('data/aw/season-69.json');
   const guidePicks: Record<NodeNumber, ChampionId[]> = {};
-  for (const n of season.nodes) guidePicks[n.node] = [...n.guideDefenders];
+  const guideTopPicks: Record<NodeNumber, number> = {};
+  for (const n of season.nodes) {
+    guidePicks[n.node] = [...n.guideDefenders];
+    if (n.topPicks !== undefined) guideTopPicks[n.node] = n.topPicks;
+  }
   return {
     season: season.season,
     bg: 1,
     guidePicks,
+    guideTopPicks,
     pickOverrides: {},
     keyNodes: new Set(season.defaultKeyNodes),
     pins: {},
@@ -167,6 +172,19 @@ describe('season solver — realistic X-Men BG shape', () => {
     // sensible lower bar. Below that, the tier map or ownership rate
     // is off, which is worth flagging.
     expect(Object.keys(result.placements).length).toBeGreaterThanOrEqual(45);
+  });
+
+  it('guide tiers put more nodes on a best-tier pick than list order alone', () => {
+    const onTopTier = (r: typeof result): number =>
+      Object.entries(r.placements).filter(
+        ([node, pl]) => pl.pickRank >= 0 && pl.pickRank < (plan.guideTopPicks?.[Number(node) as NodeNumber] ?? 0),
+      ).length;
+    const flat = solvePlacement({ ...input, plan: { ...plan, guideTopPicks: undefined } });
+    const moved = Object.keys(result.placements).filter(
+      (n) => result.placements[Number(n) as NodeNumber]?.championId !== flat.placements[Number(n) as NodeNumber]?.championId,
+    ).length;
+    console.log(`best-tier placements: ${onTopTier(result)} with guide tiers, ${onTopTier(flat)} without; ${moved} nodes differ`);
+    expect(onTopTier(result)).toBeGreaterThanOrEqual(onTopTier(flat));
   });
 
   it('never places a champion twice', () => {

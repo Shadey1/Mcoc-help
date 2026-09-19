@@ -23,6 +23,7 @@ import {
   addPick,
   clearAllPicks,
   clearPin,
+  guideTopPicks,
   isEditedFromGuide,
   movePick,
   newPlan,
@@ -1202,7 +1203,18 @@ function NodePanel({
                 <span className="text-right text-xs text-[var(--color-ink-soft)] font-serif">
                   {i + 1}
                 </span>
-                <span className="text-sm">{championById.get(c)?.name ?? c}</span>
+                <span className="text-sm">
+                  {championById.get(c)?.name ?? c}
+                  {!isEditedFromGuide(plan, selectedNode) &&
+                    i < (plan.guideTopPicks?.[selectedNode] ?? 0) && (
+                      <span
+                        className="ml-1.5 text-[10px] uppercase tracking-wide text-[var(--color-ink-soft)]"
+                        title="The guide highlights this as one of its best picks for the node, so the planner favours placing it here."
+                      >
+                        top pick
+                      </span>
+                    )}
+                </span>
                 <span className="flex items-center gap-2">
                   <DvChip
                     championId={c}
@@ -2036,6 +2048,7 @@ function planFromPayload(season: Season, payload: PlanPayload): SeasonPlan {
     season: payload.season,
     bg: payload.bg,
     guidePicks: guide,
+    guideTopPicks: guideTopPicks(season),
     pickOverrides,
     keyNodes: new Set(payload.keyNodes),
     pins,

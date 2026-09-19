@@ -266,11 +266,43 @@ async function isEmptyCell(cell: Buffer): Promise<boolean> {
 
 // ── Main pipeline ───────────────────────────────────────────────────────
 
+/** The guide puts its best-tier picks on a yellow cell and alternates on
+ *  pink. A portrait can cover almost the whole cell (Solvarch), so count
+ *  yellow against pink in a band round the cell's edge, where whatever
+ *  background is visible shows. Yellow is the one with little blue in it.
+ *  Null when too little background shows to call it. */
+async function isHighlighted(cell: Buffer): Promise<boolean | null> {
+  const { data, info } = await sharp(cell).removeAlpha().raw().toBuffer({ resolveWithObject: true });
+  // From the very edge: a full-bleed portrait (Arnim Zola) leaves only a
+  // 2px margin of background. The guide's black box lines match neither
+  // colour, so they don't need skipping.
+  const INSET = 0;
+  const BAND = 12;
+  let yellow = 0;
+  let pink = 0;
+  for (let y = INSET; y < info.height - INSET; y++) {
+    for (let x = INSET; x < info.width - INSET; x++) {
+      const edge = Math.min(x, y, info.width - 1 - x, info.height - 1 - y);
+      if (edge >= INSET + BAND) continue;
+      const i = (y * info.width + x) * 3;
+      const r = data[i]!;
+      const g = data[i + 1]!;
+      const bl = data[i + 2]!;
+      if (r < 225) continue;
+      if (g > 0.8 * r && bl < 0.45 * r) yellow++;
+      else if (g > 0.68 * r && g < 0.82 * r && bl > 0.62 * r && bl < 0.8 * r) pink++;
+    }
+  }
+  if (yellow + pink < 40) return null;
+  return yellow > pink;
+}
+
 type NodeExtraction = {
   node: number;
   source: string;
   buffs: string[];
   guideDefenders: string[];
+  topPicks: number;
   reviewFlags: string[];
 };
 
@@ -287,6 +319,7 @@ async function extractRow(
   const buffs = await readBuffs(worker, table, row);
   if (buffs.length === 0) reviewFlags.push('buffs: OCR read nothing');
 
+  const highlighted: Array<boolean | null> = [];
   const cells = await cropCells(table, row);
   for (let slot = 0; slot < cells.length; slot++) {
     const cell = cells[slot]!;
@@ -298,7 +331,10 @@ async function extractRow(
     // for; listing a wrong id is worse than listing nothing.
     const weak = best.score < SCORE_OK;
     const repeat = !weak && guideDefenders.includes(best.championId);
-    if (!weak && !repeat) guideDefenders.push(best.championId);
+    if (!weak && !repeat) {
+      guideDefenders.push(best.championId);
+      highlighted.push(await isHighlighted(cell));
+    }
     if (weak || repeat || gap < MIN_GAP) {
       const name = `node-${String(node).padStart(2, '0')}-slot-${slot + 1}.png`;
       if (APPLY) {
@@ -310,7 +346,16 @@ async function extractRow(
       reviewFlags.push(`slot ${slot + 1}: ${why} - ${alts} - crop: _cells-s${SEASON}/${name}`);
     }
   }
-  return { node, source: table.file, buffs, guideDefenders, reviewFlags };
+  // The guide boxes its best tier as one leading run, so an unreadable
+  // cell inside the run is part of it. An unreadable cell straight after
+  // the run counts as an alternate: that is what the guide's box showed
+  // in every such case (Arnim Zola, Season 69), and a missed bonus on one
+  // pick costs far less than sending every guide update to review.
+  const topPicks = highlighted.lastIndexOf(true) + 1;
+  if (highlighted.slice(0, topPicks).includes(false)) {
+    reviewFlags.push(`highlighted picks are not a leading run (${highlighted.map((h) => (h === null ? '?' : h ? 'Y' : '-')).join('')})`);
+  }
+  return { node, source: table.file, buffs, guideDefenders, topPicks, reviewFlags };
 }
 
 async function main(): Promise<void> {
@@ -404,7 +449,7 @@ async function main(): Promise<void> {
         const names = ext.guideDefenders.map((id) => nameById.get(id) ?? id).join(', ');
         const flag = ext.reviewFlags.length > 0 ? `  ⚠ ${ext.reviewFlags.length}` : '';
         console.log(`  node ${String(node).padStart(2)} [${table.file}]: ${names}${flag}`);
-        console.log(`          ${ext.buffs.join(' | ')}`);
+        console.log(`          top ${ext.topPicks} | ${ext.buffs.join(' | ')}`);
         for (const f of ext.reviewFlags) console.log(`          ⚠ ${f}`);
       }
       // Rows in one table step by 9 (a path) or by 1 (SUBS, Boss Island).
@@ -430,11 +475,11 @@ async function main(): Promise<void> {
   // Re-running replaces hand edits, so say exactly what would change.
   if (existsSync(SEASON_FILE)) {
     const current = (JSON.parse(readFileSync(SEASON_FILE, 'utf-8')) as {
-      nodes: Array<{ node: number; buffs: string[]; guideDefenders: string[] }>;
+      nodes: Array<{ node: number; buffs: string[]; guideDefenders: string[]; topPicks?: number }>;
     }).nodes;
     const changed = extractions.filter((e) => {
       const c = current.find((n) => n.node === e.node);
-      return !c || JSON.stringify([c.buffs, c.guideDefenders]) !== JSON.stringify([e.buffs, e.guideDefenders]);
+      return !c || JSON.stringify([c.buffs, c.guideDefenders, c.topPicks]) !== JSON.stringify([e.buffs, e.guideDefenders, e.topPicks]);
     });
     const dropped = current.filter((c) => !byNode.has(c.node)).map((c) => c.node);
     if (dropped.length > 0) console.log(`In the current season file but not extracted: ${dropped.join(', ')}`);
@@ -474,6 +519,7 @@ async function main(): Promise<void> {
       node: e.node,
       buffs: e.buffs,
       guideDefenders: e.guideDefenders,
+      topPicks: e.topPicks,
       ...(e.reviewFlags.length > 0 ? { reviewFlags: e.reviewFlags } : {}),
     })),
     defaultKeyNodes: existing.defaultKeyNodes ?? [48, 49, 50],

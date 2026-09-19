@@ -221,7 +221,7 @@ export function solvePlacement(input: PlaceInput): PlaceResult {
       const softChamp = softNodeToChamp.get(n);
       if (softChamp !== undefined && softChamp !== c) continue;
       // Encode any-owner pin with an outsized negative cost so it beats
-      // any real fit score at that node (fit maxes at 3 × 100 × 10 = 3000).
+      // any real fit score at that node (fit maxes at 3 × 115 × 10 = 3450).
       if (softChamp === c) {
         addEdge(CO + i, N0 + n, 1, -100_000);
         continue;

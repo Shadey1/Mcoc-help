@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { copyStrength, fit, meetsFloor, resolvePicks } from '../fit.js';
+import { TOP_PICK_BONUS, copyStrength, fit, meetsFloor, resolvePicks } from '../fit.js';
 import type { ChampionId, NodeNumber, SeasonPlan } from '../types.js';
 import type { Ascension, ChampionState, Rank } from '../../../types.js';
 
@@ -96,6 +96,35 @@ describe('fit scoring', () => {
     const p = plan({ guidePicks: { 1: ['a'] } });
     // unknown, non-strict, non-listed → 1.5 * 50 * 0.3 = 22.5
     expect(fit('unknown', 1, p, DV)).toEqual({ score: 22.5, rank: -1 });
+  });
+
+  it('guide top-tier picks earn the bonus; alternates on the same node do not', () => {
+    const p = plan({ guidePicks: { 1: ['a', 'b', 'c'] }, guideTopPicks: { 1: 2 } });
+    expect(fit('a', 1, p, DV)).toEqual({ score: 1.5 * (100 + TOP_PICK_BONUS), rank: 0 });
+    expect(fit('b', 1, p, DV)).toEqual({ score: 1.5 * (91 + TOP_PICK_BONUS), rank: 1 });
+    expect(fit('c', 1, p, DV)).toEqual({ score: 1.5 * 82, rank: 2 });
+  });
+
+  it('the bonus never reorders a node: last top pick still beats nothing above it, first alternate stays below', () => {
+    const p = plan({ guidePicks: { 1: ['a', 'b', 'c'] }, guideTopPicks: { 1: 1 } });
+    const [a, b, c] = (['a', 'b', 'c'] as const).map((id) => fit(id, 1, p, DV)!.score);
+    expect(a).toBeGreaterThan(b!);
+    expect(b).toBeGreaterThan(c!);
+  });
+
+  it('an officer-edited node ignores the guide tier', () => {
+    const p = plan({
+      guidePicks: { 1: ['a', 'b'] },
+      guideTopPicks: { 1: 2 },
+      pickOverrides: { 1: ['b', 'a'] },
+    });
+    expect(fit('b', 1, p, DV)).toEqual({ score: 150, rank: 0 });
+    expect(fit('a', 1, p, DV)).toEqual({ score: 1.5 * 91, rank: 1 });
+  });
+
+  it('no tier data for a node means no bonus', () => {
+    const p = plan({ guidePicks: { 1: ['a'] }, guideTopPicks: { 2: 3 } });
+    expect(fit('a', 1, p, DV)).toEqual({ score: 150, rank: 0 });
   });
 });
 

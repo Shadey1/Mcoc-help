@@ -24,7 +24,8 @@
         "magik",
         "enchantress",
         "kindred"
-      ]
+      ],
+      "topPicks": 2
     },
     {
       "node": 2,
@@ -42,7 +43,8 @@
         "enchantress",
         "apocalypse",
         "doctor-strange"
-      ]
+      ],
+      "topPicks": 2
     },
     {
       "node": 3,
@@ -60,7 +62,8 @@
         "super-skrull",
         "viv-vision",
         "nimrod"
-      ]
+      ],
+      "topPicks": 2
     },
     {
       "node": 4,
@@ -77,7 +80,8 @@
         "dark-phoenix",
         "the-serpent",
         "kindred"
-      ]
+      ],
+      "topPicks": 3
     },
     {
       "node": 5,
@@ -95,7 +99,8 @@
         "korg",
         "attuma",
         "cassandra-nova"
-      ]
+      ],
+      "topPicks": 1
     },
     {
       "node": 6,
@@ -112,7 +117,8 @@
         "sasquatch",
         "korg",
         "black-panther-civil-war"
-      ]
+      ],
+      "topPicks": 4
     },
     {
       "node": 7,
@@ -129,7 +135,8 @@
         "kingpin",
         "cheeilth",
         "mole-man"
-      ]
+      ],
+      "topPicks": 0
     },
     {
       "node": 8,
@@ -146,7 +153,8 @@
         "bullseye",
         "spider-man-supreme",
         "punisher"
-      ]
+      ],
+      "topPicks": 3
     },
     {
       "node": 9,
@@ -164,7 +172,8 @@
         "lumatrix",
         "enchantress",
         "maestro"
-      ]
+      ],
+      "topPicks": 3
     },
     {
       "node": 10,
@@ -183,7 +192,8 @@
         "nico-minoru",
         "kindred",
         "spider-man-pavitr-prabhakar"
-      ]
+      ],
+      "topPicks": 2
     },
     {
       "node": 11,
@@ -200,7 +210,8 @@
         "knull",
         "phyla-vell",
         "vision-aarkus"
-      ]
+      ],
+      "topPicks": 1
     },
     {
       "node": 12,
@@ -217,7 +228,8 @@
         "enchantress",
         "yelena-belova",
         "korg"
-      ]
+      ],
+      "topPicks": 1
     },
     {
       "node": 13,
@@ -234,7 +246,8 @@
         "korg",
         "onslaught",
         "thing"
-      ]
+      ],
+      "topPicks": 3
     },
     {
       "node": 14,
@@ -252,7 +265,8 @@
         "red-skull",
         "black-panther-civil-war",
         "enchantress"
-      ]
+      ],
+      "topPicks": 2
     },
     {
       "node": 15,
@@ -270,7 +284,8 @@
         "domino",
         "cassandra-nova",
         "omega-red"
-      ]
+      ],
+      "topPicks": 1
     },
     {
       "node": 16,
@@ -288,7 +303,8 @@
         "the-serpent",
         "madelyne-pryor",
         "man-thing"
-      ]
+      ],
+      "topPicks": 3
     },
     {
       "node": 17,
@@ -307,7 +323,8 @@
         "thing",
         "modok",
         "arnim-zola"
-      ]
+      ],
+      "topPicks": 2
     },
     {
       "node": 18,
@@ -325,7 +342,8 @@
         "bullseye",
         "arcade",
         "knull"
-      ]
+      ],
+      "topPicks": 2
     },
     {
       "node": 19,
@@ -343,7 +361,8 @@
         "dark-phoenix",
         "gorr",
         "karolina-dean"
-      ]
+      ],
+      "topPicks": 1
     },
     {
       "node": 20,
@@ -361,7 +380,8 @@
         "lumatrix",
         "baron-zemo",
         "maestro"
-      ]
+      ],
+      "topPicks": 2
     },
     {
       "node": 21,
@@ -379,7 +399,8 @@
         "mr-knight",
         "spider-woman",
         "maestro"
-      ]
+      ],
+      "topPicks": 3
     },
     {
       "node": 22,
@@ -397,7 +418,8 @@
         "havok",
         "sandman",
         "werewolf-by-night"
-      ]
+      ],
+      "topPicks": 3
     },
     {
       "node": 23,
@@ -414,7 +436,8 @@
         "spider-punk",
         "thanos-deathless",
         "red-skull"
-      ]
+      ],
+      "topPicks": 2
     },
     {
       "node": 24,
@@ -433,7 +456,8 @@
         "arcade",
         "america-chavez",
         "modok"
-      ]
+      ],
+      "topPicks": 2
     },
     {
       "node": 25,
@@ -450,7 +474,8 @@
         "nico-minoru",
         "captain-britain",
         "arnim-zola"
-      ]
+      ],
+      "topPicks": 4
     },
     {
       "node": 26,
@@ -468,7 +493,8 @@
         "modok",
         "galan",
         "thing"
-      ]
+      ],
+      "topPicks": 4
     },
     {
       "node": 27,
@@ -486,7 +512,8 @@
         "punisher",
         "yelena-belova",
         "high-evolutionary"
-      ]
+      ],
+      "topPicks": 1
     },
     {
       "node": 28,
@@ -505,7 +532,8 @@
         "red-skull",
         "onslaught",
         "lumatrix"
-      ]
+      ],
+      "topPicks": 4
     },
     {
       "node": 29,
@@ -524,7 +552,8 @@
         "bullseye",
         "lumatrix",
         "spider-woman"
-      ]
+      ],
+      "topPicks": 2
     },
     {
       "node": 30,
@@ -542,7 +571,8 @@
         "korg",
         "sandman",
         "high-evolutionary"
-      ]
+      ],
+      "topPicks": 3
     },
     {
       "node": 31,
@@ -560,7 +590,8 @@
         "high-evolutionary",
         "jean-grey",
         "knull"
-      ]
+      ],
+      "topPicks": 2
     },
     {
       "node": 32,
@@ -577,7 +608,8 @@
         "sasquatch",
         "gentle",
         "thor-ragnarok"
-      ]
+      ],
+      "topPicks": 2
     },
     {
       "node": 33,
@@ -595,7 +627,8 @@
         "punisher",
         "abomination-immortal",
         "bullseye"
-      ]
+      ],
+      "topPicks": 3
     },
     {
       "node": 34,
@@ -613,7 +646,8 @@
         "kingpin",
         "mole-man",
         "black-panther-civil-war"
-      ]
+      ],
+      "topPicks": 0
     },
     {
       "node": 35,
@@ -632,7 +666,8 @@
         "maestro",
         "northstar",
         "heimdall"
-      ]
+      ],
+      "topPicks": 2
     },
     {
       "node": 36,
@@ -649,7 +684,8 @@
         "abomination-immortal",
         "modok",
         "america-chavez"
-      ]
+      ],
+      "topPicks": 2
     },
     {
       "node": 37,
@@ -667,7 +703,8 @@
         "yelena-belova",
         "onslaught",
         "kindred"
-      ]
+      ],
+      "topPicks": 3
     },
     {
       "node": 38,
@@ -685,7 +722,8 @@
         "punisher",
         "the-serpent",
         "maestro"
-      ]
+      ],
+      "topPicks": 2
     },
     {
       "node": 39,
@@ -703,7 +741,8 @@
         "gorr",
         "count-nefaria",
         "nico-minoru"
-      ]
+      ],
+      "topPicks": 2
     },
     {
       "node": 40,
@@ -721,7 +760,8 @@
         "arcade",
         "arnim-zola",
         "lumatrix"
-      ]
+      ],
+      "topPicks": 3
     },
     {
       "node": 41,
@@ -739,7 +779,8 @@
         "onslaught",
         "high-evolutionary",
         "yelena-belova"
-      ]
+      ],
+      "topPicks": 2
     },
     {
       "node": 42,
@@ -757,7 +798,8 @@
         "dust",
         "spider-woman",
         "knull"
-      ]
+      ],
+      "topPicks": 3
     },
     {
       "node": 43,
@@ -775,7 +817,8 @@
         "lumatrix",
         "maestro",
         "nico-minoru"
-      ]
+      ],
+      "topPicks": 5
     },
     {
       "node": 44,
@@ -792,7 +835,8 @@
         "bullseye",
         "arnim-zola",
         "magik"
-      ]
+      ],
+      "topPicks": 2
     },
     {
       "node": 45,
@@ -810,7 +854,8 @@
         "dark-phoenix",
         "man-thing",
         "nico-minoru"
-      ]
+      ],
+      "topPicks": 2
     },
     {
       "node": 46,
@@ -829,7 +874,8 @@
         "knull",
         "high-evolutionary",
         "madelyne-pryor"
-      ]
+      ],
+      "topPicks": 1
     },
     {
       "node": 47,
@@ -848,7 +894,8 @@
         "yelena-belova",
         "baron-zemo",
         "gentle"
-      ]
+      ],
+      "topPicks": 3
     },
     {
       "node": 48,
@@ -867,7 +914,8 @@
         "high-evolutionary",
         "onslaught",
         "bullseye"
-      ]
+      ],
+      "topPicks": 3
     },
     {
       "node": 49,
@@ -885,7 +933,8 @@
         "bullseye",
         "onslaught",
         "maestro"
-      ]
+      ],
+      "topPicks": 3
     },
     {
       "node": 50,
@@ -903,7 +952,8 @@
         "jean-grey",
         "onslaught",
         "nico-minoru"
-      ]
+      ],
+      "topPicks": 3
     }
   ],
   "defaultKeyNodes": [

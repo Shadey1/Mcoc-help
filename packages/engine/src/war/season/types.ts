@@ -55,6 +55,11 @@ export type SeasonPlan = {
   bg: BgIndex;
   /** Frozen at plan-load time from the season file; not mutated. */
   guidePicks: Record<NodeNumber, ChampionId[]>;
+  /**
+   * How many of a node's leading guide picks the guide highlights as its
+   * best tier (0-8). Absent for a node = the guide gave no tier signal.
+   */
+  guideTopPicks?: Record<NodeNumber, number>;
   /** Officer edits, per node. If a node's key is absent, guidePicks apply. */
   pickOverrides: Record<NodeNumber, ChampionId[]>;
   keyNodes: ReadonlySet<NodeNumber>;
