@@ -203,7 +203,7 @@ async function refreshChampions(rows: FeedRow[]): Promise<string[]> {
 
 async function sweepAscendable(rows: FeedRow[]): Promise<void> {
   const seed = readSeed();
-  let failed = 0;
+  const unread: string[] = [];
   for (const row of rows) {
     const champ = findSeedMatch(row, seed.champions);
     if (!champ || champ.sevenStarReleased === false) continue;
@@ -211,8 +211,8 @@ async function sweepAscendable(rows: FeedRow[]): Promise<void> {
     try {
       badge = await isAscendable(row);
     } catch {
-      failed++;
-      if (failed > 25) {
+      unread.push(champ.name);
+      if (unread.length > 25) {
         notes.push('Ascension sweep abandoned: MCOCHUB champion pages kept failing.');
         break;
       }
@@ -231,7 +231,7 @@ async function sweepAscendable(rows: FeedRow[]): Promise<void> {
       advisory.push(`MCOCHUB no longer shows **${champ.name}** as ascendable. Left as ascendable; check before changing.`);
     }
   }
-  if (failed > 0) notes.push(`Ascension sweep: ${failed} champion pages could not be read this run.`);
+  if (unread.length > 0) notes.push(`Ascension sweep: could not read the MCOCHUB page for ${unread.join(', ')} this run.`);
   writeSeed(seed);
 }
 

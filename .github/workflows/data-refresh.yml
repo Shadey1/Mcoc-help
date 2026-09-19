@@ -46,16 +46,6 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      # One-off cleanup: the retired refresh-classes-monthly workflow opened a
-      # new PR every run and none were merged. A no-op once they are gone;
-      # delete this step then.
-      - name: Close PRs left by the retired monthly workflow
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh pr list --state open --limit 100 --json number,headRefName --jq '.[] | select(.headRefName | startswith("refresh-classes/")) | .number' |
-          while read -r n; do gh pr close "$n" --delete-branch || true; done
-
       # No `version:` here: pnpm/action-setup reads packageManager from
       # package.json, and giving both triggers ERR_PNPM_BAD_PM_VERSION.
       - uses: pnpm/action-setup@v4
