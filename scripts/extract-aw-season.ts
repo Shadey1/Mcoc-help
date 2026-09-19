@@ -22,7 +22,8 @@
  * --check downloads the guide and only reports whether its pick tables
  * changed since the season file was written (exit 0 same, 2 changed).
  *
- * Dry-run by default. Pass --apply to write the files.
+ * Dry-run by default. Pass --apply to write the files; add --strict to
+ * refuse (exit 3) when any cell needed review, for unattended runs.
  */
 
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, rmSync } from 'node:fs';
@@ -31,12 +32,13 @@ import { createHash } from 'node:crypto';
 import sharp from 'sharp';
 import { createWorker, PSM, type Worker } from 'tesseract.js';
 import { loadRefs, matchCell, type Match, type Ref } from './lib/portrait-match.js';
-import { Season } from '../data/aw/season-69.schema.js';
+import { Season } from '../data/aw/season.schema.js';
 import { fetchGuideImages } from './lib/fetch-guide.js';
 
 const args = process.argv.slice(2);
 const APPLY = args.includes('--apply');
 const CHECK = args.includes('--check');
+const STRICT = args.includes('--strict');
 const FETCH = args.includes('--fetch') || CHECK;
 const positional = args.filter((a) => !a.startsWith('--'));
 if (positional.length < 1) {
@@ -58,6 +60,7 @@ let DUMP = FETCHED_DIR;
 const PORTRAITS_DIR = resolve(REPO_ROOT, 'data/champions/portraits-cache');
 const SEED_PATH = resolve(REPO_ROOT, 'data/champions/seed.json');
 const SEASON_FILE = resolve(REPO_ROOT, `data/aw/season-${SEASON}.json`);
+const CURRENT_POINTER = resolve(REPO_ROOT, 'data/aw/current.ts');
 const REVIEW_FILE = resolve(REPO_ROOT, `data/aw/_review-season-${SEASON}.md`);
 const CELLS_DIR = resolve(REPO_ROOT, `data/aw/_cells-s${SEASON}`);
 
@@ -353,7 +356,7 @@ async function main(): Promise<void> {
   }
 
   const seed = JSON.parse(readFileSync(SEED_PATH, 'utf-8')) as {
-    champions: Array<{ id: string; name: string }>;
+    champions: Array<{ id: string; name: string; sevenStarReleased?: boolean }>;
   };
   // A PNG left over from a champion since removed from the seed must
   // not be matchable: its id would be unknown to the app.
@@ -365,9 +368,9 @@ async function main(): Promise<void> {
   }
   console.log(`reference portraits: ${refs.length}`);
   const have = new Set(refs.map((r) => r.id));
-  const missing = seed.champions.filter((c) => !have.has(c.id));
+  const missing = seed.champions.filter((c) => c.sevenStarReleased !== false && !have.has(c.id));
   if (missing.length > 0) {
-    console.warn(`  ${missing.length} seed champions have no reference portrait and can't be matched: ${missing.map((c) => c.name).join(', ')}`);
+    console.warn(`  ${missing.length} released champions have no reference portrait and can't be matched: ${missing.map((c) => c.name).join(', ')}`);
     console.warn('  Run: pnpm fetch-portraits');
   }
 
@@ -450,6 +453,10 @@ async function main(): Promise<void> {
     console.error('Not writing: fix the structural problems above first. The season file must hold all 50 nodes.');
     process.exit(1);
   }
+  if (STRICT && totalFlags > 0) {
+    console.error(`Not writing (--strict): ${totalFlags} cells need review.`);
+    process.exit(3);
+  }
 
   const existing = existsSync(SEASON_FILE)
     ? (JSON.parse(readFileSync(SEASON_FILE, 'utf-8')) as { defaultKeyNodes?: number[] })
@@ -480,6 +487,13 @@ async function main(): Promise<void> {
   mkdirSync(dirname(SEASON_FILE), { recursive: true });
   writeFileSync(SEASON_FILE, JSON.stringify(seasonOut, null, 2) + '\n');
   console.log(`wrote ${SEASON_FILE}`);
+
+  // Point the app at this season if it is newer than the one it serves.
+  const served = Number(readFileSync(CURRENT_POINTER, 'utf-8').match(/season-([0-9]+)[.]json/)?.[1] ?? 0);
+  if (SEASON > served) {
+    writeFileSync(CURRENT_POINTER, readFileSync(CURRENT_POINTER, 'utf-8').replace(/season-[0-9]+[.]json/, `season-${SEASON}.json`));
+    console.log(`war planner now serves season ${SEASON} (was ${served})`);
+  }
 
   const reviewLines: string[] = [
     `# Season ${SEASON} extraction review queue`,

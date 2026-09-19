@@ -1,5 +1,5 @@
-import { Season, DefenderValues } from '../../../data/aw/season-69.schema';
-import season69 from '../../../data/aw/season-69.json' with { type: 'json' };
+import { Season, DefenderValues } from '../../../data/aw/season.schema';
+import currentSeason from '../../../data/aw/current';
 import defenderValuesFile from '../../../data/aw/defender-values.json' with { type: 'json' };
 
 /**
@@ -16,7 +16,7 @@ import defenderValuesFile from '../../../data/aw/defender-values.json' with { ty
  */
 // Parsed at module load so a malformed data file fails the static
 // build (pages prerender at build time) instead of reaching users.
-const season = Season.parse(season69);
+const season = Season.parse(currentSeason);
 const defenderValues = DefenderValues.parse(defenderValuesFile);
 
 export function loadSeason(): Season {

@@ -1,10 +1,13 @@
 /**
- * Fetch every champion's reference portrait into
- * data/champions/portraits-cache/<id>.png. The AW season extractor
+ * Fetch reference portraits for every 7-star champion into
+ * data/champions/portraits-cache/<seed id>.png. The AW season extractor
  * template-matches guide cells against these PNGs.
  *
- * Uses puppeteer-core to drive local Chrome (Fandom's CDN sits behind
- * Cloudflare's JS challenge, which no direct-fetch approach clears).
+ * Two sources per champion, both plain HTTP so this runs in CI:
+ * MCOCHUB's prestige feed (<id>.png) and the Fandom portrait already in
+ * the seed (<id>~fandom.*; the CDN only needs a Referer). Either site
+ * occasionally serves a non-standard crop, e.g. MCOCHUB's Punisher, and
+ * the matcher takes the better of the two. Fandom is best-effort.
  *
  * Idempotent (skips champions already on disk). Pass --force to refetch.
  *
@@ -13,83 +16,71 @@
  *   pnpm fetch-portraits -- --force
  */
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { setTimeout as sleep } from 'node:timers/promises';
-import puppeteer from 'puppeteer-core';
+import { fetchFeed, findSeedMatch, USER_AGENT } from './lib/mcochub.js';
 
 const SEED_PATH = resolve('data/champions/seed.json');
 const IMAGES_DIR = resolve('data/champions/portraits-cache');
-const RATE_LIMIT_MS = 300;
-const NAV_TIMEOUT_MS = 30_000;
+const RATE_LIMIT_MS = 120;
+const FANDOM_REFERER = 'https://marvel-contestofchampions.fandom.com/';
+const EXT: Record<string, string> = { 'image/png': 'png', 'image/webp': 'webp', 'image/jpeg': 'jpg' };
+
+const BROWSER_UA =
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
 
 const FORCE = process.argv.slice(2).includes('--force');
 
-function findChrome(): string {
-  if (process.env.CHROME_PATH) return process.env.CHROME_PATH;
-  const candidates = [
-    'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
-    'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
-    '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-    '/usr/bin/google-chrome',
-    '/usr/bin/chromium-browser',
-  ];
-  for (const p of candidates) if (existsSync(p)) return p;
-  throw new Error('Chrome not found. Set CHROME_PATH env var.');
-}
-
-type Champion = { id: string; name: string; portraitUrl?: string | null };
-
 async function main(): Promise<void> {
-  const seed = JSON.parse(readFileSync(SEED_PATH, 'utf-8')) as { champions: Champion[] };
+  const seed = JSON.parse(readFileSync(SEED_PATH, 'utf-8')) as {
+    champions: Array<{ id: string; name: string; portraitUrl?: string | null }>;
+  };
   mkdirSync(IMAGES_DIR, { recursive: true });
 
-  const withUrl = seed.champions.filter((c) => c.portraitUrl);
-  const todo = withUrl.filter((c) => FORCE || !existsSync(resolve(IMAGES_DIR, `${c.id}.png`)));
-  console.log(
-    `${seed.champions.length} champions in seed, ${seed.champions.length - withUrl.length} without a portraitUrl, ${todo.length} to fetch`,
-  );
-  if (todo.length === 0) return;
-
-  const chromePath = findChrome();
-  console.log(`launching chrome at ${chromePath}`);
-  const browser = await puppeteer.launch({
-    executablePath: chromePath,
-    headless: true,
-    args: ['--no-sandbox', '--disable-blink-features=AutomationControlled'],
-  });
-  let ok = 0;
-  let fail = 0;
-  try {
-    const page = await browser.newPage();
-    await page.setUserAgent(
-      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    );
-    await page.setViewport({ width: 512, height: 512 });
-
-    for (let i = 0; i < todo.length; i++) {
-      const c = todo[i]!;
-      try {
-        const response = await page.goto(c.portraitUrl!, {
-          waitUntil: 'networkidle0',
-          timeout: NAV_TIMEOUT_MS,
-        });
-        const status = response?.status() ?? 0;
-        if (status !== 200) throw new Error(`HTTP ${status}`);
-        writeFileSync(resolve(IMAGES_DIR, `${c.id}.png`), Buffer.from(await response!.buffer()));
-        ok++;
-        if ((i + 1) % 20 === 0 || i === todo.length - 1) console.log(`  [${i + 1}/${todo.length}] ${c.name}`);
-      } catch (e) {
-        fail++;
-        console.warn(`  [${i + 1}/${todo.length}] ${c.name.padEnd(30)} FAIL ${e instanceof Error ? e.message : String(e)}`);
-      }
-      if (i < todo.length - 1) await sleep(RATE_LIMIT_MS);
+  const rows = await fetchFeed();
+  let fetched = 0;
+  let failed = 0;
+  const unmatched: string[] = [];
+  for (const row of rows) {
+    const champ = findSeedMatch(row, seed.champions);
+    if (!champ) {
+      unmatched.push(row.name);
+      continue;
     }
-  } finally {
-    await browser.close();
+    const out = resolve(IMAGES_DIR, `${champ.id}.png`);
+    if (!row.img || (!FORCE && existsSync(out))) continue;
+    const res = await fetch(row.img, { headers: { 'User-Agent': USER_AGENT } }).catch(() => null);
+    if (!res?.ok) {
+      failed++;
+      console.warn(`  ${champ.name}: ${res ? `HTTP ${res.status}` : 'network error'}`);
+      continue;
+    }
+    writeFileSync(out, Buffer.from(await res.arrayBuffer()));
+    fetched++;
+    await sleep(RATE_LIMIT_MS);
   }
-  console.log(`\nDone. fetched=${ok} failed=${fail}`);
-  if (fail > 0) process.exit(1);
+
+  let fandom = 0;
+  let fandomFailed = 0;
+  const have = new Set(readdirSync(IMAGES_DIR).map((f) => f.replace(/\.[a-z]+$/i, '')));
+  for (const row of rows) {
+    const champ = findSeedMatch(row, seed.champions);
+    if (!champ?.portraitUrl || (!FORCE && have.has(`${champ.id}~fandom`))) continue;
+    const res = await fetch(champ.portraitUrl, { headers: { 'User-Agent': BROWSER_UA, Referer: FANDOM_REFERER } }).catch(() => null);
+    const ext = res?.ok ? EXT[res.headers.get('content-type')?.split(';')[0] ?? ''] : undefined;
+    if (!res || !ext) {
+      fandomFailed++;
+      continue;
+    }
+    writeFileSync(resolve(IMAGES_DIR, `${champ.id}~fandom.${ext}`), Buffer.from(await res.arrayBuffer()));
+    fandom++;
+    await sleep(RATE_LIMIT_MS);
+  }
+  console.log(`Fandom second references: fetched=${fandom} unavailable=${fandomFailed}`);
+  console.log(`${rows.length} champions on MCOCHUB: fetched=${fetched} failed=${failed}`);
+  if (unmatched.length > 0) console.log(`Not in seed yet (run pnpm auto-refresh): ${unmatched.join(', ')}`);
+  if (failed > 0) process.exit(1);
 }
 
 main().catch((e: unknown) => {

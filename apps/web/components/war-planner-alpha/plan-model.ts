@@ -4,7 +4,7 @@ import type {
   Pin,
   SeasonPlan,
 } from '@prestige-tools/engine';
-import type { Season } from '../../../../data/aw/season-69.schema';
+import type { Season } from '../../../../data/aw/season.schema';
 
 /**
  * Pure helpers for `SeasonPlan` mutations. Kept out of the React

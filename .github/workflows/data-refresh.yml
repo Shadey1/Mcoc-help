@@ -1,0 +1,173 @@
+name: data-refresh
+
+# Keeps champion and Alliance War data current without anyone at a keyboard.
+# scripts/auto-refresh.ts does the work and explains itself; this file only
+# decides what happens to the result.
+#
+#   Routine changes   -> tests + build pass -> committed to main (Cloudflare
+#                        Pages deploys main, so that ships them).
+#   Risky changes     -> one PR on the fixed branch auto/data-refresh, updated
+#                        in place each run, never a new PR per run. Merge it
+#                        from a phone, or close it to decline.
+#   Things it declined to do, or a failed gate -> one issue, updated in place.
+#
+# Daily run: new champions + BHR from MCOCHUB, AW guide edits, next AW season.
+# Mondays (and manual runs): also the ascension sweep and Fandom class refresh,
+# which are ~600 polite page requests, so not daily.
+#
+# Cron note: never combine day-of-month with day-of-week. Cron ORs them, which
+# is how the old "first Monday" schedule ran eleven times a month.
+
+on:
+  schedule:
+    - cron: '23 5 * * *'
+  workflow_dispatch:
+    inputs:
+      weekly:
+        description: Include the weekly ascension sweep and class refresh
+        type: boolean
+        default: true
+
+concurrency:
+  group: data-refresh
+  cancel-in-progress: false
+
+env:
+  DATA_PATHS: data/champions/seed.json data/aw
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+    steps:
+      - uses: actions/checkout@v5
+
+      # No `version:` here: pnpm/action-setup reads packageManager from
+      # package.json, and giving both triggers ERR_PNPM_BAD_PM_VERSION.
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build engine
+        run: pnpm -F @prestige-tools/engine build
+
+      - name: Pick the run mode
+        id: mode
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            weekly="${{ inputs.weekly }}"
+          elif [ "$(date -u +%u)" = "1" ]; then
+            weekly=true
+          else
+            weekly=false
+          fi
+          echo "flags=$([ "$weekly" = "true" ] && echo '--weekly')" >> "$GITHUB_OUTPUT"
+
+      # ── Pass 1: routine changes only ───────────────────────────────────
+      - name: Refresh (routine changes)
+        id: routine
+        run: pnpm auto-refresh -- ${{ steps.mode.outputs.flags }}
+
+      - name: Anything to ship?
+        id: routine_diff
+        run: echo "changed=$([ -n "$(git status --porcelain -- $DATA_PATHS)" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
+      - name: Gate (engine tests + static build)
+        id: routine_gate
+        if: steps.routine_diff.outputs.changed == 'true'
+        continue-on-error: true
+        run: |
+          pnpm -F @prestige-tools/engine test
+          pnpm -F web build
+
+      - name: Ship to main
+        if: steps.routine_diff.outputs.changed == 'true' && steps.routine_gate.outcome == 'success'
+        env:
+          # Champion names come from upstream sites: never interpolate them
+          # into the script itself.
+          TITLE: ${{ steps.routine.outputs.title }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- $DATA_PATHS
+          git commit -q -m "data(auto): $TITLE" -m "$(cat auto-refresh-report.md)"
+          git pull --rebase -q origin main
+          git push origin HEAD:main
+
+      - name: Keep the routine report, drop unshipped edits
+        run: |
+          cp auto-refresh-report.md routine-report.md
+          git checkout -q -- .
+          git clean -fdq -- data
+
+      # ── Pass 2: risky changes go to one PR ─────────────────────────────
+      - name: Refresh (including risky changes)
+        id: risky
+        if: steps.routine.outputs.risky != '0'
+        run: pnpm auto-refresh -- ${{ steps.mode.outputs.flags }} --include-risky
+
+      - name: Gate the PR
+        id: risky_gate
+        if: steps.routine.outputs.risky != '0'
+        continue-on-error: true
+        run: |
+          pnpm -F @prestige-tools/engine test
+          pnpm -F web build
+
+      - name: Note a failed gate in the PR body
+        if: steps.risky_gate.outcome == 'failure'
+        run: printf '\n> **Engine tests or the web build fail with these changes.** See the workflow run before merging.\n' >> auto-refresh-report.md
+
+      # Runs every time: with nothing risky pending the tree is clean, and
+      # the action then closes the PR and deletes the branch.
+      - name: Open, update or close the PR
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: auto/data-refresh
+          delete-branch: true
+          title: 'Data refresh: changes that need a look'
+          commit-message: 'data(auto): risky changes held for review'
+          body-path: auto-refresh-report.md
+          add-paths: |
+            data/champions/seed.json
+            data/aw
+          labels: |
+            data
+            automated
+
+      # ── One issue for what it declined, or a failed routine gate ───────
+      - name: Open or update the issue
+        if: steps.routine.outputs.advisory != '0' || steps.routine_gate.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          {
+            if [ "${{ steps.routine_gate.outcome }}" = "failure" ]; then
+              echo "**Routine changes were found but engine tests or the web build failed with them, so nothing shipped.** [Run log](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+              echo
+            fi
+            cat routine-report.md
+          } > issue-body.md
+          existing=$(gh issue list --state open --search 'in:title "Data refresh needs a look"' --json number --jq '.[0].number // empty')
+          if [ -n "$existing" ]; then
+            gh issue edit "$existing" --body-file issue-body.md
+          else
+            gh issue create --title "Data refresh needs a look" --body-file issue-body.md
+          fi
+
+      - name: Close the issue once nothing is outstanding
+        if: steps.routine.outputs.advisory == '0' && steps.routine_gate.outcome != 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          existing=$(gh issue list --state open --search 'in:title "Data refresh needs a look"' --json number --jq '.[0].number // empty')
+          if [ -n "$existing" ]; then gh issue close "$existing" --comment "Nothing outstanding as of the latest run."; fi

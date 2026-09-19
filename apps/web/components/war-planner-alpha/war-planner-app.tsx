@@ -16,7 +16,7 @@ import {
   type SeasonPlan,
   type WarPlayer,
 } from '@prestige-tools/engine';
-import type { Season } from '../../../../data/aw/season-69.schema';
+import type { Season } from '../../../../data/aw/season.schema';
 import { defenderValueMap } from '../../lib/war-planner-data';
 import { SeasonMap } from './season-map';
 import {

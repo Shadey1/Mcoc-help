@@ -73,6 +73,16 @@ pnpm --filter web build      # Static export build — must pass
 
 Engine tests reproduce the §16 ground-truth roster within +-30 BHR per champion and +-5 aggregate.
 
+## Automated data refresh
+
+`.github/workflows/data-refresh.yml` runs `scripts/auto-refresh.ts` daily (plus an ascension sweep and Fandom class refresh on Mondays). It needs nobody at a keyboard:
+
+- **Routine changes ship themselves.** New 7★ champions and BHR changes from MCOCHUB's feed, newly ascendable champions, AW guide edits and a new AW season are committed straight to main once engine tests and the web build pass. Commits are `data(auto): …` by `github-actions[bot]`.
+- **Risky changes go to one PR** on the fixed branch `auto/data-refresh`, updated in place: a BHR swing over 3%, a class change on the wiki, a guide extraction with unmatched cells.
+- **Things it declines to do go to one issue**, "Data refresh needs a look": a new champion whose name nearly matches an existing one, an ascension being removed.
+
+Before hand-editing `data/champions/seed.json` or `data/aw/`, pull: the bot may have committed. A seed entry with a real BHR curve and `sevenStarReleased: false` (Goldpool, Platinum Pool) is a deliberate exclusion and the refresh never releases it. The war planner serves whichever season `data/aw/current.ts` points at; the extractor advances it.
+
 ## Ground-truth roster (engine regression target)
 
 Summoner mu3rto, captured 2026-05-06. Top-30 prestige: 38,410 (champion 36,120 + relic 2,290). See `architecture-v5.md` §16 for the full roster and verified multipliers. Engine changes must not regress against this data.

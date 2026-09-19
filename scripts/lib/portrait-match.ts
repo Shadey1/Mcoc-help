@@ -17,7 +17,7 @@ import sharp from 'sharp';
 
 const COARSE = 4;
 const REF_SIZES = [84, 88, 92, 96];
-const SHORTLIST = 10;
+const SHORTLIST = 14;
 const ALPHA_MIN = 200;
 const MIN_COVERAGE = 0.6;
 
@@ -49,7 +49,7 @@ async function raster(input: Buffer | string, w: number, h: number): Promise<Ras
 
 export async function loadRefs(dir: string): Promise<Ref[]> {
   const refs: Ref[] = [];
-  for (const file of readdirSync(dir).filter((f) => f.endsWith('.png')).sort()) {
+  for (const file of readdirSync(dir).filter((f) => /\.(png|webp|jpe?g)$/i.test(f)).sort()) {
     const path = resolve(dir, file);
     const fine = new Map<number, Raster>();
     const coarse = new Map<number, Raster>();
@@ -57,7 +57,8 @@ export async function loadRefs(dir: string): Promise<Ref[]> {
       fine.set(size, await raster(path, size, size));
       coarse.set(size, await raster(path, size / COARSE, size / COARSE));
     }
-    refs.push({ id: file.replace(/\.png$/, ''), fine, coarse });
+    // "<id>~<source>.ext" is a second reference for the same champion.
+    refs.push({ id: file.replace(/(~[^.]*)?\.[a-z]+$/i, ''), fine, coarse });
   }
   return refs;
 }
@@ -162,5 +163,8 @@ export async function matchCell(cellPng: Buffer, refs: Ref[], topN = 3): Promise
     out.push({ championId: cand.ref.id, score: best });
   }
   out.sort((a, b) => b.score - a.score);
-  return out.slice(0, topN);
+  // Best score per champion: two references for one champion must not
+  // look like a close runner-up.
+  const seen = new Set<string>();
+  return out.filter((m) => !seen.has(m.championId) && seen.add(m.championId)).slice(0, topN);
 }

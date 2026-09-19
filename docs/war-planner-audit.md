@@ -202,7 +202,7 @@ Where each piece lands.
 **Data** — `data/aw/`
 
 - `season-69.json` — the extractor output. Matches the Zod schema in the handover.
-- `season-69.schema.ts` — the Zod schema itself, imported both by the extractor and the runtime.
+- `season.schema.ts` — the Zod schema itself, imported both by the extractor and the runtime.
 - `defender-values.json` — `championId → dv` (0–100). Seeded from tier data or ceiling proxy; iterated manually.
 - `_review-season-69.md` — extractor review queue, same idiom as `data/immunities/_review-*.md`.
 

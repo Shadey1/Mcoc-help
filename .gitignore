@@ -21,3 +21,6 @@ coverage
 # Reference portrait PNGs for the AW extractor — regenerable via
 # pnpm fetch-portraits, ~5 MB total, kept out of the repo.
 /data/champions/portraits-cache/
+
+# Written by scripts/auto-refresh.ts for the workflow to read
+/auto-refresh-report.md

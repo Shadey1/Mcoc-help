@@ -22,9 +22,9 @@ Fallback if that ever breaks: save the page from a browser (`File → Save Page 
 pnpm fetch-portraits
 ```
 
-Drives local Chrome to fetch each champion's `portraitUrl` from Fandom into `data/champions/portraits-cache/<id>.png`. Idempotent; pass `-- --force` to refetch everything. The extractor matches against those PNGs directly, and warns up front if any seed champion has no PNG yet.
+Downloads two reference images per 7-star champion into `data/champions/portraits-cache/` (gitignored): MCOCHUB's (`<id>.png`) and the Fandom one already in the seed (`<id>~fandom.*`). Both are plain HTTP, so this runs in CI; Fandom's image CDN only needs a `Referer` header, not a browser. Idempotent; pass `-- --force` to refetch.
 
-**Fandom rate-limit note.** After heavy scraping Fandom's WAF can 403 your IP. Wait a few hours and retry.
+Two sources because either site occasionally serves a non-standard crop. MCOCHUB's Punisher is one: with MCOCHUB alone, all 7 Punisher cells in Season 69 were left unmatched. The matcher scores both and keeps the better.
 
 ## 3. What it writes
 
@@ -33,7 +33,7 @@ Produces:
 - `data/aw/_review-season-<N>.md` — only what it wasn't sure of. Season 69 came out empty.
 - `data/aw/_cells-s<N>/` — crops of flagged cells only (gitignored)
 
-The dry run writes nothing. `--apply` refuses to write if any node is missing, duplicated or unreadable, so a bad run can't replace a good season file. Both modes print which nodes differ from the current file first: a re-run replaces hand edits to `buffs` and `guideDefenders`, so check that list before applying over a file you've corrected.
+The dry run writes nothing. `--strict` makes `--apply` refuse (exit 3) if any cell needed review; the unattended refresh uses it so a partial match never ships on its own. `--apply` refuses to write if any node is missing, duplicated or unreadable, so a bad run can't replace a good season file. Both modes print which nodes differ from the current file first: a re-run replaces hand edits to `buffs` and `guideDefenders`, so check that list before applying over a file you've corrected.
 
 ## How it works
 
