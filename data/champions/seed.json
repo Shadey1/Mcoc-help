@@ -1348,12 +1348,13 @@
       "id": "cable",
       "name": "Cable",
       "class": "Mutant",
-      "ascendable": false,
+      "ascendable": true,
       "sigCurve": null,
       "tags": [],
       "_meta": {
         "bhrSource": "mcochub.insaneskull.com (JSON API, R4+R5 11-anchor curves, refreshed 2026-08-07)",
-        "lastVerified": "2026-08-07"
+        "lastVerified": "2026-08-07",
+        "ascendableSource": "mcochub.insaneskull.com (Ascendable badge, verified 2026-09-19)"
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/4/49/Cable_portrait.png/revision/latest/scale-to-width-down/200?cb=20170121235311",
       "sevenStarReleased": true,
