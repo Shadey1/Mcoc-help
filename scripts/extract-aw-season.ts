@@ -29,6 +29,7 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import sharp from 'sharp';
+import { centerCropDHash, hammingHex } from './lib/phash.js';
 
 const args = process.argv.slice(2);
 const APPLY = args.includes('--apply');
@@ -52,10 +53,12 @@ const REVIEW_FILE = resolve(REPO_ROOT, `data/aw/_review-season-${SEASON}.md`);
 const CELLS_DIR = resolve(REPO_ROOT, `data/aw/_cells-s${SEASON}`);
 
 // ── Image layout constants ──────────────────────────────────────────────
-const DEFENDERS_X_FRAC = 470 / 1280;
-const DEFENDERS_W_FRAC = 410 / 1280;
+// Pixel-sampled from the guide's headers: defenders column runs from
+// x=500 to x=885 (dark-red header colour rgb(106,6,0)); attackers takes
+// over at x=890 (dark-green header rgb(0,92,0)).
+const DEFENDERS_X_FRAC = 500 / 1280;
+const DEFENDERS_W_FRAC = 385 / 1280;
 const HEADER_H_PX = 115;
-const HASH_SIZE = 8;
 
 // ── Section → image mapping (DOM order in the saved HTML) ──────────────
 const PATH_IMAGES: Record<number, string> = {
@@ -86,45 +89,12 @@ const SUBS_NODES: Record<string, [number, number, number]> = {
 
 // ── phash helpers ───────────────────────────────────────────────────────
 
-async function hashBuffer(buf: Buffer): Promise<string> {
-  const raw = await sharp(buf)
-    .resize(HASH_SIZE, HASH_SIZE, { fit: 'fill' })
-    .greyscale()
-    .raw()
-    .toBuffer();
-  let sum = 0;
-  for (let i = 0; i < raw.length; i++) sum += raw[i]!;
-  const mean = sum / raw.length;
-  let bits = '';
-  for (let i = 0; i < raw.length; i++) bits += raw[i]! > mean ? '1' : '0';
-  let hex = '';
-  for (let i = 0; i < 64; i += 4) {
-    hex += parseInt(bits.slice(i, i + 4), 2).toString(16);
-  }
-  return hex;
-}
-
-function hammingDistance(a: string, b: string): number {
-  if (a.length !== b.length) throw new Error(`Hash length mismatch: ${a.length} vs ${b.length}`);
-  let d = 0;
-  for (let i = 0; i < a.length; i++) {
-    const xa = parseInt(a[i]!, 16);
-    const xb = parseInt(b[i]!, 16);
-    let x = xa ^ xb;
-    while (x) {
-      d += x & 1;
-      x >>>= 1;
-    }
-  }
-  return d;
-}
-
 type Match = { championId: string; distance: number };
 
 function findMatches(hash: string, cache: Record<string, string>, topN = 3): Match[] {
   const results: Match[] = [];
   for (const [id, h] of Object.entries(cache)) {
-    results.push({ championId: id, distance: hammingDistance(hash, h) });
+    results.push({ championId: id, distance: hammingHex(hash, h) });
   }
   results.sort((a, b) => a.distance - b.distance);
   return results.slice(0, topN);
@@ -187,8 +157,16 @@ function readExistingBuffs(): Record<number, string[]> {
 /** Match one row of cells and produce a node extraction. Cells that
  *  land beyond CONFIDENCE_MISS are flagged and their crop is saved for
  *  reviewer inspection. */
-const CONFIDENCE_OK = 12; // Hamming distance below which we trust the match
-const CONFIDENCE_MISS = 22; // above this, treat as no-match
+// dHash 256-bit thresholds — calibrated against known-correct matches
+// on the Season 69 data. A same-character match often lands at 40-90
+// because the guide's cell shading (yellow/pink row background)
+// differs from the class-tinted background on the Fandom portrait, so
+// the hash never gets close to zero even for identical characters.
+// The confidence signal is: a big gap between top-1 and top-2 candidates.
+// Anything with a small gap or distance > 105 gets flagged.
+const CONFIDENCE_OK = 80;
+const CONFIDENCE_MISS = 110;
+const MIN_GAP_TO_SECOND = 15;
 async function matchRow(
   node: number,
   imgPath: string,
@@ -203,7 +181,7 @@ async function matchRow(
   const candidates: Array<{ slot: number; top: Match[] }> = [];
   for (let slot = 0; slot < cells.length; slot++) {
     const cellBuf = cells[slot]!;
-    const hash = await hashBuffer(cellBuf);
+    const hash = await centerCropDHash(cellBuf);
     const top = findMatches(hash, cache, 3);
     candidates.push({ slot: slot + 1, top });
     const best = top[0];
@@ -211,29 +189,27 @@ async function matchRow(
       reviewFlags.push(`slot ${slot + 1}: no match candidates (empty cache?)`);
       continue;
     }
-    if (best.distance <= CONFIDENCE_OK) {
-      guideDefenders.push(best.championId);
-    } else if (best.distance <= CONFIDENCE_MISS) {
-      guideDefenders.push(best.championId);
+    const secondDist = top[1]?.distance ?? 999;
+    const gap = secondDist - best.distance;
+    const strong = best.distance <= CONFIDENCE_OK && gap >= MIN_GAP_TO_SECOND;
+    guideDefenders.push(best.championId);
+    // Save every cell — the matcher's precision on this dataset is ~60%
+    // so a full-cell dump is the fastest review path (open the sheet
+    // for the node, eyeball, fix wrong entries in season-<N>.json).
+    mkdirSync(CELLS_DIR, { recursive: true });
+    const cellPath = resolve(
+      CELLS_DIR,
+      `node-${String(node).padStart(2, '0')}-slot-${slot + 1}.png`,
+    );
+    writeFileSync(cellPath, cellBuf);
+    if (!strong) {
       const alt = top
         .slice(1)
         .map((m) => `${m.championId}(d=${m.distance})`)
         .join(', ');
       reviewFlags.push(
-        `slot ${slot + 1} weak: ${best.championId} (d=${best.distance}); alts: ${alt}`,
+        `slot ${slot + 1}: ${best.championId} (d=${best.distance}, gap ${gap}); alts: ${alt}`,
       );
-      // Save the crop so reviewer can eyeball
-      mkdirSync(CELLS_DIR, { recursive: true });
-      const cellPath = resolve(CELLS_DIR, `node-${String(node).padStart(2, '0')}-slot-${slot + 1}.png`);
-      writeFileSync(cellPath, cellBuf);
-    } else {
-      const alt = top
-        .map((m) => `${m.championId}(d=${m.distance})`)
-        .join(', ');
-      reviewFlags.push(`slot ${slot + 1} MISS: best d=${best.distance}; candidates: ${alt}`);
-      mkdirSync(CELLS_DIR, { recursive: true });
-      const cellPath = resolve(CELLS_DIR, `node-${String(node).padStart(2, '0')}-slot-${slot + 1}.png`);
-      writeFileSync(cellPath, cellBuf);
     }
   }
   return {

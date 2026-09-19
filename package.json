@@ -22,6 +22,7 @@
     "build-portrait-hashes": "tsx scripts/build-portrait-hash-cache.ts",
     "extract-aw-season": "tsx scripts/extract-aw-season.ts",
     "crop-aw-cells": "tsx scripts/crop-aw-cells.ts",
+    "build-aw-review": "tsx scripts/build-aw-review-page.ts",
     "generate-chart-template": "tsx scripts/generate-chart-template.ts",
     "ingest-chart-template": "tsx scripts/ingest-chart-template.ts",
     "extract-auntm-immunities": "tsx scripts/extract-immunities-from-auntm.ts",
@@ -30,6 +31,7 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20240909.0",
+    "puppeteer-core": "^25.11.0",
     "sharp": "^0.35.4",
     "tsx": "^4.19.0",
     "typescript": "^5.6.0"
