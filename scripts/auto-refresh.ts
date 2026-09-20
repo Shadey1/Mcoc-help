@@ -6,6 +6,7 @@
  *   pnpm auto-refresh -- --weekly  # daily set + ascension sweep + class refresh
  *
  * Daily:  new 7-star champions and BHR curve changes from MCOCHUB's feed;
+ *         missing R4 curves from mcoc.gg;
  *         has the AW guide changed, or has the next season's page appeared.
  * Weekly: the Ascendable badge on every champion's MCOCHUB page; champion
  *         classes and newly created pages on the Fandom wiki.
@@ -25,6 +26,7 @@
 import { spawnSync } from 'node:child_process';
 import { appendFileSync, readFileSync, writeFileSync } from 'node:fs';
 import { setTimeout as sleep } from 'node:timers/promises';
+import { fetchRankCurves } from './lib/mcocgg.js';
 import { fetchFeed, findSeedMatch, idFromName, isAscendable, normaliseName, SIG_ANCHORS, type FeedRow } from './lib/mcochub.js';
 
 const WEEKLY = process.argv.slice(2).includes('--weekly');
@@ -46,7 +48,7 @@ type Champion = {
   name: string;
   class: string;
   ascendable: boolean;
-  prestige?: { rank5?: Record<string, number> } & Record<string, unknown>;
+  prestige?: { rank5?: Record<string, number>; rank4?: Record<string, number> } & Record<string, unknown>;
   sigCurve: null;
   tags: string[];
   _meta: Record<string, unknown>;
@@ -202,6 +204,49 @@ async function refreshChampions(rows: FeedRow[]): Promise<string[]> {
   return added;
 }
 
+// ── R4 curves ───────────────────────────────────────────────────────────
+
+/** MCOCHUB has no R4. Fill it from mcoc.gg for released champions that
+ *  lack one, typically ones this job added. Existing R4 curves are never
+ *  touched: several are hand-calibrated against in-game values. */
+async function fillMissingR4(): Promise<void> {
+  const seed = readSeed();
+  const missing = seed.champions.filter((c) => c.sevenStarReleased !== false && c.prestige?.rank5 && !c.prestige.rank4);
+  const waiting: string[] = [];
+  for (const champ of missing) {
+    let curves: Awaited<ReturnType<typeof fetchRankCurves>>;
+    try {
+      curves = await fetchRankCurves(champ.name);
+    } catch (e) {
+      notes.push(`mcoc.gg unavailable, R4 curves not checked: ${(e as Error).message}`);
+      break;
+    } finally {
+      await sleep(500);
+    }
+    if (!curves) {
+      waiting.push(champ.name);
+      continue;
+    }
+    const r5 = champ.prestige!.rank5!;
+    // Proof the name mapped to the right champion and the data is sane:
+    // their R5 must be ours (the sites round the odd anchor differently).
+    const r5Agrees = curves.r5 !== null && SIG_ANCHORS.every((a) => Math.abs(curves!.r5![String(a)]! - r5[String(a)]!) <= r5[String(a)]! * 0.005);
+    const ratioOk = SIG_ANCHORS.every((a) => {
+      const ratio = curves!.r4[String(a)]! / r5[String(a)]!;
+      return ratio > 0.78 && ratio < 0.9;
+    });
+    if (!r5Agrees || !ratioOk) {
+      advisory.push(`R4 curve for **${champ.name}**: mcoc.gg's data ${!r5Agrees ? 'has a different R5 curve from ours' : 'is not a plausible R4 for our R5'}, so it was not used. The engine keeps estimating R4 as R5 × 0.8431.`);
+      continue;
+    }
+    champ.prestige = { ...champ.prestige, rank4: curves.r4 };
+    champ._meta = { ...champ._meta, r4Source: `mcoc.gg per-rank curve (R4 11-anchor, fetched ${today})` };
+    changes.push(`R4 curve for **${champ.name}** from mcoc.gg (sig 200 = ${curves.r4['200']}; was estimated from R5).`);
+  }
+  checked.push(`R4 curves: ${missing.length} released champions lacked one${waiting.length > 0 ? `; mcoc.gg does not list ${waiting.join(', ')} yet` : ''}.`);
+  writeSeed(seed);
+}
+
 // ── Ascension sweep ─────────────────────────────────────────────────────
 
 async function sweepAscendable(rows: FeedRow[]): Promise<void> {
@@ -331,6 +376,7 @@ async function main(): Promise<void> {
   if (rows) {
     const added = await refreshChampions(rows);
     if (added.length > 0) fetchPortraitUrls(added);
+    await fillMissingR4();
     if (WEEKLY) await sweepAscendable(rows);
   }
   if (WEEKLY) refreshClasses();

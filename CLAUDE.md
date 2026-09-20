@@ -77,7 +77,7 @@ Engine tests reproduce the §16 ground-truth roster within +-30 BHR per champion
 
 `.github/workflows/data-refresh.yml` runs `scripts/auto-refresh.ts` daily (plus an ascension sweep and Fandom class refresh on Mondays). It needs nobody at a keyboard:
 
-- **Routine changes ship themselves.** New 7★ champions and BHR changes from MCOCHUB's feed, newly ascendable champions, AW guide edits and a new AW season are committed straight to main once engine tests and the web build pass. Commits are `data(auto): …` by `github-actions[bot]`.
+- **Routine changes ship themselves.** New 7★ champions and BHR changes from MCOCHUB's feed, missing R4 curves from mcoc.gg (existing R4 curves are never overwritten: several are hand-calibrated), newly ascendable champions, AW guide edits and a new AW season are committed straight to main once engine tests and the web build pass. Commits are `data(auto): …` by `github-actions[bot]`.
 - **Risky changes go to one PR** on the fixed branch `auto/data-refresh`, updated in place: a BHR swing over 3%, a class change on the wiki, a guide extraction with unmatched cells.
 - **Things it declines to do go to one issue**, "Data refresh needs a look": a new champion whose name nearly matches an existing one, an ascension being removed.
 
