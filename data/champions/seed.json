@@ -3551,6 +3551,19 @@
           "160": 38200,
           "180": 38870,
           "200": 39510
+        },
+        "rank4": {
+          "0": 24290,
+          "20": 27040,
+          "40": 28060,
+          "60": 28910,
+          "80": 29670,
+          "100": 30360,
+          "120": 31010,
+          "140": 31620,
+          "160": 32210,
+          "180": 32770,
+          "200": 33310
         }
       },
       "sigCurve": null,
@@ -3558,7 +3571,8 @@
       "_meta": {
         "bhrSource": "mcochub.insaneskull.com (JSON API, R5 11-anchor curve, refreshed 2026-09-18)",
         "lastVerified": "2026-09-18",
-        "ascendableSource": "mcochub.insaneskull.com (Ascendable badge, verified 2026-09-18)"
+        "ascendableSource": "mcochub.insaneskull.com (Ascendable badge, verified 2026-09-18)",
+        "r4Source": "mcoc.gg per-rank curve (R4 11-anchor, fetched 2026-09-20)"
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/1/1e/Green_Goblin_%28Stellar-Forged%29_portrait.png/revision/latest/scale-to-width-down/200?cb=20260912210202",
       "sevenStarReleased": true,
@@ -3742,6 +3756,19 @@
           "160": 38440,
           "180": 39100,
           "200": 39730
+        },
+        "rank4": {
+          "0": 24220,
+          "20": 27270,
+          "40": 28280,
+          "60": 29130,
+          "80": 29880,
+          "100": 30580,
+          "120": 31220,
+          "140": 31840,
+          "160": 32420,
+          "180": 32980,
+          "200": 33510
         }
       },
       "sigCurve": null,
@@ -3749,7 +3776,8 @@
       "_meta": {
         "bhrSource": "mcochub.insaneskull.com (JSON API, R5 11-anchor curve, refreshed 2026-09-18)",
         "lastVerified": "2026-09-18",
-        "ascendableSource": "mcochub.insaneskull.com (Ascendable badge, verified 2026-09-18)"
+        "ascendableSource": "mcochub.insaneskull.com (Ascendable badge, verified 2026-09-18)",
+        "r4Source": "mcoc.gg per-rank curve (R4 11-anchor, fetched 2026-09-20)"
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/5/5b/Gwenom_portrait.png/revision/latest/scale-to-width-down/200?cb=20260912210535",
       "sevenStarReleased": true,
@@ -9945,6 +9973,19 @@
           "160": 38720,
           "180": 39370,
           "200": 40000
+        },
+        "rank4": {
+          "0": 23900,
+          "20": 27560,
+          "40": 28570,
+          "60": 29400,
+          "80": 30150,
+          "100": 30830,
+          "120": 31470,
+          "140": 32070,
+          "160": 32650,
+          "180": 33200,
+          "200": 33730
         }
       },
       "sigCurve": null,
@@ -9952,7 +9993,8 @@
       "_meta": {
         "bhrSource": "mcochub.insaneskull.com (JSON API, R5 11-anchor curve, refreshed 2026-09-18)",
         "lastVerified": "2026-09-18",
-        "ascendableSource": "mcochub.insaneskull.com (Ascendable badge, verified 2026-09-18)"
+        "ascendableSource": "mcochub.insaneskull.com (Ascendable badge, verified 2026-09-18)",
+        "r4Source": "mcoc.gg per-rank curve (R4 11-anchor, fetched 2026-09-20)"
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/3/30/Spider-Man_Noir_portrait.png/revision/latest/scale-to-width-down/200?cb=20260912211214",
       "sevenStarReleased": true,
