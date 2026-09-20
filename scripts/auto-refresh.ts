@@ -59,6 +59,8 @@ const changes: string[] = [];
 const risky: string[] = [];
 const advisory: string[] = [];
 const notes: string[] = [];
+// What each step looked at, so "nothing changed" can be told apart from "nothing ran".
+const checked: string[] = [];
 const today = new Date().toISOString().slice(0, 10);
 
 function readSeed(): { champions: Champion[] } {
@@ -195,6 +197,7 @@ async function refreshChampions(rows: FeedRow[]): Promise<string[]> {
   const missing = seed.champions.filter((c) => c.sevenStarReleased !== false && !rows.some((r) => findSeedMatch(r, [c])));
   if (missing.length > 0) notes.push(`Released in our seed but absent from MCOCHUB's feed: ${missing.map((c) => c.name).join(', ')}.`);
 
+  checked.push(`MCOCHUB feed: ${rows.length} champions compared against the seed.`);
   writeSeed(seed);
   return added;
 }
@@ -231,6 +234,7 @@ async function sweepAscendable(rows: FeedRow[]): Promise<void> {
       advisory.push(`MCOCHUB no longer shows **${champ.name}** as ascendable. Left as ascendable; check before changing.`);
     }
   }
+  checked.push(`Ascension sweep: ${rows.length - unread.length} MCOCHUB champion pages read.`);
   if (unread.length > 0) notes.push(`Ascension sweep: could not read the MCOCHUB page for ${unread.join(', ')} this run.`);
   writeSeed(seed);
 }
@@ -264,6 +268,7 @@ function refreshClasses(): void {
   const applied = run('scripts/refresh-classes-from-fandom.ts', ['--apply']);
   if (applied.status !== 0) notes.push(`Applying the Fandom refresh exited ${applied.status}:\n${tail(applied.output, 6)}`);
 
+  checked.push(`Fandom: classes and new pages checked (${report.corrections.length} class changes proposed).`);
   const seed = readSeed();
   if (seed.champions.length > before) {
     const stubs = seed.champions.filter((c) => String(c._meta?.bhrSource ?? '').startsWith('PENDING') && String(c._meta?.bhrSource).includes(today));
@@ -302,11 +307,14 @@ async function refreshWarGuide(): Promise<void> {
     return;
   }
   const next = await fetch(GUIDE_URL(current + 1), { headers: { 'User-Agent': 'Mozilla/5.0' } }).catch(() => null);
+  checked.push(`AW season ${current + 1} guide page: ${next ? (next.status === 200 ? 'live' : `not live (HTTP ${next.status})`) : 'unreachable'}.`);
   if (next?.status === 200) {
     extractSeason(current + 1, true, 'the guide page for the new season is live');
     return;
   }
   const check = run('scripts/extract-aw-season.ts', [String(current), '--check']);
+  const print = check.output.match(/guide fingerprint: ([0-9a-f]+)/)?.[1];
+  if (check.status === 0 || check.status === 2) checked.push(`AW season ${current} guide: downloaded, fingerprint ${print} (${check.status === 0 ? 'unchanged' : 'changed'}).`);
   if (check.status === 2) extractSeason(current, false, 'the guide was edited');
   else if (check.status !== 0) notes.push(`Could not check the AW guide this run:\n${tail(check.output, 4)}`);
 }
@@ -336,7 +344,8 @@ async function main(): Promise<void> {
     section(INCLUDE_RISKY ? 'Risky changes in this PR' : 'Held back for a PR', risky) +
     section('Declined, needs a person', advisory) +
     section(INCLUDE_RISKY ? 'Routine changes' : 'Shipped', changes) +
-    section('Notes', notes);
+    section('Notes', notes) +
+    section('Checked', checked);
   writeFileSync(REPORT_PATH, report);
 
   console.log(report);

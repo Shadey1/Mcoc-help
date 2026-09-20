@@ -1208,10 +1208,12 @@ function NodePanel({
                   {!isEditedFromGuide(plan, selectedNode) &&
                     i < (plan.guideTopPicks?.[selectedNode] ?? 0) && (
                       <span
-                        className="ml-1.5 text-[10px] uppercase tracking-wide text-[var(--color-ink-soft)]"
+                        className="ml-1 text-[11px] text-[var(--color-ink-soft)]"
+                        role="img"
+                        aria-label="guide top pick"
                         title="The guide highlights this as one of its best picks for the node, so the planner favours placing it here."
                       >
-                        top pick
+                        ★
                       </span>
                     )}
                 </span>
