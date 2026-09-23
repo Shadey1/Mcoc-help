@@ -311,7 +311,7 @@ function SynergyGlyph() {
 }
 
 type KitCardBlockProps = {
-  card: { title: string; trigger: string; lines: string[] };
+  card: { title: string; trigger: string; lines: string[]; retainedFrom?: string };
   signature?: boolean;
 };
 
@@ -346,6 +346,11 @@ function KitCardBlock({ card, signature }: KitCardBlockProps) {
           ▾
         </span>
       </summary>
+      {card.retainedFrom && (
+        <p className="px-4 py-1.5 text-xs text-[var(--color-ink-soft)] border-t border-[var(--color-rule)] bg-[var(--color-paper-soft)]">
+          MCOCHUB no longer lists this card; kept from our {card.retainedFrom} import. Numbers may be out of date.
+        </p>
+      )}
       <ul className="divide-y divide-[var(--color-rule)]/60 border-t border-[var(--color-rule)]">
         {card.lines.map((line, i) => (
           <li key={i} className="px-4 py-2 text-sm leading-relaxed">

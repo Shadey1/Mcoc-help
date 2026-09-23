@@ -52,6 +52,19 @@ const INDEX_URL = 'https://mcochub.insaneskull.com/champions';
 const USER_AGENT =
   'mcoc.help abilities refresher (free MCOC tool; contact via mcoc.help)';
 const FETCH_TIMEOUT_MS = 30_000;
+// Above this share of lines with changed numbers, an import is held for a person.
+const NUMERIC_SHIFT_LIMIT = 0.4;
+
+/** Titles as MCOCHUB varies them: "SPECIAL ATTACK 1" vs "SPECIAL ATTACK 1 SP1",
+ *  dashes, spacing, case. */
+function cardKey(title: string): string {
+  return title.replace(/^Signature Ability /i, '').replace(/\s+SP\d$/i, '').replace(/[—–]/g, '-').replace(/\s+/g, ' ').trim().toUpperCase();
+}
+
+function numbersOf(line: string): string {
+  return (line.match(/-?\d+(?:\.\d+)?%?/g) ?? []).map((n) => n.replace(/\.0(?=%|$)/, '')).join(',');
+}
+
 const RATE_LIMIT_MS = 1_000;
 
 // ─── CLI ────────────────────────────────────────────────────────────────
@@ -65,6 +78,8 @@ function flagValue(name: string): string | undefined {
 const LIMIT = flagValue('--limit') ? Number(flagValue('--limit')) : undefined;
 const ONLY_IDS = flagValue('--ids')?.split(',').map((s) => s.trim()) ?? null;
 const NO_CACHE = args.includes('--no-cache');
+// Accept a wholesale change in the numbers (see numericShift).
+const ACCEPT_NUMBERS = args.includes('--accept-numbers');
 
 // ─── Types ──────────────────────────────────────────────────────────────
 
@@ -82,6 +97,9 @@ type KitCard = {
   title: string;
   trigger: string;
   lines: string[];
+  /** Set when MCOCHUB no longer shows this card and it was kept from an
+   *  earlier import (the value is that import's date). */
+  retainedFrom?: string;
 };
 
 type ChampionAbilities = {
@@ -573,23 +591,69 @@ async function main() {
   const existing = existsSync(OUTPUT_PATH)
     ? (JSON.parse(readFileSync(OUTPUT_PATH, 'utf8')) as { champions: Record<string, ChampionAbilities> }).champions
     : {};
-  // A page that parses to no kit at all means the layout changed under
-  // us, not that the champion lost their abilities. Keep what we had.
+  // Upstream regressions must not become ours. Three guards:
+  //  1. A page that parses to no kit at all means the layout changed under
+  //     us, not that the champion lost their abilities. Keep what we had.
+  //  2. A card we had that MCOCHUB no longer shows is kept, tagged with
+  //     the import it came from, until MCOCHUB shows it again.
+  //  3. If the numbers change on most lines at once, something about how
+  //     MCOCHUB renders values has changed; refuse to write unless a
+  //     person passes --accept-numbers.
   const emptied: string[] = [];
+  let retained = 0;
+  let sharedLines = 0;
+  let shiftedLines = 0;
+  const previousImport = existsSync(OUTPUT_PATH)
+    ? ((JSON.parse(readFileSync(OUTPUT_PATH, 'utf8')) as { lastImported?: string }).lastImported ?? 'earlier')
+    : 'earlier';
   for (const [id, parsed] of Object.entries(out)) {
     const before = existing[id];
-    const hadKit = before && (before.kit.signature !== null || before.kit.cards.length > 0);
+    if (!before) continue;
+    const hadKit = before.kit.signature !== null || before.kit.cards.length > 0;
     const hasKit = parsed.kit.signature !== null || parsed.kit.cards.length > 0;
     if (hadKit && !hasKit) {
       out[id] = { ...parsed, kit: before.kit };
       emptied.push(id);
+      continue;
+    }
+    const newByTitle = new Map<string, KitCard>();
+    for (const c of parsed.kit.cards) newByTitle.set(cardKey(c.title), c);
+    if (parsed.kit.signature) newByTitle.set(cardKey(parsed.kit.signature.title), parsed.kit.signature);
+    for (const oldCard of [...(before.kit.signature ? [before.kit.signature] : []), ...before.kit.cards]) {
+      const match = newByTitle.get(cardKey(oldCard.title));
+      if (!match) {
+        parsed.kit.cards.push({ ...oldCard, retainedFrom: oldCard.retainedFrom ?? previousImport });
+        retained++;
+        continue;
+      }
+      // Drop a stale copy of a card MCOCHUB now shows again.
+      if (oldCard.retainedFrom) continue;
+      match.lines.forEach((line, i) => {
+        const was = oldCard.lines[i];
+        if (was === undefined) return;
+        sharedLines++;
+        if (numbersOf(line) !== numbersOf(was)) shiftedLines++;
+      });
     }
   }
+  const shift = sharedLines > 0 ? shiftedLines / sharedLines : 0;
   if (emptied.length > 0) {
     console.warn(`
 ⚠ ${emptied.length} champion(s) parsed to an empty kit; previous kit kept: ${emptied.join(', ')}`);
     console.warn('  MCOCHUB has probably changed its page layout. Check parseSignature/parseAbilityCards.');
   }
+  if (retained > 0) console.log(`
+Retained ${retained} card(s) MCOCHUB no longer shows, tagged retainedFrom.`);
+  if (shift > NUMERIC_SHIFT_LIMIT && !ACCEPT_NUMBERS) {
+    console.error(
+      `
+✗ Not writing: the numbers changed on ${(shift * 100).toFixed(0)}% of lines that exist in both imports ` +
+        `(${shiftedLines} of ${sharedLines}). MCOCHUB has probably changed how it renders values. ` +
+        'Check a few champions by hand, then re-run with --accept-numbers.',
+    );
+    process.exit(3);
+  }
+  console.log(`Numbers changed on ${shiftedLines} of ${sharedLines} shared lines.`);
   // Always merge over the existing file: a champion whose page could not
   // be fetched this run keeps last time's record instead of vanishing.
   const mergedChampions: Record<string, ChampionAbilities> = { ...existing, ...out };

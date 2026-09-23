@@ -17,7 +17,8 @@
  *   changes  - routine; applied. Shipped to main once tests + build pass.
  *   risky    - would change data, but is the kind of change a bad upstream
  *              edit produces: a big BHR swing, a class change on the wiki,
- *              a guide extraction with unmatched cells. Held back unless
+ *              a guide extraction with unmatched cells, ability numbers
+ *              changing on most lines at once. Held back unless
  *              --include-risky, which is how the workflow builds its PR.
  *   advisory - things it declined to do at all (a champion that nearly
  *              matches an existing one, an ascension being taken away).
@@ -260,8 +261,8 @@ async function sweepAscendable(rows: FeedRow[]): Promise<void> {
     let badge: boolean;
     try {
       badge = await isAscendable(row);
-    } catch {
-      unread.push(champ.name);
+    } catch (e) {
+      unread.push(`${champ.name} (${(e as Error).message.slice(0, 80)})`);
       if (unread.length > 25) {
         notes.push('Ascension sweep abandoned: MCOCHUB champion pages kept failing.');
         break;
@@ -337,7 +338,11 @@ function refreshClasses(): void {
  *  and exits 2, which is the sign its parser no longer fits the layout. */
 function refreshAbilities(): void {
   const before = readFileSync(ABILITIES_PATH, 'utf-8');
-  const r = run('scripts/refresh-abilities-from-mcochub.ts', ['--no-cache']);
+  const r = run('scripts/refresh-abilities-from-mcochub.ts', ['--no-cache', ...(INCLUDE_RISKY ? ['--accept-numbers'] : [])]);
+  if (r.status === 3) {
+    risky.push(`Abilities: MCOCHUB's numbers changed on most lines at once (${r.output.match(/changed on (\d+% of lines)/)?.[1] ?? 'most'}), which usually means it changed how it renders values, not that the game changed. Nothing written. Check a few champions against the game before merging.`);
+    return;
+  }
   if (r.status !== 0 && r.status !== 2) {
     notes.push(`Abilities import exited ${r.status}:
 ${tail(r.output, 6)}`);
@@ -345,6 +350,8 @@ ${tail(r.output, 6)}`);
   }
   const emptied = r.output.match(/parsed to an empty kit; previous kit kept: ([^\n]+)/)?.[1];
   if (emptied) advisory.push(`Abilities: MCOCHUB pages for **${emptied}** parsed to no kit, previous text kept. If it is more than a champion or two, MCOCHUB has changed its layout and \`scripts/refresh-abilities-from-mcochub.ts\` needs its parser updated.`);
+  const retained = r.output.match(/Retained (\d+) card/)?.[1];
+  if (retained) notes.push(`Abilities: ${retained} card(s) MCOCHUB no longer shows were kept from the previous import (marked on the page).`);
   const after = readFileSync(ABILITIES_PATH, 'utf-8');
   const changed = diffChampions(before, after);
   checked.push(`Abilities: ${(r.output.match(/Processing (\d+) champion/)?.[1] ?? '?')} MCOCHUB champion pages re-read.`);

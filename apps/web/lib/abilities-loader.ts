@@ -28,6 +28,9 @@ export type KitCard = {
    *  for cards whose summary had no " - " separator (Special Attacks). */
   trigger: string;
   lines: string[];
+  /** Kept from an earlier import (this date) because MCOCHUB no longer
+   *  shows the card. Numbers in it may be stale. */
+  retainedFrom?: string;
 };
 
 export type ChampionAbilities = {
