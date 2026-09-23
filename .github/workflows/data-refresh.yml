@@ -33,7 +33,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  DATA_PATHS: data/champions/seed.json data/aw
+  DATA_PATHS: data/champions/seed.json data/champions/abilities.json data/aw
 
 jobs:
   refresh:
@@ -139,6 +139,7 @@ jobs:
           body-path: auto-refresh-report.md
           add-paths: |
             data/champions/seed.json
+            data/champions/abilities.json
             data/aw
           labels: |
             data

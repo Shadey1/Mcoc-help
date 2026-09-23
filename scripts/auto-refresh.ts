@@ -9,7 +9,8 @@
  *         missing R4 curves from mcoc.gg;
  *         has the AW guide changed, or has the next season's page appeared.
  * Weekly: the Ascendable badge on every champion's MCOCHUB page; champion
- *         classes and newly created pages on the Fandom wiki.
+ *         classes and newly created pages on the Fandom wiki; every
+ *         champion's ability text from MCOCHUB.
  *
  * It edits data files only and never commits. Every finding lands in one
  * of three lists, and the workflow acts on each differently:
@@ -34,6 +35,7 @@ const INCLUDE_RISKY = process.argv.slice(2).includes('--include-risky');
 const SEED_PATH = 'data/champions/seed.json';
 const CLASS_REPORT_PATH = 'scripts/class-corrections.json';
 const POINTER_PATH = 'data/aw/current.ts';
+const ABILITIES_PATH = 'data/champions/abilities.json';
 const REPORT_PATH = 'auto-refresh-report.md';
 const GUIDE_URL = (n: number) => `https://www.guiamtc.com/aw-season-${n}`;
 
@@ -328,6 +330,33 @@ function refreshClasses(): void {
   writeSeed(seed);
 }
 
+// ── Abilities text ──────────────────────────────────────────────────────
+
+/** Weekly re-import of every champion's ability text from MCOCHUB. The
+ *  importer keeps a champion's previous kit when a page parses to nothing
+ *  and exits 2, which is the sign its parser no longer fits the layout. */
+function refreshAbilities(): void {
+  const before = readFileSync(ABILITIES_PATH, 'utf-8');
+  const r = run('scripts/refresh-abilities-from-mcochub.ts', ['--no-cache']);
+  if (r.status !== 0 && r.status !== 2) {
+    notes.push(`Abilities import exited ${r.status}:
+${tail(r.output, 6)}`);
+    return;
+  }
+  const emptied = r.output.match(/parsed to an empty kit; previous kit kept: ([^\n]+)/)?.[1];
+  if (emptied) advisory.push(`Abilities: MCOCHUB pages for **${emptied}** parsed to no kit, previous text kept. If it is more than a champion or two, MCOCHUB has changed its layout and \`scripts/refresh-abilities-from-mcochub.ts\` needs its parser updated.`);
+  const after = readFileSync(ABILITIES_PATH, 'utf-8');
+  const changed = diffChampions(before, after);
+  checked.push(`Abilities: ${(r.output.match(/Processing (\d+) champion/)?.[1] ?? '?')} MCOCHUB champion pages re-read.`);
+  if (changed.length > 0) changes.push(`Ability text updated for ${changed.length} champion${changed.length === 1 ? '' : 's'}: ${changed.slice(0, 12).join(', ')}${changed.length > 12 ? ', …' : ''}.`);
+}
+
+function diffChampions(beforeJson: string, afterJson: string): string[] {
+  const a = (JSON.parse(beforeJson) as { champions: Record<string, unknown> }).champions;
+  const b = (JSON.parse(afterJson) as { champions: Record<string, unknown> }).champions;
+  return Object.keys(b).filter((id) => JSON.stringify(a[id]) !== JSON.stringify(b[id]));
+}
+
 // ── Alliance War guide ──────────────────────────────────────────────────
 
 function extractSeason(season: number, fetchFirst: boolean, why: string): void {
@@ -379,7 +408,10 @@ async function main(): Promise<void> {
     await fillMissingR4();
     if (WEEKLY) await sweepAscendable(rows);
   }
-  if (WEEKLY) refreshClasses();
+  if (WEEKLY) {
+    refreshClasses();
+    refreshAbilities();
+  }
   await refreshWarGuide();
 
   const all = [...changes, ...risky, ...advisory];
