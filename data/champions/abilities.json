@@ -307,6 +307,15 @@
               "All attacks deal Energy Damage instead of Physical, as well as a burst of 1720.6 Energy Damage.",
               "Refined: Contact with the Opponent inflicts an Incinerate Passive, dealing 3011 Energy Damage over 8603 second."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "Gain an indefinite Cruelty Passive, increasing Critical Damage Rating by 25.0. If a Refined Form is already active, gain a second Cruelty Passive. Max Stacks: -1.",
+              "Activate the most recent Form in its Refined state. Pause it for 15 seconds. While this Pause is active, Absorbing Man gains 80.0 Critical Rating."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -935,6 +944,15 @@
               "Each Pym Particle Grants Ant-Man +2192.5 Attack Rating for the duration of this Attack. Consume all Pym Particles at the end of the Special Attack.",
               "On the second hit, consume all Fatigue Debuffs on the opponent. For each Fatigue consumed, the opponent is inflicted with a Poison Debuff that deals 6577.5 damage over 131550 second(s) and reduces their health recovery by 30%. Max Stacks 12."
             ]
+          },
+          {
+            "title": "Signature Ability CLOSE-UP MAGIC",
+            "trigger": "",
+            "lines": [
+              "Whenever Ant-Man Glances an attack, he has a 50.0% chance to inflict a Fatigue Debuff lowering the opponent’s Crit Rating by -5.0 for 15 second(s).",
+              "Whenever Ant-Man gains a Pym Particle, he pauses the duration of any personal Fatigue, Poison, or Power Sting Debuffs on the opponent for 2 second(s)."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -1063,6 +1081,23 @@
               "When the second hit lands or strikes into Block, inflict a 15% potency Disintegration Debuff, dealing 10127.5 Direct Damage over 194448 seconds and pausing during Ant-Man’s Special Attacks. This ability scales with Base Attack only. Max stacks: 2.",
               "The final hit does not grant Power and drains 15% of a Bar of Power for each Disintegration Debuff on the Opponent."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 2 SP2",
+            "trigger": "",
+            "lines": [
+              "While the Power Detonation Passive is active, each hit inflicts a -10.0% potency instant Disintegration, dealing 167.0 Direct Damage. This ability gains +100% potency for each Disintegration Debuff on the Opponent."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "Gain 1000.0 Nano-Armor Up Buffs.",
+              "Inflict a non-stacking 15.0% potency Disintegration Debuff, dealing 125.0 Direct Damage over 60 seconds."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -2296,6 +2331,14 @@
             "lines": [
               "Gain a 65% Resonance Buff for 20 seconds, paused during Special Attack."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "Gain a 65.0% Resonance Buff for 20 seconds, paused during Special Attack."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -2709,6 +2752,30 @@
             "lines": [
               "Gain 3 Inactive Panther's Might charges. Then consume all charges and enter Panther's Might for 5 seconds per charge consumed."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 1 SP1",
+            "trigger": "",
+            "lines": [
+              "Gain 3 Inactive Panther's Might charges. Then consume all charges and enter Panther's Might for 5 seconds per charge consumed."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "SPECIAL ATTACK 2 SP2",
+            "trigger": "",
+            "lines": [
+              "This Attack gains +5.0 Attack Rating for each Personal Cruelty Passive Active on Black Panther."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "Inflict up to 5 Bleed Debuffs, with each having a 100% Chance to Apply, and dealing 35.0 Direct Damage over 15 seconds."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -2823,6 +2890,16 @@
               "Activate or refresh Reflective Matrix and pause it for 20 seconds.",
               "Gain 10 Reflect Charges and refresh all Charges."
             ]
+          },
+          {
+            "title": "Signature Ability PANTHER HABIT",
+            "trigger": "",
+            "lines": [
+              "Black Panther starts each fight with 495.5 Reflect Charges.",
+              "An upgraded Reflective Matrix grants +4.7 Physical Resistance.",
+              "While Black Panther has at least 1000.0 Reflect Charges, he gains a 21.7% chance to absorb Heavy Attack impacts by consuming -1 Charges to become Passively Unstoppable for 0.75 seconds."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -3101,6 +3178,15 @@
               "100% chance to inflict the Opponent with Buff Immunity for 10 seconds. Decreasing to 50% against Science Champions.",
               "Each hit grants an effect determined by Claire’s active curse. Curse of Blood: Regenerate 35% of the damage dealt. Curse of Plague: Steal 5% of the Opponent’s current Power. Curse of Hellfire: Deal a burst of 8552.8 Energy Damage."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "All Clairvoyance charges are removed, each increasing her Attack Rating during this attack by 20.0.",
+              "Claire gains Death Touch, lasting for 1.2 seconds per Clairvoyance charge removed, Death Touch increases the Potency of all Curse effects by 100.0% and is not affected by Ability Accuracy reduction."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -3217,6 +3303,15 @@
               "Inflict an instant Shock, dealing 17139.9 Energy Damage when striking Shocked Opponents.",
               "If Widow’s Insight is active: All hits reduce Defensive Ability Accuracy by 70%."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "Inflict a Sabotage Debuff reducing Defensive Ability Accuracy by 20% for 16 seconds and dealing 2.0 Direct damage when the Opponent's Defensive Abilities fails to trigger. This Defensive Ability Accuracy reduction does not stack with other Sabotage effects.",
+              "For every 5 stacks of Widows Insight gained since last activating this Special Attack, create a Passive Cruelty increasing Critical Damage Rating by 85.0 for 30 seconds. Widow's Insight is reset to 0 after launching this Special Attack."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -3301,6 +3396,15 @@
               "This attack receives 2700 additional Critical Rating.",
               "Inflicts Bleed on Critical Hits, dealing 1710.1 Direct Damage per stack over 9772 second. For each Bleed inflicted, Blade instantly generates 8% of a Bar of Power."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "Inflicts 3.0 stacks of Bleed, each dealing 140.0 Direct Damage over 13 seconds.",
+              "70.0% chance to Stun for 3 second(s)."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -3800,6 +3904,26 @@
             "lines": [
               "Cable unleashes more of his Mutant power than he should, gaining a non-stacking 40% Power Efficiency Passive for 16 seconds, but suffering from a Power Lock Passive while it's active as his Techo-Organic Virus roams unchecked."
             ]
+          },
+          {
+            "title": "PASSIVE",
+            "trigger": "",
+            "lines": [
+              "15.0% chance to Regenerate 17.5 Health for 10 seconds, each time a Power threshold is reached. This ability stops working below 25% Health.",
+              "Future Poison durations are reduced by -20.0% each time a poison is triggered on Cable.",
+              "Once his Poison Durations are reduced to 0, Cable gains a Passive 50.0% bonus to Special Damage.",
+              "When inflicted with a Bleed Debuff, Cable has a 100.0% chance to trigger his Heavy Attack Degeneration on his Opponent."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "HEAVY ATTACKS",
+            "trigger": "",
+            "lines": [
+              "100.0% Chance to inflict non-robotic Opponents with a non-stacking Degeneration Debuff, dealing up to 400.0 Direct Damage over 15 seconds.",
+              "Strength of Degeneration scales inverse of your Opponent’s current Power."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -3933,6 +4057,20 @@
               "If Kinetically Charged gain +8519 Attack for each different Class on Cap’s team, not including himself, up to 17038 Classes.",
               "Gain 1 Non-Consumable Kinetic Potential charge which lasts 30 seconds."
             ]
+          },
+          {
+            "title": "Signature Ability LEADERSHIP",
+            "trigger": "",
+            "lines": [
+              "An excellent leader, Captain America learns from his teammates gaining a unique effect, while Kinetically Charged, for each class represented on his team, excluding himself.",
+              "Mutant: 40.0% chance on triggering a Special Attack to gain +100.0 Kinetic Potential.",
+              "Skill: 40.0% chance whenever a Debuff is gained, Consume 100.0 Kinetic Potential to Purify it.",
+              "Science: 40.0% chance on a Well-Timed Block to place a 10.0% Weakness Debuff on the Opponent for 10 seconds.",
+              "Mystic: 40.0% chance to gain 100.0 Kinetic Potential each time a Buff Expires or is Nullified on the Opponent.",
+              "Cosmic: 40.0% chance on a Well Timed Block to place an Armor Break Debuff on the Opponent, reducing their Armor by -10.0 for 10 seconds.",
+              "Tech: 40.0% chance on a Well Timed Block to place a 25.0% Petrify Debuff on the Opponent for 10 seconds."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -4222,6 +4360,15 @@
               "Gain a non-stacking 60% Power Efficiency Passive lasting until Psionic Mode Expires.",
               "Gain 6 additional indefinite +15% Prowess Passives."
             ]
+          },
+          {
+            "title": "Signature Ability PURE SOUL",
+            "trigger": "",
+            "lines": [
+              "Increase personal Exhaustion duration by 3.0% for each Psionic Charge. Psionic Mode increases the duration as if Captain Britain has 10 Psionic Charges.",
+              "Each personal Neuroshock reduces the Opponent’s Energy Resistance by 15.0% of their current positive Energy Resistance. Max: 100%."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -4333,6 +4480,15 @@
             "lines": [
               "In Binary Ignition, Beam Attacks are Unblockable and expend 4 Energy Charges."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "Generate 10 Energy Charges.",
+              "Gain a Power Gain Buff generating 40% of max Power over 10 seconds."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -4845,6 +5001,14 @@
             "lines": [
               "Gain a 15 second Regeneration Buff, healing 50% of Health lost this fight or 30% of missing health, whichever is greater."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 1 SP1",
+            "trigger": "",
+            "lines": [
+              "On activation, gain a Grizzly’s Grit Passive for 16 seconds which counts as a Grit Passive. While Grizzly’s Grit is active, all attacks gain a 50.0% chance to inflict a Bleed Debuff."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -5038,6 +5202,91 @@
               "10% chance to gain an Armor Up Buff for 6.5 seconds, granting +1270.59 Armor Rating.",
               "Impenetrable armor provides full immunity to Bleeding."
             ]
+          },
+          {
+            "title": "PASSIVE",
+            "trigger": "",
+            "lines": [
+              "At the start of the fight, Colossus gains a number of indefinite Armor Up Buffs equal to 200.0 plus the number of X-Men Champions on his team, including himself."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "PERSONAL ARMOR UP BUFFS",
+            "trigger": "MAX: 20",
+            "lines": [
+              "Unless otherwise stated, Colossus’s Armor Up Buffs provide 10.0 Armor Rating.",
+              "Additionally for each Armor Up Buff Colossus has, he gains an additional 15.0 Critical Damage Rating."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "WHEN ATTACKED OR WHEN ATTACKING",
+            "trigger": "",
+            "lines": [
+              "If Colossus' Ability Accuracy is below 100%, he gains +100.0% Combat Power Rate for the duration of the attack."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "ENEMY CRITICAL HITS",
+            "trigger": "",
+            "lines": [
+              "Damage is capped at 150.0% of the opponent's Attack rating.",
+              "Each time this damage cap is hit, the duration of Colossus' Armor Up Buffs are refreshed. Additionally he has a 50.0% chance to gain an additional Armor Up Buff lasting 15 seconds."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "WELL TIMED BLOCKS",
+            "trigger": "",
+            "lines": [
+              "100.0% chance to gain an Armor Up Buff, lasting 15 seconds.",
+              "If contact is made by basic attacks, Colossus has a 100.0% chance to inflict a Stun Debuff lasting 1 seconds.",
+              "If Colossus has the Parry Mastery, this Stun Debuff is disabled and instead a successful Parry also deals 50.0 direct damage."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "SPECIAL AND HEAVY ATTACKS",
+            "trigger": "",
+            "lines": [
+              "Attack rating is increased by up to +200.0, based on Colossus’s Armor Rating."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "HEAVY ATTACKS",
+            "trigger": "",
+            "lines": [
+              "If the Opponent has a Stun Debuff, Colossus’s Heavy Attacks have a 100% chance to Purify the Stun and grant a Passive Fury increasing Attack by up to +350.0, based on Colossus’s Armor, for 3 seconds."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "SPECIAL ATTACK 1 SP1",
+            "trigger": "",
+            "lines": [
+              "Gain an indefinite Armor Up Buff."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "SPECIAL ATTACK 2 SP2",
+            "trigger": "",
+            "lines": [
+              "This attack is Unblockable.",
+              "When activated, for each Armor Up Buff, Colossus has a 50.0% chance to gain another lasting 15 seconds. These Buffs do not count towards the Max Stack limit, allowing Colossus to temporarily go above his Armor Up Buff limit."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "100.0% chance to inflict an indefinite Passive Fatigue on the opponent, reducing their Critical Rating by -50.0."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -5278,6 +5527,25 @@
               "The final 4 hits each devour 2 Energy Build Ups. This can trigger through Block and is unaffected by Ability Accuracy.",
               "Each devoured Energy Build Up grants 16 Ionic Charges, 2% of his missing Health, and 9% of a Bar of Power."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 2 SP2",
+            "trigger": "",
+            "lines": [
+              "On activation, gain a +12.0 Fury Passive per 10 Ionic Charges, each lasting 16.0 seconds. Max stacks: -1.",
+              "The final hit inflicts an Incinerate Debuff, dealing 130.0 Energy Damage over 6 seconds.",
+              "Against Mystic Champions, inflict a Plasma Debuff instead."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "Gain 5000.0 Ionic Charges, then activate Ionic Overcharge.",
+              "Pause Ionic Overcharge for 10 seconds."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -5417,6 +5685,15 @@
             "lines": [
               "[Contempt] Inflict an additional Incinerate Debuff."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 1 SP1",
+            "trigger": "",
+            "lines": [
+              "100.0% chance to gain a Fury Buff.",
+              "[Contempt] Gain 200.0 an additional Fury Buff(s)."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -5881,6 +6158,14 @@
             "lines": [
               "100% chance to gain a Righteous Wrath Passive for 70 seconds. While active, The Devil of H.K.’s basic attacks have a 35% chance to inflict an instant Bleed, causing 1.2% of the damage dealt by the attack as direct damage."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 1 SP1",
+            "trigger": "",
+            "lines": [
+              "100.0% chance to boost Critical Rating by 25.0 for 15 seconds."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -6267,6 +6552,14 @@
             "lines": [
               "100% chance to inflict a Bleed Debuff, dealing 21925 Direct Damage over 26310 seconds."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "100.0% chance to inflict a Bleed Debuff, dealing 290.0 Direct Damage over 5.5 seconds."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -6491,6 +6784,27 @@
             "lines": [
               "After the attack, Diablo will drink from his flask. If he drinks for 1.5 seconds, he gains a Regeneration Passive, recovering 7347.4 Health over 4198.5 seconds. If his drink is interrupted, he gains a Vial of Might and Pauses all Poison effects on the opponent for 1049630 seconds."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 2 SP2",
+            "trigger": "",
+            "lines": [
+              "This attack is Unblockable and deals a burst of 50.0 Energy Damage. This burst of damage increases by +20.0% for each Buff & Poison that the opponent has gained this fight. Max Bonus: +500%."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "This attack can only be used once per fight.",
+              "This attack gains +50.0 Attack rating. It also gains effects based on which Alchemical Ingredients have been added to the Flask.",
+              "Distilled Will: Gain a Regeneration Passive, healing 10.0 Health over 4 seconds.",
+              "Essence of Null: Places 10 Detonate Buffs on the opponent, which last 20 seconds and deal a burst of 20.0 Energy Damage when they expire or are Nullified.",
+              "Grain of Uru: Philosopher’s Mix is Paused for 10 seconds.",
+              "For each Vial of Might: 100.0% chance to inflict 200.0 Poison Debuff(s)."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -6767,6 +7081,16 @@
               "Refresh the current Vishanti Blessing and inflict a Fate Seal Passive for 15 seconds.",
               "While this Fate Seal is active, when the Opponent is prevented from gaining a Buff due to Fate Seal or Immunity, Doctor Strange gains an Arcane Font."
             ]
+          },
+          {
+            "title": "Signature Ability WELL OF UNSEEN WORLDS",
+            "trigger": "",
+            "lines": [
+              "At the start of each fight, grant the Opponent 99.0 (rounded down) indefinite Placebo Buff(s) and then inflict a Fate Seal Passive for 3 seconds.",
+              "When Doctor Strange gains an Arcane Font, he has a 9.9% chance to gain another. This can trigger itself, but is not affected by Ability Accuracy.",
+              "Before the Opponent would be Knocked Out, inflict a 125% Neutralize Passive for 3 seconds."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -7501,6 +7825,24 @@
               "When activated and with each hit, Ebony Maw Nullifies 1 Fury, Cruelty, or Precision Buff from his Opponent. This expands to all Buffs if the Opponent is inflicted with Black Tongue.",
               "If no Buffs were Nullified during this attack, the Opponent gains a Fury Buff increasing their Attack Rating by 0 for 10 seconds."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 2 SP2",
+            "trigger": "",
+            "lines": [
+              "Each hit inflicts a Passive Degeneration, dealing 129.0 Direct Damage over 4 seconds. If the Opponent is suffering from a Falter effect, each hit inflicts 2 additional Degenerations.",
+              "The final hit refreshes any active Falter Debuffs."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "This attack grants no Power to the Opponent.",
+              "Steal 100% of the Opponent’s Power and gain a Power Gain Buff, granting 40.0% of the Power stolen over 5 seconds."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -7997,6 +8339,14 @@
             "lines": [
               "Inflict a non-stacking 25% Charm Debuff for 50 seconds and Power Steal up to 1 Bar of Power."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "Inflict a non-stacking 25.0% Charm Debuff for 50 seconds and Power Steal up to 1 Bar of Power."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -9061,6 +9411,15 @@
             "lines": [
               "Inflict a Damnation Passive that deals 8854 Direct Damage over 106248 seconds, and then convert all Judgments into additional Damnations. 1 Damnation is removed when Ghost Rider is struck."
             ]
+          },
+          {
+            "title": "Signature Ability BROTHER BLAZE",
+            "trigger": "",
+            "lines": [
+              "Ghost Rider’s Fury Passives gain 9.8% potency.",
+              "Against #Villains, Ghost Rider’s Genesis Passives gain 49.3% potency."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -9369,6 +9728,24 @@
             "lines": [
               "On activation, when fighting as a Defender, activate all Shadow Magic Buffs."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 2 SP2",
+            "trigger": "",
+            "lines": [
+              "On Activation, gain a Fury Buff, increasing Attack Rating by 20.0 for 20 second(s). Gain an additional Fury Buff for each unique damaging Debuff on the Opponent.",
+              "These Fury Buffs are refreshed when Gorr activates any Special Attack."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "Gorr activates all of his Shadow Magic Buffs, and pauses all Shadow Magic Buffs for 11 second(s).",
+              "+12.0 Attack Rating during this Attack for each damaging Debuff on the Opponent. This is increased by 100% per unique damaging Debuff on the Opponent, and by an additional 100.0% when fighting #Gods, #Elders, and for each stack of Heresy."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -9744,6 +10121,15 @@
             "lines": [
               "On activation: 100% chance to inflict a Spectre Debuff, reducing the Opponent's Regeneration Rate by 1.2% for 12 seconds."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "If the Opponent is at or below 5% of their max health this attack knocks them out. This damage can be prevented or reduced.",
+              "If Guillotine uses this attack to knock out her Opponent, their soul is digitized and absorbed, allowing her to start the next fight with 100.0 hits in her Combo Meter."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -9807,6 +10193,30 @@
             "lines": [
               "If the hit was not Blocked, inflict a Degeneration Debuff, dealing 13260.9 Direct Damage over 54126 seconds."
             ]
+          },
+          {
+            "title": "Signature Ability ANCESTOR'S STRENGTH",
+            "trigger": "",
+            "lines": [
+              "The Souls of her ancestors empower Guillotine further, granting a 10.0% chance to steal 19.0% of damage done as Health for every 4 Souls she possesses. Minimum 19.0% Health Steal regardless of current Soul count."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "SPECIAL ATTACK 2 SP2",
+            "trigger": "",
+            "lines": [
+              "The final hit inflicts a 200.0% Spectre Debuff for 10 seconds, then consumes 2.0 Souls."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "La Fleur du Mal deals 2.0% of the Opponent’s Max Health in Direct Damage per Soul. After this attack, 50.0% of Guillotine’s Souls are consumed, rounded down."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -10177,6 +10587,14 @@
               "+3324.4 Attack for each Plasma Charge converted.",
               "Purifies all Plasma Build Ups on the Opponent."
             ]
+          },
+          {
+            "title": "Signature Ability PLASMA AMPLIFICATION",
+            "trigger": "",
+            "lines": [
+              "Each time Havok gains a Plasma Charge, from any source other than this ability he has a 25.0% chance to gain another one."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -10321,6 +10739,16 @@
               "100% chance to inflict a 25 second Fragility Debuff. Attacking a Fragile Opponent grants +1.5 Critical Damage Rating and reduces Block Proficiency by 50%.",
               "Perfect Release: Inflict an additional Fragility Debuff."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "All Bleeds triggered during this attack gain up to +200.0% duration based on Hawkeye’s Critical Rating.",
+              "Based on Hawkeye's Critical Chance, Bleeds triggered during this attack can be Critical Bleeds, multiplying the Bleed’s Potency by Hawkeye’s Critical Damage Multiplier.",
+              "Getting a Perfect result in the Special 3 Mini-Game grants Maximum Critical Rating for the attack."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -10435,6 +10863,15 @@
             "lines": [
               "Heimdall converts all personal Buffs into Passives with 50% increased base duration and 25% increased base potency."
             ]
+          },
+          {
+            "title": "Signature Ability ALL SEEING",
+            "trigger": "",
+            "lines": [
+              "Heimdall gains Immunity to Fate Seal effects.",
+              "Once per fight when Heimdall would be Knocked Out, he gains an Indestructible Buff for 0.5 second(s)."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -10581,6 +11018,14 @@
             "lines": [
               "On activation, inflict 5 personal Severe Wither Debuffs and place the Evolutionary Field."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "On activation, inflict 500.0 personal Severe Wither Debuffs and place the Evolutionary Field."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -11150,6 +11595,23 @@
               "The final hit inflicts a Stun Debuff for 4 seconds. Duration is increased by 100% while in GAMMA RAGE.",
               "Each time this Stun is inflicted, its duration is reduced by 60% until the next time Hulk enters GAMMA RAGE."
             ]
+          },
+          {
+            "title": "Signature Ability GAMMA BRAWLER",
+            "trigger": "",
+            "lines": [
+              "When Hulk enters GAMMA RAGE or he strikes the Opponent with a Heavy Attack while it's active, he gains an Unstoppable Passive for 0.9546 seconds.",
+              "Gain up to 9.3 Physical Resistance and Critical Resistance while Unstoppable based on missing Health. Potencies for both are reduced by -50.0% against Skill Champions."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "SPECIAL ATTACK 2 SP2",
+            "trigger": "",
+            "lines": [
+              "The final hit inflicts a Trauma Debuff for each personal Fury Passive currently on Hulk. Trauma lasts for 3 seconds and causes all hits to deal an additional 5.0% of the damage recently dealt as a burst of Physical Damage. Max: -1."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -11292,6 +11754,17 @@
               "Add a flat 15% strength to Gamma Radiation.",
               "Inflict a Petrify Debuff of 25% Potency for 20 second(s)."
             ]
+          },
+          {
+            "title": "Signature Ability THE GREEN DOOR",
+            "trigger": "",
+            "lines": [
+              "Hulk surges with gamma energy from the Below-Place, gaining benefits while above certain thresholds of Gamma Radiation:",
+              "25%: Basic Attacks have a 2.0% chance to inflict a Stun Debuff, lasting 0.75 second(s).",
+              "50%: When the Opponent is Immune to a Stun Effect or a Stun Effect expires, inflict a Weakness Debuff, decreasing Attack Rating by 25.0% for 4 second(s).",
+              "75%: Inflict an indefinite Petrify Debuff of 25.0% Potency."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -11617,6 +12090,25 @@
             "lines": [
               "If Hulkling is or becomes Unblockable during this Attack, pause all his personal Buffs, other than Unblockable, until 2 second(s) after this Attack."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 2 SP2",
+            "trigger": "",
+            "lines": [
+              "On Activation, gain a Fury Buff, increasing Attack Rating by 70.0 for 10 second(s).",
+              "If Hulkling is or becomes Unblockable during this Attack, gain another Fury Buff, increasing Attack Rating by 110.0 for 10 second(s)."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "If Hulkling has at least 200.0 Bulwark Shapeshift Buffs, pause 200.0 of them for the remainder of the fight, once per fight.",
+              "If Hulkling doesn’t have enough Bulwark, or they’re already paused, pause Aptitude Buffs instead, then Pierce Buffs.",
+              "If Hulkling doesn’t have enough of any Bulwark, Aptitude, or Pierce, or all are paused, he instead gains Shapeshift Charges up to their Max."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -11691,7 +12183,112 @@
             "This chance increases by a flat 40% every time the ability fails to activate."
           ]
         },
-        "cards": []
+        "cards": [
+          {
+            "title": "PASSIVE",
+            "trigger": "",
+            "lines": [
+              "Basic attacks deal Energy Damage instead of Physical."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "FLAME ON!",
+            "trigger": "PRE-FIGHT ABILITY",
+            "lines": [
+              "Human Torch starts the Quest with 100.0 Persistent Charge(s).",
+              "If Human Torch has at least 100.0 Persistent Charge(s), he can consume them to activate this ability before the Fight.",
+              "For the entire Fight, all of Human Torch's Incinerates are Nova Flames, last 2 second(s) longer, and deal an additional +75.0% damage. This ability does not stack."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "TEMPERATURE",
+            "trigger": "",
+            "lines": [
+              "While Charging a Heavy Attack, Human Torch increases his Temperature.",
+              "Temperature decreases constantly over time. Temperature decreases slower for each Incinerate or Smoulder on either Champion.",
+              "At 1000.0 Temperature, the heat from Human Torch’s attacks is so intense, they cannot Miss.",
+              "At 2000.0 Temperature, Temperature cannot decrease for 6.5 second(s), then it is set to 18.0.",
+              "The duration of all of Human Torch's Incinerate effects increases by up to 400.0 second(s) depending on his Temperature."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "INCINERATES",
+            "trigger": "",
+            "lines": [
+              "Human Torch Incinerates the Opponent with his first and last Light hits, and all his Medium and Heavy hits. These Incinerate Debuffs deal 20.0 damage over 3 seconds.",
+              "Incinerate removes Perfect Block Chance and reduces Block Proficiency by 50% while it's active.",
+              "The potency of all Incinerate and Nova Flames on the Opponent is increased by 12.0% for each Incinerate or Smoulder on either Champion.",
+              "For each Incinerate on the Opponent, their Regeneration Rate is reduced by -20.0%.",
+              "While Human Torch is Bleeding, the duration of all his Incinerate effects is reduced by -400.0 second(s)."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "NOVA FORM",
+            "trigger": "",
+            "lines": [
+              "When Temperature is at 20.0 and the Opponent has 700.0 Incinerate effects, for the next 7 second(s) instead of placing Incinerate Debuffs on the Opponent, Human Torch places Nova Flame Passives instead."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "NOVA FLAME",
+            "trigger": "",
+            "lines": [
+              "Human Torch's personal Nova Flame reduces Block Proficiency by 100%, and inflicts a Power Sting Passive.",
+              "An Opponent with Power Sting takes 60.0 Direct Damage when activating a Special Attack. Power Sting is removed when Nova Flame expires.",
+              "All of Human Torch's abilities treat Nova Flames as Incinerates."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "WHEN ATTACKED",
+            "trigger": "CONTACT",
+            "lines": [
+              "0% chance to Incinerate the Opponent for 20.0 damage over 4 seconds. This chance increases by a flat 10.0% for each Incinerate or Smoulder on either Champion."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "WHEN BLOCKING OR ATTACKED",
+            "trigger": "",
+            "lines": [
+              "If the hit dealt Energy Damage, Temperature increases by 500.0, and Human Torch Smoulders.",
+              "All Attacks from Mystic Champions are considered as Energy Attacks towards this ability."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "SPECIAL ATTACK 1 SP1",
+            "trigger": "",
+            "lines": [
+              "The first hit of this attack increases Temperature by 500.0, and it cannot decrease for 6.5 second(s).",
+              "If the last hit is blocked, it places a Smoulder Passive on Human Torch."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "SPECIAL ATTACK 2 SP2",
+            "trigger": "",
+            "lines": [
+              "The last two hits of this Attack each have a 100.0% chance to Incinerate the Opponent, dealing 30.0 damage over 5 seconds.",
+              "If the last two hits are blocked, they each place a Smoulder on Human Torch instead."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "Inflict a Nova Flame, dealing 100.0 damage over 5 seconds.",
+              "Human Torch enters his Nova Form for 7 second(s) and places 200.0 Smoulder Passives on himself."
+            ],
+            "retainedFrom": "2026-08-07"
+          }
+        ]
       }
     },
     "hyperion": {
@@ -11893,6 +12490,14 @@
               "Inflict a Coldsnap Debuff, dealing 16788 Energy Damage over 151092 seconds.",
               "This attack instantly reforms Ice Armor."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 2 SP2",
+            "trigger": "",
+            "lines": [
+              "Iceman consumes his Ice Armor to gain +150.0 Attack Rating for the duration of this attack."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -12440,6 +13045,15 @@
               "On Activation, enter Aura of Iron for 24 seconds. This Aura cannot be ended early, and until it next expires, Infamous Iron Man has +2700 Critical Rating for each of the Opponent’s filled Bars of Power.",
               "If Aura of Iron was already active, both Infamous Iron Man and his Opponent gain an Energize Passive increasing their Combat Power Rates by 100%, each lasting until Aura of Iron next expires."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 1 SP1",
+            "trigger": "",
+            "lines": [
+              "On Activation, enter Aura of Iron for 800.0 seconds.",
+              "If it was already active, the Opponent is passively Special Locked for Aura of Iron’s remaining duration."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -12976,6 +13590,22 @@
               "The next time the Hunt activates, the Opponent is also inflicted with a Stun Debuff lasting 4.5 second(s).",
               "Gain 3 permanent Huntress charge(s) that are not removed when the Hunt triggers. Max 6."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 1 SP1",
+            "trigger": "",
+            "lines": [
+              "On activation, inflict an Ensnare Debuff on the Opponent for 11 second(s)."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "SPECIAL ATTACK 2 SP2",
+            "trigger": "",
+            "lines": [
+              "The Hunt is Paused during this Attack."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -13387,6 +14017,23 @@
               "Pizza: Jessica gains a Regeneration Passive, restoring 12302.2 Health over 1107198 seconds.",
               "The Kitchen Sink: Apply the effects from every other item, but potencies are reduced by 50%."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 2 SP2",
+            "trigger": "",
+            "lines": [
+              "On activation, gain a Fury Passive increasing Attack Rating by 70.0 for 10 seconds. Gain an additional Fury for each unique object Jessica has thrown with her Special Attack 1 in this fight. Max Fury Passives: -1.",
+              "These Fury Passives are paused during all Special Attacks."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "Gain an indefinite non-stacking Indestructible Charge. The next time Jessica would be struck, the Charge is removed and she gains an Indestructible Passive for 2 seconds. Does not trigger against Special Attack 3."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -13630,6 +14277,15 @@
               "Each hit deals a burst of 4343 Physical damage.",
               "While at Maximum Momentum, 100% chance to gain a Fury Buff granting +17372 Attack Rating for 86860 seconds."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "When activated, the Crimson Gem of Cyrrotak cannot be removed for 20 seconds.",
+              "While at Maximum Momentum, inflict a Stun Debuff on the Opponent for 4 seconds."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -14037,6 +14693,14 @@
             "lines": [
               "Vibranium Armor activates 3 Indestructible Charges. A charge is spent to ignore all the incoming damage from an attack. Max: 4 charges."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "If Killmonger inflicted 15 or more Bleed Debuffs in this fight, he inflicts a Bleed stack for every Bleed he inflicted. Each Bleed deals 65.0 Direct Damage over 6 seconds. This effect can activate once a fight. Max: 50 Bleed stacks."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -14596,6 +15260,24 @@
               "Incinerates inflicted by this attack expire 1 at a time and are paused and refreshed while any other Incinerate is active.",
               "With 10+ Prowess, Incinerates will trigger through block."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 2 SP2",
+            "trigger": "",
+            "lines": [
+              "Each hit deals a burst of Physical Damage equal to 40.0% of the damage dealt by the hit.",
+              "With 1000.0+ Prowess, gain an Unblockable Buff lasting 9 seconds, plus an additional 0.3 seconds for each Prowess above 1000.0."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "Inflict a non-stacking Incinerate Debuff dealing 90.0 Energy Damage over 30 seconds.",
+              "When this attack ends, enter Phasing for 200.0 seconds, if Phasing was already active this time extends to 4 seconds."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -14730,6 +15412,22 @@
               "On activation, inflict an Encroaching Corruption lasting for 0.1 second(s). Upon expiry, inflict Corruption for 0.1 second(s).",
               "While fighting as a Defender, Encroaching Corruption will not inflict Corruption while the Attacker is performing a Special Attack."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 2 SP2",
+            "trigger": "",
+            "lines": [
+              "Inflict 10 Armor Break Debuffs, reducing Armor Rating by -10.0 for 10 second(s)."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "Inflict Corruption, lasting 25 second(s)."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -15949,6 +16647,18 @@
               "Power Steal all Bars of Power that are completely full. Madelyne gains 50% of the Power Stolen.",
               "After 10 seconds, for each Bar stolen this way, the Opponent gains a Power Gain Buff, granting 50% of a Bar of Power over 15 seconds."
             ]
+          },
+          {
+            "title": "Signature Ability THE GOBLIN QUEEN",
+            "trigger": "",
+            "lines": [
+              "Madelyne starts each Quest with a Goblin Horde that persists until the end of the Quest. When she defeats a Defender, she summons another. Max stacks: 98.5 (rounded down).",
+              "For each Horde, Madelyne starts each fight with a -5.0% Uncanny Passive. These last until she activates a Special Attack.",
+              "In the Pre-Fight Menu, Madelyne can expend Hordes to carry out various tasks:",
+              "Crib Swap — The first Buff the Opponent gains is immediately Nullified. After -1 seconds, they gain a +60.0 Cruelty Buff for 30 seconds.",
+              "Goblin Instigators — While the pit is active, the Opponent is inflicted with a 30.0% Infuriate Debuff."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -16082,6 +16792,24 @@
               "On activation, for each active ISO-8 Buff or Passive, gain a Fury Buff increasing Attack Rating by +1042.3 for 312696 seconds. Max stacks: 3.",
               "Superior Rage: Gain Fury Passives instead of Buffs, and gain an Energy Penetration Passive causing all attacks to ignore 50% of the Opponent’s current Energy Resistance for 36 seconds."
             ]
+          },
+          {
+            "title": "Signature Ability NEUTRONIUM MIGHT",
+            "trigger": "",
+            "lines": [
+              "Activating a Special Attack grants an additional 3 Neutronium, as well as Refresh Personal Fury Effects.",
+              "Each Neutronium also grants Maestro +200.0 Block Penetration."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "Gain 2000.0 Neutronium.",
+              "Superior Rage: Inflict a Stun Debuff for 4 seconds."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -16322,6 +17050,53 @@
               "100% chance to inflict Heal Block, preventing the target from recovering Health for 10 seconds.",
               "Enemies reliant on metal suffer 60% reduced Ability Accuracy periodically throughout the fight."
             ]
+          },
+          {
+            "title": "MAGNETISM",
+            "trigger": "FIGHTING #METAL CHAMPIONS",
+            "lines": [
+              "#Metal opponents suffer an indefinite Magnetized Passive which is applied 1 second(s) after the start of the fight and does the following:",
+              "--70.0% Ability Accuracy & -15.0% Combat Power Rate. Incoming Debuffs gain +25% duration.",
+              "Magneto gains +30.0 Attack rating."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "MUTATION",
+            "trigger": "ALWAYS ACTIVE",
+            "lines": [
+              "Magneto’s attacks deal Energy damage instead of Physical. Additionally, he gains +1000.0% base Special Attack damage.",
+              "Magneto’s mastery over metal is so great he can staunch the flow of bleeding with a thought, granting Immunity to Bleed effects."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "PERSISTENT CHARGE",
+            "trigger": "MAX: 10",
+            "lines": [
+              "Magneto begins each Quest with 600.0 Persistent Charges.",
+              "Defeating an opponent grants 1 Persistent Charge. If they’re #Metal, gain 2 Persistent Charges.",
+              "Landing hits and being struck grants a 5.0% chance per Persistent Charge to gain a 10 second Prowess Buff, granting +10.0% Special Damage. Max Stacks: 7."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "PRE-FIGHT: GUIDANCE BOOST",
+            "trigger": "",
+            "lines": [
+              "Magneto can spend 200.0 Persistent Charges in the pre-fight screen to place a Guidance effect on the fight, which lasts until the Defender is defeated. These effects don’t stack and can be used by Allies.",
+              "Attackers in the fight gain +1500.0% Attack rating.",
+              "#Metal and #Hero attackers trigger Passive Stun effects with the Parry Mastery instead of Debuffs which gain +0.5 seconds duration."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "HEAVY ATTACKS",
+            "trigger": "",
+            "lines": [
+              "100% chance to gain a Prowess Buff, lasting 30 seconds and granting +35.0% Special Attack damage. Max Stacks: 3.0."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -16492,6 +17267,14 @@
               "100% Chance to place a Poison Debuff on the Opponent causing up to 12072.9 damage based on Agitation over 163700 seconds, and reducing all Regeneration by 30%.",
               "100% Chance to place 2 Toxic Pustule Buffs on the Opponent lasting 15 seconds."
             ]
+          },
+          {
+            "title": "Signature Ability STRENGTH OF THE SWAMP",
+            "trigger": "",
+            "lines": [
+              "Activating a Special Attack grants Man-Thing a non-stacking Regeneration Passive, healing 10.0% of missing Health over 10 seconds."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -16614,6 +17397,36 @@
               "While Enrage is not active, consume 2 Hatred to inflict an Armor Break Debuff for 15 seconds, reducing Armor Rating by 300.",
               "While Enraged, gain +2.2% Ability Power Rate while Charging."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 1 SP1",
+            "trigger": "",
+            "lines": [
+              "On activation gain +200.0 Hatred, this bypasses the gain cooldown.",
+              "The second and final hits inflict a Stagger Debuff for 14 seconds.",
+              "If Enraged, gain a non-stacking Energy Protection Buff, granting full immunity to Shock, Incinerate, Coldsnap, and Frostbite effects for 15 seconds. This Buff is paused while Enraged."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "SPECIAL ATTACK 2 SP2",
+            "trigger": "",
+            "lines": [
+              "Each hit deals a burst of 45.0 Energy Damage.",
+              "The first hit Steals the Opponent’s Power above their nearest Full Bar, if they have less then 1 Full Bar of Power, all their Power is stolen. Mangog gains 100.0% of the Power stolen from this attack.",
+              "If Enraged the final hit inflict a Stun Debuff for 3 seconds. If the Opponent is struck the Stun is removed."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "Nullify up to 1000.0 Buffs from the Opponent.",
+              "Gain a non-stacking Regeneration Buff healing +2.5 Base Health over 5 seconds. This is increased by an additional +2.5 Base Health for each Buff that was Nullified during this attack.",
+              "If Enraged this attack inflicts a Stun Debuff for 2 seconds."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -16864,6 +17677,24 @@
               "100% chance to inflict a Disorient Debuff lasting 12 seconds and reducing Defensive Ability Accuracy and Block Proficiency by 50%. +2% Duration if the opponent doesn't have an Incinerate Debuff.",
               "Machete Hits have a 100% chance to inflict a Bleed Debuff, causing 6546 direct damage over 174560 seconds."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 2 SP2",
+            "trigger": "",
+            "lines": [
+              "+1337.6 Attack Rating if Blocked.",
+              "+40.0 Block Penetration if Ignited.",
+              "If Masacre strikes into a Block, he will avoid incoming attacks for 1 seconds granting them a 100.0% chance to Miss."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "This attack Incinerates the enemy, dealing 300.0 Energy Damage over 5 seconds. This effect also removes Perfect Block Chance and reduces Block Proficiency by 50% while it's active."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -17216,6 +18047,14 @@
             "lines": [
               "The last hit Shocks the Opponent, dealing 5111.4 Energy Damage over 42595 second(s)."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "If the Opponent has at least 1 Debuff, gain a Passive Fury for 20 second(s), increasing Attack Rating by 30.0 for each Debuff on the Opponent."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -17356,6 +18195,36 @@
             "lines": [
               "A Delirious Opponent suffers -60% Defensive Combat Power Rate and has their Dash and Dodge controls reversed."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 1 SP1",
+            "trigger": "",
+            "lines": [
+              "On activation gain a Bulwark Passive for 30 seconds, increasing Block Proficiency by +25.0 for each Light Energy, then convert all Light Energy into Dark Energy.",
+              "The final hit inflicts an Exhaustion Debuff, lowering the Opponent’s Critical Damage Rating by 60.0 for 20 seconds."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "SPECIAL ATTACK 2 SP2",
+            "trigger": "",
+            "lines": [
+              "The 1st hit inflicts a Petrify Debuff of 80.0% Potency for 20 seconds.",
+              "The 2nd hit inflicts another Petrify if 1000.0 or more Dark Energy are active.",
+              "The 3rd hit inflicts a Degeneration Debuff, dealing up to 135.0 Direct Damage over 10 seconds.",
+              "The final hit consumes all remaining Dark Energy, inflicting 1 additional Degeneration for each Dark Energy consumed."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "Inflict a 60.0% Delirium Debuff for 20 seconds.",
+              "All Light Energy is consumed, each Regenerating 1.3 Health.",
+              "All Dark Energy is consumed, each dealing a burst of 85.0 Direct Damage to the Opponent."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -18075,6 +18944,14 @@
             "lines": [
               "If Frenzied: This attack pauses Unstoppable Buffs and is Unblockable."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "Gain 1000.0 Monster Mass and become Frenzied if not on Cooldown."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -18350,6 +19227,25 @@
               "50% chance on each hit to inflict a Bleed Debuff, dealing 85.2 Direct Damage over 204456 seconds.",
               "Personal Fervor Buffs are paused during this attack and expire immediately when it is complete."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 2 SP2",
+            "trigger": "",
+            "lines": [
+              "Personal Damaging Debuffs are paused during this attack.",
+              "If the Opponent is Petrified, the second hit becomes a Guaranteed Critical Hit, consuming all damaging debuffs on the Opponent and increasing Attack Rating by +40.0 for each Debuff consumed. Max Debuffs: 40 .",
+              "Passively regenerate 15.0% of the damage dealt by the second hit, up to 10% of Max Health."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "If the Opponent is Petrified, gain +40.0 Attack Rating for each Damaging Debuff on the Opponent but do not consume them. Max Debuffs: 40.",
+              "Passively regenerate 15.0% of damage dealt, up to 10% of Max Health."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -18865,6 +19761,31 @@
             "lines": [
               "Gain a Passive Fury increasing Attack Rating by 25809 for 172060 seconds. While this Fury is active, Namor's Opponents gain 0 Power when struck by Special Attacks."
             ]
+          },
+          {
+            "title": "ID_UI_STAT_ATTRIBUTE_TRIGGER_SUBTITLE_OUTRAGE",
+            "trigger": "",
+            "lines": [
+              "Namor can have a maximum of 3000.0 Stacks of Outrage.",
+              "Every 3.0 seconds Namor gains 100.0 Outrage. Each time Namor is affected by a Stun Debuff, he reduces the time between each Outrage generated by 0.5 seconds. Once Namor activates IMPERIUS REX the timer is reset back to 3.0 seconds.",
+              "Namor generates 100.0 Outrage whenever he is affected by a Bleed or Incinerate Debuff.",
+              "Namor generates 100.0 Outrage whenever a Bleed or Stun Debuff fails to apply due to an Immunity or chance, or whenever the Opponent Purifies a Debuff.",
+              "Namor does not gain Outrage when failing to apply Bleed Debuffs to Robots. He does not hold them responsible for their lack of blood."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "ID_UI_STAT_ATTRIBUTE_TRIGGER_SUBTITLE_IMPERIOUSREX",
+            "trigger": "",
+            "lines": [
+              "If Namor has 1500.0 stacks of Outrage he can Dash Back and hold Block for 1.2 seconds to instantly gain 1.0 bar of Power and activate IMPERIUS REX.",
+              "If Namor has 30.0 stacks of Outrage he instantly generates up to 9500.0% of his Max Power and activates IMPERIUS REX.",
+              "Namor's Special Attacks deal up to 24000.0% additional damage based on active stacks of Outrage",
+              "Special Attacks cost 9000.0% less Power. However, Namor Drains 15.0% of a bar of Power every second. Each Special Attack Namor launches applies an additional Drain of 5% per second.",
+              "While IMPERIUS REX is active, Namor cannot gain Power from any sources other than his own abilities.",
+              "Once Namor has 0 Power remaining, all stacks of Outrage are removed and IMPERIUS REX ends."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -19288,6 +20209,15 @@
               "Each hit inflicts a 24555 Poison Debuff for 245550 seconds, paused during the Opponent’s Special Attacks.",
               "If a Cosmic Opponent is Immune to any of Nico’s Poisons, she inflicts a matching Acid Burn instead."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "This attack gains +40.0 Attack for each Damaging effect on the Opponent.",
+              "The first time this attack is used each fight, Nico increases the duration of personal effects by 50.0% for the rest of the fight."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -19411,6 +20341,14 @@
             "lines": [
               "Inflict a Passive Debilitate, extending the duration of all Debuffs by 75% for 45 seconds."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 2 SP2",
+            "trigger": "",
+            "lines": [
+              "On activation, gain a +25.0 Precision Buff for 18 seconds. For each Unique Debuff effect on the opponent, base potency is increased by another +25.0."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -19783,6 +20721,15 @@
             "lines": [
               "Each hit converts one Reverb Charge into a 12% Reverb Passive for 14 seconds. Max stacks: 25."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "Gain 800.0 Reverb Charges.",
+              "Once per fight, Northstar’s chance to trigger Prowess, Reverb, Reverb Charges, and pause effects is permanently increased by 200%."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -19900,6 +20847,24 @@
               "Consume 0.25 Nova Charges to gain an Energize Buff increasing Combat Power Rate by 30% for 7 seconds.",
               "If activated at 75+ Nova Charges, gain a True Strike Buff allowing Nova to ignore Armor, Resistances, Auto-Block and Evade effects for 7 seconds."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 2 SP2",
+            "trigger": "",
+            "lines": [
+              "Gain a Nova Surge Buff granting +10000.0% additional Nova Charge generation for 9 seconds.",
+              "Consume up to 50.0 Nova Charges to deal up to 55.0% of damage done as burst Energy Damage with each hit of this attack. Potency of Energy Damage is increased by 100% while Nova has his personal Unblockable Buff Active."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "Consumes all Nova Charges and deals 0.5% of damage done as an additional burst of Energy for every Nova Charge consumed.",
+              "Re-activate Nova’s permanent Fury Buff if it is on cooldown."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -20010,6 +20975,45 @@
               "At the start of each fight, gain an indefinite Fury Buff, increasing Attack Rating by 9572.4. Max 2 stack(s).",
               "At the start of each fight, gain an indefinite Armor Up Buff, increasing Armor Rating by 3522.63. Max 2 stack(s)."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 1 SP1",
+            "trigger": "",
+            "lines": [
+              "On activation, gain a True Strike Buff, ignoring Armor, Resistances, Auto-Block and Evade effects for 10 second(s).",
+              "Odinforce: On activation, gain a Bulwark Buff, increasing Block Proficiency by 25.0 for 10 second(s)."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "SPECIAL ATTACK 2 SP2",
+            "trigger": "",
+            "lines": [
+              "On activation, pause the duration of all Buffs on Odin until the Special Attack ends.",
+              "The last hit deals a burst of Direct Damage for each of Odin’s unique Buffs. Each dealing 2.75% of the Opponent's Max Health, up to 928.1.",
+              "Odinforce: On activation, refresh the duration of all personal Buffs on Odin."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "Gain a copy of all personal Buffs Odin has gained at any time during the fight.",
+              "Odinforce: Gain an Extend Buff, increasing the duration of all future Buffs by 25.0% for 15 second(s). Max 1 stack(s)."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "ALL-FATHER ODIN’S VAULT",
+            "trigger": "PRE-FIGHT AND CROSS-FIGHT ABILITIES",
+            "lines": [
+              "Odin can place a Cross-Fight on the next fight from the pre-fight screen, the next teammate excluding Odin that enters the fight gains the Cross-Fight for the entire quest.",
+              "Thrudstok: Each fight, gain an indefinite Aptitude Buff, increasing the potency of Fury, Armor Up and Precision Buffs by 15.0%.",
+              "Draupnir: Each fight, gain an indefinite Protection Buff, preventing the loss of more than 15.0% of Max Health from a single source. This Buff is removed when struck by a Special 3 Attack and does not mitigate the damage.",
+              "Stormbreaker: Each fight, gain an indefinite Shock Resist Buff, increasing Shock Resistance by 90.0%."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -20797,6 +21801,25 @@
               "After activation, gain +4 Spider-Sense charges. Additionally, if the Opponent fills a bar of Power during this Special Attack, gain +3 bonus Spider-Sense charges.",
               "The first hit doesn’t grant Power and Burns 25% of a bar of Power."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 2 SP2",
+            "trigger": "",
+            "lines": [
+              "On activation, pause the duration of all Spider-Sense charges until the Special Attack ends.",
+              "Each Web Shooter hit inflicts an instant Incinerate, dealing 12.0 Energy Damage for each Spider-Sense charge.",
+              "SPIDER-PROTOCOL: With 8.0+ Spider-Sense charges, the last hit consumes all charges inflicting an Incinerate Debuff per charge, each dealing 135.0 Energy Damage over 8 second(s). Incinerate also removes Perfect Block chance and lowers Block Proficiency by 50%."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "Inflict a Power Burn Debuff, burning 150.0% of a bar of Power over 15 seconds.",
+              "If the Sync-Shield's on cooldown, it’s restored at 100.0% strength. Add a flat 50% to the Sync-Shield’s current strength. Max 200.0% strength."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -21819,6 +22842,15 @@
               "+1800 Attack Rating for each personal Endurance.",
               "+2.5 Attack Rating if Punisher is Indestructible."
             ]
+          },
+          {
+            "title": "Signature Ability OPEN WOUNDS",
+            "trigger": "",
+            "lines": [
+              "Whenever a Bleed Debuff on the Opponent expires, there is a 25.0% chance to inflict a 28.9 Bleed Passive for 2 seconds. These Bleeds scale with Base Attack only.",
+              "While Punisher’s Precision is active, the chance of this effect is increased by a flat +100.0%."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -21923,6 +22955,22 @@
               "15% of the Battery is drained to activate Auto-Targeting. Auto-Target attacks cannot trigger a Passive Evade and gain 1800 additional Critical Rating.",
               "Grenade Launcher: 100% chance to inflict a stacking Armor Break Debuff removing an Armor Up and reducing Armor Rating by 4050 for 15 seconds. If the Battery has at least 10% charge, it expends that amount to double the duration of this Armor Break."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 1 SP1",
+            "trigger": "",
+            "lines": [
+              "The Punisher momentarily switches his battery into Overcharge mode, gaining 2000.0% charge over 10 seconds."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "40.0% of the Battery is drained, to inflict a non-stacking 90% potency Disintegration Debuff, dealing 220.0 Direct Damage over 20 seconds."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -22472,6 +23520,16 @@
               "If this Attack strikes the Opponent the Ablative Shield is Fractured, removing all Durability. Each stack of Durability removed grants an additional +1212.7 Attack Rating to each hit of this attack.",
               "During this attack any Debuffs inflicted last 100% longer."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "If the Ablative Shield is active, it's Durability is set to max. If the Ablative Shield is Fractured its cooldown ends immediately.",
+              "100.0% chance to inflict a Stun Debuff for 1.9 seconds.",
+              "100.0% chance to inflict a 30 second Fragility Debuff. Attacking a Fragile Opponent grants +180.0 Critical Damage Rating and reduces Block Proficiency by 50%."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -22557,6 +23615,14 @@
             "lines": [
               "Red Hulk expends 268.1 Heat Charge(s) to Incinerate his opponent, dealing 35748 Energy Damage over 71496 seconds. This effect also removes Perfect Block Chance and reduces Block Proficiency by 50% while it's active."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 1 SP1",
+            "trigger": "",
+            "lines": [
+              "Excess heat from this attack causes Red Hulk to gain 200.0 additional Heat Charge(s)."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -22682,6 +23748,24 @@
             "lines": [
               "Drain all of the opponent’s Power. For every 10% of Power drained this way, gain an Armor Up Buff."
             ]
+          },
+          {
+            "title": "ALWAYS ACTIVE",
+            "trigger": "",
+            "lines": [
+              "Red Skull is Immune to Nullify, Fate Seal, and Stagger effects from Champions.",
+              "Against Mutants, Red Skull’s Ability Accuracy cannot be modified."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "ARMOR UP",
+            "trigger": "MAX: 10",
+            "lines": [
+              "Start each fight with 5 indefinite Armor Up Buffs, each increasing Armor Rating by 10.0.",
+              "When either Champion fills a Bar of Power, gain 1 Armor Up Buff."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -23199,6 +24283,15 @@
               "Inflicts a Bleed that deals 3069.5 Direct Damage over 30695 seconds for each active Cruelty Passive.",
               "Removes all Cruelty Passives."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "Gain a Fury Passive increasing Attack Rating by 26.0 for 35 seconds. Each active Cruelty Passsive increases the Attack Rating by an additional 26.0.",
+              "Removes all Cruelty Passives."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -24559,6 +25652,25 @@
             "lines": [
               "The final hit inflicts a Shock Debuff, dealing 12220 Energy Damage over 36752 seconds. If Sentinel is at 3 Bars of Power, he consumes 30% of a Bar to inflict an additional Shock Debuff."
             ]
+          },
+          {
+            "title": "Signature Ability SECONDARY ISO BATTERY",
+            "trigger": "",
+            "lines": [
+              "Personal Debuffs other than Intimidate gain 19.1% duration.",
+              "Once per fight when dropping below 20.0% Max Health, Sentinel activates -1 Armor Up Buffs granting +50.0 Armor Rating for 3.5 seconds, expiring one at a time.",
+              "Each time one of these Armor Up Buffs ends for any reason other than Pulverize or Sentinel's personal abilities, Sentinel Passively gains 90% of a Bar of Power."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "This attack destroys the current Sentinel bot and removes all Buffs and Debuffs that were on it. Then a spare Sentinel bot is called in to take its place, which arrives at full Health.",
+              "Spare Sentinel bots are Persistent, with only 100.0 available per Quest. As a Defender, regain -1 spare Sentinel at the end of the fight. While no spare Sentinel is available, this Special cannot be activated."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -24701,6 +25813,14 @@
               "Instead of Solar Energy, Sentry gains a Regeneration Buff for each Buff converted into a Passive by this attack.",
               "Regen Buffs generated from this attack heal +1162.5 over 1743750 seconds. Max Stacks: 20."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 2 SP2",
+            "trigger": "",
+            "lines": [
+              "On activation, Sentry gains 100.0 of his Personal Fury Passives for each Debuff on the Opponent, up to -1."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -24951,6 +26071,25 @@
             "lines": [
               "Landing this attack, including into Block, performs the last Wushu Strike used other than Pin-Point Strike. If no Wushu Strike has been used, Cleansing Strike is performed."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 2 SP2",
+            "trigger": "",
+            "lines": [
+              "Each hit is a Guaranteed Critical Hit.",
+              "Consume all Chi Charges, increasing the Attack Rating of each hit by 30.0 for each Chi Charge.",
+              "All Unreadied Wushu Strikes are Readied."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "Gain +40.0 Critical Damage Rating for the rest of the fight.",
+              "Gain 400.0 Chi Charge(s)."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -26509,6 +27648,16 @@
               "Store 3 Rune(s) of the current Blessing.",
               "After consuming Runes, Pause all Rune effects until 5 second(s) after this attack ends."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "The first time this is used in a fight, store a permanent Rune of the current Blessing. This Rune is never consumed.",
+              "Subsequent uses store 2 non-permanent Runes instead.",
+              "Attack Rating is increased by up to +300.0 based on stored Runes."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -27046,6 +28195,14 @@
             "lines": [
               "While this Stun is active, the Opponent’s Physical Resistance is lowered by 1157.14 for each Taunt on them."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "Applies -1 stacks of Webbing."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -27565,6 +28722,14 @@
             "lines": [
               "50% chance to Stun the opponent for 2 seconds. The chance is increased by 100% if the Stark AI is active."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "100.0% chance to Ensnare the opponent for 18 seconds. Ensnared Champions suffer 30.0% reduced Ability Accuracy and cannot trigger Passive Evade effects."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -28009,6 +29174,14 @@
               "Refresh 50% (rounded down) of the Armor Breaks Spider-Man inflicts when he Evades, and gain an indefinite +1954.4 Fury Buff. Max stacks: 2.",
               "The first two times this Special Attack is used, the max stacks for the Armor Breaks Spider-Man inflicts when he Evades is increased by 4."
             ]
+          },
+          {
+            "title": "Signature Ability SYMBIOTIC ENHANCEMENT",
+            "trigger": "",
+            "lines": [
+              "The strange alien Symbiote grants Spider-Man enhanced Spider Senses whenever he activates a special attack, granting 14.0% Evasion for 8 seconds."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -28605,6 +29778,14 @@
             "lines": [
               "This attack gains Attack Rating based on Fervors instead of Ruptures."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "This attack gains Attack Rating based on Fervors instead of Ruptures."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -28720,6 +29901,34 @@
               "On activation, inflict a Buff Immunity Debuff on Ohnn for 10 seconds. At 10 Spots this lasts 20 seconds.",
               "While active, each time Ohnn is immune to a Buff inflict a Rupture Debuff, dealing 1962.8 Physical Damage over 10 second(s). This ability scales with Base Attack Rating only."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 2 SP2",
+            "trigger": "",
+            "lines": [
+              "On activation, if Ohnn is Untouchable, inflict a Physical Vulnerability Debuff, lowering Physical Resistance by 60.0 for 10 seconds. At 10 Spots this lasts 20 seconds.",
+              "Each hit deals a burst of 15.0 Physical Damage for each Rupture Effect inflicted on the Opponent since the start of the fight or Ohnn’s last Special 2 Attack. Max: 50 stacks."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "Gain Max Spots.",
+              "Once per fight if Spot is at 10 Spots increase the duration of all personal Rupture Effects by 100.0% for the rest of the fight."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "FOUL PLAY",
+            "trigger": "PRE-FIGHT ABILITY",
+            "lines": [
+              "Ohnn starts each quest with 100.0 Persistent Charge, which can be spent in the Pre-Fight screen on the Foul Play ability.",
+              "Gain +100.0 Persistent Charge each time an Opponent is knocked out. Max charge(s): 3.",
+              "Foul Play: During the next fight, when the Opponent is knocked down Ohnn’s Science teammate is inflicted with Buff Immune Debuff lasting 3 seconds."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -29021,6 +30230,14 @@
               "Final hit: 100% chance to inflict a 3 second(s) Stun Debuff.",
               "100% chance to gain a non-stacking Precision Buff, increasing Critical Rating by +1157.14 for 45 seconds."
             ]
+          },
+          {
+            "title": "Signature Ability CONDUIT",
+            "trigger": "",
+            "lines": [
+              "Launching a Special Attack grants Storm 1 Prowess Buff per level of Special Attack used. Additionally, each Prowess on Storm, to a maximum of 10, increases the Potency of her Shock Debuffs by +7.0%."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -29542,6 +30759,15 @@
               "Gain an indefinite non-stacking Aptitude Buff increasing the potency of future Armor Up, Fury, and Precision Buffs by 60%.",
               "100% chance to inflict a 3 second Stun Debuff."
             ]
+          },
+          {
+            "title": "Signature Ability SELF SUSTAINING POWER",
+            "trigger": "",
+            "lines": [
+              "While in Cosmic Energy Overload, Super-Skrull gains a Power Gain Buff, granting 1.5% of a Bar of Power per second.",
+              "Against Tech Champions, when Super-Skrull would inflict a personal Incinerate Debuff he instead inflicts a matching Nova Flame Debuff."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -29686,6 +30912,16 @@
             "lines": [
               "Gain a Superior Fury Buff increasing Attack Rating by +4259.5 for 85190 seconds. While this Fury is active, pause all other Superior Buffs. This Buff will not trigger if already active."
             ]
+          },
+          {
+            "title": "Signature Ability EXTREMIS 3.0VERLOAD",
+            "trigger": "",
+            "lines": [
+              "Further exploitation of the Extremis 3.0 virus grants Tony incredible rejuvenation capabilities. While below -1% Health, increase the potency of Superior Regenerations by 40.0%.",
+              "More time with the suit allows Tony to reduce the cooldown of the Endo-Sym Armor Auto-Block by -7.0%.",
+              "Whenever Tony is inflicted with a Bleed, Incinerate, or Shock effect, pause his personal Buffs for 0.5 seconds."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -29836,6 +31072,14 @@
               "100% chance to reset the Genetic Blessing timer, and activate all 3 Genetic Blessings.",
               "+100 Genetic Potential."
             ]
+          },
+          {
+            "title": "Signature Ability SYMBIOMANCY",
+            "trigger": "",
+            "lines": [
+              "Every 20 seconds place a Stagger Passive effect on the Opponent, lasting 1000.0 seconds."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -30223,6 +31467,15 @@
               "Each hit inflicts a 3884 Corrosion Debuff for 62144 seconds and consumes 15 Necrotic Energy to apply two additional Debuffs.",
               "As a Defender, Thanos consumes 10 Necrotic Energy to start a 5826 second timer when the Opponent Dodges backwards during this Attack. Dodging again while this timer is active inflicts an Instant 3884 Corrosion."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "The first time each fight this attack is used, Thanos draws on the Evolution Stone to permanently increase his maximum Necrotic Energy by +2000.0. Additionally, he gains one more Energy when striking the Opponent with Medium Attacks.",
+              "Inflict an indefinite Corrosion Passive, dealing 10.0 Physical Damage per second. Max stacks: -1."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -31314,6 +32567,16 @@
             "lines": [
               "If Thing has 15 or more Rock Stacks, he removes all Rock Stacks and this attack is Unblockable."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "Thing is Unblockable and Unstoppable for 8 second(s).",
+              "If Thing has 15 or more Rock Stacks, he removes all Rock Stacks and he gains a Passive Fury for 8 second(s), increasing his Attack by +40.0.",
+              "If Thing has 20 Rock Stacks, his Furies from removing Rock Stacks and from this attack are +100.0% stronger for 8 second(s)."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -31422,6 +32685,15 @@
               "Thor gains a Power Gain Passive granting 50% of Max Power over 15 seconds.",
               "While this Power Gain is active, Thor gains 60% Critical Rating."
             ]
+          },
+          {
+            "title": "Signature Ability THAT WHICH SMASHES",
+            "trigger": "",
+            "lines": [
+              "When Thor activates a Special Attack, she Nullifies one Power Gain or Fury Buff on the Opponent.",
+              "While Thor is suffering from 7+ Shock effects, the Opponent is inflicted with a -44.0% Wither Passive."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -32094,6 +33366,14 @@
             "lines": [
               "function Fury(2150.8 attack increase, 51618 seconds, every 430.2 attacks)"
             ]
+          },
+          {
+            "title": "Signature Ability NANO-INHIBITORS",
+            "trigger": "",
+            "lines": [
+              "For each Armor Up effect active, Ultron releases more Nano-Inhibitors, reducing his opponent's Offensive Ability Accuracy by 7.0% per stack."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -32180,6 +33460,14 @@
             "lines": [
               "function Fury(2150.8 attack increase, 51618 seconds, every 430.2 attacks)"
             ]
+          },
+          {
+            "title": "Signature Ability NANO-INHIBITORS",
+            "trigger": "",
+            "lines": [
+              "For each Armor Up effect active, Ultron releases more Nano-Inhibitors, reducing his opponent's Offensive Ability Accuracy by 7.0% per stack."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -32285,6 +33573,15 @@
             "lines": [
               "While this Fury is active, Valkyrie’s Pierce and Bulwark effects are paused."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "Inflicts an Intimidate Debuff, making the Opponent more defensive and reducing their Block Proficiency by -40.0 for 10 second(s).",
+              "Valkyrie gains another of her personal Combo Shields and 300.0 dormant Evade charges."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -32416,6 +33713,15 @@
             "lines": [
               "Venom is unleashed, converting all Genetic Memory Buffs into Fury Buffs, each increasing Attack by 1984.6 for 108252 seconds."
             ]
+          },
+          {
+            "title": "Signature Ability AGGRESSIVE SYMBIOSIS",
+            "trigger": "",
+            "lines": [
+              "Rapid evolutionary changes to the Symbiote grant Venom an additional Genetic Memory Buff at the start of the fight, as well as a 34.9% chance to gain a third Buff to start the fight.",
+              "Venom’s Genetic Memory Buffs also gain 5.0% Potency."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -32795,6 +34101,14 @@
               "Burns up to 100% of the target's max Power and inflicts Direct Damage proportionate to the amount lost.",
               "Advanced robotics provides full immunity to Poison and Bleed effects."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "Burns up to 33.0% of the target's max Power and inflicts Direct Damage proportionate to the amount lost."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -32895,6 +34209,14 @@
             "lines": [
               "If the Opponent is Armor Shattered when this Attack is activated, gain a Fury Buff increasing Attack Rating by 15334.2 for 212975 second(s)."
             ]
+          },
+          {
+            "title": "Signature Ability SMOKE AND MIRRORS",
+            "trigger": "",
+            "lines": [
+              "Whenever Aarkus gains a non-Damaging Debuff, he has a 29.6% chance to Purify one of each non-Damaging Debuff on him. This cannot trigger more than once every 9.5 second(s)."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -33278,6 +34600,27 @@
             "lines": [
               "For each unique Debuff type, the opponent takes 810.2 Direct Damage per second."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 2 SP2",
+            "trigger": "",
+            "lines": [
+              "Inflicts 2.0 Dark Stings, each lasting for 12 seconds. An opponent with a Dark Sting gains a Weakness or a Degeneration Debuff per Sting when activating a Special Attack.",
+              "Weakness - Reduces Attack Rating by 25.0% for 20 seconds.",
+              "Degeneration - Inflicts 160.0 Direct Damage over 20 seconds."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "The strength of this Special Attack is increased based on how many unique Debuffs types are currently active on the opponent.",
+              "1.0 ~ 2 unique Debuffs provide a +20.0% passive Fury.",
+              "3.0 ~ 4 unique Debuffs provide a +50.0% passive Fury.",
+              "5+ unique Debuffs provide a +250.0% passive Fury."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -33395,6 +34738,31 @@
               "This attack deals True Damage and gains +637.3 Attack Rating for each Corrupted Intensify on Vox, then converts all Corrupted Buffs into Corrupted Intensifies.",
               "If the Opponent is an #Inhuman, inflict a non-stacking 100% Neutralize Debuff that lasts indefinitely."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 1 SP1",
+            "trigger": "",
+            "lines": [
+              "On activation, gain an Undermine Buff for 3 seconds."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "SPECIAL ATTACK 2 SP2",
+            "trigger": "",
+            "lines": [
+              "On activation, gain a Vigilance Buff for 5 seconds."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "This attack deals True Damage and gains +7.0 Attack Rating for each Corrupted Intensify on Vox, then converts all Corrupted Buffs into Corrupted Intensifies.",
+              "If the Opponent is an #Inhuman, inflict a non-stacking -100.0% Neutralize Debuff that lasts indefinitely."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -33499,6 +34867,23 @@
               "Each shot has a 60% chance to inflict a Rupture Debuff, each dealing 5111.4 Physical Damage over 46854.5 seconds. The chance to Rupture increases by 60% for each Armor Break Debuff on the opponent.",
               "Each Suppression Debuff inflicted also Invalidates 1 Prowess effect from the Opponent."
             ]
+          },
+          {
+            "title": "SPECIAL ATTACK 2 SP2",
+            "trigger": "",
+            "lines": [
+              "100.0% chance to inflict an Armor Break Debuff, removing an Armor Up Buff and reducing Armor Rating by 60.0 for 30 seconds. Max Stacks: 2."
+            ],
+            "retainedFrom": "2026-08-07"
+          },
+          {
+            "title": "SPECIAL ATTACK 3 SP3",
+            "trigger": "",
+            "lines": [
+              "100.0% chance to inflict a Stun Debuff lasting 3.5 seconds.",
+              "Gain a Fury Passive increasing Attack Rating by 55.0 for 30 seconds. Each Armor break on the Opponent will grant War Machine an additional Fury Passive."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
@@ -34422,6 +35807,15 @@
               "Gain Rage Charges up to 25 and then go Berserk.",
               "100% chance to inflict a Bleed Debuff, dealing 8937 Direct Damage over 134055 seconds."
             ]
+          },
+          {
+            "title": "Signature Ability BOUNDLESS RAGE",
+            "trigger": "",
+            "lines": [
+              "Berserk Rage’s Cooldown Duration decreases by 200.0 second(s).",
+              "Start each Fight with a Regeneration Buff granting up to 7.5 Health based on the number of Rage Charges Weapon X ended the last fight with, up to 25."
+            ],
+            "retainedFrom": "2026-08-07"
           }
         ]
       }
