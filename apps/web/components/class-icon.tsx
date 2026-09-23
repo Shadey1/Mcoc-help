@@ -58,7 +58,6 @@ export function ClassIcon({ klass, size = 32, className }: ClassIconProps) {
         height={size}
         onError={() => setImageFailed(true)}
         loading="lazy"
-        referrerPolicy="no-referrer"
         className={className}
         style={{ width: size, height: size, objectFit: 'contain' }}
       />

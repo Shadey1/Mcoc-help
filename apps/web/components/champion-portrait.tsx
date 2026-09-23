@@ -162,7 +162,6 @@ export function ChampionPortrait({
             alt={`${name} portrait`}
             onError={() => setImageFailed(true)}
             loading="lazy"
-            referrerPolicy="no-referrer"
             className="absolute inset-0 w-full h-full"
             style={{ objectFit: 'cover' }}
           />
@@ -252,7 +251,6 @@ export function ChampionPortrait({
             alt={`${name} portrait`}
             onError={() => setImageFailed(true)}
             loading="lazy"
-            referrerPolicy="no-referrer"
             className={`absolute inset-0 w-full h-full ${popClasses}`}
             style={imgStyle}
           />
@@ -266,7 +264,6 @@ export function ChampionPortrait({
           alt={`${name} portrait`}
           onError={() => setImageFailed(true)}
           loading="lazy"
-          referrerPolicy="no-referrer"
           className={`absolute ${popClasses}`}
           style={{
             ...imgStyle,
