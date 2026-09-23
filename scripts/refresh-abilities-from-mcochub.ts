@@ -205,22 +205,26 @@ async function fetchPage(slug: string): Promise<string | null> {
   if (!NO_CACHE && existsSync(cached)) {
     return readFileSync(cached, 'utf8');
   }
-  const ctl = new AbortController();
-  const timer = setTimeout(() => ctl.abort(), FETCH_TIMEOUT_MS);
-  try {
-    const res = await fetch(url, {
-      headers: { 'User-Agent': USER_AGENT, Accept: 'text/html' },
-      signal: ctl.signal,
-    });
-    if (res.status === 404) return null;
-    if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`);
-    const html = await res.text();
-    if (!existsSync(CACHE_DIR)) mkdirSync(CACHE_DIR, { recursive: true });
-    writeFileSync(cached, html);
-    return html;
-  } finally {
-    clearTimeout(timer);
+  // A dropped connection mid-run must not abort the other 260 champions.
+  let lastError: unknown;
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      const res = await fetch(url, {
+        headers: { 'User-Agent': USER_AGENT, Accept: 'text/html' },
+        signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+      });
+      if (res.status === 404) return null;
+      if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`);
+      const html = await res.text();
+      if (!existsSync(CACHE_DIR)) mkdirSync(CACHE_DIR, { recursive: true });
+      writeFileSync(cached, html);
+      return html;
+    } catch (e) {
+      lastError = e;
+      await sleep(RATE_LIMIT_MS * attempt * 2);
+    }
   }
+  throw lastError;
 }
 
 // ─── Parsing ─────────────────────────────────────────────────────────────
@@ -403,43 +407,16 @@ function parseTags(containerHtml: string): string[] {
  *     </div>
  *   </div>
  */
-function parseSignature(html: string): KitCard | null {
-  const h2Re = /<h2[^>]*>\s*Signature Ability[^<]*<\/h2>/i;
-  const h2Match = h2Re.exec(html);
-  if (!h2Match) return null;
-  const after = h2Match.index + h2Match[0].length;
-  // The next <section> close (or until "Abilities" h2) bounds us.
-  const sectionEnd = html.indexOf('</section>', after);
-  if (sectionEnd === -1) return null;
-  const block = html.slice(after, sectionEnd);
+/** A kit line is a `<div>` whose class carries `flex-1` and `leading-relaxed`
+ *  (class order has changed between MCOCHUB layouts). */
+const KIT_LINE_RE =
+  /<div[^>]*class="(?=[^"]*\bflex-1\b)(?=[^"]*\bleading-relaxed\b)[^"]*"[^>]*>([\s\S]*?)<\/div>\s*<\/div>/gi;
 
-  // Title: the first <div ...font-semibold...>TITLE</div> after the h2.
-  const titleMatch =
-    /<div[^>]*font-semibold[^>]*text-sm[^>]*text-gray-200[^>]*>\s*([\s\S]*?)\s*<\/div>/i.exec(
-      block,
-    );
-  const title = titleMatch ? plainText(titleMatch[1]!) : '';
-
-  // Trigger: optional <div ...font-medium text-sm>TRIGGER</div> after title.
-  const triggerMatch =
-    /<div[^>]*py-1\.5[^>]*font-medium[^>]*>\s*([\s\S]*?)\s*<\/div>/i.exec(
-      block,
-    );
-  const trigger = triggerMatch ? plainText(triggerMatch[1]!) : '';
-
-  const lines = extractKitLines(block);
-  if (!title && lines.length === 0) return null;
-  return { title, trigger, lines };
-}
-
-/** Lift every `<div class="flex-1 text-xs sm:text-sm leading-relaxed">…</div>`
- *  body as a kit line. These are MCOCHUB's per-bullet text. */
 function extractKitLines(html: string): string[] {
   const out: string[] = [];
-  const re =
-    /<div[^>]*class="[^"]*flex-1[^"]*text-xs[^"]*sm:text-sm[^"]*leading-relaxed[^"]*"[^>]*>([\s\S]*?)<\/div>/gi;
   let m: RegExpExecArray | null;
-  while ((m = re.exec(html)) !== null) {
+  KIT_LINE_RE.lastIndex = 0;
+  while ((m = KIT_LINE_RE.exec(html)) !== null) {
     const line = plainText(m[1]!);
     if (line) out.push(line);
   }
@@ -447,42 +424,56 @@ function extractKitLines(html: string): string[] {
 }
 
 /**
- * Parse the Abilities cards: every <details><summary>TITLE - TRIGGER</summary>
- * <div ...>...lines...</div></details> under the <h2>Abilities</h2> section.
- * The summary often arrives in ALL CAPS with HTML colouring (e.g.
- * "<span style="color:#c04a4a">CORRUPTION</span> - PASSIVE"). We split on
- * the LAST " - " separator so multi-dash titles parse correctly.
+ * Signature ability: a card headed by a small "Signature Ability" label,
+ * then the title, then the lines. Sig-scaling numbers are rendered at the
+ * page's default sig level (200) and taken as shown.
+ */
+function parseSignature(html: string): KitCard | null {
+  const label = /<div[^>]*>\s*Signature Ability\s*<\/div>\s*<div[^>]*>\s*([\s\S]*?)\s*<\/div>/i.exec(html);
+  if (!label) return null;
+  const start = label.index;
+  const end = html.indexOf('</form>', start);
+  const block = html.slice(start, end === -1 ? undefined : end);
+  const title = plainText(label[1]!);
+  const lines = extractKitLines(block);
+  if (!title && lines.length === 0) return null;
+  return { title, trigger: '', lines };
+}
+
+/**
+ * Ability cards: `<details><summary>TITLE - TRIGGER</summary>…lines…</details>`
+ * in the section that follows the signature card. The Synergies section
+ * uses the same details markup, so the anchor matters. Split the summary on
+ * its LAST " - " so multi-dash titles parse correctly.
  */
 function parseAbilityCards(html: string): KitCard[] {
   const out: KitCard[] = [];
-  // Find the Abilities <h2> (not the Signature Ability one).
-  const re = /<h2[^>]*>\s*Abilities\s*<\/h2>/i;
-  const m = re.exec(html);
-  if (!m) return out;
-  const start = m.index + m[0].length;
-  // Bound by next <h2> or end of file.
-  const nextH2 = html.indexOf('<h2', start);
-  const block = html.slice(start, nextH2 === -1 ? undefined : nextH2);
+  let from = html.search(/Signature Ability\s*<\/div>/i);
+  if (from === -1) {
+    // No signature card: skip past the Synergies section instead.
+    const syn = /<h2[^>]*>\s*Synergies\s*<\/h2>/i.exec(html);
+    from = syn ? html.indexOf('</section>', syn.index) : 0;
+  }
+  const sectionStart = html.indexOf('<section', from);
+  if (sectionStart === -1) return out;
+  const sectionEnd = html.indexOf('</section>', sectionStart);
+  const block = html.slice(sectionStart, sectionEnd === -1 ? undefined : sectionEnd);
 
   const detailsRe = /<details\b[^>]*>([\s\S]*?)<\/details>/gi;
   let dm: RegExpExecArray | null;
   while ((dm = detailsRe.exec(block)) !== null) {
     const inner = dm[1]!;
     const summaryMatch = /<summary\b[^>]*>([\s\S]*?)<\/summary>/i.exec(inner);
-    const summaryRaw = summaryMatch ? summaryMatch[1]! : '';
-    const summary = plainText(summaryRaw);
+    const summary = plainText(summaryMatch ? summaryMatch[1]! : '');
     let title = summary;
     let trigger = '';
-    const sep = ' - ';
-    const lastSep = summary.lastIndexOf(sep);
+    const lastSep = summary.lastIndexOf(' - ');
     if (lastSep > 0) {
       title = summary.slice(0, lastSep).trim();
-      trigger = summary.slice(lastSep + sep.length).trim();
+      trigger = summary.slice(lastSep + 3).trim();
     }
     const lines = extractKitLines(inner);
-    if (title || lines.length > 0) {
-      out.push({ title, trigger, lines });
-    }
+    if (title || lines.length > 0) out.push({ title, trigger, lines });
   }
   return out;
 }
@@ -540,7 +531,10 @@ async function main() {
     let html: string | null = null;
     let usedSlug = '';
     for (const candidate of tried) {
-      html = await fetchPage(candidate);
+      html = await fetchPage(candidate).catch((e: unknown) => {
+        console.warn(`  ⚠ ${c.name}: ${candidate} unreachable (${(e as Error).message})`);
+        return null;
+      });
       if (html) {
         usedSlug = candidate;
         break;
@@ -576,13 +570,29 @@ async function main() {
   // guards against the failure mode where `--ids hobgoblin` deletes the
   // other 250+ champions from downstream backfill/kit-derived files.
   const scoped = ONLY_IDS !== null || LIMIT !== undefined;
-  let mergedChampions: Record<string, ChampionAbilities> = out;
-  if (scoped && existsSync(OUTPUT_PATH)) {
-    const existing = JSON.parse(readFileSync(OUTPUT_PATH, 'utf8')) as {
-      champions: Record<string, ChampionAbilities>;
-    };
-    mergedChampions = { ...existing.champions, ...out };
+  const existing = existsSync(OUTPUT_PATH)
+    ? (JSON.parse(readFileSync(OUTPUT_PATH, 'utf8')) as { champions: Record<string, ChampionAbilities> }).champions
+    : {};
+  // A page that parses to no kit at all means the layout changed under
+  // us, not that the champion lost their abilities. Keep what we had.
+  const emptied: string[] = [];
+  for (const [id, parsed] of Object.entries(out)) {
+    const before = existing[id];
+    const hadKit = before && (before.kit.signature !== null || before.kit.cards.length > 0);
+    const hasKit = parsed.kit.signature !== null || parsed.kit.cards.length > 0;
+    if (hadKit && !hasKit) {
+      out[id] = { ...parsed, kit: before.kit };
+      emptied.push(id);
+    }
   }
+  if (emptied.length > 0) {
+    console.warn(`
+⚠ ${emptied.length} champion(s) parsed to an empty kit; previous kit kept: ${emptied.join(', ')}`);
+    console.warn('  MCOCHUB has probably changed its page layout. Check parseSignature/parseAbilityCards.');
+  }
+  // Always merge over the existing file: a champion whose page could not
+  // be fetched this run keeps last time's record instead of vanishing.
+  const mergedChampions: Record<string, ChampionAbilities> = { ...existing, ...out };
   const payload = {
     version: '1',
     source: 'MCOCHUB (https://mcochub.insaneskull.com)',
@@ -602,6 +612,7 @@ async function main() {
   );
 
   console.log('');
+  if (emptied.length > 0) process.exitCode = 2;
   if (scoped) {
     console.log(
       `Wrote ${Object.keys(mergedChampions).length} champion ability records → ${OUTPUT_PATH} ` +
