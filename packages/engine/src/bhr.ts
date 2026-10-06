@@ -52,6 +52,22 @@ function roundToTen(n: number): number {
 }
 
 /**
+ * Apply ascension the way the game does: each level multiplies the
+ * previous level's displayed stat, and displayed stats are whole tens.
+ * So A2 is round(round(b × 1.08) × 1.08), not round(b × 1.1664); the two
+ * differ by 10 for about one champion in five. Blue Marvel R5 sig 200 is
+ * 47,200 in game; the single multiply gives 47,190. The unascended base
+ * itself is NOT rounded first: IIM R4 sig 200 A1 is 36,780 in game, which
+ * only 34,052.8 × 1.08 reaches (34,050 × 1.08 rounds to 36,770).
+ */
+function ascend(baseBHR: number, ascension: Ascension): number {
+  let bhr = baseBHR;
+  const steps = ascension === 'A2' ? 2 : ascension === 'A1' ? 1 : 0;
+  for (let i = 0; i < steps; i++) bhr = roundToTen(bhr * ASCENSION_MULT.A1);
+  return roundToTen(bhr);
+}
+
+/**
  * Look up the sig-curve fraction at a given sig level, using the appropriate
  * curve for the champion's rank (or per-champion override if specified).
  *
@@ -289,7 +305,7 @@ export function calculateBHR(
     : [];
   if (directAnchors.length >= 3) {
     const sigBHR = interpFromAnchors(directAnchors, state.sig);
-    return roundToTen(sigBHR * ASCENSION_MULT[state.ascension]);
+    return ascend(sigBHR, state.ascension);
   }
 
   // Fast path B: target rank has no brackets, but R5 does and we can scale.
@@ -300,7 +316,7 @@ export function calculateBHR(
       ([sig, bhr]) => [sig, bhr * rankMult],
     );
     const sigBHR = interpFromAnchors(scaled, state.sig);
-    return roundToTen(sigBHR * ASCENSION_MULT[state.ascension]);
+    return ascend(sigBHR, state.ascension);
   }
 
   // Slow path: only sig 0 and sig 200 known. Fall back to the global
@@ -318,7 +334,7 @@ export function calculateBHR(
   }
   const fraction = sigFraction(state.rank, state.sig, champion.sigCurve);
   const sigBHR = sig0 + (sig200 - sig0) * fraction;
-  return roundToTen(sigBHR * ASCENSION_MULT[state.ascension]);
+  return ascend(sigBHR, state.ascension);
 }
 
 /**
@@ -346,5 +362,5 @@ export function calculateCeilingBHR(
     if (pinned !== undefined) return pinned;
   }
   const sig200R5 = champion.prestige.rank5['200'];
-  return roundToTen(sig200R5 * ASCENSION_MULT[ceilingAsc]);
+  return ascend(sig200R5, ceilingAsc);
 }

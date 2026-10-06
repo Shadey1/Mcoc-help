@@ -57,9 +57,10 @@ describe('computeCeilings — the long-term planning view', () => {
     const bm = ceilings.find((c) => c.championId === 'blue-marvel');
     expect(bm).toBeDefined();
 
-    // Blue Marvel's ceiling = 40460 × 1.1664 = 47192.5 → rounds to 47190
+    // Blue Marvel's ceiling: 40460 × 1.08 → 43700, × 1.08 → 47196 → 47200.
+    // Confirmed in game (R5 sig 200 A2) 2026-10; a single × 1.1664 gives 47190.
     // (post-compounding; pre-change: 46930)
-    expect(bm!.ceilingBHR).toBe(47190);
+    expect(bm!.ceilingBHR).toBe(47200);
 
     // Not currently in top-30
     expect(bm!.inTop30).toBe(false);

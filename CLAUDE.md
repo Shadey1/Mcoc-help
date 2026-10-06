@@ -90,7 +90,7 @@ Summoner mu3rto, captured 2026-05-06. Top-30 prestige: 38,410 (champion 36,120 +
 
 Key locked constants:
 - R5 = 1.0000, R4 = 0.8431, R3 = 0.6906
-- A0 = 1.00, A1 = 1.08, A2 = 1.1664 (compounding, per Kabam's 2026-08 ascension update; was additive 1.16 pre-change)
+- A0 = 1.00, A1 = 1.08, A2 = 1.08 × 1.08 applied step-wise with rounding to 10 after each step (Blue Marvel R5 sig 200 A2 = 47,200 in game; a single × 1.1664 gives 47,190). The unascended base is not rounded first (IIM R4 A1 = 36,780 needs 34,052.8 × 1.08). Compounding per Kabam's 2026-08 ascension update; was additive 1.16 pre-change.
 
 ## Constraints
 

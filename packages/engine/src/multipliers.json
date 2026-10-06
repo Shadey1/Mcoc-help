@@ -22,7 +22,7 @@
   "_ascension_provenance": {
     "A0": "Definition",
     "A1": "IIM (36780/40390/0.8431=1.080), Pavitr A1 cross-confirmed",
-    "A2": "1.08 × 1.08 (compounding). Per Kabam ascension update, effective 2026-08 build: 'A2 bonus is applied on top of A1 stats instead of base — consistent with how rank-ups work.' Old additive value 1.16 (Lizard 46120/39760, Patriot, Maestro) captured 2026-05 pre-change; new compounding value +0.55% (Kabam quoted +0.5%, matches)."
+    "A2": "1.08 × 1.08 (compounding), applied step-wise to the rounded A1 stat in bhr.ts; the 1.1664 here is informational. Blue Marvel R5 sig 200 A2 = 47,200 in game (2026-10), which single-step 1.1664 gives as 47,190. Per Kabam ascension update, effective 2026-08 build: 'A2 bonus is applied on top of A1 stats instead of base — consistent with how rank-ups work.' Old additive value 1.16 (Lizard 46120/39760, Patriot, Maestro) captured 2026-05 pre-change; new compounding value +0.55% (Kabam quoted +0.5%, matches)."
   },
   "sigCurves": {
     "_anchors_sig": [0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200],

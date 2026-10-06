@@ -249,12 +249,13 @@ describe('calculateBHR — user overrides', () => {
       // Override for a different sig — should not apply
       [bhrOverrideKey('iron-man', 5, 100, 'A2'), 99999],
     ]);
-    // 39655 × 1.1664 = 46253.7 → rounds to 46250 (curve value; pre-change: 46000)
-    expect(calculateBHR(champion, state, overrides)).toBe(46250);
+    // 39655 × 1.08 → 42830, × 1.08 → 46256.4 → 46260 (each ascension step
+    // rounds; the single-multiply 1.1664 would give 46250)
+    expect(calculateBHR(champion, state, overrides)).toBe(46260);
   });
 
   it('falls through to the curve when overrides param is undefined', () => {
-    expect(calculateBHR(champion, state)).toBe(46250);
+    expect(calculateBHR(champion, state)).toBe(46260);
   });
 
   it('returns the override unrounded (user-entered value is gospel)', () => {
