@@ -100,7 +100,10 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -- $DATA_PATHS
           git commit -q -m "data(auto): $TITLE" -m "$(cat auto-refresh-report.md)"
-          git pull --rebase -q origin main
+          # The refresh also touches tracked scratch files it does not ship
+          # (scripts/*-corrections.json, scrape-failures.json); a rebase
+          # refuses to start over them, so stash them around it.
+          git pull --rebase --autostash -q origin main
           git push origin HEAD:main
 
       - name: Keep the routine report, drop unshipped edits
