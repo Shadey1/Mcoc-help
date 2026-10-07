@@ -1607,6 +1607,38 @@
       "sevenStarReleased": false
     },
     {
+      "id": "carina-tivan",
+      "name": "Carina Tivan",
+      "class": "Cosmic",
+      "ascendable": true,
+      "prestige": {
+        "rank5": {
+          "0": 29920,
+          "20": 32170,
+          "40": 33420,
+          "60": 34470,
+          "80": 35400,
+          "100": 36260,
+          "120": 37060,
+          "140": 37810,
+          "160": 38530,
+          "180": 39220,
+          "200": 39880
+        }
+      },
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "mcochub.insaneskull.com (JSON API, R5 11-anchor curve, refreshed 2026-10-07)",
+        "lastVerified": "2026-10-07",
+        "ascendableSource": "mcochub.insaneskull.com (Ascendable badge, verified 2026-10-07)",
+        "addedBy": "auto-refresh 2026-10-07"
+      },
+      "portraitUrl": null,
+      "sevenStarReleased": true,
+      "released": "2026"
+    },
+    {
       "id": "carnage",
       "name": "Carnage",
       "class": "Cosmic",
@@ -1869,6 +1901,52 @@
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/5/56/Colossus_portrait.png/revision/latest/scale-to-width-down/200?cb=20250212224102",
       "sevenStarReleased": true,
       "released": "2015"
+    },
+    {
+      "id": "colossus-age-of-apocalypse",
+      "name": "Colossus (Age of Apocalypse)",
+      "class": "Mutant",
+      "ascendable": true,
+      "prestige": {
+        "rank5": {
+          "0": 28940,
+          "20": 32950,
+          "40": 34160,
+          "60": 35170,
+          "80": 36080,
+          "100": 36900,
+          "120": 37680,
+          "140": 38410,
+          "160": 39100,
+          "180": 39770,
+          "200": 40410
+        },
+        "rank4": {
+          "0": 24400,
+          "20": 27770,
+          "40": 28790,
+          "60": 29650,
+          "80": 30410,
+          "100": 31110,
+          "120": 31760,
+          "140": 32370,
+          "160": 32960,
+          "180": 33520,
+          "200": 34060
+        }
+      },
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "mcochub.insaneskull.com (JSON API, R5 11-anchor curve, refreshed 2026-10-07)",
+        "lastVerified": "2026-10-07",
+        "ascendableSource": "mcochub.insaneskull.com (Ascendable badge, verified 2026-10-07)",
+        "addedBy": "auto-refresh 2026-10-07",
+        "r4Source": "mcoc.gg per-rank curve (R4 11-anchor, fetched 2026-10-07)"
+      },
+      "portraitUrl": null,
+      "sevenStarReleased": true,
+      "released": "2026"
     },
     {
       "id": "corvus-glaive",
@@ -3387,6 +3465,52 @@
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/b/bc/Ghost_Rider_portrait.png/revision/latest/scale-to-width-down/200?cb=20260504222859",
       "sevenStarReleased": true,
       "released": "2016"
+    },
+    {
+      "id": "ghost-rider-robbie-reyes",
+      "name": "Ghost Rider (Robbie Reyes)",
+      "class": "Mystic",
+      "ascendable": true,
+      "prestige": {
+        "rank5": {
+          "0": 27570,
+          "20": 32950,
+          "40": 34100,
+          "60": 35070,
+          "80": 35930,
+          "100": 36710,
+          "120": 37450,
+          "140": 38150,
+          "160": 38810,
+          "180": 39440,
+          "200": 40060
+        },
+        "rank4": {
+          "0": 23250,
+          "20": 27790,
+          "40": 28760,
+          "60": 29580,
+          "80": 30300,
+          "100": 30970,
+          "120": 31590,
+          "140": 32170,
+          "160": 32730,
+          "180": 33270,
+          "200": 33780
+        }
+      },
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "mcochub.insaneskull.com (JSON API, R5 11-anchor curve, refreshed 2026-10-07)",
+        "lastVerified": "2026-10-07",
+        "ascendableSource": "mcochub.insaneskull.com (Ascendable badge, verified 2026-10-07)",
+        "addedBy": "auto-refresh 2026-10-07",
+        "r4Source": "mcoc.gg per-rank curve (R4 11-anchor, fetched 2026-10-07)"
+      },
+      "portraitUrl": null,
+      "sevenStarReleased": true,
+      "released": "2026"
     },
     {
       "id": "gladiator",
@@ -6375,15 +6499,47 @@
       "id": "mephisto",
       "name": "Mephisto",
       "class": "Mystic",
-      "ascendable": false,
+      "ascendable": true,
       "sigCurve": null,
       "tags": [],
       "_meta": {
-        "bhrSource": "partner-only stub — not yet released at 7★",
-        "lastVerified": "2026-06-10"
+        "bhrSource": "mcochub.insaneskull.com (JSON API, R5 11-anchor curve, refreshed 2026-10-07)",
+        "lastVerified": "2026-10-07",
+        "ascendableSource": "mcochub.insaneskull.com (Ascendable badge, verified 2026-10-07)",
+        "addedBy": "auto-refresh 2026-10-07",
+        "r4Source": "mcoc.gg per-rank curve (R4 11-anchor, fetched 2026-10-07)"
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/8/8a/Mephisto_portrait.png/revision/latest/scale-to-width-down/200?cb=20230824221353",
-      "sevenStarReleased": false
+      "sevenStarReleased": true,
+      "prestige": {
+        "rank5": {
+          "0": 28380,
+          "20": 31220,
+          "40": 32410,
+          "60": 33400,
+          "80": 34290,
+          "100": 35100,
+          "120": 35860,
+          "140": 36570,
+          "160": 37260,
+          "180": 37910,
+          "200": 38540
+        },
+        "rank4": {
+          "0": 23930,
+          "20": 26320,
+          "40": 27330,
+          "60": 28160,
+          "80": 28910,
+          "100": 29600,
+          "120": 30240,
+          "140": 30840,
+          "160": 31410,
+          "180": 31960,
+          "200": 32500
+        }
+      },
+      "released": "2026"
     },
     {
       "id": "mister-fantastic",
