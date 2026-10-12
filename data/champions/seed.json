@@ -11901,7 +11901,7 @@
       "id": "venom-the-duck",
       "name": "Venom The Duck",
       "class": "Cosmic",
-      "ascendable": false,
+      "ascendable": true,
       "prestige": {
         "rank5": {
           "0": 29430,
@@ -11934,7 +11934,7 @@
       "tags": [],
       "_meta": {
         "bhrSource": "mcoc.gg per-rank curves (R4 + R5 11-anchor, refreshed 2026-06-03)",
-        "ascendableSource": "non-ascendable per mcoc.gg",
+        "ascendableSource": "mcochub.insaneskull.com (Ascendable badge, verified 2026-10-12)",
         "lastVerified": "2026-06-03"
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/2/20/Venom_the_Duck_portrait.png/revision/latest/scale-to-width-down/200?cb=20181118094556",
