@@ -126,8 +126,12 @@ async function getPageImage(title: string): Promise<string | null> {
 
   const page = data.query?.pages?.[0];
   if (!page || page.missing) return null;
-  // Prefer thumbnail (we want consistent sizing); fall back to original
-  return page.thumbnail?.source ?? page.original?.source ?? null;
+  // Prefer thumbnail (we want consistent sizing); fall back to original.
+  // A page's main image is sometimes a story illustration (Carina Tivan's
+  // was "Carina in The Trial of Reed Richards.jpg"); only a file named as
+  // a portrait is one.
+  const url = page.thumbnail?.source ?? page.original?.source ?? null;
+  return url && /portrait/i.test(decodeURIComponent(url)) ? url : null;
 }
 
 /**
@@ -151,11 +155,12 @@ async function searchTitle(name: string): Promise<string | null> {
 }
 
 /**
- * Last-resort: enumerate all images on a page, look for one whose name
- * starts with "Portrait_". Useful when pageimages doesn't pick up the
- * intended primary image.
+ * Enumerate the images on a page and pick the portrait file. Fandom has
+ * named them both "Portrait_<Name>.png" and "<Name> portrait.png"; a page
+ * also lists synergy partners' portraits, so prefer the one carrying the
+ * champion's own name.
  */
-async function findPortraitInImages(title: string): Promise<string | null> {
+async function findPortraitInImages(title: string, championName: string): Promise<string | null> {
   type ImagesResp = {
     query?: {
       pages?: Array<{
@@ -170,10 +175,13 @@ async function findPortraitInImages(title: string): Promise<string | null> {
     imlimit: '50',
   })) as ImagesResp;
   const images = data.query?.pages?.[0]?.images ?? [];
-  // Files are titled "File:Portrait_Lizard.png" etc.
-  const portraitFile = images.find((img) =>
-    /^File:Portrait[_\s]/i.test(img.title),
-  );
+  const key = (t: string) => t.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const own = key(championName.replace(/\s*\(.*\)\s*$/, ''));
+  const portraits = images.filter((img) => /^File:.*portrait/i.test(img.title));
+  const portraitFile =
+    portraits.find((img) => key(img.title) === key(`File:${championName} portrait.png`)) ??
+    portraits.find((img) => key(img.title).includes(own)) ??
+    (portraits.length === 1 ? portraits[0] : undefined);
   if (!portraitFile) return null;
 
   // Now resolve File:Foo.png → actual CDN URL
@@ -238,7 +246,7 @@ async function scrapeChampion(champion: Champion): Promise<ScrapeResult> {
     // Strategy 3: enumerate images on the search-resolved page, find a Portrait_ file
     await sleep(RATE_LIMIT_MS);
     try {
-      const url = await findPortraitInImages(searchedTitle);
+      const url = await findPortraitInImages(searchedTitle, name);
       if (url) return { kind: 'found', url, source: `images:${searchedTitle}` };
     } catch {
       /* fall through */
@@ -247,7 +255,7 @@ async function scrapeChampion(champion: Champion): Promise<ScrapeResult> {
 
   // Strategy 3 (no search): try image enumeration on exact title
   try {
-    const url = await findPortraitInImages(name);
+    const url = await findPortraitInImages(name, name);
     if (url) return { kind: 'found', url, source: 'images-exact' };
   } catch {
     /* fall through */

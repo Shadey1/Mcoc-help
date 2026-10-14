@@ -297,6 +297,19 @@ function fetchPortraitUrls(names: string[]): void {
   if (r.status !== 0) notes.push(`Portrait lookup exited ${r.status}:\n${tail(r.output, 5)}`);
 }
 
+/** Fandom usually creates a champion's page days after MCOCHUB lists them,
+ *  and the portrait file sometimes days after that, so keep asking. */
+function retryMissingPortraits(): void {
+  const before = readSeed();
+  const missing = before.champions.filter((c) => c.sevenStarReleased !== false && !c.portraitUrl);
+  if (missing.length === 0) return;
+  fetchPortraitUrls(missing.map((c) => c.name));
+  const after = new Map(readSeed().champions.map((c) => [c.id, c.portraitUrl]));
+  const found = missing.filter((c) => after.get(c.id));
+  if (found.length > 0) changes.push(`Portrait found on Fandom for ${found.map((c) => `**${c.name}**`).join(', ')}.`);
+  checked.push(`Portraits: ${missing.length} released champion(s) without one re-checked on Fandom; ${found.length} found.`);
+}
+
 function refreshClasses(): void {
   const before = readSeed().champions.length;
   const dry = run('scripts/refresh-classes-from-fandom.ts', []);
@@ -418,6 +431,7 @@ async function main(): Promise<void> {
   if (WEEKLY) {
     refreshClasses();
     refreshAbilities();
+    retryMissingPortraits();
   }
   await refreshWarGuide();
 

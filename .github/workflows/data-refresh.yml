@@ -168,8 +168,11 @@ jobs:
             gh issue create --title "Data refresh needs a look" --body-file issue-body.md
           fi
 
+      # Only a weekly run checks everything a weekly run can complain about,
+      # so only a clean weekly run may close the issue; a daily run would
+      # otherwise close Monday's findings the next morning.
       - name: Close the issue once nothing is outstanding
-        if: steps.routine.outputs.advisory == '0' && steps.routine_gate.outcome != 'failure'
+        if: steps.routine.outputs.advisory == '0' && steps.routine_gate.outcome != 'failure' && contains(steps.mode.outputs.flags, '--weekly')
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
