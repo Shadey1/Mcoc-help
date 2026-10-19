@@ -1607,6 +1607,25 @@
       "sevenStarReleased": false
     },
     {
+      "id": "carina",
+      "name": "Carina",
+      "class": "Cosmic",
+      "ascendable": false,
+      "prestige": {
+        "rank5": {
+          "0": 1,
+          "200": 1
+        }
+      },
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "PENDING — auto-added stub from Fandom on 2026-10-19; backfill BHR + ascendable before flipping sevenStarReleased"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/d/d9/Carina_portrait.png/revision/latest/scale-to-width-down/200?cb=20261015100138",
+      "sevenStarReleased": false
+    },
+    {
       "id": "carina-tivan",
       "name": "Carina Tivan",
       "class": "Cosmic",
@@ -1634,7 +1653,7 @@
         "ascendableSource": "mcochub.insaneskull.com (Ascendable badge, verified 2026-10-07)",
         "addedBy": "auto-refresh 2026-10-07"
       },
-      "portraitUrl": null,
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/1/17/Carina_%28unplayable%29_portrait.png/revision/latest/scale-to-width-down/200?cb=20211107012822",
       "sevenStarReleased": true,
       "released": "2026"
     },
@@ -3508,7 +3527,7 @@
         "addedBy": "auto-refresh 2026-10-07",
         "r4Source": "mcoc.gg per-rank curve (R4 11-anchor, fetched 2026-10-07)"
       },
-      "portraitUrl": null,
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/4/4a/Ghost_Rider_%28Robbie_Reyes%29_portrait.png/revision/latest/scale-to-width-down/200?cb=20261015092748",
       "sevenStarReleased": true,
       "released": "2026"
     },
