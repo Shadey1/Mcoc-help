@@ -71,6 +71,9 @@ type ChampionClass = (typeof VALID_CLASSES)[number];
 const args = process.argv.slice(2);
 const APPLY_ONLY = args.includes('--apply');
 const REFRESH_APPLY = args.includes('--refresh-apply');
+/** Run the discovery pass only (new pages + the upcoming table), skipping the
+ *  per-champion class sweep. For testing discovery without a ~6 minute run. */
+const DISCOVER_ONLY = args.includes('--discover-only');
 const ONLY_ARG = args.find((a) => a.startsWith('--only'));
 const ONLY_NAMES: Set<string> | null = ONLY_ARG
   ? new Set(
@@ -280,6 +283,116 @@ async function fetchRecentlyCreatedPages(windowDays: number): Promise<string[]> 
 
 /** Canonicalise a Fandom page title to a seed.json-style id.
  *   "Spider-Man (Stark Enhanced)" → "spider-man-stark-enhanced" */
+/** Fandom lists champions Kabam has confirmed but not yet released in a table
+ *  on this page, with class and portrait, usually weeks before the champion
+ *  has a page of its own. */
+const UPCOMING_LIST_PAGE = 'List of Champions';
+const UPCOMING_SECTION = /==\s*Upcoming Playable Champions\s*==/;
+/** Class cell of the upcoming table: `{{Te}}`, `{{Cosmic}}` or `{{Class|Tech}}`.
+ *  `{{Co}}` is the wiki's Combined badge, not Cosmic, so it is left out. */
+const CLASS_CODES: Record<string, ChampionClass> = {
+  Te: 'Tech',
+  Sc: 'Science',
+  Mu: 'Mutant',
+  Sk: 'Skill',
+  My: 'Mystic',
+  Tech: 'Tech',
+  Science: 'Science',
+  Mutant: 'Mutant',
+  Skill: 'Skill',
+  Mystic: 'Mystic',
+  Cosmic: 'Cosmic',
+};
+
+type Upcoming = {
+  title: string;
+  proposedClass: ChampionClass | null;
+  rawClass: string | null;
+  portraitFile: string | null;
+};
+
+async function fetchUpcomingChampions(): Promise<Upcoming[]> {
+  const wikitext = await fetchWikitext(UPCOMING_LIST_PAGE);
+  if (!wikitext) return [];
+  const start = wikitext.search(UPCOMING_SECTION);
+  if (start < 0) return [];
+  const rest = wikitext.slice(start + 1);
+  const end = rest.search(/\n==[^=]/);
+  const section = end < 0 ? rest : rest.slice(0, end);
+  const out: Upcoming[] = [];
+  for (const row of section.split(/\n\|-/)) {
+    const title = row.match(/\n\|\s*\[\[([^\]|]+)/)?.[1]?.trim();
+    if (!title) continue;
+    const portraitFile = row.match(/\[\[File:([^\]|]+)/)?.[1]?.trim() ?? null;
+    const rawClass = row.match(/\{\{(?:Class\|)?([A-Za-z]+)\}\}/)?.[1] ?? null;
+    out.push({
+      title,
+      proposedClass: rawClass ? (CLASS_CODES[rawClass] ?? null) : null,
+      rawClass,
+      portraitFile,
+    });
+  }
+  return out;
+}
+
+/** Thumbnail URL for a wiki file, same width and shape as getPageImage. */
+async function getFileThumb(file: string): Promise<string | null> {
+  type Resp = {
+    query?: {
+      pages?: Array<{ missing?: boolean; imageinfo?: Array<{ thumburl?: string; url?: string }> }>;
+    };
+  };
+  try {
+    const data = (await apiFetch({
+      action: 'query',
+      titles: `File:${file}`,
+      prop: 'imageinfo',
+      iiprop: 'url',
+      iiurlwidth: String(THUMB_WIDTH),
+    })) as Resp;
+    const page = data.query?.pages?.[0];
+    if (!page || page.missing) return null;
+    return page.imageinfo?.[0]?.thumburl ?? page.imageinfo?.[0]?.url ?? null;
+  } catch {
+    return null;
+  }
+}
+
+function editDistance(a: string, b: string): number {
+  const d = Array.from({ length: a.length + 1 }, (_, i) => [
+    i,
+    ...new Array<number>(b.length).fill(0),
+  ]);
+  for (let j = 1; j <= b.length; j++) d[0]![j] = j;
+  for (let i = 1; i <= a.length; i++) {
+    for (let j = 1; j <= b.length; j++) {
+      d[i]![j] = Math.min(
+        d[i - 1]![j]! + 1,
+        d[i]![j - 1]! + 1,
+        d[i - 1]![j - 1]! + (a[i - 1] === b[j - 1] ? 0 : 1),
+      );
+    }
+  }
+  return d[a.length]![b.length]!;
+}
+
+/** An existing champion this title is probably the same person as under
+ *  another spelling: "Carina" next to "Carina Tivan" (which once produced a
+ *  duplicate stub), or a name a typo away. A parenthetical variant such as
+ *  "Thing (Victorious)" next to "Thing" is a different champion. */
+function nearDuplicateOf(title: string, champions: Champion[]): Champion | undefined {
+  const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const base = (s: string) => norm(s.replace(/\s*\(.*\)\s*$/, ''));
+  const t = norm(title);
+  const isVariant = /\(.*\)/.test(title);
+  return champions.find((c) => {
+    const n = norm(c.name);
+    if (n === t) return true;
+    if (!isVariant && base(c.name).startsWith(t)) return true;
+    return Math.abs(n.length - t.length) <= 2 && editDistance(n, t) <= 2;
+  });
+}
+
 function idFromName(name: string): string {
   return name
     .toLowerCase()
@@ -422,6 +535,8 @@ async function discoverNewChampions(
 ): Promise<{ additions: Addition[]; skipped: Array<{ title: string; reason: string }> }> {
   const existingIds = new Set(seed.champions.map((c) => c.id));
   const existingNames = new Set(seed.champions.map((c) => c.name.toLowerCase().trim()));
+  const inSeed = (t: string) =>
+    existingIds.has(idFromName(t)) || existingNames.has(t.toLowerCase().trim());
 
   console.log(`Querying Fandom for pages created in the last ${DISCOVERY_WINDOW_DAYS} days…`);
   let titles: string[];
@@ -447,59 +562,90 @@ async function discoverNewChampions(
   // Diff against existing seed entries by id AND by case-insensitive name —
   // belt-and-braces against id-vs-name drift (existing seed names already in
   // play under a different canonicalisation).
-  const unknown = candidates.filter((t) => {
-    return !existingIds.has(idFromName(t)) && !existingNames.has(t.toLowerCase().trim());
-  });
+  const unknown = candidates.filter((t) => !inSeed(t));
 
   console.log(
     `  ${unknown.length} candidate addition${unknown.length === 1 ? '' : 's'} not in seed.json.`,
   );
 
+  // Announced champions: Kabam confirms a champion weeks before the wiki has
+  // a page for it, and the upcoming table already carries class + portrait.
+  let upcoming: Upcoming[] = [];
+  try {
+    upcoming = await fetchUpcomingChampions();
+  } catch (e) {
+    console.warn(`  ⚠ Could not read the upcoming-champions table: ${(e as Error).message}`);
+  }
+  await sleep(RATE_LIMIT_MS);
+  const listedByTitle = new Map(upcoming.map((u) => [u.title, u]));
+  const announced = upcoming.map((u) => u.title).filter((t) => !inSeed(t) && !unknown.includes(t));
+  console.log(
+    `  ${upcoming.length} champion${upcoming.length === 1 ? '' : 's'} on the upcoming list, ${announced.length} not in seed.json.`,
+  );
+
+  const queue = [...unknown, ...announced];
   const additions: Addition[] = [];
   const skipped: Array<{ title: string; reason: string }> = [];
 
-  for (let i = 0; i < unknown.length; i++) {
-    const title = unknown[i]!;
-    const progress = `[${i + 1}/${unknown.length}]`;
+  for (let i = 0; i < queue.length; i++) {
+    const title = queue[i]!;
+    const progress = `[${i + 1}/${queue.length}]`;
 
-    let proposedClass: ChampionClass | null = null;
-    let portraitUrl: string | null = null;
-
-    try {
-      const wikitext = await fetchWikitext(title);
-      if (wikitext) {
-        const body = extractInfoboxBody(wikitext);
-        if (body) {
-          const raw = extractRawClass(body);
-          if (raw) proposedClass = normaliseClass(raw);
-        }
-      }
-    } catch (e) {
-      skipped.push({ title, reason: `class fetch failed: ${(e as Error).message}` });
-      console.log(`${progress} ${title}: skip (class fetch error)`);
-      await sleep(RATE_LIMIT_MS);
+    const twin = nearDuplicateOf(title, seed.champions);
+    if (twin) {
+      skipped.push({ title, reason: `near-duplicate of "${twin.name}" (${twin.id}); not added` });
+      console.log(`${progress} ${title}: skip (looks like ${twin.name})`);
       continue;
     }
-    await sleep(RATE_LIMIT_MS);
+
+    const listed = listedByTitle.get(title);
+    let proposedClass: ChampionClass | null = listed?.proposedClass ?? null;
+    let sourceTitle = title;
+    if (proposedClass) {
+      sourceTitle = `${UPCOMING_LIST_PAGE} (upcoming table)`;
+    } else {
+      try {
+        const wikitext = await fetchWikitext(title);
+        if (wikitext) {
+          const body = extractInfoboxBody(wikitext);
+          if (body) {
+            const raw = extractRawClass(body);
+            if (raw) proposedClass = normaliseClass(raw);
+          }
+        }
+      } catch (e) {
+        skipped.push({ title, reason: `class fetch failed: ${(e as Error).message}` });
+        console.log(`${progress} ${title}: skip (class fetch error)`);
+        await sleep(RATE_LIMIT_MS);
+        continue;
+      }
+      await sleep(RATE_LIMIT_MS);
+    }
 
     if (!proposedClass) {
-      skipped.push({ title, reason: 'no class extractable from infobox' });
-      console.log(`${progress} ${title}: skip (no class in infobox)`);
+      const reason = listed
+        ? `upcoming-list class "${listed.rawClass ?? ''}" not recognised and no infobox class`
+        : 'no class extractable from infobox';
+      skipped.push({ title, reason });
+      console.log(`${progress} ${title}: skip (${reason})`);
       continue;
     }
 
-    portraitUrl = await getPageImage(title);
+    let portraitUrl: string | null = listed?.portraitFile
+      ? await getFileThumb(listed.portraitFile)
+      : null;
+    if (!portraitUrl) portraitUrl = await getPageImage(title);
     await sleep(RATE_LIMIT_MS);
 
     additions.push({
       id: idFromName(title),
       name: title,
       proposedClass,
-      sourceTitle: title,
+      sourceTitle,
       portraitUrl,
     });
     console.log(
-      `${progress} ${title}: +ADD (${proposedClass}${portraitUrl ? ', portrait' : ', no portrait'})`,
+      `${progress} ${title}: +ADD (${proposedClass}${portraitUrl ? ', portrait' : ', no portrait'}${listed ? ', announced' : ''})`,
     );
   }
 
@@ -639,6 +785,9 @@ async function dryRun() {
   if (ONLY_NAMES) {
     targets = targets.filter((c) => ONLY_NAMES.has(c.name));
     console.log(`Filtered to ${targets.length} champion(s) matching --only.`);
+  } else if (DISCOVER_ONLY) {
+    targets = [];
+    console.log('Discovery only: no class sweep.');
   } else {
     console.log(`Refreshing classes for ${targets.length} champions from Fandom wiki…`);
   }

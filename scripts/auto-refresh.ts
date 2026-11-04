@@ -319,9 +319,20 @@ function refreshClasses(): void {
   }
   const report = JSON.parse(readFileSync(CLASS_REPORT_PATH, 'utf-8')) as {
     corrections: Array<{ name: string; currentClass: string; proposedClass: string }>;
+    issues?: Array<{ name: string; result: { kind: string; reason?: string } }>;
   } & Record<string, unknown>;
   for (const c of report.corrections) {
     risky.push(`Fandom now lists **${c.name}** as ${c.proposedClass} (was ${c.currentClass}). Wiki edits can be wrong; check in game.`);
+  }
+  // Discovery declines a page whose name nearly matches a champion we have
+  // ("Carina" next to "Carina Tivan"); a person decides whether it is new.
+  for (const issue of report.issues ?? []) {
+    if (issue.result.kind !== 'discovery-skipped') continue;
+    const reason = issue.result.reason ?? '';
+    if (reason.startsWith('near-duplicate')) advisory.push(`Fandom lists **${issue.name}**, which is a ${reason}. Add it by hand if it really is a different champion.`);
+    // New wiki pages without an infobox class are quests and events, not
+    // champions; only an announced champion without a class is worth a note.
+    else if (reason.startsWith('upcoming-list')) notes.push(`Fandom's upcoming list has **${issue.name}** with no usable class yet (${reason}); it will be added once the wiki fills it in.`);
   }
   // The script applies whatever the report file holds, so holding class
   // changes back means taking them out of it.
@@ -333,7 +344,7 @@ function refreshClasses(): void {
   const seed = readSeed();
   if (seed.champions.length > before) {
     const stubs = seed.champions.filter((c) => String(c._meta?.bhrSource ?? '').startsWith('PENDING') && String(c._meta?.bhrSource).includes(today));
-    changes.push(`Fandom has new champion pages, added as unreleased stubs until MCOCHUB lists them: ${stubs.map((c) => c.name).join(', ') || `${seed.champions.length - before} entries`}.`);
+    changes.push(`Fandom has new or announced champions, added as unreleased stubs until MCOCHUB lists them: ${stubs.map((c) => c.name).join(', ') || `${seed.champions.length - before} entries`}.`);
   }
   const names = new Map<string, string>();
   for (const c of seed.champions) {

@@ -87,7 +87,9 @@ jobs:
         continue-on-error: true
         run: |
           pnpm -F @prestige-tools/engine test
-          pnpm -F web build
+          # next/font downloads Google Fonts at build time; one flaky fetch
+          # must not throw away a day's data (it did on 2026-11-02).
+          pnpm -F web build || { echo 'web build failed once; retrying in 60 s'; sleep 60; pnpm -F web build; }
 
       - name: Ship to main
         if: steps.routine_diff.outputs.changed == 'true' && steps.routine_gate.outcome == 'success'
@@ -124,7 +126,9 @@ jobs:
         continue-on-error: true
         run: |
           pnpm -F @prestige-tools/engine test
-          pnpm -F web build
+          # next/font downloads Google Fonts at build time; one flaky fetch
+          # must not throw away a day's data (it did on 2026-11-02).
+          pnpm -F web build || { echo 'web build failed once; retrying in 60 s'; sleep 60; pnpm -F web build; }
 
       - name: Note a failed gate in the PR body
         if: steps.risky_gate.outcome == 'failure'
