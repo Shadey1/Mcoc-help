@@ -782,7 +782,7 @@
       "sigCurve": null,
       "tags": [],
       "_meta": {
-        "bhrSource": "partner-only stub — not yet released at 7★",
+        "bhrSource": "partner-only stub — 7★ Beast announced for 2026-11-19 with the rework (Kabam, Empire of Doom Part One); MCOCHUB feed fills BHR when listed",
         "lastVerified": "2026-06-10"
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/c/c5/Beast_portrait.png/revision/latest/scale-to-width-down/200?cb=20160721192517",
@@ -1607,25 +1607,6 @@
       "sevenStarReleased": false
     },
     {
-      "id": "carina",
-      "name": "Carina",
-      "class": "Cosmic",
-      "ascendable": false,
-      "prestige": {
-        "rank5": {
-          "0": 1,
-          "200": 1
-        }
-      },
-      "sigCurve": null,
-      "tags": [],
-      "_meta": {
-        "bhrSource": "PENDING — auto-added stub from Fandom on 2026-10-19; backfill BHR + ascendable before flipping sevenStarReleased"
-      },
-      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/d/d9/Carina_portrait.png/revision/latest/scale-to-width-down/200?cb=20261015100138",
-      "sevenStarReleased": false
-    },
-    {
       "id": "carina-tivan",
       "name": "Carina Tivan",
       "class": "Cosmic",
@@ -1651,9 +1632,10 @@
         "bhrSource": "mcochub.insaneskull.com (JSON API, R5 11-anchor curve, refreshed 2026-10-07)",
         "lastVerified": "2026-10-07",
         "ascendableSource": "mcochub.insaneskull.com (Ascendable badge, verified 2026-10-07)",
-        "addedBy": "auto-refresh 2026-10-07"
+        "addedBy": "auto-refresh 2026-10-07",
+        "portraitSource": "Fandom page \"Carina\" (the playable champion); the 2021 \"Carina (unplayable)\" image was the story NPC"
       },
-      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/1/17/Carina_%28unplayable%29_portrait.png/revision/latest/scale-to-width-down/200?cb=20211107012822",
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/d/d9/Carina_portrait.png/revision/latest/scale-to-width-down/200?cb=20261015100138",
       "sevenStarReleased": true,
       "released": "2026"
     },
@@ -2607,6 +2589,25 @@
         "lastVerified": "2026-06-10"
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/e/e7/Doctor_Doom_portrait.png/revision/latest/scale-to-width-down/200?cb=20230824214057",
+      "sevenStarReleased": false
+    },
+    {
+      "id": "doctor-doom-stellar-forged",
+      "name": "Doctor Doom (Stellar-Forged)",
+      "class": "Cosmic",
+      "ascendable": false,
+      "prestige": {
+        "rank5": {
+          "0": 1,
+          "200": 1
+        }
+      },
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "PENDING — announced stub added 2026-11-04 (end reward of the Stellar-Forged chase, Kabam Empire of Doom; Fandom upcoming list has no class yet, Cosmic per community chase guides — the weekly Fandom class refresh will correct it); MCOCHUB feed fills BHR + ascendable and flips sevenStarReleased"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/9/9a/Doctor_Doom_%28Stellar-Forged%29_portrait.png/revision/latest/scale-to-width-down/200?cb=20261103065110",
       "sevenStarReleased": false
     },
     {
@@ -4541,6 +4542,25 @@
       "released": "2019"
     },
     {
+      "id": "human-torch-victorious",
+      "name": "Human Torch (Victorious)",
+      "class": "Science",
+      "ascendable": false,
+      "prestige": {
+        "rank5": {
+          "0": 1,
+          "200": 1
+        }
+      },
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "PENDING — announced stub added 2026-11-04 (Kabam Empire of Doom Part One, Victorious Four, \"starting in November\" 2026; class per Fandom upcoming list); MCOCHUB feed fills BHR + ascendable and flips sevenStarReleased"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/0/08/Human_Torch_%28Victorious%29_portrait.png/revision/latest/scale-to-width-down/200?cb=20261103065227",
+      "sevenStarReleased": false
+    },
+    {
       "id": "hyperion",
       "name": "Hyperion",
       "class": "Cosmic",
@@ -4729,6 +4749,25 @@
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/6/6f/Invisible_Woman_portrait.png/revision/latest/scale-to-width-down/200?cb=20190607071428",
       "sevenStarReleased": true,
       "released": "2019"
+    },
+    {
+      "id": "invisible-woman-victorious",
+      "name": "Invisible Woman (Victorious)",
+      "class": "Science",
+      "ascendable": false,
+      "prestige": {
+        "rank5": {
+          "0": 1,
+          "200": 1
+        }
+      },
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "PENDING — announced stub added 2026-11-04 (Kabam Empire of Doom Part One, Victorious Four, \"starting in November\" 2026; class per Fandom upcoming list); MCOCHUB feed fills BHR + ascendable and flips sevenStarReleased"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/5/55/Invisible_Woman_%28Victorious%29_portrait.png/revision/latest/scale-to-width-down/200?cb=20261103065239",
+      "sevenStarReleased": false
     },
     {
       "id": "iron-fist",
@@ -6193,6 +6232,25 @@
       "released": "2015"
     },
     {
+      "id": "magik-stellar-forged",
+      "name": "Magik (Stellar-Forged)",
+      "class": "Mutant",
+      "ascendable": false,
+      "prestige": {
+        "rank5": {
+          "0": 1,
+          "200": 1
+        }
+      },
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "PENDING — announced stub added 2026-11-04 (Kabam Empire of Doom Part One: via November 2026 Reclamation War milestones; class per Fandom upcoming list); MCOCHUB feed fills BHR + ascendable and flips sevenStarReleased"
+      },
+      "portraitUrl": null,
+      "sevenStarReleased": false
+    },
+    {
       "id": "magneto",
       "name": "Magneto",
       "class": "Mutant",
@@ -6603,6 +6661,25 @@
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/5/5a/Mister_Fantastic_portrait.png/revision/latest/scale-to-width-down/200?cb=20230824213304",
       "sevenStarReleased": true,
       "released": "2019"
+    },
+    {
+      "id": "mister-fantastic-victorious",
+      "name": "Mister Fantastic (Victorious)",
+      "class": "Science",
+      "ascendable": false,
+      "prestige": {
+        "rank5": {
+          "0": 1,
+          "200": 1
+        }
+      },
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "PENDING — announced stub added 2026-11-04 (Kabam Empire of Doom Part One, Victorious Four, \"starting in November\" 2026; class per Fandom upcoming list); MCOCHUB feed fills BHR + ascendable and flips sevenStarReleased"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/b/b7/Mister_Fantastic_%28Victorious%29_portrait.png/revision/latest/scale-to-width-down/200?cb=20261103065259",
+      "sevenStarReleased": false
     },
     {
       "id": "mister-negative",
@@ -10674,6 +10751,25 @@
       "released": "2015"
     },
     {
+      "id": "star-lord-kitty-pryde",
+      "name": "Star-Lord (Kitty Pryde)",
+      "class": "Tech",
+      "ascendable": false,
+      "prestige": {
+        "rank5": {
+          "0": 1,
+          "200": 1
+        }
+      },
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "PENDING — announced stub added 2026-11-04 (Kabam Empire of Doom Part One, release announced for 2026-11-12; class per Fandom upcoming list); MCOCHUB feed fills BHR + ascendable and flips sevenStarReleased"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/3/3f/Star-Lord_%28Kitty_Pryde%29_portrait.png/revision/latest/scale-to-width-down/200?cb=20261103065213",
+      "sevenStarReleased": false
+    },
+    {
       "id": "star-lord-stellar-forged",
       "name": "Star-Lord (Stellar Forged)",
       "class": "Skill",
@@ -11492,6 +11588,25 @@
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/b/b1/Thing_portrait.png/revision/latest/scale-to-width-down/200?cb=20190111151819",
       "sevenStarReleased": true,
       "released": "2019"
+    },
+    {
+      "id": "thing-victorious",
+      "name": "Thing (Victorious)",
+      "class": "Science",
+      "ascendable": false,
+      "prestige": {
+        "rank5": {
+          "0": 1,
+          "200": 1
+        }
+      },
+      "sigCurve": null,
+      "tags": [],
+      "_meta": {
+        "bhrSource": "PENDING — announced stub added 2026-11-04 (Kabam Empire of Doom Part One, Victorious Four, \"starting in November\" 2026; class per Fandom upcoming list); MCOCHUB feed fills BHR + ascendable and flips sevenStarReleased"
+      },
+      "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/1/14/Thing_%28Victorious%29_portrait.png/revision/latest/scale-to-width-down/200?cb=20261103065308",
+      "sevenStarReleased": false
     },
     {
       "id": "thor",
