@@ -1,7 +1,7 @@
 {
   "version": "1",
   "source": "MCOCHUB (https://mcochub.insaneskull.com)",
-  "lastImported": "2026-10-26",
+  "lastImported": "2026-11-09",
   "champions": {
     "abomination-immortal": {
       "source": {
@@ -524,7 +524,9 @@
           }
         ],
         "tags": [
+          "Coda (2026)",
           "Offensive: Burst",
+          "Saga Champions",
           "Size: S"
         ]
       },
@@ -743,7 +745,6 @@
           "Metal",
           "Offensive: Raw Damage",
           "RAIDS : Tactician",
-          "Saga Champions",
           "Size: S",
           "Stabilize",
           "Valentine's"
@@ -1066,7 +1067,6 @@
           "Metal",
           "RAIDS : Vanguard",
           "Ricochet",
-          "Saga Champions",
           "Size: M"
         ]
       },
@@ -1206,7 +1206,6 @@
           "Offensive: Raw Damage",
           "RAIDS : Vanguard",
           "Ricochet",
-          "Saga Champions",
           "Size: L",
           "Squad Builder",
           "Symbiote",
@@ -1923,7 +1922,7 @@
             "lines": [
               "Attuma’s plans can make the best out of the worst situation, or the worst out of the best. All Ability Accuracy modification effects on him have their potencies reversed.",
               "While one of Attuma’s personal abilities with a listed chance has over a 100% chance to trigger, the ability has a chance to trigger additional times. Each time, the chance is equal to the former chance -100%. This repeats until the ability fails due to chance.",
-              "Attuma’s rough Talokanil skin abrades his Opponents with a 25% chance to deal 1888 Physical Damage when they strike him or his Block with a contact attack. Damage scales with Base Attack only.",
+              "Attuma’s rough Atlantean skin abrades his Opponents with a 0% chance to deal 1 Physical Damage when they strike him or his Block with a contact attack. Damage scales with Base Attack only.",
               "Whenever an Opponent Evades Attuma while he has less than 1 Bar of Power, he has a 100% chance to instantly gain 15% of his Max Power and passively go Unstoppable for 1.5 seconds.",
               "Attuma’s Base Regeneration Rate is 35% instead of the usual 100%. It cannot be lowered further."
             ]
@@ -2318,7 +2317,6 @@
           "Hero",
           "Metal",
           "Offensive: Burst",
-          "Saga Champions",
           "Size: L",
           "Stabilize"
         ]
@@ -2453,8 +2451,10 @@
           "AW : Provocateur",
           "AW : X - Magica",
           "AW: Prowess Power",
+          "Genesis (2026)",
           "Hero",
           "Offensive: Burst",
+          "Saga Champions",
           "Size: L",
           "Stone",
           "X-Men"
@@ -2630,7 +2630,6 @@
           "Hero",
           "Offensive: Burst",
           "RAIDS : Vanguard",
-          "Saga Champions",
           "Size: S",
           "Squad Builder",
           "Stabilize",
@@ -3206,9 +3205,11 @@
           "AW : X - Magica",
           "AW: Sugar Pill",
           "AW: Unsteady Ground",
+          "Coda (2026)",
           "Control: Denial",
           "Hero",
           "Offensive: Burst",
+          "Saga Champions",
           "Size: S",
           "Valentine's"
         ]
@@ -3660,6 +3661,7 @@
           "Hero",
           "Mighty Avengers",
           "Offensive: Burst",
+          "Saga Champions",
           "Size: M",
           "Stone",
           "Valentine's"
@@ -4022,8 +4024,8 @@
     },
     "captain-america-infinity-war": {
       "source": {
-        "slug": "caiw",
-        "url": "https://mcochub.insaneskull.com/champions/caiw"
+        "slug": "captainamerica-movie",
+        "url": "https://mcochub.insaneskull.com/champions/captainamerica-movie"
       },
       "pills": {
         "abilities": [
@@ -4495,9 +4497,11 @@
           "AW: Subdue",
           "AW: Unsteady Ground",
           "Fantastic",
+          "Genesis (2026)",
           "Hero",
           "Kree",
           "Offensive: Raw Damage",
+          "Saga Champions",
           "Size: S",
           "Squad Builder"
         ]
@@ -5091,7 +5095,6 @@
           "Metal",
           "Offensive: Raw Damage",
           "Ricochet",
-          "Saga Champions",
           "Size: S",
           "Young Avengers"
         ]
@@ -5482,9 +5485,11 @@
           "Coda",
           "Defensive: Guard",
           "EQ : Romance",
+          "Genesis (2026)",
           "Hero",
           "Metal",
           "RAIDS : Vanguard",
+          "Saga Champions",
           "Size: L",
           "Valentine's",
           "X-Force",
@@ -5650,8 +5655,10 @@
         ],
         "tags": [
           "Defensive: Guard",
+          "Genesis (2026)",
           "Hero",
           "Metal",
+          "Saga Champions",
           "Size: XL",
           "X-Men"
         ]
@@ -6349,9 +6356,11 @@
         "tags": [
           "EQ : It's Complicated",
           "EQ : Romance",
+          "Genesis (2026)",
           "Hero",
           "Offensive: Burst",
           "RAIDS : Assault",
+          "Saga Champions",
           "Size: M",
           "Valentine's",
           "X-Men"
@@ -7250,7 +7259,9 @@
           "AW: Subdue",
           "Carina's Challengers",
           "Coda",
+          "Coda (2026)",
           "Control: Counter",
+          "Saga Champions",
           "Size: M",
           "Villain"
         ]
@@ -7767,10 +7778,12 @@
           "AW: Subdue",
           "EQ : It's Complicated",
           "EQ : Romance",
+          "Genesis (2026)",
           "Hero",
           "Mercenary",
           "Offensive: Burst",
           "RAIDS : Assault",
+          "Saga Champions",
           "Size: S",
           "Valentine's",
           "X-Force",
@@ -8061,10 +8074,12 @@
           "AW : X - Magica",
           "AW: Subdue",
           "AW: Sugar Pill",
+          "Coda (2026)",
           "Defensive: Tank",
           "Hero",
           "Metal",
           "Robot",
+          "Saga Champions",
           "Size: XL"
         ]
       },
@@ -9247,7 +9262,6 @@
           "Offensive: Burst",
           "Offensive: Damage Over Time",
           "Psychic Shielding",
-          "Saga Champions",
           "Size: L",
           "Stabilize"
         ]
@@ -9395,7 +9409,9 @@
           "Defensive: Utility",
           "Dimensional Being",
           "Fantastic",
+          "Genesis (2026)",
           "Offensive: Burst",
+          "Saga Champions",
           "Size: L"
         ]
       },
@@ -10110,10 +10126,12 @@
           }
         ],
         "tags": [
+          "Coda (2026)",
           "Dimensional Being",
           "Hero",
           "Midnight Sons",
           "Offensive: Damage Over Time",
+          "Saga Champions",
           "Size: M"
         ]
       },
@@ -10432,6 +10450,7 @@
           "AW: Planetary Endurance",
           "Fantastic",
           "Genesis",
+          "Genesis (2026)",
           "Offensive: Damage Over Time",
           "Saga Champions",
           "Size: M",
@@ -10572,7 +10591,6 @@
         "tags": [
           "Defensive: Tank",
           "Metal",
-          "Saga Champions",
           "Sinister Six",
           "Size: M",
           "Stellar-Forged",
@@ -11069,6 +11087,7 @@
         ],
         "tags": [
           "Defensive: Utility",
+          "Genesis (2026)",
           "Hero",
           "Offensive: Damage Over Time",
           "Saga Champions",
@@ -11598,7 +11617,6 @@
           "God",
           "Hero",
           "Metal",
-          "Saga Champions",
           "Size: L",
           "Stabilize"
         ]
@@ -12040,7 +12058,6 @@
           "Multiversal",
           "Offensive: Damage Over Time",
           "Ricochet",
-          "Saga Champions",
           "Size: M",
           "Squad Builder",
           "Villain"
@@ -13176,9 +13193,11 @@
           "Dinosaur",
           "Fantastic",
           "Genesis",
+          "Genesis (2026)",
           "Hero",
           "New Avengers",
           "RAIDS : Tactician",
+          "Saga Champions",
           "Size: L"
         ]
       },
@@ -13299,8 +13318,10 @@
           "AW : X - Magica",
           "AW: Armor Burn",
           "Coda",
+          "Genesis (2026)",
           "Hero",
           "Offensive: Damage Over Time",
+          "Saga Champions",
           "Size: M",
           "Squad Builder",
           "Valentine's",
@@ -13449,7 +13470,9 @@
           "Eidol",
           "Flying",
           "Forbearance",
+          "Genesis (2026)",
           "Offensive: Damage Over Time",
+          "Saga Champions",
           "Size: L",
           "Villain"
         ]
@@ -13716,12 +13739,14 @@
           "AW: Sturdy",
           "AW: Sugar Pill",
           "Avengers",
+          "Coda (2026)",
           "Defensive: Guard",
           "EQ : Romance",
           "Forbearance",
           "Hero",
           "Metal",
           "RAIDS : Vanguard",
+          "Saga Champions",
           "Size: M",
           "Stark Tech",
           "Valentine's",
@@ -13858,12 +13883,14 @@
           "AW : House of Mirrors",
           "AW : Secutor",
           "AW: Armor Burn",
+          "Coda (2026)",
           "Control: Denial",
           "Defensive: Guard",
           "Defensive: Tank",
           "Forbearance",
           "Hero",
           "Metal",
+          "Saga Champions",
           "Size: M",
           "Stark Tech",
           "Water"
@@ -14004,10 +14031,12 @@
           "AW : House of Mirrors",
           "AW: Subdue",
           "Avengers",
+          "Coda (2026)",
           "Control: Counter",
           "Frightful",
           "Hero",
           "Metal",
+          "Saga Champions",
           "Size: M",
           "Squad Builder",
           "Stark Tech"
@@ -14420,7 +14449,6 @@
           "Genesis",
           "Hero",
           "Offensive: Damage Over Time",
-          "Saga Champions",
           "Size: S",
           "Stabilize",
           "Wakandan",
@@ -14567,9 +14595,11 @@
         ],
         "tags": [
           "AW: Sugar Pill",
+          "Coda (2026)",
           "Offensive: Burst",
           "Psychic Shielding",
           "RAIDS : Assault",
+          "Saga Champions",
           "Size: M",
           "Villain"
         ]
@@ -14697,10 +14727,12 @@
         ],
         "tags": [
           "Defensive: Utility",
+          "Genesis (2026)",
           "Hero",
           "Offensive: Damage Over Time",
           "Psychic Shielding",
           "RAIDS : Assault",
+          "Saga Champions",
           "Size: S",
           "Valentine's",
           "Wrath",
@@ -15036,7 +15068,6 @@
           "Defensive: Utility",
           "Gamma",
           "Ricochet",
-          "Saga Champions",
           "Size: XL",
           "Villain",
           "Villain of the Contest",
@@ -16378,7 +16409,6 @@
           "Control: Counter",
           "Genesis",
           "Offensive: Raw Damage",
-          "Saga Champions",
           "Squad Builder",
           "Stabilize",
           "Stone",
@@ -16805,11 +16835,13 @@
           "AW : Provocateur",
           "AW : X - Magica",
           "Coda",
+          "Coda (2026)",
           "Dimensional Being",
           "Hero",
           "Meteor",
           "Midnight Sons",
           "Offensive: Damage Over Time",
+          "Saga Champions",
           "Size: S"
         ]
       },
@@ -16950,8 +16982,10 @@
           "AW : Secutor",
           "AW: Sturdy",
           "AW: Sugar Pill",
+          "Coda (2026)",
           "Metal",
           "Offensive: Raw Damage",
+          "Saga Champions",
           "Size: S",
           "Thunderbolts",
           "Villain",
@@ -17103,7 +17137,6 @@
           "Offensive: Burst",
           "RAIDS : Assault",
           "Ricochet",
-          "Saga Champions",
           "Sinister Six",
           "Size: L",
           "Squad Builder",
@@ -17912,12 +17945,14 @@
         "tags": [
           "AW : X - Magica",
           "Coda",
+          "Coda (2026)",
           "Control: Denial",
           "Dimensional Being",
           "Hero",
           "Meteor",
           "Midnight Sons",
           "S.H.I.E.L.D.",
+          "Saga Champions",
           "Size: S",
           "X-Men"
         ]
@@ -18058,10 +18093,12 @@
           "AW: Prowess Power",
           "Brotherhood of Mutants",
           "Coda",
+          "Genesis (2026)",
           "Hero",
           "Meteor",
           "Offensive: Damage Over Time",
           "Psychic Shielding",
+          "Saga Champions",
           "Size: M",
           "X-Men"
         ]
@@ -18932,11 +18969,13 @@
           "AW: Unsteady Ground",
           "EQ : Romance",
           "Genesis",
+          "Genesis (2026)",
           "Hero",
           "Inhuman",
           "Inhuman Royal Family",
           "Offensive: Burst",
           "RAIDS : Tactician",
+          "Saga Champions",
           "Size: S",
           "Valentine's"
         ]
@@ -19073,8 +19112,10 @@
           "AW : Provocateur",
           "AW: Conduit",
           "AW: Subdue",
+          "Coda (2026)",
           "Dimensional Being",
           "Offensive: Damage Over Time",
+          "Saga Champions",
           "Size: M",
           "Villain"
         ]
@@ -19178,6 +19219,7 @@
           "Hero",
           "Illuminati",
           "Offensive: Raw Damage",
+          "Saga Champions",
           "Size: M",
           "Stone",
           "Valentine's"
@@ -20874,6 +20916,7 @@
           "AW : House of Mirrors",
           "AW : Secutor",
           "AW: Sugar Pill",
+          "Coda (2026)",
           "Metal",
           "Offensive: Damage Over Time",
           "Ricochet",
@@ -20977,10 +21020,12 @@
           "Coda",
           "Defenders",
           "EQ : Romance",
+          "Genesis (2026)",
           "Hero",
           "Illuminati",
           "Meteor",
           "Offensive: Burst",
+          "Saga Champions",
           "Size: M",
           "Valentine's",
           "X-Men"
@@ -22666,11 +22711,13 @@
           "AW : Secutor",
           "AW: Armor Burn",
           "AW: Sturdy",
+          "Coda (2026)",
           "Frightful",
           "Metal",
           "Offensive: Damage Over Time",
           "RAIDS : Vanguard",
           "Robot",
+          "Saga Champions",
           "Size: S",
           "Villain"
         ]
@@ -22785,8 +22832,10 @@
         "tags": [
           "AW: Crush",
           "Defensive: Tank",
+          "Genesis (2026)",
           "Offensive: Damage Over Time",
           "Psychic Shielding",
+          "Saga Champions",
           "Size: XL",
           "Villain"
         ]
@@ -22930,7 +22979,6 @@
           "Genesis",
           "Hero",
           "Offensive: Damage Over Time",
-          "Saga Champions",
           "Size: M",
           "Stabilize",
           "Valentine's",
@@ -23089,6 +23137,7 @@
           "AW: Armor Burn",
           "AW: Planetary Endurance",
           "AW: Sturdy",
+          "Coda (2026)",
           "Defensive: Guard",
           "Frightful",
           "Hero",
@@ -23385,7 +23434,6 @@
           "Mighty Avengers",
           "Offensive: Raw Damage",
           "Ricochet",
-          "Saga Champions",
           "Size: M",
           "Thunderbolts",
           "Valentine's"
@@ -23517,7 +23565,6 @@
           "Hero",
           "Kree",
           "Offensive: Burst",
-          "Saga Champions",
           "Size: L",
           "Stabilize",
           "Stone",
@@ -23758,9 +23805,11 @@
           "Brotherhood of Mutants",
           "Coda",
           "Control: Denial",
+          "Genesis (2026)",
           "Hero",
           "Offensive: Burst",
           "Psychic Shielding",
+          "Saga Champions",
           "Size: M",
           "X-Men"
         ]
@@ -23956,7 +24005,6 @@
           "Hero",
           "Metal",
           "Ricochet",
-          "Saga Champions",
           "Size: M"
         ]
       },
@@ -24384,8 +24432,10 @@
           "AQ: Ramp",
           "AW: Sugar Pill",
           "Coda",
+          "Coda (2026)",
           "Dimensional Being",
           "Offensive: Damage Over Time",
+          "Saga Champions",
           "Size: L",
           "Villain"
         ]
@@ -24563,7 +24613,6 @@
           "Hero",
           "Offensive: Burst",
           "Ricochet",
-          "Saga Champions",
           "Size: M"
         ]
       },
@@ -24630,7 +24679,7 @@
             "trigger": "",
             "lines": [
               "First hit inflicts a Trauma Debuff for 15 seconds, Trauma causes hits and Whiplashes to deal an additional 70% of the damage recently dealt as burst Physical Damage.",
-              "Terminal Velocity: Terminal Velocity and Whiplash are paused during this Special and the last hit doubles the amount of Whiplashes on the Opponent."
+              "Terminal Velocity: Terminal Velocity and personal Whiplash effects are paused during this Special and the final hit doubles the amount of personal Whiplashes on the Opponent."
             ]
           },
           {
@@ -25205,7 +25254,6 @@
           "Gamma",
           "RAIDS : Vanguard",
           "Ricochet",
-          "Saga Champions",
           "Sinister Six",
           "Size: XL",
           "Squad Builder",
@@ -25761,7 +25809,6 @@
         "tags": [
           "Defensive: Guard",
           "Ricochet",
-          "Saga Champions",
           "Size: S",
           "Villain",
           "Water"
@@ -26556,8 +26603,10 @@
           "AW : Provocateur",
           "AW: Sugar Pill",
           "Avengers",
+          "Coda (2026)",
           "Defensive: Guard",
           "Hero",
+          "Saga Champions",
           "Size: S"
         ]
       },
@@ -26729,7 +26778,6 @@
           "Metal",
           "Offensive: Burst",
           "Ricochet",
-          "Saga Champions",
           "Sinister Six",
           "Size: M",
           "Squad Builder",
@@ -26856,7 +26904,6 @@
           "Offensive: Burst",
           "Offensive: Damage Over Time",
           "RAIDS : Tactician",
-          "Saga Champions",
           "Size: M",
           "Squad Builder",
           "Stabilize",
@@ -27018,6 +27065,7 @@
           "10 Year Challenge",
           "AW : Secutor",
           "AW: Sugar Pill",
+          "Coda (2026)",
           "Defensive: Tank",
           "Metal",
           "RAIDS : Assault",
@@ -27353,7 +27401,9 @@
           "Dinosaur",
           "EQ : Romance",
           "Genesis",
+          "Genesis (2026)",
           "Hero",
+          "Saga Champions",
           "Size: S",
           "Stone",
           "Valentine's"
@@ -27493,7 +27543,6 @@
           "Hero",
           "Offensive: Raw Damage",
           "RAIDS : Assault",
-          "Saga Champions",
           "Size: M",
           "Stabilize"
         ]
@@ -28162,7 +28211,6 @@
           "AW: Sugar Pill",
           "Offensive: Burst",
           "Ricochet",
-          "Saga Champions",
           "Sinister Six",
           "Size: M",
           "Squad Builder",
@@ -28281,9 +28329,11 @@
           "AW : House of Mirrors",
           "AW : Secutor",
           "AW: Armor Burn",
+          "Coda (2026)",
           "Defensive: Guard",
           "Hero",
           "Offensive: Damage Over Time",
+          "Saga Champions",
           "Size: S",
           "Wakandan"
         ]
@@ -28773,9 +28823,11 @@
           "EQ : Romance",
           "Fantastic",
           "Genesis",
+          "Genesis (2026)",
           "Hero",
           "Offensive: Burst",
           "RAIDS : Vanguard",
+          "Saga Champions",
           "Silver",
           "Size: M"
         ]
@@ -28912,7 +28964,6 @@
           "Forbearance",
           "Frightful",
           "Ricochet",
-          "Saga Champions",
           "Size: XL",
           "Villain"
         ]
@@ -29343,7 +29394,6 @@
           "Offensive: Burst",
           "RAIDS : Vanguard",
           "Ricochet",
-          "Saga Champions",
           "Size: S",
           "Spider-Verse Heroes",
           "Squad Builder"
@@ -30337,7 +30387,6 @@
           "Metal",
           "Offensive: Burst",
           "RAIDS : Assault",
-          "Saga Champions",
           "Size: S",
           "Spider-Verse Heroes",
           "Squad Builder",
@@ -30663,7 +30712,6 @@
           "Defensive: Utility",
           "Hero",
           "Offensive: Raw Damage",
-          "Saga Champions",
           "Size: S",
           "Spider-Verse Heroes",
           "Stabilize",
@@ -30973,7 +31021,6 @@
           "Metal",
           "Offensive: Raw Damage",
           "Ricochet",
-          "Saga Champions",
           "Size: XL",
           "Villain",
           "Water"
@@ -31409,7 +31456,6 @@
           "Defensive: Utility",
           "Dimensional Being",
           "Ricochet",
-          "Saga Champions",
           "Size: M",
           "Stone",
           "Villain"
@@ -31630,7 +31676,6 @@
           "Guardians of the Galaxy",
           "Hero",
           "Offensive: Damage Over Time",
-          "Saga Champions",
           "Size: M",
           "Stabilize",
           "Stellar-Forged"
@@ -31788,10 +31833,12 @@
           "AW: Prowess Power",
           "Coda",
           "EQ : Romance",
+          "Genesis (2026)",
           "Hero",
           "Meteor",
           "Offensive: Burst",
           "RAIDS : Assault",
+          "Saga Champions",
           "Size: S",
           "Valentine's",
           "Wakandan",
@@ -32328,7 +32375,9 @@
           "Dinosaur",
           "Fantastic Four",
           "Genesis",
+          "Genesis (2026)",
           "Offensive: Burst",
+          "Saga Champions",
           "Size: L",
           "Villain"
         ]
@@ -32775,6 +32824,7 @@
           "Control: Counter",
           "Fantastic",
           "Genesis",
+          "Genesis (2026)",
           "Saga Champions",
           "Size: L",
           "Stabilize",
@@ -33105,7 +33155,7 @@
             "title": "MASTER OF WAR",
             "trigger": "HEAVY ATTACK",
             "lines": [
-              "Charging a Heavy Attack after landing a non-Combo Ending Attack inflicts a Stun Passive for 0.75 seconds.",
+              "Charging a Heavy Attack after landing a non-Combo-Ending Attack inflicts a Stun Passive for 0.75 seconds.",
               "Each hit either Pulverizes one Armor Up effect if any are active or inflicts an Instant Corrosion if not, both dealing 1553.6 damage.",
               "On the final hit, or when canceling this attack with Special Attack 1 or 2, consume 30 Necrotic Energy to inflict a non-stacking 5014.29 Armor Break Debuff and an Armor Shattered Debuff for 16 seconds.",
               "Thanos does not inflict Armor Shattered if it is already active with more than 25% of its duration remaining."
@@ -33636,11 +33686,13 @@
         ],
         "tags": [
           "Cabal",
+          "Coda (2026)",
           "Control: Denial",
           "Fantastic Four",
           "Forbearance",
           "Frightful",
           "Offensive: Burst",
+          "Saga Champions",
           "Size: M",
           "Villain"
         ]
@@ -35385,7 +35437,6 @@
           "Defensive: Tank",
           "Genesis",
           "RAIDS : Tactician",
-          "Saga Champions",
           "Size: XL",
           "Squad Builder",
           "Stabilize",
@@ -35521,7 +35572,6 @@
         "tags": [
           "AW: Armor Burn",
           "Offensive: Damage Over Time",
-          "Saga Champions",
           "Size: XL",
           "Squad Builder",
           "Stabilize",
@@ -35954,7 +36004,9 @@
           "Defensive: Utility",
           "Dinosaur",
           "Genesis",
+          "Genesis (2026)",
           "Hero",
+          "Saga Champions",
           "Size: M",
           "Stone"
         ]
@@ -36380,7 +36432,6 @@
           "Offensive: Damage Over Time",
           "RAIDS : Vanguard",
           "Ricochet",
-          "Saga Champions",
           "Size: M",
           "Villain",
           "Wrath"
@@ -36798,7 +36849,6 @@
           "RAIDS : Vanguard",
           "Ricochet",
           "Robot",
-          "Saga Champions",
           "Size: XL"
         ]
       },
@@ -36948,6 +36998,7 @@
         "tags": [
           "Hero",
           "Offensive: Raw Damage",
+          "Saga Champions",
           "Size: S",
           "Stone"
         ]
@@ -37280,6 +37331,7 @@
           "AW : Provocateur",
           "AW : X - Magica",
           "Coda",
+          "Coda (2026)",
           "Control: Counter",
           "God",
           "Hero",
@@ -37287,6 +37339,7 @@
           "New Avengers",
           "Offensive: Damage Over Time",
           "RAIDS : Tactician",
+          "Saga Champions",
           "Size: S",
           "Water"
         ]
@@ -37843,11 +37896,13 @@
           "AW : Provocateur",
           "AW: Subdue",
           "AW: Sugar Pill",
+          "Coda (2026)",
           "Control: Denial",
           "Defensive: Utility",
           "Hero",
           "Midnight Sons",
           "Offensive: Burst",
+          "Saga Champions",
           "Size: M"
         ]
       },
@@ -37975,7 +38030,6 @@
           "Defensive: Utility",
           "Forbearance",
           "Mercenary",
-          "Saga Champions",
           "Size: M",
           "Stabilize"
         ]
@@ -38120,7 +38174,6 @@
           "Defensive: Utility",
           "Mercenary",
           "Ricochet",
-          "Saga Champions",
           "Size: M"
         ]
       },
