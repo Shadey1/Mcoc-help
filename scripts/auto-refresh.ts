@@ -332,6 +332,7 @@ function refreshClasses(): void {
     if (reason.startsWith('near-duplicate')) advisory.push(`Fandom lists **${issue.name}**, which is a ${reason}. Add it by hand if it really is a different champion.`);
     // New wiki pages without an infobox class are quests and events, not
     // champions; only an announced champion without a class is worth a note.
+    else if (reason.startsWith('upcoming-list table unreadable')) notes.push(`Announced champions not checked this run (${reason}). If it repeats, the wiki changed the table and \`fetchUpcomingChampions\` in \`scripts/refresh-classes-from-fandom.ts\` needs updating.`);
     else if (reason.startsWith('upcoming-list')) notes.push(`Fandom's upcoming list has **${issue.name}** with no usable class yet (${reason}); it will be added once the wiki fills it in.`);
   }
   // The script applies whatever the report file holds, so holding class

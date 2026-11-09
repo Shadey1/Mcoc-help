@@ -287,10 +287,18 @@ async function fetchRecentlyCreatedPages(windowDays: number): Promise<string[]> 
  *  on this page, with class and portrait, usually weeks before the champion
  *  has a page of its own. */
 const UPCOMING_LIST_PAGE = 'List of Champions';
+/** Wiki page titles that are a champion the seed holds under another name
+ *  (title -> seed id). Discovery passes over them without a report. */
+const WIKI_TITLE_ALIASES: Record<string, string> = {
+  Carina: 'carina-tivan',
+};
 const UPCOMING_SECTION = /==\s*Upcoming Playable Champions\s*==/;
-/** Class cell of the upcoming table: `{{Te}}`, `{{Cosmic}}` or `{{Class|Tech}}`.
- *  `{{Co}}` is the wiki's Combined badge, not Cosmic, so it is left out. */
+const MAX_UPCOMING = 30;
+/** Class badge templates of the upcoming table: `{{Te|Name}}`, `{{Te}}` or
+ *  `{{Class|Tech}}`. Cosmic is `{{C}}`; `{{Co}}` is the wiki's Combined badge
+ *  (Summoned Symbioid), so it is left out. */
 const CLASS_CODES: Record<string, ChampionClass> = {
+  C: 'Cosmic',
   Te: 'Tech',
   Sc: 'Science',
   Mu: 'Mutant',
@@ -316,23 +324,69 @@ async function fetchUpcomingChampions(): Promise<Upcoming[]> {
   if (!wikitext) return [];
   const start = wikitext.search(UPCOMING_SECTION);
   if (start < 0) return [];
-  const rest = wikitext.slice(start + 1);
-  const end = rest.search(/\n==[^=]/);
+  // Only the first table under the heading. The page goes on to release
+  // history by month under headings of other levels, and a parse that ran
+  // on into those read "January" as a champion.
+  const rest = wikitext.slice(start).replace(UPCOMING_SECTION, '');
+  const end = rest.search(/\n=+[^=\n]+=+[ \t]*(\n|$)/);
   const section = end < 0 ? rest : rest.slice(0, end);
+  const tableStart = section.indexOf('{|');
+  if (tableStart < 0) return [];
+  const tableEnd = section.indexOf('\n|}', tableStart);
+  const table = tableEnd < 0 ? section.slice(tableStart) : section.slice(tableStart, tableEnd);
   const out: Upcoming[] = [];
-  for (const row of section.split(/\n\|-/)) {
-    const title = row.match(/\n\|\s*\[\[([^\]|]+)/)?.[1]?.trim();
-    if (!title) continue;
-    const portraitFile = row.match(/\[\[File:([^\]|]+)/)?.[1]?.trim() ?? null;
-    const rawClass = row.match(/\{\{(?:Class\|)?([A-Za-z]+)\}\}/)?.[1] ?? null;
-    out.push({
-      title,
-      proposedClass: rawClass ? (CLASS_CODES[rawClass] ?? null) : null,
-      rawClass,
-      portraitFile,
-    });
+  for (const row of table.split(/\n\|-/)) {
+    const parsed = parseUpcomingRow(row);
+    if (parsed) out.push(parsed);
+  }
+  // Kabam announces a handful of champions at a time. Dozens of rows means
+  // the layout changed under the parser, and every row would become a stub.
+  if (out.length > MAX_UPCOMING) {
+    throw new Error(`upcoming table parsed to ${out.length} rows (limit ${MAX_UPCOMING}); layout not recognised`);
   }
   return out;
+}
+
+/** One row of the upcoming table. The wiki has used two layouts:
+ *
+ *    ! {{Te|Star-Lord (Kitty Pryde)}}             since 2026-11: the class
+ *    | [[File:… portrait.png|75px]] || || source   badge wraps the name, and a
+ *                                                  champion with no class yet
+ *                                                  is a bare name
+ *
+ *    | [[Star-Lord (Kitty Pryde)]] || [[File:… portrait.png|75px]] || || {{Te}} || source
+ *
+ *  Anything that does not yield a plain champion name is dropped: a wrong
+ *  guess here would become a stub on the site. */
+function parseUpcomingRow(row: string): Upcoming | null {
+  let title: string | null = null;
+  let rawClass: string | null = null;
+  const head = row.match(/\n!(?!!)\s*([^\n]+)/)?.[1]?.trim();
+  if (head) {
+    const badge = head.match(/^\{\{([A-Za-z]+)\|([^}|]+)\}\}/);
+    if (badge) {
+      rawClass = badge[1]!;
+      title = badge[2]!.trim();
+    } else {
+      title = head.replace(/^\[\[/, '').replace(/\]\].*$/, '').split('|')[0]!.trim();
+    }
+  } else {
+    for (const m of row.matchAll(/\[\[([^\]|]+)/g)) {
+      const t = m[1]!.trim();
+      if (/^(File|Image|Category|Template):/i.test(t)) continue;
+      title = t;
+      break;
+    }
+  }
+  if (!title || /[{}=":\[\]]/.test(title)) return null;
+  rawClass ??= row.match(/\{\{(?:Class\|)?([A-Za-z]+)\}\}/)?.[1] ?? null;
+  const portraitFile = row.match(/\[\[File:([^\]|]*portrait[^\]|]*)/i)?.[1]?.trim() ?? null;
+  return {
+    title,
+    proposedClass: rawClass ? (CLASS_CODES[rawClass] ?? null) : null,
+    rawClass,
+    portraitFile,
+  };
 }
 
 /** Thumbnail URL for a wiki file, same width and shape as getPageImage. */
@@ -459,6 +513,23 @@ function extractRawClass(infoboxBody: string): string | null {
   return value.trim() || null;
 }
 
+/** False when the infobox says the champion exists at neither 6★ nor 7★.
+ *  Doombots, Anti-Venomoids and other event-only champions have full
+ *  champion pages (class, portrait) but can never be on a roster this tool
+ *  ranks. Null when the infobox does not say either way. */
+function extractHighRarity(infoboxBody: string): boolean | null {
+  const tier = (n: number) =>
+    infoboxBody
+      .match(new RegExp(`\\|\\s*tier${n}\\s*=\\s*([^\\n|]*)`, 'i'))?.[1]
+      ?.trim()
+      .toLowerCase() ?? '';
+  const t6 = tier(6);
+  const t7 = tier(7);
+  if (t6.startsWith('yes') || t7.startsWith('yes')) return true;
+  if (t6.startsWith('no') && t7.startsWith('no')) return false;
+  return null;
+}
+
 /** Normalise a raw class string to one of the six canonical values, or null. */
 function normaliseClass(raw: string): ChampionClass | null {
   const lower = raw.toLowerCase().trim();
@@ -571,10 +642,12 @@ async function discoverNewChampions(
   // Announced champions: Kabam confirms a champion weeks before the wiki has
   // a page for it, and the upcoming table already carries class + portrait.
   let upcoming: Upcoming[] = [];
+  let upcomingError: string | null = null;
   try {
     upcoming = await fetchUpcomingChampions();
   } catch (e) {
-    console.warn(`  ⚠ Could not read the upcoming-champions table: ${(e as Error).message}`);
+    upcomingError = (e as Error).message;
+    console.warn(`  ⚠ Could not read the upcoming-champions table: ${upcomingError}`);
   }
   await sleep(RATE_LIMIT_MS);
   const listedByTitle = new Map(upcoming.map((u) => [u.title, u]));
@@ -586,21 +659,24 @@ async function discoverNewChampions(
   const queue = [...unknown, ...announced];
   const additions: Addition[] = [];
   const skipped: Array<{ title: string; reason: string }> = [];
+  // "upcoming-list" reasons reach the refresh report as a note.
+  if (upcomingError) skipped.push({ title: UPCOMING_LIST_PAGE, reason: `upcoming-list table unreadable: ${upcomingError}` });
 
   for (let i = 0; i < queue.length; i++) {
     const title = queue[i]!;
     const progress = `[${i + 1}/${queue.length}]`;
 
-    const twin = nearDuplicateOf(title, seed.champions);
-    if (twin) {
-      skipped.push({ title, reason: `near-duplicate of "${twin.name}" (${twin.id}); not added` });
-      console.log(`${progress} ${title}: skip (looks like ${twin.name})`);
+    const aliasOf = WIKI_TITLE_ALIASES[title];
+    if (aliasOf && existingIds.has(aliasOf)) {
+      skipped.push({ title, reason: `same champion as ${aliasOf} (known wiki alias)` });
+      console.log(`${progress} ${title}: skip (is ${aliasOf})`);
       continue;
     }
 
     const listed = listedByTitle.get(title);
     let proposedClass: ChampionClass | null = listed?.proposedClass ?? null;
     let sourceTitle = title;
+    let eventOnly = false;
     if (proposedClass) {
       sourceTitle = `${UPCOMING_LIST_PAGE} (upcoming table)`;
     } else {
@@ -611,6 +687,7 @@ async function discoverNewChampions(
           if (body) {
             const raw = extractRawClass(body);
             if (raw) proposedClass = normaliseClass(raw);
+            eventOnly = extractHighRarity(body) === false;
           }
         }
       } catch (e) {
@@ -622,12 +699,27 @@ async function discoverNewChampions(
       await sleep(RATE_LIMIT_MS);
     }
 
+    if (eventOnly) {
+      skipped.push({ title, reason: 'not available at 6★ or 7★ per infobox (event-only champion)' });
+      console.log(`${progress} ${title}: skip (no 6★/7★ version)`);
+      continue;
+    }
+
     if (!proposedClass) {
       const reason = listed
         ? `upcoming-list class "${listed.rawClass ?? ''}" not recognised and no infobox class`
         : 'no class extractable from infobox';
       skipped.push({ title, reason });
       console.log(`${progress} ${title}: skip (${reason})`);
+      continue;
+    }
+
+    // Only a page that is a champion can be a duplicate champion: checked
+    // after the class so "Mysterium" (a currency) is not reported as Mysterio.
+    const twin = nearDuplicateOf(title, seed.champions);
+    if (twin) {
+      skipped.push({ title, reason: `near-duplicate of "${twin.name}" (${twin.id}); not added` });
+      console.log(`${progress} ${title}: skip (looks like ${twin.name})`);
       continue;
     }
 

@@ -38,9 +38,17 @@ async function masterList(): Promise<Map<string, MasterEntry>> {
   return master;
 }
 
+/** Champions mcoc.gg lists under a different name from ours (normalised).
+ *  The R4 fill still checks their R5 against ours before using anything. */
+const ALIASES: Record<string, string> = {
+  carinativan: 'carina',
+};
+
 /** "Spider-Man (Stark)" is listed as "Stark Spider-Man" on mcoc.gg. */
 function candidateKeys(name: string): string[] {
   const keys = [normaliseName(name)];
+  const alias = ALIASES[keys[0]!];
+  if (alias) keys.push(alias);
   const m = name.match(/^(.*?)\s*\(([^)]+)\)\s*$/);
   if (m) keys.push(normaliseName(`${m[2]} ${m[1]}`));
   return keys;
