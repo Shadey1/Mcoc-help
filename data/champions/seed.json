@@ -1624,6 +1624,19 @@
           "160": 38530,
           "180": 39220,
           "200": 39880
+        },
+        "rank4": {
+          "0": 25240,
+          "20": 27140,
+          "40": 28190,
+          "60": 29080,
+          "80": 29860,
+          "100": 30580,
+          "120": 31260,
+          "140": 31900,
+          "160": 32500,
+          "180": 33080,
+          "200": 33640
         }
       },
       "sigCurve": null,
@@ -1633,7 +1646,8 @@
         "lastVerified": "2026-10-07",
         "ascendableSource": "mcochub.insaneskull.com (Ascendable badge, verified 2026-10-07)",
         "addedBy": "auto-refresh 2026-10-07",
-        "portraitSource": "Fandom page \"Carina\" (the playable champion); the 2021 \"Carina (unplayable)\" image was the story NPC"
+        "portraitSource": "Fandom page \"Carina\" (the playable champion); the 2021 \"Carina (unplayable)\" image was the story NPC",
+        "r4Source": "mcoc.gg per-rank curve (R4 11-anchor, fetched 2026-11-09)"
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/d/d9/Carina_portrait.png/revision/latest/scale-to-width-down/200?cb=20261015100138",
       "sevenStarReleased": true,
