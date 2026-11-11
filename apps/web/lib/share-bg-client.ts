@@ -1,7 +1,7 @@
 'use client';
 
 import type { Ascension, Rank } from '@prestige-tools/engine';
-import type { WarPlayerInput, WarPool } from './war-storage';
+import type { WarAssignments, WarPlayerInput, WarPool } from './war-storage';
 
 export type SharedBgPayload = {
   label: string | null;
@@ -9,6 +9,8 @@ export type SharedBgPayload = {
   /** Optional — present when the share bundles the defender pool. */
   pool?: WarPool;
   floor?: { rank: Rank; ascension: Ascension };
+  /** Optional — the diversity tool's assignments for this BG, by roster share id. */
+  assignments?: WarAssignments;
   createdAt: string;
   expiresAt: string;
 };
@@ -35,6 +37,7 @@ export async function createSharedBg(
     label?: string;
     pool?: WarPool;
     floor?: { rank: Rank; ascension: Ascension };
+    assignments?: WarAssignments;
   },
 ): Promise<CreateBgResponse> {
   const trimmed = rows.filter((r) => r.url.trim().length > 0);
@@ -56,6 +59,9 @@ export async function createSharedBg(
       rows: trimmed,
       ...(options?.label ? { label: options.label } : {}),
       ...(includePool ? { pool: options!.pool, floor: options!.floor } : {}),
+      ...(options?.assignments && Object.keys(options.assignments).length > 0
+        ? { assignments: options.assignments }
+        : {}),
       website: '',
     }),
   });

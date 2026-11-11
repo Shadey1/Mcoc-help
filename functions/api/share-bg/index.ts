@@ -38,12 +38,19 @@ type FloorAsc = 'A0' | 'A1' | 'A2';
 type BgRow = { url: string; name: string };
 type TieredPool = { strong: string[]; mid: string[]; base: string[] };
 
+/** Diversity assignments: roster share id → champion ids. */
+type Assignments = Record<string, string[]>;
+const MAX_ASSIGNMENTS_PER_PLAYER = 10;
+const SHARE_ID_PATTERN = /^[A-Za-z0-9]{8}$/;
+
 type BgPayload = {
   label?: string;
   rows: BgRow[];
   /** Optional — when present, the recipient also gets a pool import offer. */
   pool?: TieredPool;
   floor?: { rank: FloorRank; ascension: FloorAsc };
+  /** Optional — the diversity tool's assignments for this BG. */
+  assignments?: Assignments;
   website?: string;
 };
 
@@ -52,6 +59,7 @@ type StoredBg = {
   rows: BgRow[];
   pool?: TieredPool;
   floor?: { rank: FloorRank; ascension: FloorAsc };
+  assignments?: Assignments;
   createdAt: string;
   expiresAt: string;
   deleteToken: string;
@@ -174,12 +182,45 @@ function validatePayload(raw: unknown): BgPayload | { error: string } {
     return { error: 'pool and floor must be provided together' };
   }
 
+  const assignments = validateAssignments(obj.assignments, PLAYERS_PER_BG, MAX_ASSIGNMENTS_PER_PLAYER, MAX_CHAMPION_ID_LEN);
+  if (assignments && 'error' in assignments) return { error: assignments.error };
+
   return {
     label: typeof obj.label === 'string' ? obj.label : undefined,
     rows: cleanRows,
     pool: tieredPool,
     floor,
+    assignments: assignments?.ok,
   };
+}
+
+/** Optional assignments object: ≤ `maxPlayers` share-id keys, each an
+ *  array of ≤ `maxPerPlayer` champion ids. Undefined when absent. */
+export function validateAssignments(
+  raw: unknown,
+  maxPlayers: number,
+  maxPerPlayer: number,
+  maxIdLen: number,
+): { ok: Assignments } | { error: string } | undefined {
+  if (raw === undefined) return undefined;
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+    return { error: 'assignments must be an object keyed by share id' };
+  }
+  const entries = Object.entries(raw as Record<string, unknown>);
+  if (entries.length > maxPlayers) return { error: `assignments has more than ${maxPlayers} players` };
+  const out: Assignments = {};
+  for (const [k, v] of entries) {
+    if (!SHARE_ID_PATTERN.test(k)) return { error: `assignments key "${k}" is not an 8-char share id` };
+    if (!Array.isArray(v)) return { error: `assignments[${k}] must be an array of champion ids` };
+    if (v.length > maxPerPlayer) return { error: `assignments[${k}] has more than ${maxPerPlayer} entries` };
+    for (const c of v) {
+      if (typeof c !== 'string' || c.length === 0 || c.length > maxIdLen) {
+        return { error: `assignments[${k}] entry invalid` };
+      }
+    }
+    out[k] = v as string[];
+  }
+  return { ok: out };
 }
 
 async function checkRateLimit(
@@ -250,6 +291,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     rows: result.rows,
     pool: result.pool,
     floor: result.floor,
+    assignments: result.assignments,
     createdAt: now.toISOString(),
     expiresAt: expiresAt.toISOString(),
     deleteToken,

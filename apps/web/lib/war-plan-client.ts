@@ -9,6 +9,11 @@
  * the officer, or refuse to overwrite.
  */
 
+import type { WarAssignments, WarPool } from './war-storage';
+
+/** Where the solver takes its candidates from. */
+export type PlanCandidates = 'all' | 'pool' | 'assignments';
+
 export type PlanPin = { championId: string; playerId: string | null };
 export type PlanPlacement = {
   championId: string;
@@ -29,6 +34,11 @@ export type PlanPayload = {
   rosterShareIds: string[];
   playerNames?: Record<string, string>;
   label?: string;
+  /** The diversity pool and assignments the plan was solved with, so
+   *  another officer opening the plan gets the same solve. */
+  pool?: WarPool;
+  assignments?: WarAssignments;
+  candidates?: PlanCandidates;
 };
 
 export type StoredPlanPublic = PlanPayload & {

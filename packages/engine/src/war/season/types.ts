@@ -119,6 +119,13 @@ export type PlaceInput = {
    * Absent = every champion anyone owns at floor is a candidate.
    */
   pool?: ReadonlyMap<ChampionId, WarTier>;
+  /**
+   * What the diversity tool assigned each player to place, player → champion
+   * ids. When present, a player's candidates are their assigned champions
+   * (plus pins); a player with no entry places nothing, since the diversity
+   * run gave them nothing. Combine with `pool` for the tier weighting.
+   */
+  assignments?: ReadonlyMap<PlayerId, ReadonlySet<ChampionId>>;
   /** Optional: number of slots per player. Default 5. */
   slotsPerPlayer?: number;
 };
@@ -149,7 +156,7 @@ export type FitResult = {
 export type ExplanationLine = {
   pickIndex: number;
   championId: ChampionId;
-  reason: 'placed-elsewhere' | 'nobody-owns' | 'no-free-slot' | 'not-in-pool';
+  reason: 'placed-elsewhere' | 'nobody-owns' | 'no-free-slot' | 'not-in-pool' | 'not-assigned';
   /** Present when reason === 'placed-elsewhere'. */
   placedNode?: NodeNumber;
   placedBy?: PlayerId;

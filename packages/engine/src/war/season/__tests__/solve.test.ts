@@ -291,6 +291,25 @@ describe('defender pool', () => {
     expect(r.unfilled.length).toBeGreaterThanOrEqual(9);
   });
 
+  it('with diversity assignments, each player places only what they were assigned', () => {
+    const players = buildBg();
+    const assignments = new Map<PlayerId, ReadonlySet<ChampionId>>();
+    // Give every player their first five owned champions, except p3 who
+    // gets nothing (the diversity run left them out).
+    for (const p of players) {
+      if (p.id === 'p3') continue;
+      assignments.set(p.id, new Set(p.roster.slice(0, 5).map((s) => s.championId)));
+    }
+    const r = solvePlacement(buildInput({ players, assignments }));
+    for (const pl of Object.values(r.placements)) {
+      expect(pl.playerId).not.toBe('p3');
+      expect(assignments.get(pl.playerId)?.has(pl.championId)).toBe(true);
+    }
+    // Nine players × five assignments, minus any champion assigned twice.
+    const distinct = new Set([...assignments.values()].flatMap((s) => [...s]));
+    expect(Object.keys(r.placements).length).toBe(Math.min(50, distinct.size));
+  });
+
   it('a Strong defender wins a contested node over a Base one higher on the list', () => {
     const guidePicks: Record<NodeNumber, ChampionId[]> = { 1: ['champ-1', 'champ-2'] };
     const players: WarPlayer[] = [makePlayer('a', 'A', ['champ-1', 'champ-2'])];

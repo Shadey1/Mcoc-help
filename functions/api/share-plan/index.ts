@@ -37,6 +37,11 @@ const MAX_ROSTER_IDS = 10;
 const MAX_LABEL_LEN = 100;
 const MAX_CHAMPION_ID_LEN = 200;
 const MAX_PLAYER_ID_LEN = 200;
+const MAX_POOL_SIZE = 500;
+const MAX_ASSIGNMENTS_PER_PLAYER = 10;
+const CANDIDATES = new Set(['all', 'pool', 'assignments']);
+import { validateAssignments } from '../share-bg/index.js';
+
 const ID_LENGTH = 8;
 const DELETE_TOKEN_LENGTH = 16;
 
@@ -46,6 +51,7 @@ const RATE_LIMIT_DAY = 300;
 type NodeStr = string;
 type PinPayload = { championId: string; playerId: string | null };
 type PlacementPayload = { championId: string; playerId: string; pickRank: number; pinned: boolean };
+type TieredPool = { strong: string[]; mid: string[]; base: string[] };
 
 type CreatePlanPayload = {
   bg: 1 | 2 | 3;
@@ -59,10 +65,14 @@ type CreatePlanPayload = {
   rosterShareIds: string[];
   playerNames?: Record<string, string>;
   label?: string;
+  /** The diversity pool and assignments the plan was solved with. */
+  pool?: TieredPool;
+  assignments?: Record<string, string[]>;
+  candidates?: 'all' | 'pool' | 'assignments';
   website?: string;
 };
 
-type StoredPlan = Omit<CreatePlanPayload, 'website'> & {
+type StoredPlan = Omit<CreatePlanPayload, 'website' | 'label'> & {
   label: string | null;
   createdAt: string;
   updatedAt: string;
@@ -211,6 +221,32 @@ export function validateCreatePayload(
       playerNames[k] = v;
     }
   }
+  // pool optional: same shape as /api/share-bg
+  let pool: TieredPool | undefined;
+  if (obj.pool !== undefined) {
+    if (!obj.pool || typeof obj.pool !== 'object' || Array.isArray(obj.pool)) {
+      return { error: 'pool must be an object with strong/mid/base arrays' };
+    }
+    const poolObj = obj.pool as Record<string, unknown>;
+    pool = { strong: [], mid: [], base: [] };
+    for (const tier of ['strong', 'mid', 'base'] as const) {
+      const raw = poolObj[tier];
+      if (raw === undefined) continue;
+      if (!Array.isArray(raw)) return { error: `pool.${tier} must be an array of champion ids` };
+      for (const c of raw) {
+        if (!isString(c, MAX_CHAMPION_ID_LEN)) return { error: `pool.${tier} entry invalid` };
+        pool[tier].push(c);
+      }
+    }
+    const total = pool.strong.length + pool.mid.length + pool.base.length;
+    if (total > MAX_POOL_SIZE) return { error: `pool too large (max ${MAX_POOL_SIZE})` };
+    if (total === 0) pool = undefined;
+  }
+  const assignments = validateAssignments(obj.assignments, MAX_ROSTER_IDS, MAX_ASSIGNMENTS_PER_PLAYER, MAX_CHAMPION_ID_LEN);
+  if (assignments && 'error' in assignments) return { error: assignments.error };
+  if (obj.candidates !== undefined && (typeof obj.candidates !== 'string' || !CANDIDATES.has(obj.candidates))) {
+    return { error: 'candidates must be all, pool or assignments' };
+  }
   return {
     payload: {
       bg: obj.bg as 1 | 2 | 3,
@@ -224,6 +260,9 @@ export function validateCreatePayload(
       rosterShareIds: obj.rosterShareIds as string[],
       playerNames,
       label: typeof obj.label === 'string' ? obj.label : undefined,
+      pool,
+      assignments: assignments?.ok,
+      candidates: obj.candidates as CreatePlanPayload['candidates'],
     },
   };
 }

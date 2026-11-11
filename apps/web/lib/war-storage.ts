@@ -30,6 +30,14 @@ export type WarPool = {
   base: string[];
 };
 
+/**
+ * What the diversity tool assigned each player, keyed by the player's
+ * roster share id (the id the season planner uses for them). Written
+ * after every Generate and manual swap; carried in BG bundles and plan
+ * shares so the planner can place exactly those defenders.
+ */
+export type WarAssignments = Record<string, string[]>;
+
 export type WarConfig = {
   pool: WarPool;
   /** Minimum acceptable state. Applied identically to every BG. */

@@ -19,7 +19,8 @@ import {
 } from '@prestige-tools/engine';
 import type { Season } from '../../../../data/aw/season.schema';
 import { defenderValueMap } from '../../lib/war-planner-data';
-import { loadWarConfig, poolSize, poolToTierMap, type WarPool } from '../../lib/war-storage';
+import { loadWarConfig, poolSize, poolToTierMap, type WarAssignments, type WarPool } from '../../lib/war-storage';
+import { assignedPlayerCount, readSharedAssignments } from '../../lib/war-assignments-shared';
 import { SeasonMap } from './season-map';
 import {
   addPick,
@@ -47,6 +48,7 @@ import {
   createSharedPlan,
   fetchSharedPlan,
   updateSharedPlan,
+  type PlanCandidates,
   type PlanPayload,
   type StoredPlanPublic,
 } from '../../lib/war-plan-client';
@@ -170,17 +172,53 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
     setDvOverrides(readDvOverrides());
   }, []);
   const dvMap = useMemo(() => overlayDvOverrides(dvSeed, dvOverrides), [dvSeed, dvOverrides]);
-  /** The diversity tool's defender pool (S/M/B), when one is at hand:
-   *  picked on this device at /war, or carried by a loaded BG bundle.
-   *  With "pool only" on, the solver places nothing outside it and
-   *  weights picks by tier. */
-  const [pool, setPool] = useState<{ pool: WarPool; source: 'this device' | 'the BG bundle' } | null>(null);
-  const [poolOnly, setPoolOnly] = useState(true);
+  /** What the diversity tool decided, when it is at hand: the defender
+   *  pool (S/M/B) and, per BG, each player's assigned defenders. Both come
+   *  from this device's /war state, a loaded BG bundle, or the plan share.
+   *  `candidates` says what the solver places from: everything the
+   *  rosters hold, the pool only (weighted by tier), or exactly the
+   *  assignments (a BG without assignments falls back to the pool). */
+  type DiversitySource = 'this device' | 'the BG bundle' | 'the plan share';
+  const [pool, setPool] = useState<{ pool: WarPool; source: DiversitySource } | null>(null);
+  const [assignmentsByBg, setAssignmentsByBg] = useState<Record<BgIndex, { assignments: WarAssignments; source: DiversitySource } | null>>({ 1: null, 2: null, 3: null });
+  const [candidates, setCandidates] = useState<PlanCandidates>('all');
+  /** Default to the richest source available, unless the officer chose. */
+  const candidatesChosen = useRef(false);
+  const takeDiversity = useCallback(
+    (next: { pool?: WarPool; assignments?: Partial<Record<BgIndex, WarAssignments>>; source: DiversitySource }) => {
+      if (next.pool && poolSize(next.pool) > 0) setPool({ pool: next.pool, source: next.source });
+      const bgs = next.assignments ?? {};
+      setAssignmentsByBg((prev) => {
+        const out = { ...prev };
+        for (const bg of BG_INDICES) {
+          const a = bgs[bg];
+          if (a && assignedPlayerCount(a) > 0) out[bg] = { assignments: a, source: next.source };
+        }
+        return out;
+      });
+      if (!candidatesChosen.current) {
+        const hasAssignments = BG_INDICES.some((bg) => (bgs[bg] && assignedPlayerCount(bgs[bg]!) > 0));
+        setCandidates((cur) => (hasAssignments ? 'assignments' : cur === 'all' && next.pool && poolSize(next.pool) > 0 ? 'pool' : cur));
+      }
+    },
+    [],
+  );
   useEffect(() => {
-    const local = loadWarConfig().pool;
-    if (poolSize(local) > 0) setPool({ pool: local, source: 'this device' });
-  }, []);
-  const poolTiers = useMemo(() => (pool && poolOnly ? poolToTierMap(pool.pool) : undefined), [pool, poolOnly]);
+    const shared = readSharedAssignments();
+    takeDiversity({
+      pool: loadWarConfig().pool,
+      assignments: shared ? { 1: shared.bgs[0], 2: shared.bgs[1], 3: shared.bgs[2] } : undefined,
+      source: 'this device',
+    });
+  }, [takeDiversity]);
+  const poolTiers = useMemo(() => (pool && candidates !== 'all' ? poolToTierMap(pool.pool) : undefined), [pool, candidates]);
+  const bgAssignments = assignmentsByBg[activeBg];
+  const assignmentMap = useMemo(() => {
+    if (candidates !== 'assignments' || !bgAssignments) return undefined;
+    const m = new Map<PlayerId, ReadonlySet<ChampionId>>();
+    for (const [playerId, ids] of Object.entries(bgAssignments.assignments)) m.set(playerId, new Set(ids));
+    return m;
+  }, [candidates, bgAssignments]);
 
   const plan = plansByBg[activeBg]!;
   const result = resultByBg[activeBg];
@@ -208,10 +246,11 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
       floor: { rank: floorRank, ascension: floorAsc },
       defenderValues: dvMap,
       pool: poolTiers,
+      assignments: assignmentMap,
     });
     setResultByBg((prev) => ({ ...prev, [activeBg]: nextResult }));
     if (tab === 'battlegroup') setTab('placement');
-  }, [plan, players, result, floorRank, floorAsc, dvMap, poolTiers, activeBg, tab]);
+  }, [plan, players, result, floorRank, floorAsc, dvMap, poolTiers, assignmentMap, activeBg, tab]);
 
   // An edit that changes what the solver would return invalidates the
   // previous result — the officer needs to re-press "Place defence" to
@@ -318,6 +357,17 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
       const bg = payload.bg;
       setActiveBg(bg);
       setPlansByBg((prev) => ({ ...prev, [bg]: planFromPayload(season, payload) }));
+      if (payload.pool || payload.assignments) {
+        takeDiversity({
+          pool: payload.pool,
+          assignments: payload.assignments ? { [bg]: payload.assignments } : undefined,
+          source: 'the plan share',
+        });
+      }
+      if (payload.candidates) {
+        setCandidates(payload.candidates);
+        candidatesChosen.current = true;
+      }
       const rows: RosterRow[] = payload.rosterShareIds.map((shareId) => ({
         input: shareId,
         status: 'loading',
@@ -335,7 +385,17 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
         setDirty(false);
       }
     },
-    [season],
+    [season, takeDiversity],
+  );
+
+  /** The diversity state a saved plan carries, so it solves the same elsewhere. */
+  const diversityPayload = useCallback(
+    (): Pick<PlanPayload, 'pool' | 'assignments' | 'candidates'> => ({
+      pool: pool?.pool,
+      assignments: assignmentsByBg[activeBg]?.assignments,
+      candidates,
+    }),
+    [pool, assignmentsByBg, activeBg, candidates],
   );
 
   // ── Save / update ───────────────────────────────────────────────────
@@ -351,6 +411,7 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
     }
     const payload: PlanPayload = {
       ...planToPayload(plan),
+      ...diversityPayload(),
       rosterShareIds,
       playerNames,
       lastPlacement: result ? placementsToPayload(result.placements) : undefined,
@@ -396,7 +457,7 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
       setSaveStatus('error');
       setSaveError(e instanceof Error ? e.message : String(e));
     }
-  }, [plan, planShare, result, rosterRows, activeBg]);
+  }, [plan, planShare, result, rosterRows, activeBg, diversityPayload]);
 
   // ── Conflict recovery ──────────────────────────────────────────────
   const discardMyEdits = useCallback(() => {
@@ -427,6 +488,7 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
     const currentServerVersion = conflictPayload?.version ?? planShare.version;
     const payload: PlanPayload = {
       ...planToPayload(plan),
+      ...diversityPayload(),
       rosterShareIds,
       playerNames,
       lastPlacement: result ? placementsToPayload(result.placements) : undefined,
@@ -448,7 +510,7 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
       setSaveStatus('error');
       setSaveError(e instanceof Error ? e.message : String(e));
     }
-  }, [plan, planShare, conflictPayload, result, rosterRows, activeBg]);
+  }, [plan, planShare, conflictPayload, result, rosterRows, activeBg, diversityPayload]);
 
   // ── Roster loading ──────────────────────────────────────────────────
   const loadRow = useCallback(
@@ -550,10 +612,12 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
       setBgShareStatus({ status: 'loading' });
       try {
         const payload = await fetchSharedBg(id);
-        if (payload.pool && poolSize(payload.pool) > 0) {
-          setPool({ pool: payload.pool, source: 'the BG bundle' });
-        }
         const bg = activeBg;
+        takeDiversity({
+          pool: payload.pool,
+          assignments: payload.assignments ? { [bg]: payload.assignments } : undefined,
+          source: 'the BG bundle',
+        });
         const newRows: RosterRow[] = payload.rows.slice(0, 10).map((r) => ({
           input: r.url,
           status: 'loading',
@@ -581,7 +645,7 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
         });
       }
     },
-    [activeBg, loadRow, syncBgToShared],
+    [activeBg, loadRow, syncBgToShared, takeDiversity],
   );
 
   // ── Callbacks passed to map ─────────────────────────────────────────
@@ -680,8 +744,8 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
         else owners.set(s.championId, [p.id]);
       }
     }
-    return { placementsByChampion, owners, pool: poolTiers };
-  }, [result, players, poolTiers]);
+    return { placementsByChampion, owners, pool: poolTiers, assignments: assignmentMap };
+  }, [result, players, poolTiers, assignmentMap]);
 
   return (
     <section className="space-y-4">
@@ -727,26 +791,16 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
           />
           Only use listed picks
         </label>
-        <label
-          className="inline-flex items-center gap-2 text-sm text-[var(--color-ink-soft)]"
-          title={
-            pool
-              ? `${poolSize(pool.pool)} defenders from ${pool.source} (${pool.pool.strong.length} S / ${pool.pool.mid.length} M / ${pool.pool.base.length} B). On: nothing outside the pool is placed except pins, and Strong beats Mid beats Base on a contested node.`
-              : 'No defender pool found. Pick one on the Diversity page, or load a BG bundle shared from there.'
-          }
-        >
-          <input
-            type="checkbox"
-            checked={pool !== null && poolOnly}
-            disabled={pool === null}
-            onChange={(e) => {
-              setPoolOnly(e.target.checked);
-              invalidate();
-            }}
-            className="accent-[var(--color-marvel-impact)]"
-          />
-          {pool ? `Diversity pool only (${poolSize(pool.pool)})` : 'No diversity pool'}
-        </label>
+        <CandidatesSelector
+          value={candidates}
+          pool={pool}
+          assignments={bgAssignments}
+          onChange={(next) => {
+            candidatesChosen.current = true;
+            setCandidates(next);
+            invalidate();
+          }}
+        />
         <FloorSelector
           rank={floorRank}
           asc={floorAsc}
@@ -936,6 +990,7 @@ type NodePanelProps = {
     placementsByChampion: Map<ChampionId, { node: NodeNumber; playerId: PlayerId }>;
     owners: Map<ChampionId, PlayerId[]>;
     pool: ReadonlyMap<ChampionId, WarTier> | undefined;
+    assignments: ReadonlyMap<PlayerId, ReadonlySet<ChampionId>> | undefined;
   } | null;
   mutatePlan: (m: (p: SeasonPlan) => SeasonPlan) => void;
   playerNameFor: (id: PlayerId) => string;
@@ -1032,6 +1087,7 @@ function NodePanel({
           explanationLookup.placementsByChampion,
           explanationLookup.owners,
           explanationLookup.pool,
+          explanationLookup.assignments,
         )
       : [];
 
@@ -1403,6 +1459,7 @@ function NodePanel({
                       )}
                       {line.reason === 'nobody-owns' && ': nobody in the BG has them'}
                       {line.reason === 'not-in-pool' && ': not in the diversity pool'}
+                      {line.reason === 'not-assigned' && ': not in anyone\'s diversity assignments'}
                       {line.reason === 'no-free-slot' &&
                         ": owners' five slots were worth more elsewhere"}
                     </li>
@@ -2119,6 +2176,54 @@ function placementsToPayload(
     };
   }
   return out;
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Candidates selector — what the solver places from
+// ─────────────────────────────────────────────────────────────────────────
+
+function CandidatesSelector({
+  value,
+  pool,
+  assignments,
+  onChange,
+}: {
+  value: PlanCandidates;
+  pool: { pool: WarPool; source: string } | null;
+  assignments: { assignments: WarAssignments; source: string } | null;
+  onChange: (next: PlanCandidates) => void;
+}) {
+  const poolLabel = pool ? `Diversity pool (${poolSize(pool.pool)})` : 'Diversity pool (none found)';
+  const assignLabel = assignments
+    ? `Diversity assignments (${assignedPlayerCount(assignments.assignments)} players)`
+    : 'Diversity assignments (none for this BG)';
+  const title = [
+    'All rosters: anything anyone owns at the floor, scored by the guide\'s pick order.',
+    pool
+      ? `Diversity pool: the ${poolSize(pool.pool)} defenders picked on the Diversity page (${pool.pool.strong.length} S / ${pool.pool.mid.length} M / ${pool.pool.base.length} B, from ${pool.source}). Nothing outside it is placed except pins; Strong beats Mid beats Base on a contested node.`
+      : 'Diversity pool: pick one on the Diversity page, or load a BG bundle or plan that carries it.',
+    assignments
+      ? `Diversity assignments: exactly what the Diversity page gave each player in this BG (from ${assignments.source}), so the two tools agree. A BG without assignments uses the pool.`
+      : 'Diversity assignments: generate placements on the Diversity page, then share the BG bundle or open this planner on the same device.',
+  ].join('\n');
+  return (
+    <label className="inline-flex items-center gap-2 text-sm text-[var(--color-ink-soft)]" title={title}>
+      <span>Place from</span>
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value as PlanCandidates)}
+        className="px-2 py-1 text-sm border border-[var(--color-rule)] rounded bg-[var(--color-paper)]"
+      >
+        <option value="all">All rosters</option>
+        <option value="pool" disabled={!pool}>
+          {poolLabel}
+        </option>
+        <option value="assignments" disabled={!assignments && !pool}>
+          {assignLabel}
+        </option>
+      </select>
+    </label>
+  );
 }
 
 // ─────────────────────────────────────────────────────────────────────────

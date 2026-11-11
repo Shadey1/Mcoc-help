@@ -20,6 +20,7 @@ import {
   poolToTierMap,
   saveWarConfig,
   setPoolTier,
+  type WarAssignments,
   type WarBgs,
   type WarConfig,
   type WarPlayerInput,
@@ -34,6 +35,7 @@ import {
 import { fetchSharedPool, type SharedPoolPayload } from '../lib/share-pool-client';
 import { createSharedBg, fetchSharedBg } from '../lib/share-bg-client';
 import { readSharedBgs, writeSharedBg } from '../lib/war-bgs-shared';
+import { writeSharedAssignments } from '../lib/war-assignments-shared';
 import { loadRoster } from '../lib/roster-storage';
 import { WarPoolTickbox } from './war-pool-tickbox';
 import {
@@ -297,6 +299,31 @@ export function WarPlanner({ champions }: { champions: Champion[] }) {
     saveWarConfig(next);
   }
 
+  /** A BG's result as the season planner wants it: roster share id →
+   *  assigned champion ids, after any manual swaps. */
+  function assignmentsForPlanner(bg: BgIndex, result: WarResult): WarAssignments {
+    const rows = config?.bgs[bg] ?? [];
+    const out: WarAssignments = {};
+    for (const a of result.assignments) {
+      const idx = Number(a.playerId.match(/-slot-(\d+)$/)?.[1] ?? -1);
+      const shareId = extractShareId(rows[idx]?.url ?? '');
+      if (!shareId) continue;
+      (out[shareId] ??= []).push(a.championId);
+    }
+    return out;
+  }
+
+  // Hand every BG result to the season planner (same device). A BG
+  // without a result keeps its last entry, so clearing rows here does
+  // not wipe a plan in progress.
+  useEffect(() => {
+    for (const bg of BG_INDICES) {
+      const result = runs[bg].result;
+      if (result) writeSharedAssignments(bg, assignmentsForPlanner(bg, result));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [runs]);
+
   /**
    * Wipe cached rosters/results across all three BGs. Called whenever the
    * BG paste rows change — those URLs need to be re-fetched.
@@ -478,10 +505,12 @@ export function WarPlanner({ champions }: { champions: Champion[] }) {
     // reachable — pool can't ride along in the legacy fallback.
     let url: string;
     try {
+      const result = runs[bg].result;
       const { id } = await createSharedBg(rows, {
         label: BG_LABELS[bg],
         pool: config.pool,
         floor: config.floor,
+        assignments: result ? assignmentsForPlanner(bg, result) : undefined,
       });
       url = `${window.location.origin}/war/?bg=${id}`;
     } catch {

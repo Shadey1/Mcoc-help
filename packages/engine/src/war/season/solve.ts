@@ -42,7 +42,7 @@ import type {
  * Pure. No DOM, no globals, no I/O.
  */
 export function solvePlacement(input: PlaceInput): PlaceResult {
-  const { plan, players, floor, defenderValues, pool } = input;
+  const { plan, players, floor, defenderValues, pool, assignments } = input;
   const slotsPerPlayer = input.slotsPerPlayer ?? 5;
   // With a pool, a champion outside it is a candidate only where the
   // officer pinned it.
@@ -57,12 +57,19 @@ export function solvePlacement(input: PlaceInput): PlaceResult {
   const owners = new Map<ChampionId, PlayerId[]>();
   for (const player of activePlayers) {
     const owned = new Map<ChampionId, number>();
+    const assigned = assignments?.get(player.id);
     // A player can carry multiple copies of the same champion at different
     // states (5★, 6★ etc.); pick the best copy for war purposes — highest
     // effective rank, then sig.
     for (const state of player.roster) {
       if (!meetsFloor(state, floor)) continue;
-      if (pool && !pool.has(state.championId) && !pinnedChampions.has(state.championId)) continue;
+      if (pinnedChampions.has(state.championId)) {
+        // An explicit pin is the officer's call, pool or not.
+      } else if (assignments) {
+        if (!assigned?.has(state.championId)) continue;
+      } else if (pool && !pool.has(state.championId)) {
+        continue;
+      }
       const strength = copyStrength(state);
       const existing = owned.get(state.championId);
       if (existing === undefined || strength > existing) {
