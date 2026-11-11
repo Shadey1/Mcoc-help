@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import Link from 'next/link';
 import {
   solvePlacement,
   seasonWhereLabel,
@@ -824,9 +825,19 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
       {players.length === 0 && (
         <div className="border border-dashed border-[var(--color-rule)] rounded-md p-4 text-sm text-[var(--color-ink-soft)]">
           Load BG rosters below or in the <strong>Battlegroup</strong> tab. Paste
-          share IDs or full <code>/r/?share=…</code> URLs, one per player.
+          share IDs or full <code>/r/?share=…</code> URLs, one per player. Quicker:
+          generate placements on the <Link href="/war/" className="underline">Diversity</Link> tab
+          and come back; this tab picks up the rosters and the placements.
         </div>
       )}
+
+      {/* Where the candidates come from, and how to sync with Diversity */}
+      <DiversityStatus
+        candidates={candidates}
+        pool={pool}
+        assignments={bgAssignments}
+        bgLabel={BG_LABELS[activeBg]}
+      />
 
       {/* Two-column layout: map on the left, sticky panel on the right */}
       <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_420px] gap-4 items-start">
@@ -1979,8 +1990,12 @@ function BattlegroupPanel({
           and reuses across both. */}
       <div className="mt-4 p-3 border border-[var(--color-rule)] rounded-md bg-[var(--color-paper-soft)]">
         <label className="text-xs uppercase tracking-wide text-[var(--color-ink-soft)]">
-          Import BG bundle from /war
+          Import a BG bundle from the Diversity tab
         </label>
+        <p className="text-xs text-[var(--color-ink-soft)] mt-1 opacity-80">
+          Another officer&apos;s &ldquo;Share BG&rdquo; link: rosters, defender pool and
+          generated placements, so this planner solves from the same inputs.
+        </p>
         <div className="flex gap-2 mt-1.5">
           <input
             type="text"
@@ -2176,6 +2191,71 @@ function placementsToPayload(
     };
   }
   return out;
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Diversity status — one line on where the candidates come from
+// ─────────────────────────────────────────────────────────────────────────
+
+function DiversityStatus({
+  candidates,
+  pool,
+  assignments,
+  bgLabel,
+}: {
+  candidates: PlanCandidates;
+  pool: { pool: WarPool; source: string } | null;
+  assignments: { assignments: WarAssignments; source: string } | null;
+  bgLabel: string;
+}) {
+  const diversity = (
+    <Link href="/war/" className="underline">
+      Diversity
+    </Link>
+  );
+  let body: React.ReactNode;
+  let tone = 'border-[var(--color-rule)]';
+  if (candidates === 'assignments' && assignments) {
+    tone = 'border-[var(--color-marvel-impact)]';
+    body = (
+      <>
+        <strong>Synced with Diversity.</strong> Placing exactly what the {diversity} tab gave{' '}
+        {assignedPlayerCount(assignments.assignments)} players in {bgLabel} (from {assignments.source}).
+        Change a swap there and press Place again here.
+      </>
+    );
+  } else if (candidates === 'assignments') {
+    tone = 'border-[var(--color-marvel-editorial)]';
+    body = (
+      <>
+        <strong>No Diversity placements for {bgLabel} yet</strong>, so this places from the
+        {pool ? ` pool (${poolSize(pool.pool)} defenders)` : ' whole rosters'}. Generate
+        placements on the {diversity} tab on this device, or import the BG bundle another
+        officer shared, and they show up here.
+      </>
+    );
+  } else if (candidates === 'pool' && pool) {
+    body = (
+      <>
+        Placing from the {diversity} pool: {poolSize(pool.pool)} defenders
+        ({pool.pool.strong.length} S / {pool.pool.mid.length} M / {pool.pool.base.length} B,
+        from {pool.source}). Generate placements there to place exactly those.
+      </>
+    );
+  } else {
+    body = (
+      <>
+        Placing from everything the rosters hold. To keep the two tools in step, pick a
+        defender pool or generate placements on the {diversity} tab, then switch
+        &ldquo;Place from&rdquo; above.
+      </>
+    );
+  }
+  return (
+    <div className={`border ${tone} rounded-md px-3 py-2 text-xs text-[var(--color-ink-soft)]`}>
+      {body}
+    </div>
+  );
 }
 
 // ─────────────────────────────────────────────────────────────────────────

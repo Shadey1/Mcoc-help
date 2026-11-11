@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
 import {
   assignWar,
   type Ascension,
@@ -284,6 +285,18 @@ export function WarPlanner({ champions }: { champions: Champion[] }) {
     return m;
   }, [runs, activeBg]);
 
+  // Hand every BG result to the season planner (same device). A BG
+  // without a result keeps its last entry, so clearing rows here does
+  // not wipe a plan in progress.
+  useEffect(() => {
+    for (const bg of BG_INDICES) {
+      const result = runs[bg].result;
+      if (result) writeSharedAssignments(bg, assignmentsForPlanner(bg, result));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [runs]);
+
+  // Hooks above this line only: the loading return below ends the hook list.
   if (!config || poolExpanded === null) {
     return <div className="text-sm text-[var(--color-ink-soft)] italic">Loading…</div>;
   }
@@ -312,17 +325,6 @@ export function WarPlanner({ champions }: { champions: Champion[] }) {
     }
     return out;
   }
-
-  // Hand every BG result to the season planner (same device). A BG
-  // without a result keeps its last entry, so clearing rows here does
-  // not wipe a plan in progress.
-  useEffect(() => {
-    for (const bg of BG_INDICES) {
-      const result = runs[bg].result;
-      if (result) writeSharedAssignments(bg, assignmentsForPlanner(bg, result));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [runs]);
 
   /**
    * Wipe cached rosters/results across all three BGs. Called whenever the
@@ -520,7 +522,9 @@ export function WarPlanner({ champions }: { champions: Champion[] }) {
 
     try {
       await navigator.clipboard.writeText(url);
-      setBgShareToast(`${BG_LABELS[bg]} share link copied (${rows.length} players)`);
+      setBgShareToast(
+        `${BG_LABELS[bg]} share link copied (${rows.length} players${runs[bg].result ? ', placements included' : ''})`,
+      );
     } catch {
       setBgShareToast(url);
     }
@@ -745,6 +749,29 @@ export function WarPlanner({ champions }: { champions: Champion[] }) {
                 </button>
               </div>
             )}
+            <div className="border border-[var(--color-marvel-impact)] bg-[var(--color-paper-soft)] rounded p-3 text-sm flex flex-wrap items-center justify-between gap-3">
+              <span>
+                <strong>Next: put these on the map.</strong> The Planner places
+                exactly these defenders on the season&apos;s nodes, one player
+                at a time. Swaps you make here carry over.
+              </span>
+              <span className="flex flex-wrap gap-2">
+                <Link
+                  href="/war-planner/"
+                  className="text-xs px-3 py-1.5 bg-[var(--color-marvel-impact)] text-white rounded hover:bg-[var(--color-marvel-editorial)] transition-colors"
+                >
+                  Open the Planner →
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => void shareBg(activeBg)}
+                  className="text-xs px-3 py-1.5 border border-[var(--color-rule)] rounded hover:bg-[var(--color-paper)] transition-colors"
+                  title={`Copy a link another officer can paste into the Planner: rosters, pool and these placements for ${BG_LABELS[activeBg]}`}
+                >
+                  Share {BG_LABELS[activeBg]} for another officer
+                </button>
+              </span>
+            </div>
             <WarPlacementTable
               result={activeRun.result}
               championLookup={championLookup}
