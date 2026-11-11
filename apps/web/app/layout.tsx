@@ -46,6 +46,13 @@ export const metadata: Metadata = {
   title: 'MCOC Prestige Tools',
   description:
     'Roster-aware prestige optimisation for Marvel Contest of Champions. Free, fast, no signup.',
+  // Portraits and class icons are hotlinked from Fandom's CDN
+  // (static.wikia.nocookie.net). Since 2026-11 it answers any request that
+  // carries a third-party Referer with a cacheable 404 placeholder, and the
+  // real image when no Referer is sent. One site-wide policy covers every
+  // <img>, the canvas export and the OCR seed grid; nothing on this site
+  // needs an outbound referrer.
+  referrer: 'no-referrer',
 };
 
 // Without an explicit viewport meta, mobile browsers render the page at
