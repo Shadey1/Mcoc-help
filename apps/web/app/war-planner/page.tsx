@@ -1,4 +1,4 @@
-import { loadActiveChampions } from '../../lib/data-loader';
+import { loadAllChampions } from '../../lib/data-loader';
 import { loadSeason } from '../../lib/war-planner-data';
 import { WarPlannerApp } from '../../components/war-planner-alpha/war-planner-app';
 import { WarSubnav } from '../../components/war-subnav';
@@ -10,7 +10,10 @@ export const metadata = {
 };
 
 export default function WarPlannerPage() {
-  const champions = loadActiveChampions();
+  // Every champion, not only the 7★ ones: the guide lists defenders at any
+  // rarity (Beast and Doctor Doom in season 71), and this list is only for
+  // names and portraits.
+  const champions = loadAllChampions();
   const season = loadSeason();
 
   return (
