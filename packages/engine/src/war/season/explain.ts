@@ -5,6 +5,7 @@ import type {
   NodeNumber,
   PlayerId,
   SeasonPlan,
+  WarTier,
 } from './types.js';
 
 /**
@@ -22,6 +23,9 @@ import type {
  * When the chosen placement is at pick-rank 0 (top pick) or −2 (unlisted
  * node), the trace is empty by definition. Rank −1 (planner's fallback)
  * walks the whole pick list.
+ *
+ * With a defender `pool` (the same one the solve ran with), a pick outside
+ * it is reported as such rather than as unowned or out of slots.
  */
 export function explainPlacement(
   node: NodeNumber,
@@ -29,6 +33,7 @@ export function explainPlacement(
   plan: SeasonPlan,
   placementsByChampion: ReadonlyMap<ChampionId, { node: NodeNumber; playerId: PlayerId }>,
   owners: ReadonlyMap<ChampionId, PlayerId[]>,
+  pool?: ReadonlyMap<ChampionId, WarTier>,
 ): ExplanationLine[] {
   const picks = resolvePicks(plan, node);
   if (picks.length === 0) return [];
@@ -36,6 +41,10 @@ export function explainPlacement(
   const out: ExplanationLine[] = [];
   for (let i = 0; i < limit; i++) {
     const c = picks[i]!;
+    if (pool && !pool.has(c)) {
+      out.push({ pickIndex: i, championId: c, reason: 'not-in-pool' });
+      continue;
+    }
     const ownerList = owners.get(c) ?? [];
     if (ownerList.length === 0) {
       out.push({ pickIndex: i, championId: c, reason: 'nobody-owns' });

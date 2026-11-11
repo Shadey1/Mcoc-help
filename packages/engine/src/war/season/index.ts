@@ -8,7 +8,7 @@
  */
 
 export { solvePlacement } from './solve.js';
-export { fit, copyStrength, meetsFloor, resolvePicks } from './fit.js';
+export { fit, copyStrength, meetsFloor, resolvePicks, TIER_BONUS } from './fit.js';
 export { explainPlacement } from './explain.js';
 export {
   ALL_NODES,

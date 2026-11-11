@@ -40,7 +40,7 @@ scripts/           Seed ingestion, drift check, graph builder
 
 Extras shipped alongside v1 (originally tagged v2):
 - Multi-step planner ("next 10 moves" view)
-- Alliance shared defender pool for /war
+- Alliance shared defender pool for /war (the season planner places only from it, pins aside, and weights picks S > M > B when one is at hand on the device or in a loaded BG bundle)
 - 6★ relic catalog (statcasts + battlecasts) with per-relic calibration overrides
 - BHR overrides for local roster-state calibration
 - Champion synergies with partner-stub pages for non-7★ partners

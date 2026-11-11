@@ -5,6 +5,7 @@ import type {
   FitResult,
   NodeNumber,
   SeasonPlan,
+  WarTier,
 } from './types.js';
 
 /**
@@ -35,6 +36,10 @@ export function resolvePicks(plan: SeasonPlan, node: NodeNumber): readonly Champ
  * through to `dv × 0.55`, ignoring key-node weight (an unlisted node has
  * no first choice to protect).
  *
+ * With a defender `pool`, the champion's S/M/B tier adds `TIER_BONUS` to
+ * the base term in each case: a Strong pick two places down the list
+ * still beats a Base pick at the top, and in the fallbacks it lifts dv.
+ *
  * Returns null when the edge is forbidden — strict mode on and the
  * champion isn't listed. The solver reads null as "don't add the edge".
  */
@@ -42,20 +47,26 @@ export function resolvePicks(plan: SeasonPlan, node: NodeNumber): readonly Champ
  *  that highlights it, not enough to reorder a node's own list. */
 export const TOP_PICK_BONUS = 15;
 
+/** Strong is worth just over two pick ranks; Mid just under one. A
+ *  pinned champion outside the pool counts as Base. */
+export const TIER_BONUS: Record<WarTier, number> = { strong: 20, mid: 8, base: 0 };
+
 export function fit(
   championId: ChampionId,
   node: NodeNumber,
   plan: SeasonPlan,
   defenderValues: ReadonlyMap<ChampionId, number>,
+  pool?: ReadonlyMap<ChampionId, WarTier>,
 ): FitResult {
   const picks = resolvePicks(plan, node);
   const w = plan.keyNodes.has(node) ? 3 : 1.5;
-  const dv = defenderValues.get(championId) ?? 50;
+  const tier = pool ? TIER_BONUS[pool.get(championId) ?? 'base'] : 0;
+  const dv = (defenderValues.get(championId) ?? 50) + tier;
   if (picks.length > 0) {
     const i = picks.indexOf(championId);
     if (i >= 0) {
       const top = plan.pickOverrides[node] === undefined ? (plan.guideTopPicks?.[node] ?? 0) : 0;
-      return { score: w * (100 - 9 * i + (i < top ? TOP_PICK_BONUS : 0)), rank: i };
+      return { score: w * (100 - 9 * i + (i < top ? TOP_PICK_BONUS : 0) + tier), rank: i };
     }
     if (plan.strict) return null;
     return { score: w * dv * 0.3, rank: -1 };

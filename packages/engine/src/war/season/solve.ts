@@ -42,8 +42,11 @@ import type {
  * Pure. No DOM, no globals, no I/O.
  */
 export function solvePlacement(input: PlaceInput): PlaceResult {
-  const { plan, players, floor, defenderValues } = input;
+  const { plan, players, floor, defenderValues, pool } = input;
   const slotsPerPlayer = input.slotsPerPlayer ?? 5;
+  // With a pool, a champion outside it is a candidate only where the
+  // officer pinned it.
+  const pinnedChampions = new Set(Object.values(plan.pins).map((pin) => pin.championId));
 
   // ── Step 1: index players and champions the solver will see ────────
   // Excluded players contribute zero slots and no roster.
@@ -59,6 +62,7 @@ export function solvePlacement(input: PlaceInput): PlaceResult {
     // effective rank, then sig.
     for (const state of player.roster) {
       if (!meetsFloor(state, floor)) continue;
+      if (pool && !pool.has(state.championId) && !pinnedChampions.has(state.championId)) continue;
       const strength = copyStrength(state);
       const existing = owned.get(state.championId);
       if (existing === undefined || strength > existing) {
@@ -226,7 +230,7 @@ export function solvePlacement(input: PlaceInput): PlaceResult {
         addEdge(CO + i, N0 + n, 1, -100_000);
         continue;
       }
-      const f = fit(c, n, plan, defenderValues);
+      const f = fit(c, n, plan, defenderValues, pool);
       if (f === null) continue;
       const stab = wasAtNode.get(c) === n ? 120 : 0;
       addEdge(CO + i, N0 + n, 1, -Math.round(f.score * 10) - stab);

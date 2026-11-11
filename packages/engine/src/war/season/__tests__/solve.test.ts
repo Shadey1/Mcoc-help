@@ -10,7 +10,7 @@ import type {
   SeasonPlan,
 } from '../types.js';
 import type { Ascension, ChampionState, Rank } from '../../../types.js';
-import type { WarPlayer } from '../../types.js';
+import type { WarPlayer, WarTier } from '../../types.js';
 
 /**
  * Solver invariants. These are the guarantees the handover asks the engine
@@ -270,6 +270,37 @@ describe('season solver behaviour', () => {
     for (const pl of Object.values(r.placements)) {
       expect(pl.playerId).not.toBe('p1');
     }
+  });
+});
+
+describe('defender pool', () => {
+  it('places only pooled champions, pins excepted', () => {
+    const players = buildBg();
+    const pool = new Map<ChampionId, WarTier>();
+    for (const c of CHAMPS.slice(0, 40)) pool.set(c, 'mid');
+    // champ-60 is outside the pool; its owner pins it on node 7.
+    const owner = players.find((p) => p.roster.some((s) => s.championId === 'champ-60'))!;
+    const plan = buildPlan({ pins: { 7: { championId: 'champ-60', playerId: owner.id } } });
+    const r = solvePlacement(buildInput({ players, plan, pool }));
+    expect(r.placements[7]?.championId).toBe('champ-60');
+    for (const [n, pl] of Object.entries(r.placements)) {
+      if (Number(n) === 7) continue;
+      expect(pool.has(pl.championId)).toBe(true);
+    }
+    // 40 pooled champions cannot fill 50 nodes: the shortfall is reported, not padded.
+    expect(r.unfilled.length).toBeGreaterThanOrEqual(9);
+  });
+
+  it('a Strong defender wins a contested node over a Base one higher on the list', () => {
+    const guidePicks: Record<NodeNumber, ChampionId[]> = { 1: ['champ-1', 'champ-2'] };
+    const players: WarPlayer[] = [makePlayer('a', 'A', ['champ-1', 'champ-2'])];
+    const plan = buildPlan({ guidePicks, keyNodes: new Set() });
+    const flat = solvePlacement(buildInput({ plan, players }));
+    expect(flat.placements[1]?.championId).toBe('champ-1');
+
+    const pool = new Map<ChampionId, WarTier>([['champ-1', 'base'], ['champ-2', 'strong']]);
+    const tiered = solvePlacement(buildInput({ plan, players, pool }));
+    expect(tiered.placements[1]?.championId).toBe('champ-2');
   });
 });
 

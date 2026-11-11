@@ -15,9 +15,11 @@ import {
   type PlayerId,
   type SeasonPlan,
   type WarPlayer,
+  type WarTier,
 } from '@prestige-tools/engine';
 import type { Season } from '../../../../data/aw/season.schema';
 import { defenderValueMap } from '../../lib/war-planner-data';
+import { loadWarConfig, poolSize, poolToTierMap, type WarPool } from '../../lib/war-storage';
 import { SeasonMap } from './season-map';
 import {
   addPick,
@@ -168,6 +170,17 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
     setDvOverrides(readDvOverrides());
   }, []);
   const dvMap = useMemo(() => overlayDvOverrides(dvSeed, dvOverrides), [dvSeed, dvOverrides]);
+  /** The diversity tool's defender pool (S/M/B), when one is at hand:
+   *  picked on this device at /war, or carried by a loaded BG bundle.
+   *  With "pool only" on, the solver places nothing outside it and
+   *  weights picks by tier. */
+  const [pool, setPool] = useState<{ pool: WarPool; source: 'this device' | 'the BG bundle' } | null>(null);
+  const [poolOnly, setPoolOnly] = useState(true);
+  useEffect(() => {
+    const local = loadWarConfig().pool;
+    if (poolSize(local) > 0) setPool({ pool: local, source: 'this device' });
+  }, []);
+  const poolTiers = useMemo(() => (pool && poolOnly ? poolToTierMap(pool.pool) : undefined), [pool, poolOnly]);
 
   const plan = plansByBg[activeBg]!;
   const result = resultByBg[activeBg];
@@ -194,10 +207,11 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
       players,
       floor: { rank: floorRank, ascension: floorAsc },
       defenderValues: dvMap,
+      pool: poolTiers,
     });
     setResultByBg((prev) => ({ ...prev, [activeBg]: nextResult }));
     if (tab === 'battlegroup') setTab('placement');
-  }, [plan, players, result, floorRank, floorAsc, dvMap, activeBg, tab]);
+  }, [plan, players, result, floorRank, floorAsc, dvMap, poolTiers, activeBg, tab]);
 
   // An edit that changes what the solver would return invalidates the
   // previous result — the officer needs to re-press "Place defence" to
@@ -536,6 +550,9 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
       setBgShareStatus({ status: 'loading' });
       try {
         const payload = await fetchSharedBg(id);
+        if (payload.pool && poolSize(payload.pool) > 0) {
+          setPool({ pool: payload.pool, source: 'the BG bundle' });
+        }
         const bg = activeBg;
         const newRows: RosterRow[] = payload.rows.slice(0, 10).map((r) => ({
           input: r.url,
@@ -663,8 +680,8 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
         else owners.set(s.championId, [p.id]);
       }
     }
-    return { placementsByChampion, owners };
-  }, [result, players]);
+    return { placementsByChampion, owners, pool: poolTiers };
+  }, [result, players, poolTiers]);
 
   return (
     <section className="space-y-4">
@@ -709,6 +726,26 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
             className="accent-[var(--color-marvel-impact)]"
           />
           Only use listed picks
+        </label>
+        <label
+          className="inline-flex items-center gap-2 text-sm text-[var(--color-ink-soft)]"
+          title={
+            pool
+              ? `${poolSize(pool.pool)} defenders from ${pool.source} (${pool.pool.strong.length} S / ${pool.pool.mid.length} M / ${pool.pool.base.length} B). On: nothing outside the pool is placed except pins, and Strong beats Mid beats Base on a contested node.`
+              : 'No defender pool found. Pick one on the Diversity page, or load a BG bundle shared from there.'
+          }
+        >
+          <input
+            type="checkbox"
+            checked={pool !== null && poolOnly}
+            disabled={pool === null}
+            onChange={(e) => {
+              setPoolOnly(e.target.checked);
+              invalidate();
+            }}
+            className="accent-[var(--color-marvel-impact)]"
+          />
+          {pool ? `Diversity pool only (${poolSize(pool.pool)})` : 'No diversity pool'}
         </label>
         <FloorSelector
           rank={floorRank}
@@ -898,6 +935,7 @@ type NodePanelProps = {
   explanationLookup: {
     placementsByChampion: Map<ChampionId, { node: NodeNumber; playerId: PlayerId }>;
     owners: Map<ChampionId, PlayerId[]>;
+    pool: ReadonlyMap<ChampionId, WarTier> | undefined;
   } | null;
   mutatePlan: (m: (p: SeasonPlan) => SeasonPlan) => void;
   playerNameFor: (id: PlayerId) => string;
@@ -993,6 +1031,7 @@ function NodePanel({
           plan,
           explanationLookup.placementsByChampion,
           explanationLookup.owners,
+          explanationLookup.pool,
         )
       : [];
 
@@ -1363,6 +1402,7 @@ function NodePanel({
                         </>
                       )}
                       {line.reason === 'nobody-owns' && ': nobody in the BG has them'}
+                      {line.reason === 'not-in-pool' && ': not in the diversity pool'}
                       {line.reason === 'no-free-slot' &&
                         ": owners' five slots were worth more elsewhere"}
                     </li>

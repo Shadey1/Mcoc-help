@@ -1,4 +1,4 @@
-import type { WarPlayer, WarStateFloor } from '../types.js';
+import type { WarPlayer, WarStateFloor, WarTier } from '../types.js';
 
 /**
  * Season war planner — types for the per-node placement engine.
@@ -111,6 +111,14 @@ export type PlaceInput = {
   floor: WarStateFloor;
   /** Per-champion defender value ∈ [0, 100]. Seeded from the tier map. */
   defenderValues: ReadonlyMap<ChampionId, number>;
+  /**
+   * The alliance's defender pool from the diversity tool, champion → S/M/B.
+   * When present, only pooled champions are candidates (a pin is the
+   * officer's explicit call and stays allowed) and the tier adds to the
+   * fit score, so a Strong defender wins a contested node over a Base one.
+   * Absent = every champion anyone owns at floor is a candidate.
+   */
+  pool?: ReadonlyMap<ChampionId, WarTier>;
   /** Optional: number of slots per player. Default 5. */
   slotsPerPlayer?: number;
 };
@@ -141,10 +149,10 @@ export type FitResult = {
 export type ExplanationLine = {
   pickIndex: number;
   championId: ChampionId;
-  reason: 'placed-elsewhere' | 'nobody-owns' | 'no-free-slot';
+  reason: 'placed-elsewhere' | 'nobody-owns' | 'no-free-slot' | 'not-in-pool';
   /** Present when reason === 'placed-elsewhere'. */
   placedNode?: NodeNumber;
   placedBy?: PlayerId;
 };
 
-export type { WarPlayer, WarStateFloor };
+export type { WarPlayer, WarStateFloor, WarTier };
