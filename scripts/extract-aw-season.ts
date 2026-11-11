@@ -33,7 +33,7 @@ import sharp from 'sharp';
 import { createWorker, PSM, type Worker } from 'tesseract.js';
 import { loadRefs, matchCell, type Match, type Ref } from './lib/portrait-match.js';
 import { Season } from '../data/aw/season.schema.js';
-import { fetchGuideImages } from './lib/fetch-guide.js';
+import { fetchGuideImages, guideUrl } from './lib/fetch-guide.js';
 
 const args = process.argv.slice(2);
 const APPLY = args.includes('--apply');
@@ -52,7 +52,7 @@ if (!Number.isInteger(SEASON) || SEASON < 1) {
 }
 
 const REPO_ROOT = resolve(import.meta.dirname, '..');
-const GUIDE_URL = `https://www.guiamtc.com/aw-season-${SEASON}`;
+const GUIDE_URL = guideUrl(SEASON);
 const FETCHED_DIR = resolve(REPO_ROOT, `dump/aw-season-${SEASON}`);
 // A browser "Save Page As" folder still works if the download ever breaks.
 const SAVED_DIR = resolve(REPO_ROOT, `dump/MTC Guide - AW - Season ${SEASON}_files`);
@@ -70,11 +70,24 @@ const SCORE_OK = 0.75;
 const MIN_GAP = 0.15;
 // A cell whose pixels barely vary is an empty slot (flat cell shading).
 const EMPTY_CELL_STDDEV = 12;
+// Google Sites served the tables 1280 px wide and the portrait sizes and
+// OCR crops were tuned to that. Wix serves the author's originals (1176 px
+// for season 71), so a table at any other width is scaled to match first.
+const TABLE_WIDTH = 1280;
 
 // ── Table geometry ──────────────────────────────────────────────────────
 
 type Box = { left: number; top: number; width: number; height: number };
-type Table = { file: string; path: string; defenders: { left: number; width: number }; rows: Array<{ top: number; bottom: number }> };
+type Table = {
+  file: string;
+  /** The image as downloaded; what the fingerprint hashes. */
+  original: string;
+  /** The image at TABLE_WIDTH; what OCR and the matcher read. */
+  path: string;
+  defenders: { left: number; width: number };
+  /** `number` is the x-extent of the node-number cell. */
+  rows: Array<{ top: number; bottom: number; number: [number, number] }>;
+};
 
 type Pixels = { data: Buffer; W: number; H: number };
 
@@ -100,10 +113,25 @@ function headerSpan(p: Pixels, y: number, is: (r: number, g: number, b: number) 
 
 /** Find the Node/Defenders/Attackers header and the row bands under it.
  *  Returns null for images that aren't pick tables. */
+/** The image at TABLE_WIDTH: the file itself when it already is, else a
+ *  scaled copy under `scaled/` (kept so a re-run without --fetch is quick). */
+async function atTableWidth(file: string): Promise<string | null> {
+  const original = resolve(DUMP, file);
+  const meta = await sharp(original).metadata();
+  if (!meta.width || !meta.height || meta.width < 800 || meta.height < 300) return null;
+  if (meta.width === TABLE_WIDTH) return original;
+  const scaled = resolve(DUMP, 'scaled', file.replace(/\.[a-z]+$/i, '.png'));
+  if (!existsSync(scaled)) {
+    mkdirSync(dirname(scaled), { recursive: true });
+    await sharp(original).resize({ width: TABLE_WIDTH, kernel: 'lanczos3' }).png().toFile(scaled);
+  }
+  return scaled;
+}
+
 async function readTable(file: string): Promise<Table | null> {
-  const path = resolve(DUMP, file);
+  const path = await atTableWidth(file);
+  if (!path) return null;
   const p = await loadPixels(path);
-  if (p.W < 800 || p.H < 300) return null;
 
   let headerY = -1;
   let red: [number, number] | null = null;
@@ -134,26 +162,59 @@ async function readTable(file: string): Promise<Table | null> {
     const light = s / ((stripX1 - stripX0) * 3) > 150;
     if (light && start < 0) start = y;
     if ((!light || y === p.H - 1) && start >= 0) {
-      if (y - start > 80) rows.push({ top: start, bottom: y - 1 });
+      if (y - start > 80) rows.push({ top: start, bottom: y - 1, number: numberCellSpan(p, red[0], start) });
       start = -1;
     }
   }
   if (rows.length === 0) return null;
   return {
     file,
+    original: resolve(DUMP, file),
     path,
     defenders: { left: red[0], width: red[1] - red[0] + 1 },
     rows,
   };
 }
 
+/** The node-number cell's x-extent: the run of flat colour around its
+ *  expected centre (13% of the way to the defenders column), sampled just
+ *  under the row's top edge where no digit interrupts it. Cropping to the
+ *  cell keeps the column border out of the OCR image: with it in, Tesseract
+ *  reads season 71's numbers as nothing at all. Falls back to the left 26%
+ *  when no flat run is found. */
+function numberCellSpan(p: Pixels, defendersLeft: number, rowTop: number): [number, number] {
+  const y = rowTop + 10;
+  const cx = Math.round(defendersLeft * 0.13);
+  const at = (x: number): [number, number, number] => {
+    const i = (y * p.W + x) * 3;
+    return [p.data[i]!, p.data[i + 1]!, p.data[i + 2]!];
+  };
+  const ref = at(cx);
+  const same = (x: number): boolean => {
+    const c = at(x);
+    return Math.abs(c[0] - ref[0]) + Math.abs(c[1] - ref[1]) + Math.abs(c[2] - ref[2]) < 60;
+  };
+  let x0 = cx;
+  let x1 = cx;
+  while (x0 > 0 && same(x0 - 1)) x0--;
+  while (x1 < defendersLeft - 1 && same(x1 + 1)) x1++;
+  return x1 - x0 >= 40 ? [x0, x1] : [8, Math.round(defendersLeft * 0.26)];
+}
+
 // ── OCR ─────────────────────────────────────────────────────────────────
 
-async function ocrPrep(path: string, box: Box, binarise = false): Promise<Buffer> {
-  const crop = sharp(path).extract(box).greyscale();
-  const { channels } = await crop.clone().stats();
-  const dark = channels[0]!.mean < 128;
-  let img = crop.resize({ width: box.width * 3, kernel: 'lanczos3' });
+async function ocrPrep(path: string, box: Box, binarise = false, scale = 3): Promise<Buffer> {
+  // Wix serves PNGs with an alpha channel, and negate() inverts alpha too
+  // unless it is gone first: the whole crop went transparent.
+  const crop = sharp(path).extract(box).removeAlpha().greyscale();
+  // Light text on a dark cell gets inverted for Tesseract. Polarity comes
+  // from the majority of pixels, not the mean: season 71's number cell is
+  // a red whose grey mean lands on 128 and read as light.
+  const grey = await crop.clone().raw().toBuffer();
+  let darkPixels = 0;
+  for (const v of grey) if (v < 128) darkPixels++;
+  const dark = darkPixels > grey.length / 2;
+  let img = crop.resize({ width: Math.round(box.width * scale), kernel: 'lanczos3' });
   if (dark) img = img.negate();
   img = img.normalise();
   if (binarise) img = img.threshold(140);
@@ -161,22 +222,27 @@ async function ocrPrep(path: string, box: Box, binarise = false): Promise<Buffer
 }
 
 async function readNodeNumber(worker: Worker, table: Table, row: Table['rows'][number]): Promise<number | null> {
-  // Number cell = left ~27% of the span before the defenders column.
-  const width = Math.round(table.defenders.left * 0.26);
-  const box = { left: 8, top: row.top + 6, width: width - 8, height: row.bottom - row.top - 12 };
+  const [x0, x1] = row.number;
+  const box = { left: x0 + 6, top: row.top + 6, width: x1 - x0 - 12, height: row.bottom - row.top - 12 };
   // Binarised, or a lone "6" / "8" reads as nothing. Word mode is left
-  // out on purpose: it reads "8" as "0".
-  const img = await ocrPrep(table.path, box, true);
-  for (const mode of [PSM.SINGLE_LINE, PSM.SINGLE_CHAR]) {
-    await worker.setParameters({ tessedit_pageseg_mode: mode, tessedit_char_whitelist: '0123456789' });
-    const { data } = await worker.recognize(img);
-    const text = data.text.trim();
-    if (text === '') continue;
-    // Anything but a clean 1-50 is a misread; char mode would only
-    // turn it into a plausible-looking wrong digit.
-    if (!/^[0-9]{1,2}$/.test(text)) return null;
-    const n = parseInt(text, 10);
-    return n >= 1 && n <= 50 ? n : null;
+  // out on purpose: it reads "8" as "0". Tesseract is also touchy about
+  // the size of a lone digit (season 71's "4" only reads at 4x, its "6"
+  // only at 2x), so other scales are tried when 3x reads nothing. A
+  // misread survives only if it passes the per-table step and duplicate
+  // checks below.
+  for (const scale of [3, 2, 4]) {
+    const img = await ocrPrep(table.path, box, true, scale);
+    for (const mode of [PSM.SINGLE_LINE, PSM.SINGLE_CHAR]) {
+      await worker.setParameters({ tessedit_pageseg_mode: mode, tessedit_char_whitelist: '0123456789' });
+      const { data } = await worker.recognize(img);
+      const text = data.text.trim();
+      if (text === '') continue;
+      // Anything but a clean 1-50 is a misread; char mode would only
+      // turn it into a plausible-looking wrong digit.
+      if (!/^[0-9]{1,2}$/.test(text)) return null;
+      const n = parseInt(text, 10);
+      return n >= 1 && n <= 50 ? n : null;
+    }
   }
   return null;
 }
@@ -383,7 +449,7 @@ async function main(): Promise<void> {
   // The guide serves byte-identical files until it is edited, so a hash
   // over the pick tables says whether anything changed.
   const hash = createHash('sha256');
-  for (const t of tables) hash.update(readFileSync(t.path));
+  for (const t of tables) hash.update(readFileSync(t.original));
   const fingerprint = hash.digest('hex').slice(0, 16);
   const previous = existsSync(SEASON_FILE)
     ? (JSON.parse(readFileSync(SEASON_FILE, 'utf-8')) as { source?: { fingerprint?: string; capturedAt?: string } }).source

@@ -64,9 +64,11 @@ async function main(): Promise<void> {
   let fandom = 0;
   let fandomFailed = 0;
   const have = new Set(readdirSync(IMAGES_DIR).map((f) => f.replace(/\.[a-z]+$/i, '')));
-  for (const row of rows) {
-    const champ = findSeedMatch(row, seed.champions);
-    if (!champ?.portraitUrl || (!FORCE && have.has(`${champ.id}~fandom`))) continue;
+  // Every seed champion, not only MCOCHUB's rows: the AW guide lists
+  // announced champions (Doctor Doom (Stellar-Forged), season 71) and
+  // reworks (Beast) before MCOCHUB carries them.
+  for (const champ of seed.champions) {
+    if (!champ.portraitUrl || (!FORCE && have.has(`${champ.id}~fandom`))) continue;
     const res = await fetch(champ.portraitUrl, { headers: { 'User-Agent': BROWSER_UA, Referer: FANDOM_REFERER } }).catch(() => null);
     const ext = res?.ok ? EXT[res.headers.get('content-type')?.split(';')[0] ?? ''] : undefined;
     if (!res || !ext) {

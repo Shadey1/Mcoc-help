@@ -29,6 +29,7 @@ import { spawnSync } from 'node:child_process';
 import { appendFileSync, readFileSync, writeFileSync } from 'node:fs';
 import { setTimeout as sleep } from 'node:timers/promises';
 import { fetchRankCurves } from './lib/mcocgg.js';
+import { guideUrl } from './lib/fetch-guide.js';
 import { fetchFeed, findSeedMatch, idFromName, isAscendable, normaliseName, SIG_ANCHORS, type FeedRow } from './lib/mcochub.js';
 
 const WEEKLY = process.argv.slice(2).includes('--weekly');
@@ -38,7 +39,8 @@ const CLASS_REPORT_PATH = 'scripts/class-corrections.json';
 const POINTER_PATH = 'data/aw/current.ts';
 const ABILITIES_PATH = 'data/champions/abilities.json';
 const REPORT_PATH = 'auto-refresh-report.md';
-const GUIDE_URL = (n: number) => `https://www.guiamtc.com/aw-season-${n}`;
+// GuiaMTC skipped season 70, so the next guide is not always current + 1.
+const GUIDE_LOOKAHEAD = 3;
 
 const CLASSES = ['Mutant', 'Skill', 'Science', 'Mystic', 'Cosmic', 'Tech'];
 // Kabam rebalances move a curve by well under this; a bigger jump is
@@ -412,10 +414,16 @@ async function refreshWarGuide(): Promise<void> {
     notes.push(`Could not read the current season from ${POINTER_PATH}.`);
     return;
   }
-  const next = await fetch(GUIDE_URL(current + 1), { headers: { 'User-Agent': 'Mozilla/5.0' } }).catch(() => null);
-  checked.push(`AW season ${current + 1} guide page: ${next ? (next.status === 200 ? 'live' : `not live (HTTP ${next.status})`) : 'unreachable'}.`);
-  if (next?.status === 200) {
-    extractSeason(current + 1, true, 'the guide page for the new season is live');
+  let live: number | null = null;
+  const probed: string[] = [];
+  for (let n = current + 1; n <= current + GUIDE_LOOKAHEAD; n++) {
+    const res = await fetch(guideUrl(n), { headers: { 'User-Agent': 'Mozilla/5.0' } }).catch(() => null);
+    probed.push(`${n} ${res ? (res.status === 200 ? 'live' : `HTTP ${res.status}`) : 'unreachable'}`);
+    if (res?.status === 200) live = n;
+  }
+  checked.push(`AW guide pages after season ${current}: ${probed.join(', ')}.`);
+  if (live !== null) {
+    extractSeason(live, true, 'the guide page for the new season is live');
     return;
   }
   const check = run('scripts/extract-aw-season.ts', [String(current), '--check']);

@@ -1,11 +1,18 @@
 /**
  * Download a GuiaMTC season page's images into a local folder.
  *
- * The guide is a Google Sites page: image URLs are in the plain HTML, so
- * no browser is needed. But the URLs are signed and expire about a
- * minute after the page request, and need that request's cookies. So
- * images are pulled in parallel straight after the page, and anything
- * that still gets refused is retried against a freshly loaded page.
+ * Up to season 69 the guide was a Google Sites page: image URLs are in
+ * the plain HTML, so no browser is needed. But the URLs are signed and
+ * expire about a minute after the page request, and need that request's
+ * cookies. So images are pulled in parallel straight after the page, and
+ * anything that still gets refused is retried against a freshly loaded
+ * page.
+ *
+ * From season 71 (2026-11) the guide lives on Wix. The HTML only carries
+ * resized, AVIF-encoded variants of each image, but the original file is
+ * served at `https://static.wixstatic.com/media/<id>` with no signature
+ * or cookie, so those are fetched instead. Both layouts yield one
+ * `img-NN.<ext>` per image in page order, which is all the extractor needs.
  */
 
 import { mkdirSync, renameSync, rmSync, writeFileSync } from 'node:fs';
@@ -18,6 +25,12 @@ const CONCURRENCY = 8;
 const MAX_ROUNDS = 4;
 
 type Page = { urls: string[]; cookie: string };
+
+/** The guide page for a season. GuiaMTC renamed the pages from
+ *  /aw-season-N (Google Sites) to /season-N (Wix) at season 71. */
+export function guideUrl(season: number): string {
+  return season >= 71 ? `https://www.guiamtc.com/season-${season}` : `https://www.guiamtc.com/aw-season-${season}`;
+}
 
 /** fetch() that treats a dropped connection like any other failed attempt. */
 async function tryFetch(url: string, headers: Record<string, string>): Promise<Response | null> {
@@ -36,11 +49,26 @@ async function loadPage(pageUrl: string): Promise<Page> {
   const cookie = res.headers.getSetCookie().map((c) => c.split(';')[0]).join('; ');
   const html = await res.text();
   // Keyed by DOM position, not URL: the signed URLs differ on every load.
-  const urls = [...html.matchAll(/<img[^>]+src="(https:\/\/[^"]+googleusercontent[^"]+)"/g)].map((m) =>
-    m[1]!.replace(/&amp;/g, '&'),
-  );
-  if (urls.length === 0) throw new Error(`No images found on ${pageUrl}: has the guide moved off Google Sites?`);
+  const wix = wixOriginals(html);
+  const urls =
+    wix.length > 0
+      ? wix
+      : [...html.matchAll(/<img[^>]+src="(https:\/\/[^"]+googleusercontent[^"]+)"/g)].map((m) =>
+          m[1]!.replace(/&amp;/g, '&'),
+        );
+  if (urls.length === 0) throw new Error(`No images found on ${pageUrl}: has the guide moved off Google Sites and Wix?`);
   return { urls, cookie };
+}
+
+/** Every Wix media file referenced anywhere in the page (img tags, srcsets
+ *  and the embedded page JSON), first occurrence first, as the URL of its
+ *  original upload rather than the resized variant on the page. */
+function wixOriginals(html: string): string[] {
+  const seen = new Set<string>();
+  for (const m of html.matchAll(/https:\/\/static\.wixstatic\.com\/media\/([A-Za-z0-9_]+(?:~mv2)?\.(?:png|jpe?g|webp))/g)) {
+    seen.add(m[1]!);
+  }
+  return [...seen].map((id) => `https://static.wixstatic.com/media/${id}`);
 }
 
 /** Returns the number of images saved. Throws, leaving any previous

@@ -1,0 +1,973 @@
+{
+  "season": 71,
+  "source": {
+    "name": "guiamtc.com",
+    "url": "https://www.guiamtc.com/season-71",
+    "capturedAt": "2026-11-11",
+    "fingerprint": "3ab594a0ddd4d22c"
+  },
+  "nodes": [
+    {
+      "node": 1,
+      "buffs": [
+        "Drip Feed - Placebo",
+        "Resistance is Futile",
+        "Personal Space - Regeneration",
+        "Enhanced Recovery"
+      ],
+      "guideDefenders": [
+        "onslaught",
+        "sersi",
+        "terrax",
+        "mojo",
+        "dark-phoenix",
+        "thing",
+        "korg",
+        "ruby-thursday"
+      ],
+      "topPicks": 3
+    },
+    {
+      "node": 2,
+      "buffs": [
+        "Special Burst (Neutralize)",
+        "Combat Déjà vu Placebo",
+        "Prey on the Feeble (Prowess)"
+      ],
+      "guideDefenders": [
+        "bishop",
+        "imperiosa",
+        "galan",
+        "punisher",
+        "bullseye",
+        "green-goblin-stellar-forged",
+        "apocalypse",
+        "punisher-2099"
+      ],
+      "topPicks": 3
+    },
+    {
+      "node": 3,
+      "buffs": [
+        "Sloped Armor (Glancing)",
+        "Chitinous Thorns (Bleed)",
+        "Enhanced Bleed (+80%)"
+      ],
+      "guideDefenders": [
+        "super-skrull",
+        "colossus",
+        "silver-surfer",
+        "heimdall",
+        "captain-america-sam-wilson",
+        "viv-vision",
+        "red-skull",
+        "ant-man-future"
+      ],
+      "topPicks": 3
+    },
+    {
+      "node": 4,
+      "buffs": [
+        "Steady Buildup: Reverse Controls",
+        "Calcify (Petrify)"
+      ],
+      "guideDefenders": [
+        "beast",
+        "vision-aarkus",
+        "domino",
+        "rhino",
+        "ruby-thursday",
+        "baron-zemo",
+        "dark-phoenix",
+        "photon"
+      ],
+      "topPicks": 3
+    },
+    {
+      "node": 5,
+      "buffs": [
+        "Ebb and Flow - Knock Down",
+        "Obstinate Charge",
+        "Bolster Energy (90%)"
+      ],
+      "guideDefenders": [
+        "domino",
+        "sersi",
+        "terrax",
+        "captain-britain",
+        "attuma",
+        "dark-phoenix",
+        "sentinel",
+        "thanos-deathless"
+      ],
+      "topPicks": 3
+    },
+    {
+      "node": 6,
+      "buffs": [
+        "Arrogance (Invisibility)",
+        "Power Thief: Power Efficiency"
+      ],
+      "guideDefenders": [
+        "jean-grey",
+        "galan",
+        "hyperion",
+        "ebony-maw",
+        "ruby-thursday",
+        "shocker",
+        "thanos-deathless",
+        "magik"
+      ],
+      "topPicks": 3
+    },
+    {
+      "node": 7,
+      "buffs": [
+        "Second Wind: Damage Reflection",
+        "Special Burst Lock Down"
+      ],
+      "guideDefenders": [
+        "vision-aarkus",
+        "domino",
+        "captain-marvel",
+        "attuma",
+        "korg",
+        "kingpin",
+        "cheeilth",
+        "black-tarantula"
+      ],
+      "topPicks": 3
+    },
+    {
+      "node": 8,
+      "buffs": [
+        "Rage (Glance)",
+        "Rise to Power"
+      ],
+      "guideDefenders": [
+        "beast",
+        "storm-pyramid-x",
+        "vision-aarkus",
+        "peni-parker",
+        "photon",
+        "spider-man-pavitr-prabhakar",
+        "punisher",
+        "black-tarantula"
+      ],
+      "topPicks": 3
+    },
+    {
+      "node": 9,
+      "buffs": [
+        "Hazard Shift: (G10)",
+        "Rupture + Bleed",
+        "Blood in the Water",
+        "Power Efficiency"
+      ],
+      "guideDefenders": [
+        "onslaught",
+        "hyperion",
+        "beast",
+        "sentinel",
+        "the-serpent",
+        "dark-phoenix",
+        "maestro",
+        "enchantress"
+      ],
+      "topPicks": 3
+    },
+    {
+      "node": 10,
+      "buffs": [
+        "Reinvigorated Fury",
+        "Masochism Over Time",
+        "Vigorous Assault",
+        "Indomitable"
+      ],
+      "guideDefenders": [
+        "super-skrull",
+        "colossus-age-of-apocalypse",
+        "beast",
+        "enchantress",
+        "kindred",
+        "spider-man-pavitr-prabhakar",
+        "bullseye",
+        "man-thing"
+      ],
+      "topPicks": 3
+    },
+    {
+      "node": 11,
+      "buffs": [
+        "Strike Counter (Amplify)",
+        "Encroaching Root"
+      ],
+      "guideDefenders": [
+        "hyperion",
+        "super-skrull",
+        "vision-aarkus",
+        "sentinel",
+        "baron-zemo",
+        "knull",
+        "arcade",
+        "america-chavez"
+      ],
+      "topPicks": 3
+    },
+    {
+      "node": 12,
+      "buffs": [
+        "Strike Counter: Combat Power Rate",
+        "Sixth Sense (Autoblock)"
+      ],
+      "guideDefenders": [
+        "beast",
+        "onslaught",
+        "colossus-age-of-apocalypse",
+        "kindred",
+        "enchantress",
+        "black-tarantula",
+        "korg",
+        "punisher"
+      ],
+      "topPicks": 3
+    },
+    {
+      "node": 13,
+      "buffs": [
+        "Steady Now (Glance)",
+        "Intercept (Suppression)"
+      ],
+      "guideDefenders": [
+        "hyperion",
+        "onslaught",
+        "super-skrull",
+        "peni-parker",
+        "thing",
+        "arnim-zola",
+        "thanos-deathless",
+        "ruby-thursday"
+      ],
+      "topPicks": 3
+    },
+    {
+      "node": 14,
+      "buffs": [
+        "Ebb and Flow - Knock Down",
+        "Aggression: Precision",
+        "Heavy Hitter (Unstoppable)"
+      ],
+      "guideDefenders": [
+        "beast",
+        "onslaught",
+        "gorr",
+        "enchantress",
+        "black-panther-civil-war",
+        "shocker",
+        "photon",
+        "arnim-zola"
+      ],
+      "topPicks": 3
+    },
+    {
+      "node": 15,
+      "buffs": [
+        "Phantom Pain (Bleed)",
+        "Spinning Wheels (Exhaustion)",
+        "Dirty Work (Protection)"
+      ],
+      "guideDefenders": [
+        "bishop",
+        "domino",
+        "storm-pyramid-x",
+        "void",
+        "captain-britain",
+        "baron-zemo",
+        "dust",
+        "havok"
+      ],
+      "topPicks": 3
+    },
+    {
+      "node": 16,
+      "buffs": [
+        "Special Burst Tranquilize",
+        "Physical Resistance (+60%)",
+        "Blood in the Water (+150%)"
+      ],
+      "guideDefenders": [
+        "onslaught",
+        "bishop",
+        "jean-grey",
+        "solvarch",
+        "rhino",
+        "sasquatch",
+        "man-thing",
+        "arcade"
+      ],
+      "topPicks": 3
+    },
+    {
+      "node": 17,
+      "buffs": [
+        "Energetic Exercise",
+        "Immunity (Stun)",
+        "Ability Accuracy +100%",
+        "But a Minor Setback (Immune to Nullify)"
+      ],
+      "guideDefenders": [
+        "medusa",
+        "imperiosa",
+        "gorr",
+        "modok",
+        "arnim-zola",
+        "scream",
+        "spider-man-supreme",
+        "heimdall"
+      ],
+      "topPicks": 3
+    },
+    {
+      "node": 18,
+      "buffs": [
+        "Hazard Shift: 2)",
+        "Shock + Poison",
+        "Feat of Indestructible",
+        "Power Focus 1"
+      ],
+      "guideDefenders": [
+        "domino",
+        "bishop",
+        "vision-aarkus",
+        "nick-fury",
+        "attuma",
+        "green-goblin-stellar-forged",
+        "bullseye",
+        "shocker"
+      ],
+      "topPicks": 3
+    },
+    {
+      "node": 19,
+      "buffs": [
+        "Reinvigorated Unblockable",
+        "High Energy Diet 99%",
+        "Indomitable"
+      ],
+      "guideDefenders": [
+        "imperiosa",
+        "sersi",
+        "vision-aarkus",
+        "maestro",
+        "dark-phoenix",
+        "heimdall",
+        "attuma",
+        "korg"
+      ],
+      "topPicks": 3
+    },
+    {
+      "node": 20,
+      "buffs": [
+        "Strike Counter (Vitality)",
+        "Never Back Down (Regen)",
+        "Use it Or Lose It"
+      ],
+      "guideDefenders": [
+        "colossus-age-of-apocalypse",
+        "sersi",
+        "onslaught",
+        "black-tarantula",
+        "yelena-belova",
+        "attuma",
+        "baron-zemo",
+        "maestro"
+      ],
+      "topPicks": 3
+    },
+    {
+      "node": 21,
+      "buffs": [
+        "Encroaching Stun (20 secs)",
+        "Reluctant Retaliation: Cowardice",
+        "Overwhelming Odds"
+      ],
+      "guideDefenders": [
+        "onslaught",
+        "medusa",
+        "colossus-age-of-apocalypse",
+        "shocker",
+        "nimrod",
+        "captain-america-sam-wilson",
+        "okoye",
+        "spider-woman"
+      ],
+      "topPicks": 3
+    },
+    {
+      "node": 22,
+      "buffs": [
+        "Steady Buildup (Fury)",
+        "Special Burst Trauma",
+        "Daunting Taunting"
+      ],
+      "guideDefenders": [
+        "silver-surfer",
+        "captain-marvel",
+        "bishop",
+        "void",
+        "spot",
+        "werewolf-by-night",
+        "sandman",
+        "spider-ham"
+      ],
+      "topPicks": 3
+    },
+    {
+      "node": 23,
+      "buffs": [
+        "Ebb and Flow - Intercept",
+        "Now You See Me (Falter)"
+      ],
+      "guideDefenders": [
+        "hyperion",
+        "onslaught",
+        "imperiosa",
+        "thanos-deathless",
+        "spider-punk",
+        "spider-man-pavitr-prabhakar",
+        "america-chavez",
+        "shocker"
+      ],
+      "topPicks": 3
+    },
+    {
+      "node": 24,
+      "buffs": [
+        "Daunting Doom",
+        "Fisticuffs (30 seconds)",
+        "SSStylish",
+        "Critical Setup"
+      ],
+      "guideDefenders": [
+        "jean-grey",
+        "super-skrull",
+        "vision-aarkus",
+        "wong",
+        "arcade",
+        "lumatrix",
+        "gentle",
+        "modok"
+      ],
+      "topPicks": 3
+    },
+    {
+      "node": 25,
+      "buffs": [
+        "Thorns: Physical (80%)",
+        "Be Like Water (Unblockable)"
+      ],
+      "guideDefenders": [
+        "jean-grey",
+        "onslaught",
+        "beast",
+        "ruby-thursday",
+        "nico-minoru",
+        "high-evolutionary",
+        "captain-britain",
+        "ant-man-future"
+      ],
+      "topPicks": 3
+    },
+    {
+      "node": 26,
+      "buffs": [
+        "Combat Déjà vu (Intensity)",
+        "Supercharge",
+        "Force of Will: Immune to Ability Reduction"
+      ],
+      "guideDefenders": [
+        "hyperion",
+        "gwenom",
+        "medusa",
+        "lizard",
+        "photon",
+        "thing",
+        "modok"
+      ],
+      "topPicks": 3,
+      "reviewFlags": [
+        "slot 8: already listed on this node, left out - photon (0.93), white-tiger (0.51), nico-minoru (0.49) - crop: _cells-s71/node-26-slot-8.png"
+      ]
+    },
+    {
+      "node": 27,
+      "buffs": [
+        "Hazard Shift: 6",
+        "Poison + Coldsnap",
+        "Power Focus 2",
+        "Superior Specials (+50%)"
+      ],
+      "guideDefenders": [
+        "vision-aarkus",
+        "imperiosa",
+        "onslaught",
+        "punisher",
+        "yelena-belova",
+        "the-serpent",
+        "captain-britain",
+        "dark-phoenix"
+      ],
+      "topPicks": 3
+    },
+    {
+      "node": 28,
+      "buffs": [
+        "Reinvigorated Unblockable",
+        "Buffet Over Time",
+        "Arc Overload",
+        "Indomitable"
+      ],
+      "guideDefenders": [
+        "vision-aarkus",
+        "jean-grey",
+        "onslaught",
+        "black-tarantula",
+        "photon",
+        "lumatrix",
+        "lizard",
+        "ant-man-future"
+      ],
+      "topPicks": 3
+    },
+    {
+      "node": 29,
+      "buffs": [
+        "Personal Space - Placebo",
+        "Prey on the Weak",
+        "E.M.P. Modification (Shock)",
+        "Immunity Stun"
+      ],
+      "guideDefenders": [
+        "beast",
+        "domino",
+        "jean-grey",
+        "ruby-thursday",
+        "arnim-zola",
+        "nico-minoru",
+        "spider-woman",
+        "high-evolutionary"
+      ],
+      "topPicks": 3
+    },
+    {
+      "node": 30,
+      "buffs": [
+        "Combat Déjà Vu: Disintegration",
+        "Cold Turkey (Degen)",
+        "Safeguard (1%)"
+      ],
+      "guideDefenders": [
+        "onslaught",
+        "jean-grey",
+        "terrax",
+        "photon",
+        "rhino",
+        "sandman",
+        "high-evolutionary",
+        "jessica-jones"
+      ],
+      "topPicks": 3
+    },
+    {
+      "node": 31,
+      "buffs": [
+        "Steady Buildup (Unblockable)",
+        "Painful Retreat (Power Sting)",
+        "Heal Block"
+      ],
+      "guideDefenders": [
+        "vision-aarkus",
+        "jean-grey",
+        "gorr",
+        "knull",
+        "dust",
+        "rhino",
+        "abomination-immortal",
+        "the-serpent"
+      ],
+      "topPicks": 3
+    },
+    {
+      "node": 32,
+      "buffs": [
+        "Ebb and Flow - Intercept",
+        "Mighty Charge (Purify)"
+      ],
+      "guideDefenders": [
+        "colossus-age-of-apocalypse",
+        "vision-aarkus",
+        "domino",
+        "the-destroyer",
+        "sasquatch",
+        "gentle",
+        "ruby-thursday",
+        "ant-man-future"
+      ],
+      "topPicks": 3
+    },
+    {
+      "node": 33,
+      "buffs": [
+        "Combat Déjà Vu - Prowess",
+        "Prowess Puncture",
+        "Conflictor (75%)"
+      ],
+      "guideDefenders": [
+        "bishop",
+        "imperiosa",
+        "super-skrull",
+        "quicksilver",
+        "abomination-immortal",
+        "black-tarantula",
+        "bullseye",
+        "doctor-doom"
+      ],
+      "topPicks": 3
+    },
+    {
+      "node": 34,
+      "buffs": [
+        "Second Wind (Unblockable)",
+        "Power Creep",
+        "Standing in Fear"
+      ],
+      "guideDefenders": [
+        "vision-aarkus",
+        "domino",
+        "captain-marvel",
+        "kingpin",
+        "korg",
+        "black-panther-civil-war",
+        "baron-zemo",
+        "doctor-bong"
+      ],
+      "topPicks": 3
+    },
+    {
+      "node": 35,
+      "buffs": [
+        "Inevitable Power",
+        "Make a Stand (90%)",
+        "One Eye Open",
+        "Overwhelming Odds"
+      ],
+      "guideDefenders": [
+        "galan",
+        "super-skrull",
+        "gorr",
+        "heimdall",
+        "maestro",
+        "northstar",
+        "karolina-dean",
+        "ant-man-future"
+      ],
+      "topPicks": 3
+    },
+    {
+      "node": 36,
+      "buffs": [
+        "Hazard Shift: 00",
+        "Incinerate + Bleed",
+        "One Eye Open"
+      ],
+      "guideDefenders": [
+        "beast",
+        "onslaught",
+        "jean-grey",
+        "nico-minoru",
+        "modok",
+        "america-chavez",
+        "shocker",
+        "man-thing"
+      ],
+      "topPicks": 3
+    },
+    {
+      "node": 37,
+      "buffs": [
+        "Root or Rooted",
+        "Personal Space - Regen",
+        "Purified Slate"
+      ],
+      "guideDefenders": [
+        "sersi",
+        "onslaught",
+        "colossus-age-of-apocalypse",
+        "solvarch",
+        "black-tarantula",
+        "photon",
+        "yelena-belova",
+        "baron-zemo"
+      ],
+      "topPicks": 3
+    },
+    {
+      "node": 38,
+      "buffs": [
+        "Ebb and Flow - Knock Down",
+        "Right Back At It",
+        "Aggression: Prowess"
+      ],
+      "guideDefenders": [
+        "beast",
+        "imperiosa",
+        "galan",
+        "shocker",
+        "maestro",
+        "green-goblin-stellar-forged",
+        "punisher",
+        "the-serpent"
+      ],
+      "topPicks": 3
+    },
+    {
+      "node": 39,
+      "buffs": [
+        "Rich get Richer",
+        "Steady Perseverance",
+        "Footloose (Evade + Unstoppable)"
+      ],
+      "guideDefenders": [
+        "gorr",
+        "colossus-age-of-apocalypse",
+        "onslaught",
+        "the-destroyer",
+        "nico-minoru",
+        "thanos-deathless",
+        "shocker",
+        "ruby-thursday"
+      ],
+      "topPicks": 3
+    },
+    {
+      "node": 40,
+      "buffs": [
+        "Obstinate Charge",
+        "Mix Master (Evade)",
+        "Ticking Soul Bomb"
+      ],
+      "guideDefenders": [
+        "jean-grey",
+        "vision-aarkus",
+        "imperiosa",
+        "ruby-thursday",
+        "rhino",
+        "yelena-belova",
+        "kindred",
+        "enchantress"
+      ],
+      "topPicks": 3
+    },
+    {
+      "node": 41,
+      "buffs": [
+        "Scared Stiff (Root)",
+        "Power Focus 2",
+        "Bubble Shield"
+      ],
+      "guideDefenders": [
+        "onslaught",
+        "bishop",
+        "super-skrull",
+        "quicksilver",
+        "baron-zemo",
+        "yelena-belova",
+        "shocker",
+        "high-evolutionary"
+      ],
+      "topPicks": 3
+    },
+    {
+      "node": 42,
+      "buffs": [
+        "Steady Build Up: Unblockable",
+        "Power Snack (75%)",
+        "One Too Many Hits"
+      ],
+      "guideDefenders": [
+        "jean-grey",
+        "terrax",
+        "vision-aarkus",
+        "ruby-thursday",
+        "ant-man-future",
+        "knull",
+        "dust",
+        "green-goblin-stellar-forged"
+      ],
+      "topPicks": 3
+    },
+    {
+      "node": 43,
+      "buffs": [
+        "Hazard Shift: QO",
+        "Incinerate + Shock",
+        "Empathic Lock",
+        "Aggression: Prowess"
+      ],
+      "guideDefenders": [
+        "onslaught",
+        "beast",
+        "imperiosa",
+        "void",
+        "sentinel",
+        "maestro",
+        "nico-minoru",
+        "shocker"
+      ],
+      "topPicks": 3
+    },
+    {
+      "node": 44,
+      "buffs": [
+        "Hazard Shift: 0",
+        "Poison + Rupture",
+        "Immunity (Stun)"
+      ],
+      "guideDefenders": [
+        "jean-grey",
+        "sersi",
+        "bishop",
+        "yelena-belova",
+        "arnim-zola",
+        "black-tarantula",
+        "magik",
+        "lumatrix"
+      ],
+      "topPicks": 3
+    },
+    {
+      "node": 45,
+      "buffs": [
+        "Hazard Shift: S0",
+        "Coldsnap + Bleed",
+        "Conflictor (75%)",
+        "Immunity (Armor Break)"
+      ],
+      "guideDefenders": [
+        "colossus-age-of-apocalypse",
+        "gorr",
+        "super-skrull",
+        "ruby-thursday",
+        "maestro",
+        "nico-minoru",
+        "man-thing",
+        "dark-phoenix"
+      ],
+      "topPicks": 3
+    },
+    {
+      "node": 46,
+      "buffs": [
+        "Aspect of Evolution",
+        "Enhanced Special 2",
+        "Steady As She Goes",
+        "Enhanced Power Gain 100%"
+      ],
+      "guideDefenders": [
+        "imperiosa",
+        "vision-aarkus",
+        "super-skrull",
+        "high-evolutionary",
+        "carina-tivan",
+        "knull",
+        "doctor-doom",
+        "the-serpent"
+      ],
+      "topPicks": 3
+    },
+    {
+      "node": 47,
+      "buffs": [
+        "Missing in Action (Falter)",
+        "Return Policy (20%)",
+        "False Confidence",
+        "Fight or Flight (Unstoppable)"
+      ],
+      "guideDefenders": [
+        "gorr",
+        "galan",
+        "onslaught",
+        "shocker",
+        "baron-zemo",
+        "thanos-deathless",
+        "ant-man-future",
+        "heimdall"
+      ],
+      "topPicks": 3
+    },
+    {
+      "node": 48,
+      "buffs": [
+        "Safeguard (1%)",
+        "Stunning Reflection: Bleed & Shock",
+        "Bane",
+        "Force of Will"
+      ],
+      "guideDefenders": [
+        "bishop",
+        "terrax",
+        "jean-grey",
+        "photon",
+        "arnim-zola",
+        "yelena-belova",
+        "rhino",
+        "enchantress"
+      ],
+      "topPicks": 3
+    },
+    {
+      "node": 49,
+      "buffs": [
+        "Stunning Reflection: Poison & Incinerate",
+        "Polka Dot Power (Debuff)",
+        "Brute Force"
+      ],
+      "guideDefenders": [
+        "beast",
+        "colossus-age-of-apocalypse",
+        "onslaught",
+        "sandman",
+        "kindred",
+        "maestro",
+        "bullseye",
+        "black-tarantula"
+      ],
+      "topPicks": 3
+    },
+    {
+      "node": 50,
+      "buffs": [
+        "Healthy Disposition (Stun, Slow, Heal Block Immunity)",
+        "Adaptive",
+        "Combat Déjà vu (Intensify)"
+      ],
+      "guideDefenders": [
+        "onslaught",
+        "jean-grey",
+        "colossus-age-of-apocalypse",
+        "beast",
+        "maestro",
+        "ruby-thursday",
+        "nico-minoru",
+        "captain-britain"
+      ],
+      "topPicks": 4
+    }
+  ],
+  "defaultKeyNodes": [
+    48,
+    49,
+    50
+  ]
+}
