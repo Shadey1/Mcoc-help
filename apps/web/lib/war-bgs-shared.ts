@@ -1,6 +1,6 @@
 'use client';
 
-import type { WarBgs, WarPlayerInput } from './war-storage';
+import { cleanPlayerName, type WarBgs, type WarPlayerInput } from './war-storage';
 
 /**
  * Shared BG rosters bridge — the single source of truth both the
@@ -37,6 +37,10 @@ export function readSharedBgs(): SharedBgs | null {
     if (!parsed.bgs || !Array.isArray(parsed.bgs) || parsed.bgs.length !== 3) {
       return null;
     }
+    // Stale "Player N" fallbacks written by an older planner read as blank.
+    parsed.bgs = parsed.bgs.map((bg) =>
+      (Array.isArray(bg) ? bg : []).map((r) => ({ url: r.url ?? '', name: cleanPlayerName(r.name) })),
+    ) as WarBgs;
     return parsed;
   } catch {
     return null;
@@ -46,7 +50,7 @@ export function readSharedBgs(): SharedBgs | null {
 export function writeSharedBgs(bgs: WarBgs): void {
   try {
     const payload: SharedBgs = {
-      bgs,
+      bgs: bgs.map((bg) => bg.map((r) => ({ url: r.url, name: cleanPlayerName(r.name) }))) as WarBgs,
       updatedAt: new Date().toISOString(),
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));

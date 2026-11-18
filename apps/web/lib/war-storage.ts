@@ -12,6 +12,18 @@ export type WarPlayerInput = {
   name: string;
 };
 
+/** "Player 3" is the display fallback, never a name anyone set. Before
+ *  2026-11-18 the planner wrote that fallback back into the shared BG
+ *  store, so stored names can hold it; treat it as blank everywhere. */
+export function isPlaceholderPlayerName(name: string | null | undefined): boolean {
+  return !name || /^player\s*\d+$/i.test(name.trim());
+}
+
+/** The officer-set name, or '' when blank or a stale "Player N" fallback. */
+export function cleanPlayerName(name: string | null | undefined): string {
+  return isPlaceholderPlayerName(name) ? '' : name!.trim();
+}
+
 /**
  * Three alliance war battlegroups. Each BG runs an independent placement
  * pass against the shared pool — a player sits in exactly one BG per war.

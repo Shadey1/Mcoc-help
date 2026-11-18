@@ -20,7 +20,7 @@ import {
 } from '@prestige-tools/engine';
 import type { Season } from '../../../../data/aw/season.schema';
 import { defenderValueMap } from '../../lib/war-planner-data';
-import { loadWarConfig, poolSize, poolToTierMap, type WarAssignments, type WarPool } from '../../lib/war-storage';
+import { cleanPlayerName, isPlaceholderPlayerName, loadWarConfig, poolSize, poolToTierMap, type WarAssignments, type WarPool } from '../../lib/war-storage';
 import { assignedPlayerCount, readSharedAssignments } from '../../lib/war-assignments-shared';
 import { SeasonMap } from './season-map';
 import {
@@ -342,7 +342,7 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
       const rows: RosterRow[] = bgRows.slice(0, 10).map((r) => ({
         input: r.url,
         status: 'loading',
-        playerName: r.name?.trim() || undefined,
+        playerName: cleanPlayerName(r.name) || undefined,
       }));
       while (rows.length < 10) rows.push({ input: '', status: 'idle' });
       setRostersByBg((prev) => ({ ...prev, [bg]: rows }));
@@ -374,7 +374,7 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
       const rows: RosterRow[] = payload.rosterShareIds.map((shareId) => ({
         input: shareId,
         status: 'loading',
-        playerName: payload.playerNames?.[shareId]?.trim() || undefined,
+        playerName: cleanPlayerName(payload.playerNames?.[shareId]) || undefined,
       }));
       while (rows.length < 10) rows.push({ input: '', status: 'idle' });
       setRostersByBg((prev) => ({ ...prev, [bg]: rows }));
@@ -545,8 +545,8 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
           const existing = rows[rowIdx];
           const kept =
             existing && (existing.playerId === undefined || existing.playerId === playerId)
-              ? existing.playerName?.trim()
-              : undefined;
+              ? cleanPlayerName(existing.playerName)
+              : '';
           rows[rowIdx] = {
             input,
             status: 'ok',
@@ -573,7 +573,7 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
   const syncBgToShared = useCallback((bg: BgIndex, rows: RosterRow[]): void => {
     const flat = rows.map((r) => ({
       url: r.input,
-      name: r.playerName ?? '',
+      name: cleanPlayerName(r.playerName),
     }));
     writeSharedBg((bg - 1) as 0 | 1 | 2, flat);
   }, []);
@@ -641,7 +641,7 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
           status: 'loading',
           // Preserve the officer-set name from the BG bundle so we
           // don't clobber it if the individual share's label is blank.
-          playerName: r.name?.trim() || undefined,
+          playerName: cleanPlayerName(r.name) || undefined,
         }));
         while (newRows.length < 10) newRows.push({ input: '', status: 'idle' });
         setRostersByBg((prev) => ({ ...prev, [bg]: newRows }));
@@ -1887,6 +1887,8 @@ function BattlegroupPanel({
   onOverwriteTheirs: () => void;
 }) {
   const okCount = rosterRows.filter((r) => r.status === 'ok').length;
+  const loaded = okCount;
+  const unnamed = rosterRows.filter((r) => r.status === 'ok' && isPlaceholderPlayerName(r.playerName)).length;
   const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'error'>('idle');
   const [bgShareInput, setBgShareInput] = useState('');
 
@@ -2048,7 +2050,15 @@ function BattlegroupPanel({
         )}
       </div>
 
-      <ul className="mt-4 space-y-1.5">
+      {unnamed > 0 && (
+        <p className="mt-4 text-xs border border-[var(--color-marvel-editorial)] rounded px-3 py-2 text-[var(--color-ink-soft)]">
+          <strong>{unnamed} of {loaded} players show as &ldquo;Player N&rdquo;</strong>: their
+          roster shares carry no name. Type each in-game name in the box beside the share.
+          Names stick for this device, plan shares and exports, and the Diversity tab uses
+          them too. Or ask them to re-share with their name in the share dialog.
+        </p>
+      )}
+      <ul className="mt-2 space-y-1.5">
         {rosterRows.map((row, i) => (
           <RosterRowInput
             key={i}

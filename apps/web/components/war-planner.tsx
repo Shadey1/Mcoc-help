@@ -21,6 +21,7 @@ import {
   poolToTierMap,
   saveWarConfig,
   setPoolTier,
+  cleanPlayerName,
   type WarAssignments,
   type WarBgs,
   type WarConfig,
@@ -387,7 +388,7 @@ export function WarPlanner({ champions }: { champions: Champion[] }) {
           };
           players.push({
             id: `bg${bg}-slot-${idx}`,
-            name: row.name.trim() || payload.label || `Player ${idx + 1}`,
+            name: cleanPlayerName(row.name) || payload.label?.trim() || `Player ${idx + 1}`,
             roster: payload.champions,
           });
         } catch (err) {
