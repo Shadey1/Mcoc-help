@@ -143,19 +143,20 @@ export function ShareModal({ open, onClose, roster }: ShareModalProps) {
 
             <div>
               <label htmlFor="share-label" className="block text-sm font-medium mb-1">
-                Label <span className="text-[var(--color-ink-soft)] font-normal">(optional)</span>
+                Your in-game name <span className="text-[var(--color-ink-soft)] font-normal">(optional)</span>
               </label>
               <input
                 id="share-label"
                 type="text"
                 value={label}
                 onChange={(e) => setLabel(e.target.value)}
-                placeholder="e.g. mu3rto / X-Men"
+                placeholder="e.g. mu3rto"
                 maxLength={100}
                 className="w-full px-3 py-2 border border-[var(--color-rule)] rounded bg-[var(--color-paper-soft)] focus:outline-none focus:border-[var(--color-marvel-impact)]"
               />
               <p className="text-xs text-[var(--color-ink-soft)] mt-1">
-                Shows on the shared page so people know whose roster it is. No verification.
+                Shows on the shared page, and your officers see it next to your defenders on
+                the war planner instead of &ldquo;Player 4&rdquo;. No verification.
               </p>
             </div>
 

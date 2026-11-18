@@ -369,9 +369,12 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
         setCandidates(payload.candidates);
         candidatesChosen.current = true;
       }
+      // Names the saving officer set travel with the plan; loadRow keeps
+      // them over the share labels.
       const rows: RosterRow[] = payload.rosterShareIds.map((shareId) => ({
         input: shareId,
         status: 'loading',
+        playerName: payload.playerNames?.[shareId]?.trim() || undefined,
       }));
       while (rows.length < 10) rows.push({ input: '', status: 'idle' });
       setRostersByBg((prev) => ({ ...prev, [bg]: rows }));
@@ -533,14 +536,22 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
       try {
         const payload = await fetchShare(id);
         const playerId = id;
-        const playerName = payload.label?.trim() || `Player ${rowIdx + 1}`;
         setRostersByBg((prev) => {
           const rows = [...prev[bg]!];
+          // A name the officer set (typed here, on the Diversity tab, or
+          // carried in a BG bundle) wins over the share's own label; the
+          // label is what most people leave blank, and "Player N" is the
+          // last resort. Only reuse the row's name for the same share.
+          const existing = rows[rowIdx];
+          const kept =
+            existing && (existing.playerId === undefined || existing.playerId === playerId)
+              ? existing.playerName?.trim()
+              : undefined;
           rows[rowIdx] = {
             input,
             status: 'ok',
             playerId,
-            playerName,
+            playerName: kept || payload.label?.trim() || `Player ${rowIdx + 1}`,
             roster: payload.champions,
           };
           return { ...prev, [bg]: rows };
@@ -572,7 +583,13 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
       const bg = activeBg;
       setRostersByBg((prev) => {
         const rows = [...prev[bg]!];
-        rows[rowIdx] = { ...rows[rowIdx]!, input: next };
+        const current = rows[rowIdx]!;
+        // A different share in this slot is a different person: drop the
+        // old name so the new share's label (or "Player N") applies.
+        const sameShare = !current.playerId || shareIdFrom(next) === current.playerId;
+        rows[rowIdx] = sameShare
+          ? { ...current, input: next }
+          : { input: next, status: 'idle' };
         syncBgToShared(bg, rows);
         return { ...prev, [bg]: rows };
       });

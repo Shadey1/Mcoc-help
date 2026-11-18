@@ -57,10 +57,10 @@ export function WarShareInput({ rows, statuses, onChange }: Props) {
 
   return (
     <div className="space-y-2">
-      <div className="grid grid-cols-[1fr_auto] sm:grid-cols-[2fr_1fr_auto_auto] gap-2 text-xs text-[var(--color-ink-soft)] px-1">
+      <div className="hidden sm:grid grid-cols-[2fr_1fr_auto_auto] gap-2 text-xs text-[var(--color-ink-soft)] px-1">
         <span>Share URL</span>
-        <span className="hidden sm:block">In-game name (optional override)</span>
-        <span className="hidden sm:block text-center">Status</span>
+        <span>In-game name (shows on the map and exports)</span>
+        <span className="text-center">Status</span>
         <span></span>
       </div>
       {padded.map((row, idx) => {
@@ -68,7 +68,7 @@ export function WarShareInput({ rows, statuses, onChange }: Props) {
         return (
           <div
             key={idx}
-            className="grid grid-cols-[1fr_auto] sm:grid-cols-[2fr_1fr_auto_auto] gap-2 items-center"
+            className="grid grid-cols-[1fr_auto_auto] sm:grid-cols-[2fr_1fr_auto_auto] gap-2 items-center"
           >
             <input
               type="text"
@@ -84,9 +84,10 @@ export function WarShareInput({ rows, statuses, onChange }: Props) {
               placeholder={
                 status.state === 'loaded' && status.label
                   ? status.label
-                  : `Player ${idx + 1}`
+                  : `Player ${idx + 1} — in-game name`
               }
-              className="hidden sm:block px-2 py-1.5 text-sm border border-[var(--color-rule)] rounded bg-[var(--color-paper)] focus:outline-none focus:border-[var(--color-marvel-impact)] min-w-0"
+              aria-label={`Player ${idx + 1} in-game name`}
+              className="order-last col-span-3 sm:order-none sm:col-span-1 px-2 py-1.5 text-sm border border-[var(--color-rule)] rounded bg-[var(--color-paper)] focus:outline-none focus:border-[var(--color-marvel-impact)] min-w-0"
             />
             <StatusBadge status={status} />
             <button
