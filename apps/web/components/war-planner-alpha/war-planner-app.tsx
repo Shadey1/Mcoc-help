@@ -113,6 +113,14 @@ const BG_INDICES: readonly BgIndex[] = [1, 2, 3];
 
 const ORDINAL = ['1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th'];
 
+/** The in-game name typed for this share on the Battlegroup rosters page
+ *  (or the Diversity tab): both write the shared BG store. Blank when none. */
+function sharedNameFor(bg: BgIndex, shareId: string): string {
+  const rows = readSharedBgs()?.bgs[bg - 1] ?? [];
+  const row = rows.find((r) => shareIdFrom(r.url) === shareId);
+  return cleanPlayerName(row?.name);
+}
+
 function shareIdFrom(input: string): string | null {
   const trimmed = input.trim();
   if (!trimmed) return null;
@@ -551,7 +559,11 @@ export function WarPlannerApp({ champions, season }: WarPlannerAppProps) {
             input,
             status: 'ok',
             playerId,
-            playerName: kept || payload.label?.trim() || `Player ${rowIdx + 1}`,
+            playerName:
+              kept ||
+              sharedNameFor(bg, playerId) ||
+              payload.label?.trim() ||
+              `Player ${rowIdx + 1}`,
             roster: payload.champions,
           };
           return { ...prev, [bg]: rows };
@@ -2053,9 +2065,10 @@ function BattlegroupPanel({
       {unnamed > 0 && (
         <p className="mt-4 text-xs border border-[var(--color-marvel-editorial)] rounded px-3 py-2 text-[var(--color-ink-soft)]">
           <strong>{unnamed} of {loaded} players show as &ldquo;Player N&rdquo;</strong>: their
-          roster shares carry no name. Type each in-game name in the box beside the share.
-          Names stick for this device, plan shares and exports, and the Diversity tab uses
-          them too. Or ask them to re-share with their name in the share dialog.
+          roster shares carry no name. Type each in-game name in the box beside the share,
+          or on the Battlegroup rosters page. Names stick for this device, plan shares and
+          exports, and the Diversity tab uses them too. Or ask them to re-share with their
+          name in the share dialog.
         </p>
       )}
       <ul className="mt-2 space-y-1.5">
