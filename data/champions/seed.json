@@ -6546,7 +6546,7 @@
       "id": "medusa",
       "name": "Medusa",
       "class": "Cosmic",
-      "ascendable": false,
+      "ascendable": true,
       "prestige": {
         "rank5": {
           "0": 28390,
@@ -6579,8 +6579,8 @@
       "tags": [],
       "_meta": {
         "bhrSource": "mcoc.gg per-rank curves (R4 + R5 11-anchor, refreshed 2026-06-03)",
-        "ascendableSource": "non-ascendable per mcoc.gg",
-        "lastVerified": "2026-06-03"
+        "ascendableSource": "Kabam Quantum Tangle event: 7-Star Ascended Medusa debuts 2026-11-20 (Kabam Nov 2 stream; mcocguideblog Nov 2026 calendar). MCOCHUB badge not yet shown on 2026-11-20; hand-set.",
+        "lastVerified": "2026-11-20"
       },
       "portraitUrl": "https://static.wikia.nocookie.net/marvel-contestofchampions/images/2/2e/Medusa_portrait.png/revision/latest/scale-to-width-down/200?cb=20230824235527",
       "sevenStarReleased": true,
